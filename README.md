@@ -50,24 +50,24 @@ Excel is a flutter and dart library for creating and updating excel-sheets for X
      * }
      */
 
-    // if [MySheetName] does not exist then it will be automatically created.
+    // if sheet with name = 'MySheetName' does not exist then it will be automatically created.
     var sheet = 'MySheetName';
 
       decoder
-    ..updateCell(sheet, CellIndex.indexByString("A1"), "A1",
+    ..updateCell(sheet, CellIndex.indexByString("A1"), "Here value of A1",
         fontColorHex: "#1AFF1A", verticalAlign: VerticalAlign.Top)
     ..updateCell(
-        sheet, CellIndex.indexByColumnRow(columnIndex: 2, rowIndex: 0), "C1",
+        sheet, CellIndex.indexByColumnRow(columnIndex: 2, rowIndex: 0), "Here value of C1",
         wrap: TextWrapping.WrapText)
-    ..updateCell(sheet, CellIndex.indexByString("A2"), "A2",
+    ..updateCell(sheet, CellIndex.indexByString("A2"), "Here value of A2",
         backgroundColorHex: "#1AFF1A")
-    ..updateCell(sheet, CellIndex.indexByString("E5"), "E5",
+    ..updateCell(sheet, CellIndex.indexByString("E5"), "Here value of E5",
         horizontalAlign: HorizontalAlign.Right);
     
     // Save the file
 
     decoder.encode().then((onValue) {
-      File(join("/Users/kawal/Desktop/excel.xlsx"))
+      File(join("Path_to_destination/excel.xlsx"))
         ..createSync(recursive: true)
         ..writeAsBytesSync(onValue);
     });

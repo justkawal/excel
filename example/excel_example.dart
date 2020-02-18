@@ -3,7 +3,7 @@ import 'package:path/path.dart';
 import 'package:excel/excel.dart';
 
 void main(List<String> args) {
-  var file = "/Users/kawal/Desktop/excel.xlsx";
+  var file = "Path_to_input/excel.xlsx";
   var bytes = File(file).readAsBytesSync();
   var decoder = Excel.decodeBytes(bytes, update: true);
 
@@ -30,13 +30,13 @@ void main(List<String> args) {
         horizontalAlign: HorizontalAlign.Right);
 
   decoder.encode().then((onValue) {
-    File(join("/Users/kawal/Desktop/excel_out.xlsx"))
+    File(join("Path_to_destination/excel_out.xlsx"))
       ..createSync(recursive: true)
       ..writeAsBytesSync(onValue);
   }).then((_) {
     print(
         "\n****************************** Printing Updated Data Directly by reading output file ******************************\n");
-    var fileOut = "/Users/kawal/Desktop/excel_out.xlsx";
+    var fileOut = "Path_to_destination/excel_out.xlsx";
     var bytesOut = File(fileOut).readAsBytesSync();
     var decoderOut = Excel.decodeBytes(bytesOut, update: true);
 

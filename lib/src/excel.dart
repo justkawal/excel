@@ -27,7 +27,7 @@ List cellCoordsFromCellId(String cellId) {
 
 Excel _newExcel(Archive archive, bool update) {
   // Lookup at file format
-  var format = null;
+  var format;
 
   // Try OpenDocument format
   var mimetype = archive.findFile('mimetype');
@@ -242,7 +242,7 @@ abstract class Excel {
           if (!_cellXfs.containsKey(color.toString())) {
             _cellXfs[color.toString()] = [
               '${_fontColorHex.indexOf(color[0].toString()) + 1}',
-              '${_patternFill.indexOf(color[1]) == -1 ? 0 : _patternFill.indexOf(color[1]) + 2}',
+              '${_patternFill.contains(color[1]) == -1 ? 0 : _patternFill.indexOf(color[1]) + 2}',
               color[2],
               color[3],
               color[4]
@@ -497,13 +497,13 @@ abstract class Excel {
     }
 
     var table = _tables[sheet];
-    if (rowIndex >= _tables[sheet]._maxRows)
+    if (rowIndex >= _tables[sheet]._maxRows){
       while (_tables[sheet]._maxRows <= rowIndex) {
         table.rows.insert(_tables[sheet]._maxRows,
             List.generate(table._maxCols, (_) => null));
         table._maxRows++;
       }
-    else {
+    }else {
       table.rows.insert(rowIndex, List.generate(table._maxCols, (_) => null));
       table._maxRows++;
     }
@@ -701,7 +701,7 @@ abstract class Excel {
     var colIndex = _getCellNumber(node) - 1;
     if (colIndex > row.length) {
       var repeat = colIndex - row.length;
-      for (var index = 0; index < repeat; index++) row.add(null);
+      for (var index = 0; index < repeat; index++) {row.add(null);}
     }
 
     if (node.children.isEmpty) {
