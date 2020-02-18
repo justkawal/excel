@@ -497,13 +497,13 @@ abstract class Excel {
     }
 
     var table = _tables[sheet];
-    if (rowIndex >= _tables[sheet]._maxRows){
+    if (rowIndex >= _tables[sheet]._maxRows) {
       while (_tables[sheet]._maxRows <= rowIndex) {
         table.rows.insert(_tables[sheet]._maxRows,
             List.generate(table._maxCols, (_) => null));
         table._maxRows++;
       }
-    }else {
+    } else {
       table.rows.insert(rowIndex, List.generate(table._maxCols, (_) => null));
       table._maxRows++;
     }
@@ -701,7 +701,9 @@ abstract class Excel {
     var colIndex = _getCellNumber(node) - 1;
     if (colIndex > row.length) {
       var repeat = colIndex - row.length;
-      for (var index = 0; index < repeat; index++) {row.add(null);}
+      for (var index = 0; index < repeat; index++) {
+        row.add(null);
+      }
     }
 
     if (node.children.isEmpty) {
