@@ -242,7 +242,7 @@ abstract class Excel {
           if (!_cellXfs.containsKey(color.toString())) {
             _cellXfs[color.toString()] = [
               '${_fontColorHex.indexOf(color[0].toString()) + 1}',
-              '${_patternFill.contains(color[1]) == -1 ? 0 : _patternFill.indexOf(color[1]) + 2}',
+              '${_patternFill.contains(color[1]) ? _patternFill.indexOf(color[1]) + 2 : 0}',
               color[2],
               color[3],
               color[4]
