@@ -84,11 +84,11 @@ abstract class Excel {
   Map<String, ArchiveFile> _archiveFiles;
   Map<String, String> _worksheetTargets;
   Map<String, Map<String, List<String>>> _colorMap;
-  Map<String, List<String>> _cellXfs;
+  Map<String, List<String>> _cellXfs, _spannedItems;
+  Map<String, DataTable> _tables;
+  Map<String, List<_Span>> _spanMap;
   List<String> _sharedStrings, _rId, _fontColorHex, _patternFill;
   List<int> _numFormats;
-
-  Map<String, DataTable> _tables;
   String _stylesTarget, _sharedStringsTarget;
 
   /// Media type
@@ -555,6 +555,169 @@ abstract class Excel {
     }
   }
 
+  void merge(String sheet, CellIndex start, CellIndex end) {
+    int startColumn, startRow, endColumn, endRow;
+    String value;
+
+    if (start._columnIndex == end._columnIndex &&
+        start._rowIndex == end._rowIndex) {
+      return;
+    }
+    List<int> gotPosition = _getSpanPosition(sheet, start, end);
+    startColumn = gotPosition[0];
+    startRow = gotPosition[1];
+    endColumn = gotPosition[2];
+    endRow = gotPosition[3];
+
+    for (int j = startRow; j <= endRow; j++) {
+      for (int k = startColumn; k <= endColumn; k++) {
+        if (j == _tables[sheet].maxRows || k == _tables[sheet].maxCols) {
+          updateCell(sheet,
+              CellIndex.indexByColumnRow(columnIndex: k, rowIndex: j), null);
+        } else {
+          if (_tables[sheet].rows[j][k] != null) {
+            value = _tables[sheet].rows[j][k];
+            _tables[sheet].rows[j][k] = null;
+          }
+        }
+      }
+    }
+
+    String sp =
+        '${numericToLetters(startColumn + 1)}${startRow + 1}:${numericToLetters(endColumn + 1)}${endRow + 1}';
+    if (_spannedItems.containsKey(sheet) && _spannedItems[sheet].contains(sp)) {
+      _spannedItems[sheet].add(sp);
+    } else {
+      _spannedItems[sheet] = [sp];
+    }
+
+    _tables[sheet].rows[startRow][startColumn] = value;
+    List<_Span> l;
+    _Span s = _Span();
+    s._start = [startRow, startColumn];
+    s._end = [endRow, endColumn];
+    if (_spanMap.containsKey(sheet) && _spanMap[sheet].length > 0) {
+      l = List<_Span>.of(_spanMap[sheet]);
+    }
+    l.add(s);
+    _spanMap[sheet] = l;
+  }
+
+  List<int> _getSpanPosition(String sheet, CellIndex start, CellIndex end) {
+    int startColumn,
+        startRow,
+        endColumn,
+        endRow,
+        tempStartColumn,
+        tempStartRow,
+        tempEndRow,
+        tempEndColumn;
+    bool isNewSpan = false;
+
+    tempStartColumn = startColumn = start._columnIndex;
+    tempStartRow = startRow = start._rowIndex;
+    tempEndColumn = endColumn = end._columnIndex;
+    tempEndRow = endRow = end._rowIndex;
+
+    if (startColumn == endColumn) {
+      if (endRow < startRow) {
+        startRow = tempEndRow;
+        endRow = tempStartRow;
+      }
+    } else if (startRow == endRow) {
+      if (endColumn < startColumn) {
+        endColumn = tempStartColumn;
+        startColumn = tempEndColumn;
+      }
+    } else {
+      if (startRow < endRow) {
+        if (endColumn < startColumn) {
+          endColumn = tempStartColumn;
+          startColumn = tempEndColumn;
+        }
+      } else {
+        startRow = tempEndRow;
+        endRow = tempStartRow;
+        if (endColumn < startColumn) {
+          endColumn = tempStartColumn;
+          startColumn = tempEndColumn;
+        }
+      }
+    }
+
+    if (_spanMap.containsKey(sheet) && _spanMap[sheet].length > 0) {
+      List<_Span> data = _spanMap[sheet];
+      for (int i = 0; i < data.length; i++) {
+        _Span spanObj = data[i];
+
+        if ((startRow >= spanObj.rowSpanStart &&
+            startRow <= spanObj.rowSpanEnd &&
+            ((startColumn < spanObj.columnSpanStart &&
+                    endColumn >= spanObj.columnSpanStart) ||
+                (startColumn <= spanObj.columnSpanEnd &&
+                    endColumn > spanObj.columnSpanEnd)))) {
+          startRow = spanObj.rowSpanStart;
+          isNewSpan = true;
+        }
+
+        if ((startColumn >= spanObj.columnSpanStart &&
+            startColumn <= spanObj.columnSpanEnd &&
+            ((startRow < spanObj.rowSpanStart &&
+                    endRow >= spanObj.rowSpanStart) ||
+                (startRow <= spanObj.rowSpanEnd &&
+                    endRow > spanObj.rowSpanEnd)))) {
+          startColumn = spanObj.columnSpanStart;
+          isNewSpan = true;
+        }
+
+        if ((endRow >= spanObj.rowSpanStart &&
+            endRow <= spanObj.rowSpanEnd &&
+            ((startColumn < spanObj.columnSpanStart &&
+                    endColumn >= spanObj.columnSpanStart) ||
+                (startColumn <= spanObj.columnSpanEnd &&
+                    endColumn > spanObj.columnSpanEnd)))) {
+          endRow = spanObj.rowSpanEnd;
+          isNewSpan = true;
+        }
+
+        if ((endColumn >= spanObj.columnSpanStart &&
+            endColumn <= spanObj.columnSpanEnd &&
+            ((startRow < spanObj.rowSpanStart &&
+                    endRow >= spanObj.rowSpanStart) ||
+                (startRow <= spanObj.rowSpanEnd &&
+                    endRow > spanObj.rowSpanEnd)))) {
+          endColumn = spanObj.columnSpanEnd;
+          isNewSpan = true;
+        }
+        if (isNewSpan) {
+          String sp =
+              '${numericToLetters(spanObj.columnSpanStart + 1)}${spanObj.rowSpanStart + 1}:${numericToLetters(spanObj.columnSpanEnd + 1)}${spanObj.rowSpanEnd + 1}';
+          if (_spannedItems.containsKey(sheet) &&
+              _spannedItems[sheet].contains(sp)) {
+            _spannedItems[sheet].remove(sp);
+          }
+          _spanMap[sheet][i] = null;
+        }
+      }
+      _spanMap[sheet].removeWhere((value) => value == null);
+    }
+    return [startColumn, startRow, endColumn, endRow];
+  }
+
+  /// returns an Iterable of cell-Id for the previously merged cell-Ids.
+  Iterable<String> getSpannedItems(String sheet) {
+    return _spannedItems.containsKey(sheet)
+        ? List<String>.of(_spannedItems[sheet])
+        : [];
+  }
+
+  /// unMerge(sheet, "A1:D6") will unmerge the cells from A1 to D6.
+  ///
+  /// A1 or the starting cell-Id will get the value of the merged cells.
+  void _unMerge(String sheet, String cellId) {
+    if (cellId.contains(RegExp(r':'))) {}
+  }
+
   /// Encode bytes after update
   Future<List> encode() async {
     if (!_update) {
@@ -950,4 +1113,22 @@ class DataTable {
 
   /// Get max cols
   int get maxCols => _maxCols;
+}
+
+class _Span {
+  _Span();
+
+  List<int> _start = List<int>();
+
+  List<int> _end = List<int>();
+
+  int get rowSpanStart => _start[0];
+
+  int get rowSpanEnd => _end[0];
+
+  int get columnSpanStart => _start[1];
+
+  int get columnSpanEnd => _end[1];
+
+  List<int> get end => _end;
 }

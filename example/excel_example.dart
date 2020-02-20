@@ -5,13 +5,13 @@ import 'package:excel/excel.dart';
 void main(List<String> args) {
   var file = "Path_to_input/excel.xlsx";
   var bytes = File(file).readAsBytesSync();
-  var decoder = Excel.decodeBytes(bytes, update: true);
+  var updater = Excel.decodeBytes(bytes, update: true);
 
-  for (var table in decoder.tables.keys) {
+  for (var table in updater.tables.keys) {
     print(table);
-    print(decoder.tables[table].maxCols);
-    print(decoder.tables[table].maxRows);
-    for (var row in decoder.tables[table].rows) {
+    print(updater.tables[table].maxCols);
+    print(updater.tables[table].maxRows);
+    for (var row in updater.tables[table].rows) {
       print("$row");
     }
   }
@@ -19,7 +19,7 @@ void main(List<String> args) {
   // if sheet with name = Sheet24 does not exist then it will be automatically created.
   var sheet = 'Sheet24';
 
-  decoder
+  updater
     ..updateCell(sheet, CellIndex.indexByString("A1"), "Here Value of A1",
         fontColorHex: "#1AFF1A", verticalAlign: VerticalAlign.Top)
     ..updateCell(sheet, CellIndex.indexByColumnRow(columnIndex: 2, rowIndex: 0),
@@ -29,7 +29,7 @@ void main(List<String> args) {
     ..updateCell(sheet, CellIndex.indexByString("E5"), "Here Value of E5",
         horizontalAlign: HorizontalAlign.Right);
 
-  decoder.encode().then((onValue) {
+  updater.encode().then((onValue) {
     File(join("Path_to_destination/excel_out.xlsx"))
       ..createSync(recursive: true)
       ..writeAsBytesSync(onValue);
@@ -38,13 +38,13 @@ void main(List<String> args) {
         "\n****************************** Printing Updated Data Directly by reading output file ******************************\n");
     var fileOut = "Path_to_destination/excel_out.xlsx";
     var bytesOut = File(fileOut).readAsBytesSync();
-    var decoderOut = Excel.decodeBytes(bytesOut, update: true);
+    var updaterOut = Excel.decodeBytes(bytesOut, update: true);
 
-    for (var table in decoderOut.tables.keys) {
+    for (var table in updaterOut.tables.keys) {
       print(table);
-      print(decoderOut.tables[table].maxCols);
-      print(decoderOut.tables[table].maxRows);
-      for (var row in decoderOut.tables[table].rows) {
+      print(updaterOut.tables[table].maxCols);
+      print(updaterOut.tables[table].maxRows);
+      for (var row in updaterOut.tables[table].rows) {
         print("$row");
       }
     }
