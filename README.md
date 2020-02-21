@@ -82,3 +82,7 @@ On-going implementation for future:
 ## Important:
 For XLSX format, this implementation only supports native Excel format for date, time and boolean type conversion.
 In other words, custom format for date, time, boolean aren't supported and also the files exported from LibreOffice as well.
+## Support on Beerpay
+Hey dude! Help me out for a couple of :beers:!
+
+[![Beerpay](https://beerpay.io/kawal7415/excel/badge.svg?style=beer-square)](https://beerpay.io/kawal7415/excel)  [![Beerpay](https://beerpay.io/kawal7415/excel/make-wish.svg?style=flat-square)](https://beerpay.io/kawal7415/excel?focus=wish)
