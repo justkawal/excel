@@ -56,6 +56,7 @@ class XlsxDecoder extends Excel {
     this._archive = archive;
     this._update = update;
     _colorChanges = false;
+    _mergeChanges = false;
     if (_update) {
       _archiveFiles = <String, ArchiveFile>{};
       _sheets = <String, XmlNode>{};
@@ -69,6 +70,7 @@ class XlsxDecoder extends Excel {
     _tables = Map<String, DataTable>();
     _sharedStrings = List<String>();
     _rId = List<String>();
+    _mergeChangeLookup = List<String>();
     _numFormats = List<int>();
     _putContentXml();
     _parseRelations();
@@ -241,4 +243,6 @@ class XlsxDecoder extends Excel {
       _parseTable(node);
     });
   }
+
+  _parseMergedString(String sheet) {}
 }

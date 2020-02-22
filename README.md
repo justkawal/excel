@@ -1,3 +1,9 @@
+## Support on Beerpay
+Hey dude! Help me out for a couple of :beers:!
+
+[![Beerpay](https://beerpay.io/kawal7415/excel/badge.svg?style=beer-square)](https://beerpay.io/kawal7415/excel)  [![Beerpay](https://beerpay.io/kawal7415/excel/make-wish.svg?style=flat-square)](https://beerpay.io/kawal7415/excel?focus=wish)
+[![GitHub issues](https://img.shields.io/github/issues/kawal7415/excel)](https://github.com/kawal7415/excel/issues)[![GitHub forks](https://img.shields.io/github/forks/kawal7415/excel)](https://github.com/kawal7415/excel/network)[![GitHub stars](https://img.shields.io/github/stars/kawal7415/excel)](https://github.com/kawal7415/excel/stargazers)
+
 # Excel
 
 Excel is a flutter and dart library for creating and updating excel-sheets for XLSX files.

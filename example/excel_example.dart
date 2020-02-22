@@ -18,6 +18,9 @@ void main(List<String> args) {
 
   // if sheet with name = Sheet24 does not exist then it will be automatically created.
   var sheet = 'Sheet24';
+  /* List<String> spannedCells = updater.getSpannedItems(sheet);
+  var cellToUnMerge = "A1:A2";
+  updater.unMerge(sheet, spannedCells.indexOf(cellToUnMerge)); */
 
   updater
     ..updateCell(sheet, CellIndex.indexByString("A1"), "Here Value of A1",
