@@ -571,7 +571,7 @@ abstract class Excel {
         endColumn = end._columnIndex,
         endRow = end._rowIndex;
     String value,
-        checkSpan = _convertToCell(startColumn, startRow, endColumn, endRow);
+        checkSpan = _convertToCellId(startColumn, startRow, endColumn, endRow);
 
     if ((_spannedItems != null &&
             _spannedItems.containsKey(sheet) &&
@@ -611,16 +611,16 @@ abstract class Excel {
       }
     }
 
-    String sp = _convertToCell(startColumn, startRow, endColumn, endRow);
-    List<String> ls;
+    String sp = _convertToCellId(startColumn, startRow, endColumn, endRow);
+    List<String> ls = List<String>();
 
-    if (_spannedItems != null &&
-        _spannedItems.containsKey(sheet) &&
-        _spannedItems[sheet].contains(sp)) {
+    if (_spannedItems != null && _spannedItems.containsKey(sheet)) {
       ls = List<String>.of(_spannedItems[sheet]);
     }
+    if (!ls.contains(sp)) {
+      ls.add(sp);
+    }
 
-    ls.add(sp);
     _spannedItems[sheet] = ls;
 
     _tables[sheet].rows[startRow][startColumn] = value;
@@ -642,29 +642,21 @@ abstract class Excel {
   }
 
   List<int> _getSpanPosition(String sheet, CellIndex start, CellIndex end) {
-    int startColumn,
-        startRow,
-        endColumn,
-        endRow,
-        tempStartColumn,
-        tempStartRow,
-        tempEndColumn,
-        tempEndRow;
-
+    int startColumn, startRow, endColumn, endRow;
     bool isNewSpan = false, remove = false;
 
-    tempStartColumn = startColumn = start._columnIndex;
-    tempStartRow = startRow = start._rowIndex;
-    tempEndColumn = endColumn = end._columnIndex;
-    tempEndRow = endRow = end._rowIndex;
+    startColumn = start._columnIndex;
+    startRow = start._rowIndex;
+    endColumn = end._columnIndex;
+    endRow = end._rowIndex;
 
     if (startRow > endRow) {
-      startRow = tempEndRow;
-      endRow = tempStartRow;
+      startRow = end._rowIndex;
+      endRow = start._rowIndex;
     }
     if (endColumn < startColumn) {
-      endColumn = tempStartColumn;
-      startColumn = tempEndColumn;
+      endColumn = start._columnIndex;
+      startColumn = end._columnIndex;
     }
 
     if (_spanMap != null &&
@@ -674,59 +666,78 @@ abstract class Excel {
       for (int i = 0; i < data.length; i++) {
         _Span spanObj = data[i];
 
-        if ((startColumn < spanObj.columnSpanStart &&
-                endColumn >= spanObj.columnSpanStart) ||
-            (startColumn <= spanObj.columnSpanEnd &&
-                endColumn > spanObj.columnSpanEnd)) {
-          /**
-           * For checking start Row reversing condition
+        if (startRow <= spanObj.rowSpanStart &&
+            startColumn <= spanObj.columnSpanStart &&
+            endRow >= spanObj.rowSpanEnd &&
+            endColumn >= spanObj.columnSpanEnd) {
+          isNewSpan = true;
+        } else {
+          if ((startColumn < spanObj.columnSpanStart &&
+                  endColumn >= spanObj.columnSpanStart) ||
+              (startColumn <= spanObj.columnSpanEnd &&
+                  endColumn > spanObj.columnSpanEnd)) {
+            /**
+           * Start Row stretching to up condition
            */
-          if (startRow >= spanObj.rowSpanStart &&
-              startRow <= spanObj.rowSpanEnd) {
-            startRow = spanObj.rowSpanStart;
-            isNewSpan = true;
-          }
-          /**
-           * For checking end Row reversing condition
+            if (startRow >= spanObj.rowSpanStart &&
+                startRow <= spanObj.rowSpanEnd) {
+              startRow = spanObj.rowSpanStart;
+              isNewSpan = true;
+            }
+            /**
+           * End Row stretching to bottom condition
            */
-          if (endRow >= spanObj.rowSpanStart && endRow <= spanObj.rowSpanEnd) {
-            endRow = spanObj.rowSpanEnd;
-            isNewSpan = true;
-          }
-          /**
-           * For checking that if the endColumns is inside then we have to expand it to the end
-           */
-          if (endColumn < spanObj.columnSpanEnd) {
-            endColumn = spanObj.columnSpanEnd;
-          }
-          /**
-           * 
-           */
-        }
+            if (endRow >= spanObj.rowSpanStart &&
+                endRow <= spanObj.rowSpanEnd) {
+              endRow = spanObj.rowSpanEnd;
+              isNewSpan = true;
+            }
 
-        if ((startRow < spanObj.rowSpanStart &&
-                endRow >= spanObj.rowSpanStart) ||
-            (startRow <= spanObj.rowSpanEnd && endRow > spanObj.rowSpanEnd)) {
-          /**
-           * For checking start Column reversing condition
-           */
-          if (startColumn >= spanObj.columnSpanStart &&
-              startColumn <= spanObj.columnSpanEnd) {
-            startColumn = spanObj.columnSpanStart;
-            isNewSpan = true;
+            if (startColumn >= spanObj.columnSpanStart) {
+              startColumn = spanObj.columnSpanStart;
+              isNewSpan = true;
+            }
+
+            if (endColumn <= spanObj.columnSpanEnd) {
+              endColumn = spanObj.columnSpanEnd;
+              isNewSpan = true;
+            }
           }
-          /**
-           * For Checking end Column reversing condition
+
+          if ((startRow < spanObj.rowSpanStart &&
+                  endRow >= spanObj.rowSpanStart) ||
+              (startRow <= spanObj.rowSpanEnd && endRow > spanObj.rowSpanEnd)) {
+            /**
+           * Start Column stretching to left condition
            */
-          if (endColumn >= spanObj.columnSpanStart &&
-              endColumn <= spanObj.columnSpanEnd) {
-            endColumn = spanObj.columnSpanEnd;
-            isNewSpan = true;
+            if (startColumn >= spanObj.columnSpanStart &&
+                startColumn <= spanObj.columnSpanEnd) {
+              startColumn = spanObj.columnSpanStart;
+              isNewSpan = true;
+            }
+            /**
+           * End Column stretching to right condition
+           */
+            if (endColumn >= spanObj.columnSpanStart &&
+                endColumn <= spanObj.columnSpanEnd) {
+              endColumn = spanObj.columnSpanEnd;
+              isNewSpan = true;
+            }
+
+            if (startRow >= spanObj.rowSpanStart) {
+              startRow = spanObj.rowSpanStart;
+              isNewSpan = true;
+            }
+
+            if (endRow <= spanObj.rowSpanEnd) {
+              endRow = spanObj.rowSpanEnd;
+              isNewSpan = true;
+            }
           }
         }
 
         if (isNewSpan) {
-          String sp = _convertToCell(spanObj.columnSpanStart,
+          String sp = _convertToCellId(spanObj.columnSpanStart,
               spanObj.rowSpanStart, spanObj.columnSpanEnd, spanObj.rowSpanEnd);
           if (_spannedItems != null &&
               _spannedItems.containsKey(sheet) &&
@@ -744,7 +755,7 @@ abstract class Excel {
     return [startColumn, startRow, endColumn, endRow];
   }
 
-  String _convertToCell(
+  String _convertToCellId(
       int startColumn, int startRow, int endColumn, int endRow) {
     return '${numericToLetters(startColumn + 1)}${startRow + 1}:${numericToLetters(endColumn + 1)}${endRow + 1}';
   }
