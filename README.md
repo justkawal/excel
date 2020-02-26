@@ -1,7 +1,7 @@
-## Support on Beerpay
-Hey dude! Help me out for a couple of :beers:!
+## Donate
 
-[![Beerpay](https://beerpay.io/kawal7415/excel/badge.svg?style=beer-square)](https://beerpay.io/kawal7415/excel)  [![Beerpay](https://beerpay.io/kawal7415/excel/make-wish.svg?style=flat-square)](https://beerpay.io/kawal7415/excel?focus=wish)
+Please consider donating if you think excel is helpful to you or that my work is valuable. I will be happy if you can help me buy a [cup of coffee. Paypal Me on](https://www.paypal.me/kawal7415)
+
 [![GitHub issues](https://img.shields.io/github/issues/kawal7415/excel)](https://github.com/kawal7415/excel/issues)[![GitHub forks](https://img.shields.io/github/forks/kawal7415/excel)](https://github.com/kawal7415/excel/network)[![GitHub stars](https://img.shields.io/github/stars/kawal7415/excel)](https://github.com/kawal7415/excel/stargazers)
 
 # Excel
@@ -88,7 +88,7 @@ On-going implementation for future:
 ## Important:
 For XLSX format, this implementation only supports native Excel format for date, time and boolean type conversion.
 In other words, custom format for date, time, boolean aren't supported and also the files exported from LibreOffice as well.
-## Support on Beerpay
-Hey dude! Help me out for a couple of :beers:!
 
-[![Beerpay](https://beerpay.io/kawal7415/excel/badge.svg?style=beer-square)](https://beerpay.io/kawal7415/excel)  [![Beerpay](https://beerpay.io/kawal7415/excel/make-wish.svg?style=flat-square)](https://beerpay.io/kawal7415/excel?focus=wish)
+## Paypal Me
+
+[Paypal Me](https://www.paypal.me/kawal7415)
