@@ -77,6 +77,7 @@ class XlsxDecoder extends Excel {
     _parseStyles(_stylesTarget);
     _parseSharedStrings();
     _parseContent();
+    _parseMergedCells();
   }
 
   String dumpXmlContent([String sheet]) {
@@ -244,5 +245,39 @@ class XlsxDecoder extends Excel {
     });
   }
 
-  _parseMergedString(String sheet) {}
+  _parseMergedCells() {
+    _sheets.forEach((key, node) {
+      XmlElement elementNode = node;
+      elementNode.findAllElements('mergeCell').forEach((elemen) {
+        String ref = elemen.getAttribute('ref');
+        List itemList = List<String>(), mapList = List<String>();
+        if (ref != null && ref.contains(':') && ref.split(':').length == 2) {
+          if (_spannedItems != null &&
+              _spannedItems.containsKey(key) &&
+              _spannedItems[key].length > 0) {
+            itemList = List<String>.from(_spannedItems[key]);
+          }
+          itemList.add(ref);
+          _spannedItems[key] = itemList;
+
+          String startCell = ref.split(':')[0], endCell = ref.split(':')[1];
+          List<int> startIndex = cellCoordsFromCellId(startCell),
+              endIndex = cellCoordsFromCellId(endCell);
+
+          _Span spanObj = _Span();
+          spanObj._start = [startIndex[0], startIndex[1]];
+          spanObj._end = [endIndex[0], endIndex[1]];
+
+          if (_spanMap != null &&
+              _spanMap.containsKey(key) &&
+              _spanMap[key].length > 0) {
+            mapList = List<String>.from(_spanMap[key]);
+          }
+
+          mapList.add(spanObj);
+          _spanMap[key] = mapList;
+        }
+      });
+    });
+  }
 }

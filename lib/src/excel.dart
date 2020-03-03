@@ -2,7 +2,6 @@ part of excel;
 
 const String _relationships =
     'http://schemas.openxmlformats.org/officeDocument/2006/relationships';
-
 const _spreasheetXlsx = 'xlsx';
 
 enum TextWrapping { WrapText, Clip }
@@ -23,9 +22,9 @@ List cellCoordsFromCellId(String cellId) {
   var numericsPart = cellId.substring(lettersPart.length);
 
   return [
-    lettersToNumeric(lettersPart) - 1,
-    int.parse(numericsPart) - 1
-  ]; // [y , x]
+    int.parse(numericsPart) - 1,
+    lettersToNumeric(lettersPart) - 1
+  ]; // [x , y]
 }
 
 Excel _newExcel(Archive archive, bool update) {
@@ -127,7 +126,7 @@ abstract class Excel {
     return _newExcel(archive, update);
   }
 
-  void _damagedExcel() {
+  _damagedExcel() {
     throw ArgumentError('\nDamaged Excel file\n');
   }
 
@@ -135,7 +134,7 @@ abstract class Excel {
   /// Add the sheet details in the workbook.xml. as well as in the workbook.xml.rels
   /// Then add the sheet physically into the [_xmlFiles] so as to get it into the archieve.
   /// Also add it into the [_sheets] and [_tables] map so as to allow the editing.
-  void _createSheet(String newSheet) {
+  _createSheet(String newSheet) {
     List<XmlNode> list =
         _xmlFiles['xl/workbook.xml'].findAllElements('sheets').first.children;
     if (list.isEmpty) {
@@ -411,7 +410,7 @@ abstract class Excel {
     });
   }
 
-  _startSettingMerge() {
+  _setMerge() {
     _spanMap.keys.forEach((s) {
       if (_tables.containsKey(s)) {
         _tables.keys.forEach((sheet) {
@@ -440,7 +439,7 @@ abstract class Excel {
   /// Dump XML content (for debug purpose)
   String dumpXmlContent([String sheet]);
 
-  void _checkSheetArguments(String sheet) {
+  _checkSheetArguments(String sheet) {
     if (!_update) {
       throw ArgumentError("'update' should be set to 'true' on constructor");
     }
@@ -449,20 +448,20 @@ abstract class Excel {
     }
   }
 
-  void _checkSheetMaxCol(String sheet, int colIndex) {
+  _checkSheetMaxCol(String sheet, int colIndex) {
     if ((_tables[sheet]._maxCols >= 16384) || colIndex >= 16384) {
       throw ArgumentError('Reached Max (16384) or (XFD) columns value.');
     }
   }
 
-  void _checkSheetMaxRow(String sheet, int rowIndex) {
+  _checkSheetMaxRow(String sheet, int rowIndex) {
     if ((_tables[sheet]._maxRows >= 1048576) || rowIndex >= 1048576) {
       throw ArgumentError('Reached Max (1048576) rows value.');
     }
   }
 
   /// Insert column in [sheet] at position [columnIndex]
-  void insertColumn(String sheet, int columnIndex) {
+  insertColumn(String sheet, int columnIndex) {
     _checkSheetArguments(sheet);
     _checkSheetMaxCol(sheet, columnIndex);
     if (columnIndex < 0) {
@@ -512,13 +511,14 @@ abstract class Excel {
       Map newColorMap = Map<String, List<String>>();
       _colorMap[sheet].forEach((key, value) {
         List l = cellCoordsFromCellId(key);
-        int startColumn = l[0], startRow = l[1];
+        int startRow = l[0], startColumn = l[1];
         String newKey = key;
         if (startColumn >= columnIndex) {
           newKey = _convertToSingleCell(startColumn + 1, startRow);
         }
         newColorMap[newKey] = value;
       });
+      _colorMap[sheet] = Map.from(newColorMap);
     }
 
     var table = _tables[sheet];
@@ -539,16 +539,83 @@ abstract class Excel {
   }
 
   /// Remove column in [sheet] at position [columnIndex]
-  void removeColumn(String sheet, int columnIndex) {
-    if (!_update) {
-      throw ArgumentError("'update' should be set to 'true' on constructor");
-    }
+  removeColumn(String sheet, int columnIndex) {
     if (!_sheets.containsKey(sheet) || columnIndex >= _tables[sheet]._maxCols) {
       return;
     }
-
+    if (!_update) {
+      throw ArgumentError("'update' should be set to 'true' on constructor");
+    }
     if (columnIndex < 0) {
       throw RangeError.range(columnIndex, 0, _tables[sheet]._maxCols - 1);
+    }
+
+    List<String> deleteSingleColColor = List<String>();
+
+    bool updateSpanCell = false;
+
+    if (_spanMap != null && _spanMap.containsKey(sheet)) {
+      for (int i = 0; i < _spanMap[sheet].length; i++) {
+        _Span spanObj = _spanMap[sheet][i];
+        int startColumn = spanObj.columnSpanStart,
+            startRow = spanObj.rowSpanStart,
+            endColumn = spanObj.columnSpanEnd,
+            endRow = spanObj.rowSpanEnd;
+
+        String clr = _convertToSingleCell(startColumn, startRow);
+
+        if (columnIndex <= endColumn) {
+          _Span newSpanObj = _Span();
+          if (columnIndex < startColumn) {
+            startColumn -= 1;
+          }
+          endColumn -= 1;
+          if (startColumn >= endColumn) {
+            if (!deleteSingleColColor.contains(clr))
+              deleteSingleColColor.add(clr);
+            _spanMap[sheet][i] = null;
+          } else {
+            newSpanObj._start = [startRow, startColumn];
+            newSpanObj._end = [endRow, endColumn];
+            _spanMap[sheet][i] = newSpanObj;
+          }
+          updateSpanCell = true;
+          _mergeChanges = true;
+        }
+      }
+    }
+
+    if (updateSpanCell) {
+      _cleanUpSpanMap(sheet);
+      if (!_mergeChangeLookup.contains(sheet)) {
+        _mergeChangeLookup.add(sheet);
+      }
+      List spannedItems = List<String>();
+      for (int i = 0; i < _spanMap[sheet].length; i++) {
+        _Span spanObj = _spanMap[sheet][i];
+        String rc = _convertToCellId(spanObj.columnSpanStart,
+            spanObj.rowSpanStart, spanObj.columnSpanEnd, spanObj.rowSpanEnd);
+        if (!spannedItems.contains(rc)) {
+          spannedItems.add(rc);
+        }
+      }
+      _spannedItems[sheet] = spannedItems;
+    }
+
+    if (_colorMap != null && _colorMap.containsKey(sheet)) {
+      Map newColorMap = Map<String, List<String>>();
+      _colorMap[sheet].forEach((key, value) {
+        List l = cellCoordsFromCellId(key);
+        int startRow = l[0], startColumn = l[1];
+        String newKey = key;
+        if (!deleteSingleColColor.contains(key)) {
+          if (startColumn > columnIndex) {
+            newKey = _convertToSingleCell(startColumn - 1, startRow);
+          }
+          newColorMap[newKey] = value;
+        }
+      });
+      _colorMap[sheet] = Map.from(newColorMap);
     }
 
     var table = _tables[sheet];
@@ -557,7 +624,7 @@ abstract class Excel {
   }
 
   /// Insert row in [sheet] at position [rowIndex]
-  void insertRow(String sheet, int rowIndex) {
+  insertRow(String sheet, int rowIndex) {
     _checkSheetArguments(sheet);
     _checkSheetMaxRow(sheet, rowIndex);
 
@@ -608,13 +675,14 @@ abstract class Excel {
       Map newColorMap = Map<String, List<String>>();
       _colorMap[sheet].forEach((key, value) {
         List l = cellCoordsFromCellId(key);
-        int startColumn = l[0], startRow = l[1];
+        int startRow = l[0], startColumn = l[1];
         String newKey = key;
         if (startRow >= rowIndex) {
           newKey = _convertToSingleCell(startColumn, startRow + 1);
         }
         newColorMap[newKey] = value;
       });
+      _colorMap[sheet] = Map.from(newColorMap);
     }
 
     var table = _tables[sheet];
@@ -631,15 +699,82 @@ abstract class Excel {
   }
 
   /// Remove row in [sheet] at position [rowIndex]
-  void removeRow(String sheet, int rowIndex) {
-    if (!_update) {
-      throw ArgumentError("'update' should be set to 'true' on constructor");
-    }
+  removeRow(String sheet, int rowIndex) {
     if (!_sheets.containsKey(sheet) || rowIndex >= _tables[sheet]._maxRows) {
       return;
     }
+    if (!_update) {
+      throw ArgumentError("'update' should be set to 'true' on constructor");
+    }
     if (rowIndex < 0) {
       throw RangeError.range(rowIndex, 0, _tables[sheet]._maxRows - 1);
+    }
+    List<String> deleteSingleRowColor = List<String>();
+
+    bool updateSpanCell = false;
+
+    if (_spanMap != null && _spanMap.containsKey(sheet)) {
+      for (int i = 0; i < _spanMap[sheet].length; i++) {
+        _Span spanObj = _spanMap[sheet][i];
+        int startColumn = spanObj.columnSpanStart,
+            startRow = spanObj.rowSpanStart,
+            endColumn = spanObj.columnSpanEnd,
+            endRow = spanObj.rowSpanEnd;
+
+        String clr = _convertToSingleCell(startColumn, startRow);
+
+        if (rowIndex <= endRow) {
+          _Span newSpanObj = _Span();
+          if (rowIndex < startRow) {
+            startRow -= 1;
+          }
+          endRow -= 1;
+          if (startRow >= endRow) {
+            if (!deleteSingleRowColor.contains(clr))
+              deleteSingleRowColor.add(clr);
+            _spanMap[sheet][i] = null;
+          } else {
+            newSpanObj._start = [startRow, startColumn];
+            newSpanObj._end = [endRow, endColumn];
+            _spanMap[sheet][i] = newSpanObj;
+          }
+          updateSpanCell = true;
+          _mergeChanges = true;
+        }
+      }
+    }
+
+    if (updateSpanCell) {
+      _cleanUpSpanMap(sheet);
+      if (!_mergeChangeLookup.contains(sheet)) {
+        _mergeChangeLookup.add(sheet);
+      }
+      List spannedItems = List<String>();
+      for (int i = 0; i < _spanMap[sheet].length; i++) {
+        _Span spanObj = _spanMap[sheet][i];
+        String rc = _convertToCellId(spanObj.columnSpanStart,
+            spanObj.rowSpanStart, spanObj.columnSpanEnd, spanObj.rowSpanEnd);
+        if (!spannedItems.contains(rc)) {
+          spannedItems.add(rc);
+        }
+      }
+      _spannedItems[sheet] = spannedItems;
+    }
+
+    if (_colorMap != null && _colorMap.containsKey(sheet)) {
+      Map newColorMap = Map<String, List<String>>();
+      _colorMap[sheet].forEach((key, value) {
+        List l = cellCoordsFromCellId(key);
+        int startRow = l[0], startColumn = l[1];
+        String newKey = key;
+        if (!deleteSingleRowColor.contains(key)) {
+          if (startRow > rowIndex) {
+            newKey = _convertToSingleCell(startColumn, startRow - 1);
+          }
+          newColorMap[newKey] = value;
+        }
+      });
+      _colorMap[sheet] = Map.from(newColorMap);
     }
 
     var table = _tables[sheet];
@@ -647,12 +782,12 @@ abstract class Excel {
     table._maxRows--;
   }
 
-  /// Update the contents from sheet of the cell index: [columnIndex , rowIndex] where indexes start from 0
+  /// Update the contents from sheet of the cell index: [columnIndex , rowIndex] where indexing starts from 0
   ///
-  /// --or-- by index: "A1"
+  /// --or-- by Cell-Id: "A1"
   ///
-  /// Font color can be updates by [fontColorHex] and background color by [backgroundColorHex].
-  void updateCell(String sheet, CellIndex cellIndex, dynamic value,
+  /// Font / Background color can be updated by providing Hex String to [fontColorHex] / [backgroundColorHex] as required.
+  updateCell(String sheet, CellIndex cellIndex, dynamic value,
       {String fontColorHex,
       String backgroundColorHex,
       TextWrapping wrap,
@@ -676,7 +811,7 @@ abstract class Excel {
     }
   }
 
-  void _merge(String sheet, CellIndex start, CellIndex end,
+  void merge(String sheet, CellIndex start, CellIndex end,
       {dynamic customValue}) {
     int startColumn = start._columnIndex,
         startRow = start._rowIndex,
@@ -878,7 +1013,7 @@ abstract class Excel {
         }
       }
       if (remove) {
-        _spanMap[sheet].removeWhere((value) => value == null);
+        _cleanUpSpanMap(sheet);
       }
     }
     return [startColumn, startRow, endColumn, endRow];
@@ -893,14 +1028,14 @@ abstract class Excel {
   }
 
   /// returns an Iterable of cell-Id for the previously merged cell-Ids.
-  Iterable<String> _getSpannedItems(String sheet) {
+  Iterable<String> getSpannedItems(String sheet) {
     return _spannedItems != null && _spannedItems.containsKey(sheet)
         ? List<String>.of(_spannedItems[sheet])
         : [];
   }
 
   /**
-   * Usage of this function is to unMerge the merged cells.
+   * Usage this function to unMerge the merged cells.
    * 
    *        var sheet = 'DesiredSheet';
    *        List<String> spannedCells = updater.getSpannedItems(sheet);
@@ -908,7 +1043,7 @@ abstract class Excel {
    *        updater.unMerge(sheet, spannedCells.indexOf(cellToUnMerge));
    * 
    */
-  void _unMerge(String sheet, int position) {
+  unMerge(String sheet, int position) {
     if (_spannedItems != null &&
         _spannedItems.containsKey(sheet) &&
         position >= 0 &&
@@ -919,13 +1054,13 @@ abstract class Excel {
         bool remove;
         List<int> start, end;
         start =
-            cellCoordsFromCellId(lis[0]); // [y,x] => [startColumn, startRow]
-        end = cellCoordsFromCellId(lis[1]); // [y,x] => [endColumn, endRow]
+            cellCoordsFromCellId(lis[0]); // [x,y] => [startRow, startColumn]
+        end = cellCoordsFromCellId(lis[1]); // [x,y] => [endRow, endColumn]
         for (int i = 0; i < _spanMap[sheet].length; i++) {
           _Span spanObject = _spanMap[sheet][i];
 
-          if (spanObject.columnSpanStart == start[0] &&
-              spanObject.rowSpanStart == start[1] &&
+          if (spanObject.columnSpanStart == start[1] &&
+              spanObject.rowSpanStart == start[0] &&
               spanObject.columnSpanEnd == end[0] &&
               spanObject.rowSpanEnd == end[1]) {
             _spanMap[sheet][i] = null;
@@ -933,7 +1068,7 @@ abstract class Excel {
           }
         }
         if (remove) {
-          _spanMap[sheet].removeWhere((value) => value == null);
+          _cleanUpSpanMap(sheet);
         }
       }
       _spannedItems[sheet].remove(cellId);
@@ -941,6 +1076,11 @@ abstract class Excel {
         _mergeChangeLookup.add(sheet);
       }
     }
+  }
+
+  // Cleaning up the null values from the Span Map
+  _cleanUpSpanMap(String sheet) {
+    _spanMap[sheet].removeWhere((value) => value == null);
   }
 
   /// Encode bytes after update
@@ -954,11 +1094,12 @@ abstract class Excel {
       _setPatternFillSheetColor();
       _setCellXfs();
     }
-    if (_mergeChanges) {
-      _startSettingMerge();
-    }
     _setSharedStrings();
     _updateSheetElements();
+    
+    if (_mergeChanges) {
+      _setMerge();
+    }
 
     for (var xmlFile in _xmlFiles.keys) {
       var xml = _xmlFiles[xmlFile].toString();
@@ -1184,7 +1325,7 @@ abstract class Excel {
   }
 
   int _getCellNumber(XmlElement cell) {
-    return cellCoordsFromCellId(cell.getAttribute('r'))[0];
+    return cellCoordsFromCellId(cell.getAttribute('r'))[1];
   }
 
   int _getRowNumber(XmlElement row) {
@@ -1311,8 +1452,8 @@ class CellIndex {
 
   static CellIndex indexByString(String cellIndex) {
     return CellIndex.indexByColumnRow(
-        columnIndex: cellCoordsFromCellId(cellIndex)[0],
-        rowIndex: cellCoordsFromCellId(cellIndex)[1]);
+        rowIndex: cellCoordsFromCellId(cellIndex)[0],
+        columnIndex: cellCoordsFromCellId(cellIndex)[1]);
   }
 
   final int rowIndex;

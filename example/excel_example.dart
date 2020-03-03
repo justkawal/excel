@@ -51,23 +51,6 @@ void main(List<String> args) {
   });
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-  /* List<String> spannedCells = updater.getSpannedItems(sheet);
+/* List<String> spannedCells = updater.getSpannedItems(sheet);
   var cellToUnMerge = "A1:A2";
   updater.unMerge(sheet, spannedCells.indexOf(cellToUnMerge)); */
