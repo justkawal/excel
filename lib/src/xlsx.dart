@@ -71,6 +71,8 @@ class XlsxDecoder extends Excel {
     _sharedStrings = List<String>();
     _rId = List<String>();
     _mergeChangeLookup = List<String>();
+    _spannedItems = Map<String, List<String>>();
+    _spanMap = Map<String, List<_Span>>();
     _numFormats = List<int>();
     _putContentXml();
     _parseRelations();
@@ -249,17 +251,13 @@ class XlsxDecoder extends Excel {
           itemList = List<String>(),
           mapList = List<String>();
 
-      if (spannedCells.containsKey(key) &&
-          spannedCells[key].length > 0) {
+      if (spannedCells.containsKey(key) && spannedCells[key].length > 0) {
         spanList = List<String>.from(spannedCells[key]);
       }
-      if (_spannedItems.containsKey(key) &&
-          _spannedItems[key].length > 0) {
+      if (_spannedItems.containsKey(key) && _spannedItems[key].length > 0) {
         itemList = List<String>.from(_spannedItems[key]);
       }
-
-      if (_spanMap.containsKey(key) &&
-          _spanMap[key].length > 0) {
+      if (_spanMap.containsKey(key) && _spanMap[key].length > 0) {
         mapList = List<String>.from(_spanMap[key]);
       }
 
@@ -288,8 +286,22 @@ class XlsxDecoder extends Excel {
             mapList.add(spanObj);
           }
           _spanMap[key] = mapList;
+          _addToMergeLookUp(key);
         }
       });
+    });
+
+    // Empty the elements of the tables if they are in merging area except the very first left cellId.
+    _tables.keys.forEach((name) {
+      if (spannedCells.containsKey(name)) {
+        for (int row = 0; row < _tables[name].maxRows; row++) {
+          for (int col = 0; col < _tables[name].maxCols; col++) {
+            if (!(spannedCells[name].contains(getCellId(col, row)))) {
+              _tables[name].rows[row][col] = null;
+            }
+          }
+        }
+      }
     });
   }
 }

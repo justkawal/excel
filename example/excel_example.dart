@@ -27,7 +27,18 @@ void main(List<String> args) {
     ..updateCell(sheet, CellIndex.indexByString("A2"), "Here Value of A2",
         backgroundColorHex: "#1AFF1A", wrap: TextWrapping.Clip)
     ..updateCell(sheet, CellIndex.indexByString("E5"), " E5",
-        horizontalAlign: HorizontalAlign.Right, wrap: TextWrapping.Clip);
+        horizontalAlign: HorizontalAlign.Right, wrap: TextWrapping.Clip)
+    ..merge(
+        sheet, CellIndex.indexByString("A1"), CellIndex.indexByString("B11"));
+
+  for (var table in updater.tables.keys) {
+    print(table);
+    print(updater.tables[table].maxCols);
+    print(updater.tables[table].maxRows);
+    for (var row in updater.tables[table].rows) {
+      print("$row");
+    }
+  }
 
   updater.encode().then((onValue) {
     File(join("/Users/kawal/Desktop/excel_out.xlsx"))
