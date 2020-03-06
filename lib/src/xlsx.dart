@@ -134,27 +134,23 @@ class XlsxDecoder extends Excel {
         throw ArgumentError(
             "InAppropriate Color provided. Use colorHex as example of: #FF0000");
       }
-
       hex = value.replaceAll(RegExp(r'#'), 'FF').toString();
     } else {
       hex = value.toString();
     }
 
+    List l = List<String>(5);
+    Map temp = Map<String, List<String>>();
     if (_colorMap.containsKey(sheet)) {
       if (_colorMap[sheet].containsKey(rowCol)) {
         _colorMap[sheet][rowCol][index] = hex;
       } else {
-        List l = List<String>(5);
-        l[index] = hex;
-        Map temp = Map<String, List<String>>.from(_colorMap[sheet]);
-        temp[rowCol] = l;
-        _colorMap[sheet] = Map<String, List<String>>.from(temp);
+        temp = Map<String, List<String>>.from(_colorMap[sheet]);
       }
-    } else {
-      List l = List<String>(5);
-      l[index] = hex;
-      _colorMap[sheet] = Map<String, List<String>>.from({rowCol: l});
     }
+    l[index] = hex;
+    temp[rowCol] = l;
+    _colorMap[sheet] = Map<String, List<String>>.from(temp);
 
     if (!_colorChanges) {
       _colorChanges = true;
@@ -246,35 +242,51 @@ class XlsxDecoder extends Excel {
   }
 
   _parseMergedCells() {
+    Map spannedCells = Map<String, List<String>>();
     _sheets.forEach((key, node) {
       XmlElement elementNode = node;
+      List spanList = List<String>(),
+          itemList = List<String>(),
+          mapList = List<String>();
+
+      if (spannedCells.containsKey(key) &&
+          spannedCells[key].length > 0) {
+        spanList = List<String>.from(spannedCells[key]);
+      }
+      if (_spannedItems.containsKey(key) &&
+          _spannedItems[key].length > 0) {
+        itemList = List<String>.from(_spannedItems[key]);
+      }
+
+      if (_spanMap.containsKey(key) &&
+          _spanMap[key].length > 0) {
+        mapList = List<String>.from(_spanMap[key]);
+      }
+
       elementNode.findAllElements('mergeCell').forEach((elemen) {
         String ref = elemen.getAttribute('ref');
-        List itemList = List<String>(), mapList = List<String>();
         if (ref != null && ref.contains(':') && ref.split(':').length == 2) {
-          if (_spannedItems != null &&
-              _spannedItems.containsKey(key) &&
-              _spannedItems[key].length > 0) {
-            itemList = List<String>.from(_spannedItems[key]);
+          if (!itemList.contains(ref)) {
+            itemList.add(ref);
           }
-          itemList.add(ref);
           _spannedItems[key] = itemList;
 
           String startCell = ref.split(':')[0], endCell = ref.split(':')[1];
+
+          if (!spanList.contains(startCell)) {
+            spanList.add(startCell);
+          }
+          spannedCells[key] = spanList;
+
           List<int> startIndex = cellCoordsFromCellId(startCell),
               endIndex = cellCoordsFromCellId(endCell);
-
           _Span spanObj = _Span();
           spanObj._start = [startIndex[0], startIndex[1]];
           spanObj._end = [endIndex[0], endIndex[1]];
 
-          if (_spanMap != null &&
-              _spanMap.containsKey(key) &&
-              _spanMap[key].length > 0) {
-            mapList = List<String>.from(_spanMap[key]);
+          if (!mapList.contains(spanObj)) {
+            mapList.add(spanObj);
           }
-
-          mapList.add(spanObj);
           _spanMap[key] = mapList;
         }
       });

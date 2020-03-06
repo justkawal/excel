@@ -410,12 +410,76 @@ abstract class Excel {
     });
   }
 
+  _selfCorrectSpanMap() {
+    _spanMap.keys.forEach((key) {
+      for (int i; i < _spanMap[key].length; i++) {
+        if (_spanMap[key][i] != null) {
+          _Span checkerPos = _spanMap[key][i];
+          int startRow = checkerPos.rowSpanStart,
+              startColumn = checkerPos.columnSpanStart,
+              endRow = checkerPos.rowSpanEnd,
+              endColumn = checkerPos.columnSpanEnd;
+
+          for (int j = i + 1; j < _spanMap[key].length; j++) {
+            if (_spanMap[key][j] != null) {
+              _Span spanObj = _spanMap[key][j];
+
+              Map gotMap = _isLocationChangeRequired(
+                  key, startColumn, startRow, endColumn, endRow, spanObj);
+              List<int> gotPosition = gotMap["gotPosition"],
+                  changeValue = gotMap["changeValue"][0];
+              bool isNewSpan = false;
+
+              if (startRow == spanObj.rowSpanStart &&
+                  startColumn == spanObj.columnSpanStart &&
+                  endRow == spanObj.rowSpanEnd &&
+                  endColumn == spanObj.columnSpanEnd) {
+                _spanMap[key][j] = null;
+              } else if (startRow <= spanObj.rowSpanStart &&
+                  startColumn <= spanObj.columnSpanStart &&
+                  endRow >= spanObj.rowSpanEnd &&
+                  endColumn >= spanObj.columnSpanEnd) {
+                isNewSpan = true;
+              } else if ((changeValue == 1) && startColumn != gotPosition[0] ||
+                  startRow != gotPosition[1] ||
+                  endColumn != gotPosition[2] ||
+                  endRow != gotPosition[3]) {
+                isNewSpan = true;
+                startColumn = gotPosition[0];
+                startRow = gotPosition[1];
+                endColumn = gotPosition[2];
+                endRow = gotPosition[3];
+              }
+              if (isNewSpan) {
+                spanObj._start = [startRow, startColumn];
+                spanObj._end = [endRow, endColumn];
+                _spanMap[key][j] = spanObj;
+              }
+            }
+          }
+        }
+      }
+    });
+
+    _spanMap.forEach((key, spanObjList) {
+      List spanList = List<String>();
+      spanObjList.forEach((value) {
+        _Span spanObj = value;
+        String rC = _getSpanCellId(spanObj.columnSpanStart,
+            spanObj.rowSpanStart, spanObj.columnSpanEnd, spanObj.rowSpanEnd);
+        if (!spanList.contains(rC)) {
+          spanList.add(rC);
+        }
+      });
+      _spannedItems[key] = spanList;
+    });
+  }
+
   _setMerge() {
-    _spanMap.keys.forEach((s) {
-      if (_tables.containsKey(s)) {
-        _tables.keys.forEach((sheet) {
-          //_tables[sheet]
-        });
+    _selfCorrectSpanMap();
+    _mergeChangeLookup.forEach((s) {
+      if (_tables.containsKey(s) && _spanMap.containsKey(s)) {
+        _spanMap[s].forEach((value) {});
       }
     });
   }
@@ -471,6 +535,7 @@ abstract class Excel {
     bool updateSpanCell = false;
 
     if (_spanMap != null && _spanMap.containsKey(sheet)) {
+      List spannedItems = List<String>();
       for (int i = 0; i < _spanMap[sheet].length; i++) {
         _Span spanObj = _spanMap[sheet][i];
         int startColumn = spanObj.columnSpanStart,
@@ -481,30 +546,27 @@ abstract class Excel {
         if (columnIndex <= endColumn) {
           _Span newSpanObj = _Span();
           if (columnIndex <= startColumn) {
-            newSpanObj._start = [startRow, startColumn + 1];
+            startColumn += 1;
           }
-          newSpanObj._end = [endRow, endColumn + 1];
+          endColumn += 1;
+          newSpanObj._start = [startRow, startColumn];
+          newSpanObj._end = [endRow, endColumn];
           _spanMap[sheet][i] = newSpanObj;
           updateSpanCell = true;
           _mergeChanges = true;
         }
+        String rc = _getSpanCellId(startColumn, startRow, endColumn, endRow);
+        if (!spannedItems.contains(rc)) {
+          spannedItems.add(rc);
+        }
       }
+      _spannedItems[sheet] = spannedItems;
     }
 
     if (updateSpanCell) {
       if (!_mergeChangeLookup.contains(sheet)) {
         _mergeChangeLookup.add(sheet);
       }
-      List spannedItems = List<String>();
-      for (int i = 0; i < _spanMap[sheet].length; i++) {
-        _Span spanObj = _spanMap[sheet][i];
-        String rc = _convertToCellId(spanObj.columnSpanStart,
-            spanObj.rowSpanStart, spanObj.columnSpanEnd, spanObj.rowSpanEnd);
-        if (!spannedItems.contains(rc)) {
-          spannedItems.add(rc);
-        }
-      }
-      _spannedItems[sheet] = spannedItems;
     }
 
     if (_colorMap != null && _colorMap.containsKey(sheet)) {
@@ -514,7 +576,7 @@ abstract class Excel {
         int startRow = l[0], startColumn = l[1];
         String newKey = key;
         if (startColumn >= columnIndex) {
-          newKey = _convertToSingleCell(startColumn + 1, startRow);
+          newKey = getCellId(startColumn + 1, startRow);
         }
         newColorMap[newKey] = value;
       });
@@ -555,6 +617,7 @@ abstract class Excel {
     bool updateSpanCell = false;
 
     if (_spanMap != null && _spanMap.containsKey(sheet)) {
+      List spannedItems = List<String>();
       for (int i = 0; i < _spanMap[sheet].length; i++) {
         _Span spanObj = _spanMap[sheet][i];
         int startColumn = spanObj.columnSpanStart,
@@ -562,7 +625,7 @@ abstract class Excel {
             endColumn = spanObj.columnSpanEnd,
             endRow = spanObj.rowSpanEnd;
 
-        String clr = _convertToSingleCell(startColumn, startRow);
+        String clr = getCellId(startColumn, startRow);
 
         if (columnIndex <= endColumn) {
           _Span newSpanObj = _Span();
@@ -582,24 +645,22 @@ abstract class Excel {
           updateSpanCell = true;
           _mergeChanges = true;
         }
-      }
-    }
 
-    if (updateSpanCell) {
-      _cleanUpSpanMap(sheet);
-      if (!_mergeChangeLookup.contains(sheet)) {
-        _mergeChangeLookup.add(sheet);
-      }
-      List spannedItems = List<String>();
-      for (int i = 0; i < _spanMap[sheet].length; i++) {
-        _Span spanObj = _spanMap[sheet][i];
-        String rc = _convertToCellId(spanObj.columnSpanStart,
-            spanObj.rowSpanStart, spanObj.columnSpanEnd, spanObj.rowSpanEnd);
-        if (!spannedItems.contains(rc)) {
-          spannedItems.add(rc);
+        if (_spanMap[sheet][i] != null) {
+          String rc = _getSpanCellId(startColumn, startRow, endColumn, endRow);
+          if (!spannedItems.contains(rc)) {
+            spannedItems.add(rc);
+          }
         }
       }
       _spannedItems[sheet] = spannedItems;
+    }
+    _cleanUpSpanMap(sheet);
+
+    if (updateSpanCell) {
+      if (!_mergeChangeLookup.contains(sheet)) {
+        _mergeChangeLookup.add(sheet);
+      }
     }
 
     if (_colorMap != null && _colorMap.containsKey(sheet)) {
@@ -610,7 +671,7 @@ abstract class Excel {
         String newKey = key;
         if (!deleteSingleColColor.contains(key)) {
           if (startColumn > columnIndex) {
-            newKey = _convertToSingleCell(startColumn - 1, startRow);
+            newKey = getCellId(startColumn - 1, startRow);
           }
           newColorMap[newKey] = value;
         }
@@ -635,6 +696,7 @@ abstract class Excel {
     bool updateSpanCell = false;
 
     if (_spanMap != null && _spanMap.containsKey(sheet)) {
+      List spannedItems = List<String>();
       for (int i = 0; i < _spanMap[sheet].length; i++) {
         _Span spanObj = _spanMap[sheet][i];
         int startColumn = spanObj.columnSpanStart,
@@ -645,30 +707,27 @@ abstract class Excel {
         if (rowIndex <= endRow) {
           _Span newSpanObj = _Span();
           if (rowIndex <= startRow) {
-            newSpanObj._start = [startRow + 1, startColumn];
+            startRow += 1;
           }
-          newSpanObj._end = [endRow + 1, endColumn];
+          endRow += 1;
+          newSpanObj._start = [startRow, startColumn];
+          newSpanObj._end = [endRow, endColumn];
           _spanMap[sheet][i] = newSpanObj;
           updateSpanCell = true;
           _mergeChanges = true;
         }
+        String rc = _getSpanCellId(startColumn, startRow, endColumn, endRow);
+        if (!spannedItems.contains(rc)) {
+          spannedItems.add(rc);
+        }
       }
+      _spannedItems[sheet] = spannedItems;
     }
 
     if (updateSpanCell) {
       if (!_mergeChangeLookup.contains(sheet)) {
         _mergeChangeLookup.add(sheet);
       }
-      List spannedItems = List<String>();
-      for (int i = 0; i < _spanMap[sheet].length; i++) {
-        _Span spanObj = _spanMap[sheet][i];
-        String rc = _convertToCellId(spanObj.columnSpanStart,
-            spanObj.rowSpanStart, spanObj.columnSpanEnd, spanObj.rowSpanEnd);
-        if (!spannedItems.contains(rc)) {
-          spannedItems.add(rc);
-        }
-      }
-      _spannedItems[sheet] = spannedItems;
     }
 
     if (_colorMap != null && _colorMap.containsKey(sheet)) {
@@ -678,7 +737,7 @@ abstract class Excel {
         int startRow = l[0], startColumn = l[1];
         String newKey = key;
         if (startRow >= rowIndex) {
-          newKey = _convertToSingleCell(startColumn, startRow + 1);
+          newKey = getCellId(startColumn, startRow + 1);
         }
         newColorMap[newKey] = value;
       });
@@ -714,6 +773,7 @@ abstract class Excel {
     bool updateSpanCell = false;
 
     if (_spanMap != null && _spanMap.containsKey(sheet)) {
+      List spannedItems = List<String>();
       for (int i = 0; i < _spanMap[sheet].length; i++) {
         _Span spanObj = _spanMap[sheet][i];
         int startColumn = spanObj.columnSpanStart,
@@ -721,7 +781,7 @@ abstract class Excel {
             endColumn = spanObj.columnSpanEnd,
             endRow = spanObj.rowSpanEnd;
 
-        String clr = _convertToSingleCell(startColumn, startRow);
+        String clr = getCellId(startColumn, startRow);
 
         if (rowIndex <= endRow) {
           _Span newSpanObj = _Span();
@@ -741,24 +801,22 @@ abstract class Excel {
           updateSpanCell = true;
           _mergeChanges = true;
         }
-      }
-    }
-
-    if (updateSpanCell) {
-      _cleanUpSpanMap(sheet);
-      if (!_mergeChangeLookup.contains(sheet)) {
-        _mergeChangeLookup.add(sheet);
-      }
-      List spannedItems = List<String>();
-      for (int i = 0; i < _spanMap[sheet].length; i++) {
-        _Span spanObj = _spanMap[sheet][i];
-        String rc = _convertToCellId(spanObj.columnSpanStart,
-            spanObj.rowSpanStart, spanObj.columnSpanEnd, spanObj.rowSpanEnd);
-        if (!spannedItems.contains(rc)) {
-          spannedItems.add(rc);
+        if (_spanMap[sheet][i] != null) {
+          String rc = _getSpanCellId(startColumn, startRow, endColumn, endRow);
+          if (!spannedItems.contains(rc)) {
+            spannedItems.add(rc);
+          }
         }
       }
       _spannedItems[sheet] = spannedItems;
+    }
+
+    _cleanUpSpanMap(sheet);
+
+    if (updateSpanCell) {
+      if (!_mergeChangeLookup.contains(sheet)) {
+        _mergeChangeLookup.add(sheet);
+      }
     }
 
     if (_colorMap != null && _colorMap.containsKey(sheet)) {
@@ -769,7 +827,7 @@ abstract class Excel {
         String newKey = key;
         if (!deleteSingleRowColor.contains(key)) {
           if (startRow > rowIndex) {
-            newKey = _convertToSingleCell(startColumn, startRow - 1);
+            newKey = getCellId(startColumn, startRow - 1);
           }
           newColorMap[newKey] = value;
         }
@@ -818,27 +876,29 @@ abstract class Excel {
         endColumn = end._columnIndex,
         endRow = end._rowIndex;
 
-    if ((startColumn == endColumn && startRow == endRow) ||
-        (startColumn < 0 || startRow < 0 || endColumn < 0 || endRow < 0) ||
-        (_spannedItems != null &&
-            _spannedItems.containsKey(sheet) &&
-            _spannedItems[sheet].contains(
-                _convertToCellId(startColumn, startRow, endColumn, endRow)))) {
-      return;
-    }
-
     _checkSheetMaxCol(sheet, startColumn);
     _checkSheetMaxCol(sheet, endColumn);
     _checkSheetMaxRow(sheet, startRow);
     _checkSheetMaxRow(sheet, endRow);
 
+    if ((startColumn == endColumn && startRow == endRow) ||
+        (startColumn < 0 || startRow < 0 || endColumn < 0 || endRow < 0) ||
+        (_spannedItems != null &&
+            _spannedItems.containsKey(sheet) &&
+            _spannedItems[sheet].contains(
+                _getSpanCellId(startColumn, startRow, endColumn, endRow)))) {
+      return;
+    }
+
     List<int> gotPosition = _getSpanPosition(sheet, start, end);
-    if (startColumn == gotPosition[0] &&
+
+    /// As if there is no interaction with other cells then only the sent index is returned from gotPosition
+    /* if (startColumn == gotPosition[0] &&
         startRow == gotPosition[1] &&
         endColumn == gotPosition[2] &&
         endRow == gotPosition[3]) {
       return;
-    }
+    } */
 
     String value;
     bool gotValue = true;
@@ -871,7 +931,7 @@ abstract class Excel {
       }
     }
 
-    String sp = _convertToCellId(startColumn, startRow, endColumn, endRow);
+    String sp = _getSpanCellId(startColumn, startRow, endColumn, endRow);
     List<String> ls = List<String>();
 
     if (_spannedItems != null && _spannedItems.containsKey(sheet)) {
@@ -901,13 +961,93 @@ abstract class Excel {
     }
   }
 
+  Map<String, List<int>> _isLocationChangeRequired(String sheet,
+      int startColumn, int startRow, int endColumn, int endRow, _Span spanObj) {
+    int changeValue = 0;
+
+    if (startRow <= spanObj.rowSpanStart &&
+        startColumn <= spanObj.columnSpanStart &&
+        endRow >= spanObj.rowSpanEnd &&
+        endColumn >= spanObj.columnSpanEnd) {
+      changeValue = 1;
+    } else {
+      if ((startColumn < spanObj.columnSpanStart &&
+              endColumn >= spanObj.columnSpanStart) ||
+          (startColumn <= spanObj.columnSpanEnd &&
+              endColumn > spanObj.columnSpanEnd)) {
+        /**
+           * Start Row stretching to up position
+           */
+        if (startRow >= spanObj.rowSpanStart &&
+            startRow <= spanObj.rowSpanEnd) {
+          startRow = spanObj.rowSpanStart;
+          changeValue = 1;
+        }
+        /**
+           * End Row stretching to bottom position
+           */
+        if (endRow >= spanObj.rowSpanStart && endRow <= spanObj.rowSpanEnd) {
+          endRow = spanObj.rowSpanEnd;
+          changeValue = 1;
+        }
+
+        if (startColumn >= spanObj.columnSpanStart) {
+          startColumn = spanObj.columnSpanStart;
+          changeValue = 1;
+        }
+
+        if (endColumn <= spanObj.columnSpanEnd) {
+          endColumn = spanObj.columnSpanEnd;
+          changeValue = 1;
+        }
+      }
+
+      if ((startRow < spanObj.rowSpanStart && endRow >= spanObj.rowSpanStart) ||
+          (startRow <= spanObj.rowSpanEnd && endRow > spanObj.rowSpanEnd)) {
+        /**
+           * Start Column stretching to left positionc
+           */
+        if (startColumn >= spanObj.columnSpanStart &&
+            startColumn <= spanObj.columnSpanEnd) {
+          startColumn = spanObj.columnSpanStart;
+          changeValue = 1;
+        }
+        /**
+           * End Column stretching to right position
+           */
+        if (endColumn >= spanObj.columnSpanStart &&
+            endColumn <= spanObj.columnSpanEnd) {
+          endColumn = spanObj.columnSpanEnd;
+          changeValue = 1;
+        }
+
+        if (startRow >= spanObj.rowSpanStart) {
+          startRow = spanObj.rowSpanStart;
+          changeValue = 1;
+        }
+
+        if (endRow <= spanObj.rowSpanEnd) {
+          endRow = spanObj.rowSpanEnd;
+          changeValue = 1;
+        }
+      }
+    }
+
+    return Map<String, List<int>>.from({
+      "gotPosition": List<int>.from([changeValue]),
+      "changeValue": List<int>.from([startColumn, startRow, endColumn, endRow])
+    });
+  }
+
+  /// Helps to find the interaction between the pre-existing span position
+  /// and updates if with new span if there any interaction(Cross-Sectional Spanning) exists.
   List<int> _getSpanPosition(String sheet, CellIndex start, CellIndex end) {
     int startColumn = start._columnIndex,
         startRow = start._rowIndex,
         endColumn = end._columnIndex,
         endRow = end._rowIndex;
 
-    bool isNewSpan = false, remove = false;
+    bool remove = false;
 
     if (startRow > endRow) {
       startRow = end._rowIndex;
@@ -925,83 +1065,17 @@ abstract class Excel {
       for (int i = 0; i < data.length; i++) {
         _Span spanObj = data[i];
 
-        if (startRow == spanObj.rowSpanStart &&
-            startColumn == spanObj.columnSpanStart &&
-            endRow == spanObj.rowSpanEnd &&
-            endColumn == spanObj.columnSpanEnd) {
-          isNewSpan = false;
-        } else if (startRow <= spanObj.rowSpanStart &&
-            startColumn <= spanObj.columnSpanStart &&
-            endRow >= spanObj.rowSpanEnd &&
-            endColumn >= spanObj.columnSpanEnd) {
-          isNewSpan = true;
-        } else {
-          if ((startColumn < spanObj.columnSpanStart &&
-                  endColumn >= spanObj.columnSpanStart) ||
-              (startColumn <= spanObj.columnSpanEnd &&
-                  endColumn > spanObj.columnSpanEnd)) {
-            /**
-           * Start Row stretching to up condition
-           */
-            if (startRow >= spanObj.rowSpanStart &&
-                startRow <= spanObj.rowSpanEnd) {
-              startRow = spanObj.rowSpanStart;
-              isNewSpan = true;
-            }
-            /**
-           * End Row stretching to bottom condition
-           */
-            if (endRow >= spanObj.rowSpanStart &&
-                endRow <= spanObj.rowSpanEnd) {
-              endRow = spanObj.rowSpanEnd;
-              isNewSpan = true;
-            }
+        Map<String, List<int>> gotMap = _isLocationChangeRequired(
+            sheet, startColumn, startRow, endColumn, endRow, spanObj);
+        List<int> gotPosition = gotMap['gotPosition'],
+            changeValue = gotMap['changeValue'];
 
-            if (startColumn >= spanObj.columnSpanStart) {
-              startColumn = spanObj.columnSpanStart;
-              isNewSpan = true;
-            }
-
-            if (endColumn <= spanObj.columnSpanEnd) {
-              endColumn = spanObj.columnSpanEnd;
-              isNewSpan = true;
-            }
-          }
-
-          if ((startRow < spanObj.rowSpanStart &&
-                  endRow >= spanObj.rowSpanStart) ||
-              (startRow <= spanObj.rowSpanEnd && endRow > spanObj.rowSpanEnd)) {
-            /**
-           * Start Column stretching to left condition
-           */
-            if (startColumn >= spanObj.columnSpanStart &&
-                startColumn <= spanObj.columnSpanEnd) {
-              startColumn = spanObj.columnSpanStart;
-              isNewSpan = true;
-            }
-            /**
-           * End Column stretching to right condition
-           */
-            if (endColumn >= spanObj.columnSpanStart &&
-                endColumn <= spanObj.columnSpanEnd) {
-              endColumn = spanObj.columnSpanEnd;
-              isNewSpan = true;
-            }
-
-            if (startRow >= spanObj.rowSpanStart) {
-              startRow = spanObj.rowSpanStart;
-              isNewSpan = true;
-            }
-
-            if (endRow <= spanObj.rowSpanEnd) {
-              endRow = spanObj.rowSpanEnd;
-              isNewSpan = true;
-            }
-          }
-        }
-
-        if (isNewSpan) {
-          String sp = _convertToCellId(spanObj.columnSpanStart,
+        if (changeValue == 1) {
+          startColumn = gotPosition[0];
+          startRow = gotPosition[1];
+          endColumn = gotPosition[2];
+          endRow = gotPosition[3];
+          String sp = _getSpanCellId(spanObj.columnSpanStart,
               spanObj.rowSpanStart, spanObj.columnSpanEnd, spanObj.rowSpanEnd);
           if (_spannedItems != null &&
               _spannedItems.containsKey(sheet) &&
@@ -1019,12 +1093,12 @@ abstract class Excel {
     return [startColumn, startRow, endColumn, endRow];
   }
 
-  String _convertToSingleCell(int colI, int rowI) =>
+  String getCellId(int colI, int rowI) =>
       '${numericToLetters(colI + 1)}${rowI + 1}';
 
-  String _convertToCellId(
+  String _getSpanCellId(
       int startColumn, int startRow, int endColumn, int endRow) {
-    return '${_convertToSingleCell(startColumn, startRow)}:${_convertToSingleCell(endColumn, endRow)}';
+    return '${getCellId(startColumn, startRow)}:${getCellId(endColumn, endRow)}';
   }
 
   /// returns an Iterable of cell-Id for the previously merged cell-Ids.
@@ -1096,7 +1170,7 @@ abstract class Excel {
     }
     _setSharedStrings();
     _updateSheetElements();
-    
+
     if (_mergeChanges) {
       _setMerge();
     }
@@ -1419,7 +1493,7 @@ abstract class Excel {
       _sharedStrings.add(value);
     }
 
-    String rC = _convertToSingleCell(columnIndex, rowIndex);
+    String rC = getCellId(columnIndex, rowIndex);
 
     var attributes = <XmlAttribute>[
       XmlAttribute(XmlName('r'), rC),
@@ -1487,17 +1561,19 @@ class DataTable {
 class _Span {
   _Span();
 
-  List<int> _start = List<int>();
+  List<int> __start = List<int>();
 
-  List<int> _end = List<int>();
+  List<int> __end = List<int>();
 
-  int get rowSpanStart => _start[0];
+  set _start(List<int> val) => _start = val;
 
-  int get rowSpanEnd => _end[0];
+  set _end(List<int> val) => _end = val;
 
-  int get columnSpanStart => _start[1];
+  int get rowSpanStart => __start[0];
 
-  int get columnSpanEnd => _end[1];
+  int get rowSpanEnd => __end[0];
 
-  //List<int> get end => _end;
+  int get columnSpanStart => __start[1];
+
+  int get columnSpanEnd => __end[1];
 }
