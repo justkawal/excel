@@ -93,7 +93,7 @@ abstract class Excel {
       _rId,
       _fontColorHex,
       _patternFill,
-      _mergeChangeLookup;
+      _mergeChangeLook;
   List<int> _numFormats;
   String _stylesTarget, _sharedStringsTarget;
 
@@ -411,8 +411,8 @@ abstract class Excel {
   }
 
   _selfCorrectSpanMap() {
-    _spanMap.keys.forEach((key) {
-      if (_tables.containsKey(key)) {
+    _mergeChangeLook.forEach((key) {
+      if (_spanMap.containsKey(key) && _tables.containsKey(key)) {
         for (int i = 0; i < _spanMap[key].length; i++) {
           if (_spanMap[key][i] != null) {
             _Span checkerPos = _spanMap[key][i];
@@ -448,25 +448,31 @@ abstract class Excel {
       }
     });
 
-    _spanMap.forEach((key, spanObjList) {
-      if (_tables.containsKey(key)) {
-        List spanList = List<String>();
-        spanObjList.forEach((value) {
-          _Span spanObj = value;
-          String rC = _getSpanCellId(spanObj.columnSpanStart,
-              spanObj.rowSpanStart, spanObj.columnSpanEnd, spanObj.rowSpanEnd);
-          if (!spanList.contains(rC)) {
-            spanList.add(rC);
-          }
-        });
-        _spannedItems[key] = spanList;
+    _mergeChangeLook.forEach((key) {
+      if (_spanMap.containsKey(key)) {
+        List<_Span> spanObjList = _spanMap[key];
+        if (_tables.containsKey(key)) {
+          List spanList = List<String>();
+          spanObjList.forEach((value) {
+            _Span spanObj = value;
+            String rC = _getSpanCellId(
+                spanObj.columnSpanStart,
+                spanObj.rowSpanStart,
+                spanObj.columnSpanEnd,
+                spanObj.rowSpanEnd);
+            if (!spanList.contains(rC)) {
+              spanList.add(rC);
+            }
+          });
+          _spannedItems[key] = spanList;
+        }
       }
     });
   }
 
   _setMerge() {
     _selfCorrectSpanMap();
-    _mergeChangeLookup.forEach((s) {
+    _mergeChangeLook.forEach((s) {
       if (_spannedItems.containsKey(s) && _spanMap.containsKey(s)) {
         _spannedItems[s].forEach((value) {
           // get started
@@ -556,7 +562,7 @@ abstract class Excel {
     }
 
     if (updateSpanCell) {
-      _addToMergeLookUp(sheet);
+      _mergeChangeLookup = sheet;
     }
 
     if (_spanMap.containsKey(sheet) && _colorMap.containsKey(sheet)) {
@@ -648,7 +654,7 @@ abstract class Excel {
     _cleanUpSpanMap(sheet);
 
     if (updateSpanCell) {
-      _addToMergeLookUp(sheet);
+      _mergeChangeLookup = sheet;
     }
 
     if (_spanMap.containsKey(sheet) && _colorMap.containsKey(sheet)) {
@@ -713,7 +719,7 @@ abstract class Excel {
     }
 
     if (updateSpanCell) {
-      _addToMergeLookUp(sheet);
+      _mergeChangeLookup = sheet;
     }
 
     if (_spanMap.containsKey(sheet) && _colorMap.containsKey(sheet)) {
@@ -800,7 +806,7 @@ abstract class Excel {
     _cleanUpSpanMap(sheet);
 
     if (updateSpanCell) {
-      _addToMergeLookUp(sheet);
+      _mergeChangeLookup = sheet;
     }
 
     if (_spanMap.containsKey(sheet) && _colorMap.containsKey(sheet)) {
@@ -960,10 +966,7 @@ abstract class Excel {
     }
     l.add(s);
     _spanMap[sheet] = l;
-    if (!_mergeChangeLookup.contains(sheet)) {
-      _mergeChangeLookup.add(sheet);
-    }
-    _selfCorrectSpanMap();
+    _mergeChangeLookup = sheet;
   }
 
   Map<String, List<int>> _isLocationChangeRequired(String sheet,
@@ -1153,13 +1156,7 @@ abstract class Excel {
         }
       }
       _spannedItems[sheet].remove(cellId);
-      _addToMergeLookUp(sheet);
-    }
-  }
-
-  _addToMergeLookUp(String sheet) {
-    if (_mergeChangeLookup != null && !_mergeChangeLookup.contains(sheet)) {
-      _mergeChangeLookup.add(sheet);
+      _mergeChangeLookup = sheet;
     }
   }
 
@@ -1250,6 +1247,12 @@ abstract class Excel {
 
   bool _isNotEmptyRow(List row) {
     return !_isEmptyRow(row);
+  }
+
+  set _mergeChangeLookup(String value) {
+    if (!_mergeChangeLook.contains(value)) {
+      _mergeChangeLook.add(value);
+    }
   }
 
   _countFilledRow(DataTable table, List row) {

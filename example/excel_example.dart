@@ -27,15 +27,18 @@ void main(List<String> args) {
 
   updater
     ..updateCell(sheet, CellIndex.indexByString("A1"), "Here Value of A1",
-        fontColorHex: "#1AFF1A", verticalAlign: VerticalAlign.Top)
+        backgroundColorHex: "#1AFF1A", verticalAlign: VerticalAlign.Top)
     ..updateCell(sheet, CellIndex.indexByColumnRow(columnIndex: 2, rowIndex: 0),
         "Here Value of C1", wrap: TextWrapping.WrapText)
     ..updateCell(sheet, CellIndex.indexByString("A2"), "Here Value of A2",
         backgroundColorHex: "#1AFF1A", wrap: TextWrapping.Clip)
+    // ..updateCell(sheet, CellIndex.indexByString("XFD1"), " maximum Column)
     ..updateCell(sheet, CellIndex.indexByString("E5"), " E5",
-        horizontalAlign: HorizontalAlign.Right, wrap: TextWrapping.Clip)
-    ..merge(sheet, CellIndex.indexByString("A1"), CellIndex.indexByString("E4"),
-        customValue: "Now it is merged");
+        horizontalAlign: HorizontalAlign.Right,
+        wrap: TextWrapping
+            .Clip); 
+            //..merge(sheet, CellIndex.indexByString("A1"), CellIndex.indexByString("E4"),
+  // customValue: "Now it is merged");
 
   //updater.unMerge(sheet, getPosition("A1:E4", updater));
 

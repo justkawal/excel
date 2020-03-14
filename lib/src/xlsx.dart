@@ -70,7 +70,7 @@ class XlsxDecoder extends Excel {
     _tables = Map<String, DataTable>();
     _sharedStrings = List<String>();
     _rId = List<String>();
-    _mergeChangeLookup = List<String>();
+    _mergeChangeLook = List<String>();
     _spannedItems = Map<String, List<String>>();
     _spanMap = Map<String, List<_Span>>();
     _numFormats = List<int>();
@@ -145,10 +145,9 @@ class XlsxDecoder extends Excel {
     Map temp = Map<String, List<String>>();
     if (_colorMap.containsKey(sheet)) {
       if (_colorMap[sheet].containsKey(rowCol)) {
-        _colorMap[sheet][rowCol][index] = hex;
-      } else {
-        temp = Map<String, List<String>>.from(_colorMap[sheet]);
+        l = _colorMap[sheet][rowCol]; //[index] = hex;
       }
+      temp = Map<String, List<String>>.from(_colorMap[sheet]);
     }
     l[index] = hex;
     temp[rowCol] = l;
@@ -157,6 +156,7 @@ class XlsxDecoder extends Excel {
     if (!_colorChanges) {
       _colorChanges = true;
     }
+    print(_colorMap.toString());
   }
 
   _putContentXml() {
@@ -286,7 +286,7 @@ class XlsxDecoder extends Excel {
             mapList.add(spanObj);
           }
           _spanMap[key] = mapList;
-          _addToMergeLookUp(key);
+          _mergeChangeLookup = key;
         }
       });
     });
