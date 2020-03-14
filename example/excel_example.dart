@@ -3,7 +3,8 @@ import 'package:path/path.dart';
 import 'package:excel/excel.dart';
 
 void main(List<String> args) {
-  var file = "/Users/kawal/Desktop/excel.xlsx";
+  final stopwatch = Stopwatch()..start();
+  var file = "/Users/kawal/Desktop/excel_out.xlsx";
   var bytes = File(file).readAsBytesSync();
   var updater = Excel.createExcel(); //.decodeBytes(bytes, update: true);
 
@@ -19,6 +20,11 @@ void main(List<String> args) {
   // if sheet with name = Sheet24 does not exist then it will be automatically created.
   var sheet = 'Sheet24';
 
+  int getPosition(String val, var updaterInner) {
+    List<String> spannedCells = updaterInner.getSpannedItems(sheet);
+    return spannedCells.indexOf(val);
+  }
+
   updater
     ..updateCell(sheet, CellIndex.indexByString("A1"), "Here Value of A1",
         fontColorHex: "#1AFF1A", verticalAlign: VerticalAlign.Top)
@@ -28,8 +34,10 @@ void main(List<String> args) {
         backgroundColorHex: "#1AFF1A", wrap: TextWrapping.Clip)
     ..updateCell(sheet, CellIndex.indexByString("E5"), " E5",
         horizontalAlign: HorizontalAlign.Right, wrap: TextWrapping.Clip)
-    ..merge(
-        sheet, CellIndex.indexByString("A1"), CellIndex.indexByString("B11"));
+    ..merge(sheet, CellIndex.indexByString("A1"), CellIndex.indexByString("E4"),
+        customValue: "Now it is merged");
+
+  //updater.unMerge(sheet, getPosition("A1:E4", updater));
 
   for (var table in updater.tables.keys) {
     print(table);
@@ -41,13 +49,13 @@ void main(List<String> args) {
   }
 
   updater.encode().then((onValue) {
-    File(join("/Users/kawal/Desktop/excel_out.xlsx"))
+    File(join("/Users/kawal/Desktop/excel_outcopy.xlsx"))
       ..createSync(recursive: true)
       ..writeAsBytesSync(onValue);
   }).then((_) {
     print(
         "\n****************************** Printing Updated Data Directly by reading output file ******************************\n");
-    var fileOut = "/Users/kawal/Desktop/excel_out.xlsx";
+    var fileOut = "/Users/kawal/Desktop/excel_outcopy.xlsx";
     var bytesOut = File(fileOut).readAsBytesSync();
     var updaterOut = Excel.decodeBytes(bytesOut, update: true);
 
@@ -60,8 +68,6 @@ void main(List<String> args) {
       }
     }
   });
-}
 
-/* List<String> spannedCells = updater.getSpannedItems(sheet);
-  var cellToUnMerge = "A1:A2";
-  updater.unMerge(sheet, spannedCells.indexOf(cellToUnMerge)); */
+  print('main() executed in ${stopwatch.elapsed}');
+}

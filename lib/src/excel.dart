@@ -15,7 +15,7 @@ String _normalizeNewLine(String text) {
 
 /// Returns the coordinates from a cell name.
 /// "A1" returns [1, 1] and the "B3" return [2, 3].
-List cellCoordsFromCellId(String cellId) {
+List<int> cellCoordsFromCellId(String cellId) {
   var letters = cellId.runes.map(_letterOnly);
   var lettersPart =
       utf8.decode(letters.where((rune) => rune > 0).toList(growable: false));
@@ -468,7 +468,6 @@ abstract class Excel {
     _selfCorrectSpanMap();
     _mergeChangeLookup.forEach((s) {
       if (_spannedItems.containsKey(s) && _spanMap.containsKey(s)) {
-        print(_sheets.keys.toList());
         _spannedItems[s].forEach((value) {
           // get started
         });
@@ -477,6 +476,7 @@ abstract class Excel {
   }
 
   _updateSheetElements() {
+    _sharedStrings = List<String>();
     _tables.forEach((sheet, table) {
       for (int rowIndex = 0; rowIndex < table.rows.length; rowIndex++) {
         for (int columnIndex = 0;
@@ -904,14 +904,6 @@ abstract class Excel {
 
     List<int> gotPosition = _getSpanPosition(sheet, start, end);
 
-    /// As if there is no interaction with other cells then only the sent index is returned from gotPosition
-    /* if (startColumn == gotPosition[0] &&
-        startRow == gotPosition[1] &&
-        endColumn == gotPosition[2] &&
-        endRow == gotPosition[3]) {
-      return;
-    } */
-
     String value;
     bool gotValue = true;
 
@@ -935,13 +927,15 @@ abstract class Excel {
               CellIndex.indexByColumnRow(columnIndex: k, rowIndex: j), null);
         } else {
           if (gotValue && _tables[sheet].rows[j][k] != null) {
-            value = _tables[sheet].rows[j][k];
+            value = "${_tables[sheet].rows[j][k]}";
             gotValue = false;
           }
           _tables[sheet].rows[j][k] = null;
         }
       }
     }
+
+    _tables[sheet].rows[startRow][startColumn] = value;
 
     String sp = _getSpanCellId(startColumn, startRow, endColumn, endRow);
     List<String> ls = List<String>();
@@ -1138,7 +1132,7 @@ abstract class Excel {
       String cellId = _spannedItems[sheet][position];
       List<String> lis = cellId.split(RegExp(r":"));
       if (lis.length == 2) {
-        bool remove;
+        bool remove = false;
         List<int> start, end;
         start =
             cellCoordsFromCellId(lis[0]); // [x,y] => [startRow, startColumn]
@@ -1185,8 +1179,8 @@ abstract class Excel {
       _setPatternFillSheetColor();
       _setCellXfs();
     }
-    _setSharedStrings();
     _updateSheetElements();
+    _setSharedStrings();
 
     if (_mergeChanges) {
       _setMerge();
@@ -1321,7 +1315,7 @@ abstract class Excel {
   }
 
   _parseCell(XmlElement node, DataTable table, List row) {
-    var colIndex = _getCellNumber(node) - 1;
+    var colIndex = _getCellNumber(node);
     if (colIndex > row.length) {
       var repeat = colIndex - row.length;
       for (var index = 0; index < repeat; index++) {
@@ -1338,6 +1332,7 @@ abstract class Excel {
     switch (type) {
       // sharedString
       case 's':
+        print(_sharedStrings.toList().toString());
         value = _sharedStrings[
             int.parse(_parseValue(node.findElements('v').first))];
         break;
@@ -1390,7 +1385,9 @@ abstract class Excel {
         }
     }
     row.add(value);
-    _sharedStrings.add('$value');
+    if (!_sharedStrings.contains('$value')) {
+      _sharedStrings.add('$value');
+    }
 
     _countFilledColumn(table, row, value);
   }
@@ -1451,7 +1448,7 @@ abstract class Excel {
 
     var currentIndex = 0; // cells could be empty
     for (var currentCell in cells) {
-      currentIndex = _getCellNumber(currentCell) - 1;
+      currentIndex = _getCellNumber(currentCell);
       if (currentIndex >= columnIndex) {
         cell = currentCell;
         break;
