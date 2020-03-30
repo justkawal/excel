@@ -11,7 +11,7 @@ Excel is a flutter and dart library for creating and updating excel-sheets for X
 ## Usage
 
 ### In Flutter App
-
+```dart
     import 'dart:io';
     import 'package:path/path.dart';
     import 'package:excel/excel.dart';
@@ -79,7 +79,7 @@ Excel is a flutter and dart library for creating and updating excel-sheets for X
     });
     
     ...
-
+```
 ## Features coming in next version
 On-going implementation for future:
 - spanned rows (Comming Soon in future updates)
