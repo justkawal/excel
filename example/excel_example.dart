@@ -3,9 +3,9 @@ import 'package:path/path.dart';
 import 'package:excel/excel.dart';
 
 void main(List<String> args) {
-  var file = "/Users/kawal/Desktop/excel_out.xlsx";
+  var file = "/Users/kawal/Desktop/excel_outcopy.xlsx";
   var bytes = File(file).readAsBytesSync();
-  var updater = Excel.createExcel(); //.decodeBytes(bytes, update: true);
+  var updater = Excel.createExcel(); // .decodeBytes(bytes, update: true);
 
   for (var table in updater.tables.keys) {
     print(table);
@@ -19,8 +19,9 @@ void main(List<String> args) {
   // if sheet with name = Sheet24 does not exist then it will be automatically created.
   var sheet = 'Sheet24';
 
-  int getPosition(String val, var updaterInner) {
-    List<String> spannedCells = updaterInner.getSpannedItems(sheet);
+  int getPosition(String val) {
+    List<String> spannedCells = updater.getSpannedItems(sheet);
+    print(spannedCells.toString());
     return spannedCells.indexOf(val);
   }
 
@@ -31,13 +32,11 @@ void main(List<String> args) {
         "Here Value of C1", wrap: TextWrapping.WrapText)
     ..updateCell(sheet, CellIndex.indexByString("A2"), "Here Value of A2",
         backgroundColorHex: "#1AFF1A", wrap: TextWrapping.Clip)
-    // ..updateCell(sheet, CellIndex.indexByString("XFD1"), " maximum Column)
     ..updateCell(sheet, CellIndex.indexByString("E5"), " E5",
-        horizontalAlign: HorizontalAlign.Right, wrap: TextWrapping.Clip);
-  //..merge(sheet, CellIndex.indexByString("A1"), CellIndex.indexByString("E4"),
-  // customValue: "Now it is merged");
-
-  //updater.unMerge(sheet, getPosition("A1:E4", updater));
+        horizontalAlign: HorizontalAlign.Right, wrap: TextWrapping.Clip)
+    ..merge(sheet, CellIndex.indexByString("A1"), CellIndex.indexByString("E4"),
+        customValue: "Now it is merged")
+    ..unMerge(sheet, getPosition("A1:E4"));
 
   for (var table in updater.tables.keys) {
     print(table);

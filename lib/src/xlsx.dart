@@ -62,17 +62,18 @@ class XlsxDecoder extends Excel {
       _sheets = <String, XmlNode>{};
       _xmlFiles = <String, XmlDocument>{};
     }
-    _worksheetTargets = Map<String, String>();
-    _colorMap = Map<String, Map<String, List<String>>>();
+    _worksheetTargets = <String, String>{};
+    _xmlSheetId = <String, String>{};
+    _colorMap = <String, Map<String, List<String>>>{};
     _fontColorHex = List<String>();
     _patternFill = List<String>();
-    _cellXfs = Map<String, List<String>>();
-    _tables = Map<String, DataTable>();
+    _cellXfs = <String, List<String>>{};
+    _tables = <String, DataTable>{};
     _sharedStrings = List<String>();
     _rId = List<String>();
     _mergeChangeLook = List<String>();
-    _spannedItems = Map<String, List<String>>();
-    _spanMap = Map<String, List<_Span>>();
+    _spannedItems = <String, List<String>>{};
+    _spanMap = <String, List<_Span>>{};
     _numFormats = List<int>();
     _putContentXml();
     _parseRelations();

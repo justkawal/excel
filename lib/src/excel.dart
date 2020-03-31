@@ -83,6 +83,7 @@ abstract class Excel {
   Archive _archive;
   Map<String, XmlNode> _sheets;
   Map<String, XmlDocument> _xmlFiles;
+  Map<String, String> _xmlSheetId;
   Map<String, ArchiveFile> _archiveFiles;
   Map<String, String> _worksheetTargets;
   Map<String, Map<String, List<String>>> _colorMap;
@@ -230,6 +231,82 @@ abstract class Excel {
       });
     } else {
       _damagedExcel();
+    }
+  }
+
+  /// Encode bytes after update
+  Future<List> encode() async {
+    if (!_update) {
+      throw ArgumentError("'update' should be set to 'true' on constructor");
+    }
+
+    if (_colorChanges) {
+      _setFontAndPatternFillColors();
+      _setPatternFillSheetColor();
+      _setCellXfs();
+    }
+    _setSheetElements();
+    _setSharedStrings();
+
+    if (_mergeChanges) {
+      _setMerge();
+    }
+
+    for (var xmlFile in _xmlFiles.keys) {
+      var xml = _xmlFiles[xmlFile].toString();
+      var content = utf8.encode(xml);
+      _archiveFiles[xmlFile] = ArchiveFile(xmlFile, content.length, content);
+    }
+    return ZipEncoder().encode(_cloneArchive(_archive));
+  }
+
+  /// Encode data url
+  String dataUrl() {
+    var buffer = StringBuffer();
+    buffer.write('data:$mediaType;base64,');
+    encode().then((onValue) {
+      buffer.write(base64Encode(onValue));
+    });
+    return buffer.toString();
+  }
+
+  Archive _cloneArchive(Archive archive) {
+    var clone = Archive();
+    archive.files.forEach((file) {
+      if (file.isFile) {
+        ArchiveFile copy;
+        if (_archiveFiles.containsKey(file.name)) {
+          copy = _archiveFiles[file.name];
+        } else {
+          var content = (file.content as Uint8List).toList();
+          var compress = !_noCompression.contains(file.name);
+          copy = ArchiveFile(file.name, content.length, content)
+            ..compress = compress;
+        }
+        clone.addFile(copy);
+      }
+    });
+    return clone;
+  }
+
+  _normalizeTable(DataTable table) {
+    if (table._maxRows == 0) {
+      table._rows.clear();
+    } else if (table._maxRows < table._rows.length) {
+      table._rows.removeRange(table._maxRows, table._rows.length);
+    }
+
+    for (var row = 0; row < table._rows.length; row++) {
+      if (table._maxCols == 0) {
+        table._rows[row].clear();
+      } else if (table._maxCols < table._rows[row].length) {
+        table._rows[row].removeRange(table._maxCols, table._rows[row].length);
+      } else if (table._maxCols > table._rows[row].length) {
+        var repeat = table._maxCols - table._rows[row].length;
+        for (var index = 0; index < repeat; index++) {
+          table._rows[row].add(null);
+        }
+      }
     }
   }
 
@@ -479,9 +556,60 @@ abstract class Excel {
   _setMerge() {
     _selfCorrectSpanMap();
     _mergeChangeLook.forEach((s) {
-      if (_spannedItems.containsKey(s) && _spanMap.containsKey(s)) {
+      if (_spannedItems.containsKey(s) &&
+          _spanMap.containsKey(s) &&
+          _xmlSheetId.containsKey(s) &&
+          _xmlFiles.containsKey(_xmlSheetId[s])) {
+        Iterable<XmlElement> iterMergeElement =
+            _xmlFiles[_xmlSheetId[s]].findAllElements('mergeCells');
+        XmlElement mergeElement;
+        if (iterMergeElement.length > 0) {
+          mergeElement = iterMergeElement.first;
+        } else {
+          if (_xmlFiles[_xmlSheetId[s]].findAllElements('worksheet').length >
+              0) {
+            int index = _xmlFiles[_xmlSheetId[s]]
+                .findAllElements('worksheet')
+                .first
+                .children
+                .indexOf(_xmlFiles[_xmlSheetId[s]]
+                    .findAllElements("sheetData")
+                    .first);
+            if (index == -1) {
+              _damagedExcel();
+            }
+            _xmlFiles[_xmlSheetId[s]]
+                .findAllElements('worksheet')
+                .first
+                .children
+                .insert(
+                    index + 1,
+                    XmlElement(XmlName('mergeCells'),
+                        [XmlAttribute(XmlName('count'), '0')]));
+
+            mergeElement =
+                _xmlFiles[_xmlSheetId[s]].findAllElements('mergeCells').first;
+          } else {
+            _damagedExcel();
+          }
+        }
+
+        [
+          ['count', _spannedItems[s].length.toString()],
+        ].forEach((value) {
+          if (mergeElement.getAttributeNode(value[0]) == null) {
+            mergeElement.attributes
+                .add(XmlAttribute(XmlName(value[0]), value[1]));
+          } else {
+            mergeElement.getAttributeNode(value[0]).value = value[1];
+          }
+        });
+
+        mergeElement.children.clear();
+
         _spannedItems[s].forEach((value) {
-          // get started
+          mergeElement.children.add(XmlElement(XmlName('mergeCell'),
+              [XmlAttribute(XmlName('ref'), '$value')], []));
         });
       }
     });
@@ -1154,8 +1282,8 @@ abstract class Excel {
 
           if (spanObject.columnSpanStart == start[1] &&
               spanObject.rowSpanStart == start[0] &&
-              spanObject.columnSpanEnd == end[0] &&
-              spanObject.rowSpanEnd == end[1]) {
+              spanObject.columnSpanEnd == end[1] &&
+              spanObject.rowSpanEnd == end[0]) {
             _spanMap[sheet][i] = null;
             remove = true;
           }
@@ -1172,82 +1300,12 @@ abstract class Excel {
   // Cleaning up the null values from the Span Map
   _cleanUpSpanMap(String sheet) {
     _spanMap[sheet].removeWhere((value) => value == null);
-  }
-
-  /// Encode bytes after update
-  Future<List> encode() async {
-    if (!_update) {
-      throw ArgumentError("'update' should be set to 'true' on constructor");
+    print(_spanMap.toString());
+    if (_spanMap.containsKey(sheet) && _spanMap[sheet].length < 1) {
+      _spanMap.remove(sheet);
     }
 
-    if (_colorChanges) {
-      _setFontAndPatternFillColors();
-      _setPatternFillSheetColor();
-      _setCellXfs();
-    }
-    _setSheetElements();
-    _setSharedStrings();
-
-    if (_mergeChanges) {
-      _setMerge();
-    }
-
-    for (var xmlFile in _xmlFiles.keys) {
-      var xml = _xmlFiles[xmlFile].toString();
-      var content = utf8.encode(xml);
-      _archiveFiles[xmlFile] = ArchiveFile(xmlFile, content.length, content);
-    }
-    return ZipEncoder().encode(_cloneArchive(_archive));
-  }
-
-  /// Encode data url
-  String dataUrl() {
-    var buffer = StringBuffer();
-    buffer.write('data:$mediaType;base64,');
-    encode().then((onValue) {
-      buffer.write(base64Encode(onValue));
-    });
-    return buffer.toString();
-  }
-
-  Archive _cloneArchive(Archive archive) {
-    var clone = Archive();
-    archive.files.forEach((file) {
-      if (file.isFile) {
-        ArchiveFile copy;
-        if (_archiveFiles.containsKey(file.name)) {
-          copy = _archiveFiles[file.name];
-        } else {
-          var content = (file.content as Uint8List).toList();
-          var compress = !_noCompression.contains(file.name);
-          copy = ArchiveFile(file.name, content.length, content)
-            ..compress = compress;
-        }
-        clone.addFile(copy);
-      }
-    });
-    return clone;
-  }
-
-  _normalizeTable(DataTable table) {
-    if (table._maxRows == 0) {
-      table._rows.clear();
-    } else if (table._maxRows < table._rows.length) {
-      table._rows.removeRange(table._maxRows, table._rows.length);
-    }
-
-    for (var row = 0; row < table._rows.length; row++) {
-      if (table._maxCols == 0) {
-        table._rows[row].clear();
-      } else if (table._maxCols < table._rows[row].length) {
-        table._rows[row].removeRange(table._maxCols, table._rows[row].length);
-      } else if (table._maxCols > table._rows[row].length) {
-        var repeat = table._maxCols - table._rows[row].length;
-        for (var index = 0; index < repeat; index++) {
-          table._rows[row].add(null);
-        }
-      }
-    }
+    print(_spanMap.toString());
   }
 
   bool _isEmptyRow(List row) {
@@ -1298,6 +1356,7 @@ abstract class Excel {
       _sheets[name] = sheet;
       _xmlFiles['xl/$target'] = content;
     }
+    _xmlSheetId[name] = 'xl/$target';
 
     _normalizeTable(table);
   }
