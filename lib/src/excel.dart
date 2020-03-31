@@ -207,6 +207,7 @@ abstract class Excel {
     _parseTable(_xmlFiles['xl/workbook.xml'].findAllElements('sheet').last);
   }
 
+  // Reading the styles from the excel file.
   _parseStyles(String _stylesTarget) {
     var styles = _archive.findFile('xl/$_stylesTarget');
     if (styles != null) {
@@ -232,7 +233,7 @@ abstract class Excel {
     }
   }
 
-  /// Sets/Updates the Font Color in [xl/styles.xml] from the Cells of the sheets
+  /// Writing Font Color in [xl/styles.xml] from the Cells of the sheets.
   _setFontAndPatternFillColors() {
     _colorMap.values.forEach((innerMap) => innerMap.values.forEach((color) {
           if (color[0] != null &&
@@ -284,6 +285,7 @@ abstract class Excel {
         ])));
   }
 
+  /// Writing Background Color related styling properties into the excel core files.
   _setPatternFillSheetColor() {
     XmlElement fills =
         _xmlFiles['xl/styles.xml'].findAllElements('fills').first;
@@ -321,6 +323,7 @@ abstract class Excel {
     });
   }
 
+  /// Writing the alignment and other styling related properties into the excel core files.
   _setCellXfs() {
     XmlElement celx =
         _xmlFiles['xl/styles.xml'].findAllElements('cellXfs').first;
@@ -382,6 +385,7 @@ abstract class Excel {
     });
   }
 
+  /// Writing the value of excel cells into the separated sharedStrings so as to minimize the size of excel files.
   _setSharedStrings() {
     String count = _sharedStrings.length.toString();
     List uniqueList = _sharedStrings.toSet().toList();
@@ -410,6 +414,7 @@ abstract class Excel {
     });
   }
 
+  ///Self correct the spanning of rows and columns by checking their cross-sectional relationship between if exists.
   _selfCorrectSpanMap() {
     _mergeChangeLook.forEach((key) {
       if (_spanMap.containsKey(key) && _tables.containsKey(key)) {
@@ -470,6 +475,7 @@ abstract class Excel {
     });
   }
 
+  /// Writing the merged cells information into the excel properties files.
   _setMerge() {
     _selfCorrectSpanMap();
     _mergeChangeLook.forEach((s) {
@@ -481,7 +487,8 @@ abstract class Excel {
     });
   }
 
-  _updateSheetElements() {
+  /// Writing cell contained text into the excel sheet files.
+  _setSheetElements() {
     _sharedStrings = List<String>();
     _tables.forEach((sheet, table) {
       for (int rowIndex = 0; rowIndex < table.rows.length; rowIndex++) {
@@ -510,12 +517,14 @@ abstract class Excel {
     }
   }
 
+  /// Check if columnIndex is not out of Excel Column limits.
   _checkSheetMaxCol(String sheet, int colIndex) {
     if ((_tables[sheet]._maxCols >= 16384) || colIndex >= 16384) {
       throw ArgumentError('Reached Max (16384) or (XFD) columns value.');
     }
   }
 
+  /// Check if rowIndex is not out of Excel Row limits.
   _checkSheetMaxRow(String sheet, int rowIndex) {
     if ((_tables[sheet]._maxRows >= 1048576) || rowIndex >= 1048576) {
       throw ArgumentError('Reached Max (1048576) rows value.');
@@ -1176,7 +1185,7 @@ abstract class Excel {
       _setPatternFillSheetColor();
       _setCellXfs();
     }
-    _updateSheetElements();
+    _setSheetElements();
     _setSharedStrings();
 
     if (_mergeChanges) {

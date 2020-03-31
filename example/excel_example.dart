@@ -3,7 +3,6 @@ import 'package:path/path.dart';
 import 'package:excel/excel.dart';
 
 void main(List<String> args) {
-  final stopwatch = Stopwatch()..start();
   var file = "/Users/kawal/Desktop/excel_out.xlsx";
   var bytes = File(file).readAsBytesSync();
   var updater = Excel.createExcel(); //.decodeBytes(bytes, update: true);
@@ -34,10 +33,8 @@ void main(List<String> args) {
         backgroundColorHex: "#1AFF1A", wrap: TextWrapping.Clip)
     // ..updateCell(sheet, CellIndex.indexByString("XFD1"), " maximum Column)
     ..updateCell(sheet, CellIndex.indexByString("E5"), " E5",
-        horizontalAlign: HorizontalAlign.Right,
-        wrap: TextWrapping
-            .Clip); 
-            //..merge(sheet, CellIndex.indexByString("A1"), CellIndex.indexByString("E4"),
+        horizontalAlign: HorizontalAlign.Right, wrap: TextWrapping.Clip);
+  //..merge(sheet, CellIndex.indexByString("A1"), CellIndex.indexByString("E4"),
   // customValue: "Now it is merged");
 
   //updater.unMerge(sheet, getPosition("A1:E4", updater));
@@ -71,6 +68,4 @@ void main(List<String> args) {
       }
     }
   });
-
-  print('main() executed in ${stopwatch.elapsed}');
 }
