@@ -205,6 +205,58 @@ class XlsxDecoder extends Excel {
   _parseSharedStrings() {
     var sharedStrings = _archive.findFile('xl/$_sharedStringsTarget');
     if (sharedStrings == null) {
+      _sharedStringsTarget = 'sharedStrings.xml';
+
+      // Running it with false will collect all the rid and will
+      // help us to get the available rid to assign it to sharedStrings.xml
+      _parseContent(run: false);
+
+      if (_xmlFiles.containsKey("xl/_rels/workbook.xml.rels")) {
+        int rIdNumber = _getAvailableRid();
+
+        _xmlFiles["xl/_rels/workbook.xml.rels"]
+            .findAllElements('Relationships')
+            .first
+            .children
+            .add(XmlElement(
+              XmlName('Relationship'),
+              <XmlAttribute>[
+                XmlAttribute(XmlName('Id'), 'rId$rIdNumber'),
+                XmlAttribute(XmlName('Type'),
+                    'http://schemas.openxmlformats.org/officeDocument/2006/relationships/sharedStrings'),
+                XmlAttribute(XmlName('Target'), 'sharedStrings.xml')
+              ],
+            ));
+        if (!_rId.contains('rId$rIdNumber')) {
+          _rId.add('rId$rIdNumber');
+        }
+        String content =
+            "application/vnd.openxmlformats-officedocument.spreadsheetml.sharedStrings+xml";
+        bool contain = true;
+
+        _xmlFiles["[Content_Types].xml"]
+            .findAllElements('Override')
+            .forEach((node) {
+          var value = node.getAttribute('ContentType');
+          if (value == content) {
+            contain = false;
+          }
+        });
+        if (contain) {
+          _xmlFiles["[Content_Types].xml"]
+              .findAllElements('Types')
+              .first
+              .children
+              .add(XmlElement(
+                XmlName('Override'),
+                <XmlAttribute>[
+                  XmlAttribute(XmlName('PartName'), '/xl/sharedStrings.xml'),
+                  XmlAttribute(XmlName('ContentType'), content),
+                ],
+              ));
+        }
+      }
+
       var content = utf8.encode(
           "<sst xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" count=\"0\" uniqueCount=\"0\"/>");
       _archive.addFile(
@@ -229,7 +281,7 @@ class XlsxDecoder extends Excel {
     _sharedStrings.add(list.join(''));
   }
 
-  _parseContent() {
+  _parseContent({bool run = true}) {
     var workbook = _archive.findFile('xl/workbook.xml');
     if (workbook == null) {
       _damagedExcel();
@@ -240,7 +292,14 @@ class XlsxDecoder extends Excel {
       _xmlFiles["xl/workbook.xml"] = document;
     }
     document.findAllElements('sheet').forEach((node) {
-      _parseTable(node);
+      if (run) {
+        _parseTable(node);
+      } else {
+        var rid = node.getAttribute('r:id');
+        if (!_rId.contains(rid)) {
+          _rId.add(rid);
+        }
+      }
     });
   }
 

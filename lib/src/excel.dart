@@ -131,6 +131,15 @@ abstract class Excel {
     throw ArgumentError('\nDamaged Excel file\n');
   }
 
+  int _getAvailableRid() {
+    _rId.sort((a, b) =>
+        int.parse(a.substring(3)).compareTo(int.parse(b.substring(3))));
+
+    List<String> got = List<String>.from(_rId.last.split(''));
+    got.removeWhere((item) => !'0123456789'.split('').contains(item));
+    return int.parse(got.join().toString()) + 1;
+  }
+
   /// Uses the [newSheet] as the name of the sheet and also adds it to the [ xl/worksheets/ ] directory
   /// Add the sheet details in the workbook.xml. as well as in the workbook.xml.rels
   /// Then add the sheet physically into the [_xmlFiles] so as to get it into the archieve.
@@ -145,11 +154,7 @@ abstract class Excel {
     XmlElement lastSheet = list.last;
 
     int sheetNumber = int.parse(lastSheet.getAttribute('sheetId'));
-    _rId.sort((a, b) =>
-        int.parse(a.substring(3)).compareTo(int.parse(b.substring(3))));
-    List<String> got = List<String>.from(_rId.last.split(''));
-    got.removeWhere((item) => !'0123456789'.split('').contains(item));
-    int ridNumber = int.parse(got.join().toString()) + 1;
+    int ridNumber = _getAvailableRid();
 
     _xmlFiles['xl/_rels/workbook.xml.rels']
         .findAllElements('Relationships')
@@ -1574,8 +1579,8 @@ abstract class Excel {
   // Manage value's type
   XmlElement _createCell(
       String sheet, int columnIndex, int rowIndex, dynamic value) {
-    if (!_sharedStrings.contains(value)) {
-      _sharedStrings.add(value);
+    if (!_sharedStrings.contains(value.toString())) {
+      _sharedStrings.add(value.toString());
     }
 
     String rC = getCellId(columnIndex, rowIndex);
@@ -1600,7 +1605,7 @@ abstract class Excel {
         ? <XmlElement>[]
         : <XmlElement>[
             XmlElement(XmlName('v'), [],
-                [XmlText(_sharedStrings.indexOf(value).toString())]),
+                [XmlText(_sharedStrings.indexOf(value.toString()).toString())]),
           ];
     return XmlElement(XmlName('c'), attributes, children);
   }
