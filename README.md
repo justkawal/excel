@@ -10,12 +10,22 @@ Excel is a flutter and dart library for creating and updating excel-sheets for X
 
 ## Usage
 
+### Adding dependency
+
+````dart
+    
+dependencies:
+    excel: ^1.0.3
+        
+````
+
 ### Imports
 
 ````dart
     import 'dart:io';
     import 'package:path/path.dart';
     import 'package:excel/excel.dart';
+    
 ````
 ### Read XLSX File
 
