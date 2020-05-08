@@ -62,9 +62,9 @@ dependencies:
  
  ````dart
       /* 
-      * updater.updateCell('sheetName',cell,value,options?);
-      * if sheet === 'sheetName' does not exist in updater, it will create automatically after calling updateCell method
-      * cell can be identified  with Cell Address or by 2D array having row and column Index;
+      * updater.updateCell('sheetName', cell, value, options?);
+      * if sheet === 'sheetName' does not exist in updater, it will be created automatically after calling updateCell method
+      * cell can be identified with Cell Address or by 2D array having row and column Index;
       * Cell options are optional
       */
       
@@ -73,13 +73,13 @@ dependencies:
       updater.updateCell(sheet, CellIndex.indexByString("A1"), "Here value of A1");
         
       //update cell with row and column index
-      updater.updateCell(sheet, CellIndex.indexByColumnRow(columnIndex: 2, rowIndex: 0),"Here value of C1");
+      updater.updateCell(sheet, CellIndex.indexByColumnRow(columnIndex: 2, rowIndex: 0), "Here value of C1");
         
       //update cell and it's background color
-      deocder.updateCell(sheet, CellIndex.indexByString("A2"), "Here value of A2",backgroundColorHex: "#1AFF1A")
+      deocder.updateCell(sheet, CellIndex.indexByString("A2"), "Here value of A2", backgroundColorHex: "#1AFF1A")
       
       //update alignment
-      updater.updateCell(sheet, CellIndex.indexByString("E5"), "Here value of E5",horizontalAlign: HorizontalAlign.Right);
+      updater.updateCell(sheet, CellIndex.indexByString("E5"), "Here value of E5", horizontalAlign: HorizontalAlign.Right);
     
    ````
 ### Cell Options
@@ -92,7 +92,7 @@ key | description
  horizontalAlign | align text horizontally ````enum HorizontalAlign { Left, Center, Right }```` eg. HorizontalAlign.Right
 
 
- ### Saving Excel File
+ ### Saving XLSX File
  
  ````dart
       // Save the Changes in file

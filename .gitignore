@@ -30,7 +30,6 @@
 .pub-cache/
 .pub/
 build/
-lib/src/commented.dart
 
 # Android related
 **/android/**/gradle-wrapper.jar
