@@ -16,7 +16,6 @@ Excel is a flutter and dart library for creating and updating excel-sheets for X
     import 'dart:io';
     import 'package:path/path.dart';
     import 'package:excel/excel.dart';
-    
 ````
 ### Read XLSX File
 
@@ -72,14 +71,6 @@ Excel is a flutter and dart library for creating and updating excel-sheets for X
       //update alignment
       updater.updateCell(sheet, CellIndex.indexByString("E5"), "Here value of E5",horizontalAlign: HorizontalAlign.Right);
     
-      // Save the Changes in file
-
-      updater.encode().then((onValue) {
-        File(join("Path_to_destination/excel.xlsx"))
-        ..createSync(recursive: true)
-        ..writeAsBytesSync(onValue);
-    });
-    
    ````
 ### Cell Options
 key | description
@@ -90,7 +81,19 @@ key | description
  verticalAlign | align text vertically ````enum VerticalAlign { Top, Middle, Bottom }```` eg. VerticalAlign.Top
  horizontalAlign | align text horizontally ````enum HorizontalAlign { Left, Center, Right }```` eg. HorizontalAlign.Right
 
+
+ ### Saving Excel File
+ 
+ ````dart
+      // Save the Changes in file
+
+      updater.encode().then((onValue) {
+        File(join("Path_to_destination/excel.xlsx"))
+        ..createSync(recursive: true)
+        ..writeAsBytesSync(onValue);
+    });
     
+   ````
 
 ## Features coming in next version
 On-going implementation for future:
