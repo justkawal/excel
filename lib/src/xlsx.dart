@@ -64,12 +64,14 @@ class XlsxDecoder extends Excel {
     }
     _worksheetTargets = <String, String>{};
     _xmlSheetId = <String, String>{};
-    _colorMap = <String, Map<String, List<String>>>{};
+    _cellStyleOther = <String, Map<String, CellStyle>>{};
+    _cellStyleReferenced = <String, Map<String, int>>{};
     _fontColorHex = List<String>();
     _patternFill = List<String>();
-    _cellXfs = <String, List<String>>{};
     _tables = <String, DataTable>{};
     _sharedStrings = List<String>();
+    _cellStyleList = List<CellStyle>();
+    _innerCellStyle = List<CellStyle>();
     _rId = List<String>();
     _mergeChangeLook = List<String>();
     _spannedItems = <String, List<String>>{};
@@ -83,81 +85,53 @@ class XlsxDecoder extends Excel {
     _parseMergedCells();
   }
 
-  String dumpXmlContent([String sheet]) {
-    if (sheet == null) {
-      var buffer = StringBuffer();
-      _sheets.forEach((name, document) {
-        buffer..writeln(name)..writeln(document.toXmlString(pretty: true));
-      });
-      return buffer.toString();
-    } else {
-      return _sheets[sheet].toXmlString(pretty: true);
-    }
-  }
-
   void updateCell(String sheet, CellIndex cellIndex, dynamic value,
-      {String fontColorHex,
-      String backgroundColorHex,
+      {String fontColorHex = "#000000",
+      String backgroundColorHex = "none",
       TextWrapping wrap,
-      VerticalAlign verticalAlign,
-      HorizontalAlign horizontalAlign}) {
+      VerticalAlign verticalAlign = VerticalAlign.Bottom,
+      HorizontalAlign horizontalAlign = HorizontalAlign.Left}) {
     super.updateCell(sheet, cellIndex, value);
     int columnIndex = cellIndex._columnIndex;
     int rowIndex = cellIndex._rowIndex;
 
     String rC = '${numericToLetters(columnIndex + 1)}${rowIndex + 1}';
 
-    if (fontColorHex != null) {
-      _addColor(sheet, rC, 0, fontColorHex);
-    }
+    if (fontColorHex != null ||
+        backgroundColorHex != null ||
+        wrap != null ||
+        verticalAlign != VerticalAlign.Bottom ||
+        horizontalAlign != HorizontalAlign.Left) {
+      if (fontColorHex != null) {
+        fontColorHex = isColorAppropriate(fontColorHex);
+      }
+      if (backgroundColorHex != null && backgroundColorHex != "none") {
+        backgroundColorHex = isColorAppropriate(backgroundColorHex);
+      }
+      CellStyle cellStyle = new CellStyle(
+          fontColorHex: fontColorHex,
+          backgroundColorHex: backgroundColorHex,
+          horizontalAlign: horizontalAlign,
+          verticalAlign: verticalAlign,
+          textWrapping: wrap);
 
-    if (backgroundColorHex != null) {
-      _addColor(sheet, rC, 1, backgroundColorHex);
-    }
-
-    if (wrap != null) {
-      _addColor(sheet, rC, 2, wrap == TextWrapping.Clip ? "0" : "1");
-    }
-
-    if (verticalAlign != null && verticalAlign != VerticalAlign.Bottom) {
-      _addColor(
-          sheet, rC, 3, verticalAlign == VerticalAlign.Top ? "top" : "middle");
-    }
-
-    if (horizontalAlign != null && horizontalAlign != HorizontalAlign.Left) {
-      _addColor(sheet, rC, 4,
-          horizontalAlign == HorizontalAlign.Center ? "center" : "right");
+      if (_cellStyleOther.containsKey(sheet)) {
+        _cellStyleOther[sheet][rC] = cellStyle;
+      } else {
+        _cellStyleOther[sheet] = {rC: cellStyle};
+      }
+      _colorChanges = true;
     }
   }
 
-  _addColor(String sheet, String rowCol, int index, String value) {
-    dynamic hex;
-    if (index == 0 || index == 1) {
-      if (value.length != 7) {
-        throw ArgumentError(
-            "InAppropriate Color provided. Use colorHex as example of: #FF0000");
-      }
-      hex = value.replaceAll(RegExp(r'#'), 'FF').toString();
-    } else {
-      hex = value.toString();
+  String isColorAppropriate(String value) {
+    String hex;
+    if (value.length != 7) {
+      throw ArgumentError(
+          "InAppropriate Color provided. Use colorHex as example of: #FF0000");
     }
-
-    List l = List<String>(5);
-    Map temp = Map<String, List<String>>();
-    if (_colorMap.containsKey(sheet)) {
-      if (_colorMap[sheet].containsKey(rowCol)) {
-        l = _colorMap[sheet][rowCol]; //[index] = hex;
-      }
-      temp = Map<String, List<String>>.from(_colorMap[sheet]);
-    }
-    l[index] = hex;
-    temp[rowCol] = l;
-    _colorMap[sheet] = Map<String, List<String>>.from(temp);
-
-    if (!_colorChanges) {
-      _colorChanges = true;
-    }
-    print(_colorMap.toString());
+    hex = value.replaceAll(RegExp(r'#'), 'FF').toString();
+    return hex;
   }
 
   _putContentXml() {

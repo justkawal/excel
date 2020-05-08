@@ -14,7 +14,7 @@ String _normalizeNewLine(String text) {
 }
 
 /// Returns the coordinates from a cell name.
-/// "A1" returns [1, 1] and the "B3" return [2, 3].
+/// "A2" returns [2, 1] and the "B3" return [3, 2].
 List<int> cellCoordsFromCellId(String cellId) {
   var letters = cellId.runes.map(_letterOnly);
   var lettersPart =
@@ -86,9 +86,11 @@ abstract class Excel {
   Map<String, String> _xmlSheetId;
   Map<String, ArchiveFile> _archiveFiles;
   Map<String, String> _worksheetTargets;
-  Map<String, Map<String, List<String>>> _colorMap;
-  Map<String, List<String>> _cellXfs, _spannedItems;
+  Map<String, Map<String, CellStyle>> _cellStyleOther;
+  Map<String, Map<String, int>> _cellStyleReferenced;
+  Map<String, List<String>> _spannedItems;
   Map<String, DataTable> _tables;
+  List<CellStyle> _cellStyleList, _innerCellStyle;
   Map<String, List<_Span>> _spanMap;
   List<String> _sharedStrings,
       _rId,
@@ -127,8 +129,12 @@ abstract class Excel {
     return _newExcel(archive, update);
   }
 
-  _damagedExcel() {
-    throw ArgumentError('\nDamaged Excel file\n');
+  _damagedExcel({String text}) {
+    String t = '\nDamaged Excel file:';
+    if (text != null) {
+      t += ' $text not found.';
+    }
+    throw ArgumentError(t + '\n');
   }
 
   int _getAvailableRid() {
@@ -150,10 +156,39 @@ abstract class Excel {
     if (list.isEmpty) {
       throw ArgumentError('');
     }
+    int _sheetId = -1;
+    List<int> sheetIdList = List<int>();
 
-    XmlElement lastSheet = list.last;
+    _xmlFiles['xl/workbook.xml']
+        .findAllElements('sheet')
+        .forEach((sheetIdNode) {
+      var sheetId = sheetIdNode.getAttribute('sheetId');
+      if (sheetId != null) {
+        int t = int.parse(sheetId.toString());
+        if (!sheetIdList.contains(t)) {
+          sheetIdList.add(t);
+        }
+      } else {
+        _damagedExcel(text: 'Corrupted Sheet Indexing');
+      }
+    });
 
-    int sheetNumber = int.parse(lastSheet.getAttribute('sheetId'));
+    sheetIdList.sort();
+
+    for (int i = 0; i < sheetIdList.length - 1; i++) {
+      if ((sheetIdList[i] + 1) != sheetIdList[i + 1]) {
+        _sheetId = (sheetIdList[i] + 1);
+      }
+    }
+    if (_sheetId == -1) {
+      if (sheetIdList.length == 0) {
+        _sheetId = 1;
+      } else {
+        _sheetId = sheetIdList.length;
+      }
+    }
+
+    int sheetNumber = _sheetId;
     int ridNumber = _getAvailableRid();
 
     _xmlFiles['xl/_rels/workbook.xml.rels']
@@ -222,21 +257,105 @@ abstract class Excel {
       if (_xmlFiles != null) {
         _xmlFiles['xl/$_stylesTarget'] = document;
       }
+      _fontColorHex = List<String>();
+      _patternFill = List<String>();
+      _cellStyleList = List<CellStyle>();
+      int fontIndex = 0;
       document
-          .findAllElements('cellXfs')
+          .findAllElements('font')
           .first
-          .findElements('xf')
-          .forEach((node) {
-        var numFmtId = node.getAttribute('numFmtId');
-        if (numFmtId != null) {
-          _numFormats.add(int.parse(numFmtId));
-        } else {
-          _numFormats.add(0);
+          .findElements('color')
+          .forEach((child) {
+        var colorHex = child.getAttribute('rgb');
+        if (colorHex != null && !_fontColorHex.contains(colorHex.toString())) {
+          _fontColorHex.add(colorHex.toString());
+          fontIndex = 1;
+        } else if (fontIndex == 0 && !_fontColorHex.contains("FF000000")) {
+          _fontColorHex.add("FF000000");
         }
       });
+      document.findAllElements('patternFill').forEach((node) {
+        String patternType = node.getAttribute('patternType').toString(), rgb;
+        if (node.children.length > 0) {
+          node.findElements('fgColor').forEach((child) {
+            rgb = node.getAttribute('rgb').toString();
+            _patternFill.add(rgb);
+          });
+        } else {
+          _patternFill.add(patternType);
+        }
+      });
+
+      document.findAllElements('cellXfs').forEach((node1) {
+        node1.findAllElements('xf').forEach((node) {
+          _numFormats.add(_getFontIndex(node, 'numFmtId'));
+
+          String fontColor = "FF000000", backgroundColor = "none";
+          HorizontalAlign horizontalAlign = HorizontalAlign.Left;
+          VerticalAlign verticalAlign = VerticalAlign.Bottom;
+          TextWrapping textWrapping;
+          int fontId = _getFontIndex(node, 'fontId');
+          if (fontId < _fontColorHex.length) {
+            fontColor = _fontColorHex[fontId];
+          }
+
+          int fillId = _getFontIndex(node, 'fillId');
+          if (fillId < _patternFill.length) {
+            backgroundColor = _patternFill[fillId];
+          }
+
+          if (node.children.length > 0) {
+            node.findElements('alignment').forEach((child) {
+              if (_getFontIndex(child, 'wrapText') == 1) {
+                textWrapping = TextWrapping.WrapText;
+              } else if (_getFontIndex(child, 'shrinkToFit') == 1) {
+                textWrapping = TextWrapping.Clip;
+              }
+
+              var vertical = node.getAttribute('vertical');
+              if (vertical != null) {
+                if (vertical.toString() == 'top') {
+                  verticalAlign = VerticalAlign.Top;
+                } else if (vertical.toString() == 'middle') {
+                  verticalAlign = VerticalAlign.Middle;
+                }
+              }
+
+              var horizontal = node.getAttribute('horizontal');
+              if (horizontal != null) {
+                if (horizontal.toString() == 'center') {
+                  horizontalAlign = HorizontalAlign.Center;
+                } else if (horizontal.toString() == 'right') {
+                  horizontalAlign = HorizontalAlign.Right;
+                }
+              }
+            });
+          }
+
+          CellStyle cellStyle = CellStyle(
+              fontColorHex: fontColor,
+              backgroundColorHex: backgroundColor,
+              horizontalAlign: horizontalAlign,
+              verticalAlign: verticalAlign,
+              textWrapping: textWrapping);
+
+          _cellStyleList.add(cellStyle);
+        });
+      });
     } else {
-      _damagedExcel();
+      _damagedExcel(text: 'styles');
     }
+  }
+
+  int _getFontIndex(var node, String text) {
+    int applyFontInt = 0;
+    var applyFont = node.getAttribute(text);
+    if (applyFont != null) {
+      try {
+        applyFontInt = int.parse(applyFont.toString());
+      } catch (_) {}
+    }
+    return applyFontInt;
   }
 
   /// Encode bytes after update
@@ -246,9 +365,7 @@ abstract class Excel {
     }
 
     if (_colorChanges) {
-      _setFontAndPatternFillColors();
-      _setPatternFillSheetColor();
-      _setCellXfs();
+      _processStylesFile();
     }
     _setSheetElements();
     _setSharedStrings();
@@ -315,149 +432,169 @@ abstract class Excel {
     }
   }
 
+  int _checkPosition(List<CellStyle> list, CellStyle cellStyle) {
+    for (int i = 0; i < list.length; i++) {
+      if (list[i] == cellStyle) {
+        return i;
+      }
+    }
+    return -1;
+  }
+
   /// Writing Font Color in [xl/styles.xml] from the Cells of the sheets.
-  _setFontAndPatternFillColors() {
-    _colorMap.values.forEach((innerMap) => innerMap.values.forEach((color) {
-          if (color[0] != null &&
-              color[0] != 'FF000000' &&
-              !_fontColorHex.contains(color[0])) {
-            _fontColorHex.add(color[0]);
-          }
 
-          if (color[1] != null && !_patternFill.contains(color[1])) {
-            _patternFill.add(color[1]);
-          }
+  _processStylesFile() {
+    _innerCellStyle = List<CellStyle>();
+    List<String> innerPatternFill = List<String>(),
+        innerFontColor = List<String>();
 
-          if (!_cellXfs.containsKey(color.toString())) {
-            _cellXfs[color.toString()] = [
-              '${_fontColorHex.indexOf(color[0].toString()) + 1}',
-              '${_patternFill.contains(color[1]) ? _patternFill.indexOf(color[1]) + 2 : 0}',
-              color[2],
-              color[3],
-              color[4]
-            ];
-          }
-        }));
+    _cellStyleOther.keys.toList().forEach((otherSheet) {
+      _cellStyleOther[otherSheet].forEach((String _, CellStyle cellStyleOther) {
+        int pos = _checkPosition(_innerCellStyle, cellStyleOther);
+        if (pos == -1) {
+          _innerCellStyle.add(cellStyleOther);
+        }
+      });
+    });
 
-    _fontColorHex.removeWhere((value) => value == 'FF000000');
+    _innerCellStyle.forEach((cellStyle) {
+      String fontColor = cellStyle.getFontColorHex,
+          backgroundColor = cellStyle.getBackgroundColorHex;
+
+      if (!_fontColorHex.contains(fontColor) &&
+          !innerFontColor.contains(fontColor)) {
+        innerFontColor.add(fontColor);
+      }
+      if (!_patternFill.contains(backgroundColor) &&
+          !innerPatternFill.contains(backgroundColor)) {
+        innerPatternFill.add(backgroundColor);
+      }
+    });
 
     XmlElement fonts =
         _xmlFiles['xl/styles.xml'].findAllElements('fonts').first;
 
-    if (fonts.getAttributeNode('count') != null) {
-      fonts.getAttributeNode('count').value = '${_fontColorHex.length + 1}';
+    var fontAttribute = fonts.getAttributeNode('count');
+    if (fontAttribute != null) {
+      fontAttribute.value = '${_fontColorHex.length + innerFontColor.length}';
     } else {
-      fonts.attributes
-          .add(XmlAttribute(XmlName('count'), '${_fontColorHex.length + 1}'));
+      fonts.attributes.add(XmlAttribute(
+          XmlName('count'), '${_fontColorHex.length + innerFontColor.length}'));
     }
 
-    fonts.children
-      ..clear()
-      ..addAll([
-        XmlElement(XmlName('font'), [], [
-          XmlElement(
-              XmlName('color'), [XmlAttribute(XmlName('rgb'), 'FF000000')], [])
-        ])
-      ]);
-
-    _fontColorHex.forEach((colorValue) =>
+    innerFontColor.forEach((colorValue) =>
         fonts.children.add(XmlElement(XmlName('font'), [], [
           XmlElement(
               XmlName('color'), [XmlAttribute(XmlName('rgb'), colorValue)], [])
         ])));
-  }
 
-  /// Writing Background Color related styling properties into the excel core files.
-  _setPatternFillSheetColor() {
     XmlElement fills =
         _xmlFiles['xl/styles.xml'].findAllElements('fills').first;
-    if (fills.getAttributeNode('count') != null) {
-      fills.getAttributeNode('count').value = '${_patternFill.length + 2}';
+
+    var fillAttribute = fills.getAttributeNode('count');
+
+    if (fillAttribute != null) {
+      fillAttribute.value = '${_patternFill.length + innerPatternFill.length}';
     } else {
-      fills.attributes
-          .add(XmlAttribute(XmlName('count'), '${_patternFill.length + 2}'));
+      fills.attributes.add(XmlAttribute(XmlName('count'),
+          '${_patternFill.length + innerPatternFill.length}'));
     }
 
-    fills.children
-      ..clear()
-      ..addAll([
-        XmlElement(XmlName('fill'), [], [
-          XmlElement(XmlName('patternFill'),
-              [XmlAttribute(XmlName('patternType'), 'none')], [])
-        ]),
-        XmlElement(XmlName('fill'), [], [
-          XmlElement(XmlName('patternFill'),
-              [XmlAttribute(XmlName('patternType'), 'gray125')], [])
-        ])
-      ]);
-
-    _patternFill.forEach((color) {
-      fills.children.add(XmlElement(XmlName('fill'), [], [
-        XmlElement(XmlName('patternFill'), [
-          XmlAttribute(XmlName('patternType'), 'solid')
-        ], [
-          XmlElement(
-              XmlName('fgColor'), [XmlAttribute(XmlName('rgb'), color)], []),
-          XmlElement(
-              XmlName('bgColor'), [XmlAttribute(XmlName('rgb'), color)], [])
-        ])
-      ]));
+    innerPatternFill.forEach((color) {
+      if (color.length >= 2) {
+        if (color.substring(0, 2).toUpperCase() == 'FF') {
+          fills.children.add(XmlElement(XmlName('fill'), [], [
+            XmlElement(XmlName('patternFill'), [
+              XmlAttribute(XmlName('patternType'), 'solid')
+            ], [
+              XmlElement(XmlName('fgColor'),
+                  [XmlAttribute(XmlName('rgb'), color)], []),
+              XmlElement(
+                  XmlName('bgColor'), [XmlAttribute(XmlName('rgb'), color)], [])
+            ])
+          ]));
+        } else if (color == "none" ||
+            color == "gray125" ||
+            color == "lightGray") {
+          fills.children.add(XmlElement(XmlName('fill'), [], [
+            XmlElement(XmlName('patternFill'),
+                [XmlAttribute(XmlName('patternType'), color)], [])
+          ]));
+        }
+      } else {
+        _damagedExcel(text: "Corrupted Styles Found");
+      }
     });
-  }
 
-  /// Writing the alignment and other styling related properties into the excel core files.
-  _setCellXfs() {
     XmlElement celx =
         _xmlFiles['xl/styles.xml'].findAllElements('cellXfs').first;
-    celx.getAttributeNode('count').value = '${_cellXfs.keys.length + 1}';
+    var cellAttribute = celx.getAttributeNode('count');
 
-    celx.children
-      ..clear()
-      ..addAll([
-        XmlElement(XmlName('xf'), [
-          XmlAttribute(XmlName('borderId'), '0'),
-          XmlAttribute(XmlName('fillId'), '0'),
-          XmlAttribute(XmlName('fontId'), '0'),
-          XmlAttribute(XmlName('numFmtId'), '0'),
-          XmlAttribute(XmlName('xfId'), '0')
-        ], [])
-      ]);
+    if (cellAttribute != null) {
+      cellAttribute.value = '${_cellStyleList.length + _innerCellStyle.length}';
+    } else {
+      celx.attributes.add(XmlAttribute(XmlName('count'),
+          '${_cellStyleList.length + _innerCellStyle.length}'));
+    }
 
-    _cellXfs.values.forEach((value) {
+    _innerCellStyle.forEach((cellStyle) {
+      String backgroundColor = cellStyle.getBackgroundColorHex,
+          fontColor = cellStyle.getFontColorHex;
+
+      HorizontalAlign horizontalALign = cellStyle.getHorizontalAlignment;
+      VerticalAlign verticalAlign = cellStyle.getVericalAlignment;
+      TextWrapping textWrapping = cellStyle.getTextWrapping;
+      int backgroundIndex = innerPatternFill.indexOf(backgroundColor),
+          fontIndex = innerFontColor.indexOf(fontColor);
+
       var attributes = <XmlAttribute>[
         XmlAttribute(XmlName('borderId'), '0'),
-        XmlAttribute(XmlName('fillId'), '${value[1]}'),
-        XmlAttribute(XmlName('fontId'), '${value[0]}'),
+        XmlAttribute(XmlName('fillId'),
+            '${backgroundIndex == -1 ? 0 : backgroundIndex + _patternFill.length}'),
+        XmlAttribute(XmlName('fontId'),
+            '${fontIndex == -1 ? 0 : fontIndex + _fontColorHex.length}'),
         XmlAttribute(XmlName('numFmtId'), '0'),
         XmlAttribute(XmlName('xfId'), '0'),
       ];
 
-      if (value[1] != '0') {
+      if ((_patternFill.contains(backgroundColor) ||
+              innerPatternFill.contains(backgroundColor)) &&
+          backgroundColor != "none" &&
+          backgroundColor != "gray125" &&
+          backgroundColor.toLowerCase() != "lightgray") {
         attributes.add(XmlAttribute(XmlName('applyFill'), '1'));
       }
 
-      if (value[0] != '0') {
+      if ((_fontColorHex.contains(fontColor) ||
+          innerFontColor.contains(fontColor))) {
         attributes.add(XmlAttribute(XmlName('applyFont'), '1'));
       }
 
       var children = <XmlElement>[];
 
-      if (value[2] != null || value[3] != null || value[4] != null) {
+      if (horizontalALign != HorizontalAlign.Left ||
+          textWrapping != null ||
+          verticalAlign != VerticalAlign.Bottom) {
         attributes.add(XmlAttribute(XmlName('applyAlignment'), '1'));
         var childAttributes = <XmlAttribute>[];
 
-        if (value[2] != null) {
+        if (textWrapping != null) {
           childAttributes.add(XmlAttribute(
-              XmlName(value[2] == '0' ? 'shrinkToFit' : 'wrapText'), '1'));
+              XmlName(textWrapping == TextWrapping.Clip
+                  ? 'shrinkToFit'
+                  : 'wrapText'),
+              '1'));
         }
 
-        if (value[3] != null) {
-          childAttributes.add(XmlAttribute(XmlName('vertical'), '${value[3]}'));
+        if (verticalAlign != VerticalAlign.Bottom) {
+          String ver = verticalAlign == VerticalAlign.Top ? 'top' : 'center';
+          childAttributes.add(XmlAttribute(XmlName('vertical'), '$ver'));
         }
 
-        if (value[4] != null) {
-          childAttributes
-              .add(XmlAttribute(XmlName('horizontal'), '${value[4]}'));
+        if (horizontalALign != HorizontalAlign.Left) {
+          String hor =
+              verticalAlign == HorizontalAlign.Right ? 'right' : 'middle';
+          childAttributes.add(XmlAttribute(XmlName('horizontal'), '$hor'));
         }
 
         children.add(XmlElement(XmlName('alignment'), childAttributes, []));
@@ -467,7 +604,8 @@ abstract class Excel {
     });
   }
 
-  /// Writing the value of excel cells into the separated sharedStrings so as to minimize the size of excel files.
+  /// Writing the value of excel cells into the separate
+  /// sharedStrings file so as to minimize the size of excel files.
   _setSharedStrings() {
     String count = _sharedStrings.length.toString();
     List uniqueList = _sharedStrings.toSet().toList();
@@ -638,9 +776,6 @@ abstract class Excel {
     });
   }
 
-  /// Dump XML content (for debug purpose)
-  String dumpXmlContent([String sheet]);
-
   _checkSheetArguments(String sheet) {
     if (!_update) {
       throw ArgumentError("'update' should be set to 'true' on constructor");
@@ -707,9 +842,9 @@ abstract class Excel {
       _mergeChangeLookup = sheet;
     }
 
-    if (_spanMap.containsKey(sheet) && _colorMap.containsKey(sheet)) {
-      Map newColorMap = Map<String, List<String>>();
-      _colorMap[sheet].forEach((key, value) {
+    if (_spanMap.containsKey(sheet) && _cellStyleOther.containsKey(sheet)) {
+      Map newColorMap = Map<String, CellStyle>();
+      _cellStyleOther[sheet].forEach((key, value) {
         List l = cellCoordsFromCellId(key);
         int startRow = l[0], startColumn = l[1];
         String newKey = key;
@@ -718,7 +853,7 @@ abstract class Excel {
         }
         newColorMap[newKey] = value;
       });
-      _colorMap[sheet] = Map.from(newColorMap);
+      _cellStyleOther[sheet] = Map.from(newColorMap);
     }
 
     var table = _tables[sheet];
@@ -799,9 +934,9 @@ abstract class Excel {
       _mergeChangeLookup = sheet;
     }
 
-    if (_spanMap.containsKey(sheet) && _colorMap.containsKey(sheet)) {
+    if (_spanMap.containsKey(sheet) && _cellStyleOther.containsKey(sheet)) {
       Map newColorMap = Map<String, List<String>>();
-      _colorMap[sheet].forEach((key, value) {
+      _cellStyleOther[sheet].forEach((key, value) {
         List l = cellCoordsFromCellId(key);
         int startRow = l[0], startColumn = l[1];
         String newKey = key;
@@ -812,7 +947,7 @@ abstract class Excel {
           newColorMap[newKey] = value;
         }
       });
-      _colorMap[sheet] = Map.from(newColorMap);
+      _cellStyleOther[sheet] = Map.from(newColorMap);
     }
 
     var table = _tables[sheet];
@@ -864,9 +999,9 @@ abstract class Excel {
       _mergeChangeLookup = sheet;
     }
 
-    if (_spanMap.containsKey(sheet) && _colorMap.containsKey(sheet)) {
+    if (_spanMap.containsKey(sheet) && _cellStyleOther.containsKey(sheet)) {
       Map newColorMap = Map<String, List<String>>();
-      _colorMap[sheet].forEach((key, value) {
+      _cellStyleOther[sheet].forEach((key, value) {
         List l = cellCoordsFromCellId(key);
         int startRow = l[0], startColumn = l[1];
         String newKey = key;
@@ -875,7 +1010,7 @@ abstract class Excel {
         }
         newColorMap[newKey] = value;
       });
-      _colorMap[sheet] = Map.from(newColorMap);
+      _cellStyleOther[sheet] = Map.from(newColorMap);
     }
 
     var table = _tables[sheet];
@@ -951,9 +1086,9 @@ abstract class Excel {
       _mergeChangeLookup = sheet;
     }
 
-    if (_spanMap.containsKey(sheet) && _colorMap.containsKey(sheet)) {
+    if (_spanMap.containsKey(sheet) && _cellStyleOther.containsKey(sheet)) {
       Map newColorMap = Map<String, List<String>>();
-      _colorMap[sheet].forEach((key, value) {
+      _cellStyleOther[sheet].forEach((key, value) {
         List l = cellCoordsFromCellId(key);
         int startRow = l[0], startColumn = l[1];
         String newKey = key;
@@ -964,7 +1099,7 @@ abstract class Excel {
           newColorMap[newKey] = value;
         }
       });
-      _colorMap[sheet] = Map.from(newColorMap);
+      _cellStyleOther[sheet] = Map.from(newColorMap);
     }
 
     var table = _tables[sheet];
@@ -1305,12 +1440,9 @@ abstract class Excel {
   // Cleaning up the null values from the Span Map
   _cleanUpSpanMap(String sheet) {
     _spanMap[sheet].removeWhere((value) => value == null);
-    print(_spanMap.toString());
     if (_spanMap.containsKey(sheet) && _spanMap[sheet].length < 1) {
       _spanMap.remove(sheet);
     }
-
-    print(_spanMap.toString());
   }
 
   bool _isEmptyRow(List row) {
@@ -1354,7 +1486,7 @@ abstract class Excel {
     var sheet = worksheet.findElements('sheetData').first;
 
     _findRows(sheet).forEach((child) {
-      _parseRow(child, table);
+      _parseRow(child, table, name);
     });
 
     if (_update) {
@@ -1366,11 +1498,11 @@ abstract class Excel {
     _normalizeTable(table);
   }
 
-  _parseRow(XmlElement node, DataTable table) {
+  _parseRow(XmlElement node, DataTable table, String name) {
     var row = List();
 
     _findCells(node).forEach((child) {
-      _parseCell(child, table, row);
+      _parseCell(child, table, row, name);
     });
 
     var rowIndex = _getRowNumber(node) - 1;
@@ -1390,12 +1522,28 @@ abstract class Excel {
     _countFilledRow(table, row);
   }
 
-  _parseCell(XmlElement node, DataTable table, List row) {
+  _parseCell(XmlElement node, DataTable table, List row, String name) {
     var colIndex = _getCellNumber(node);
     if (colIndex > row.length) {
       var repeat = colIndex - row.length;
       for (var index = 0; index < repeat; index++) {
         row.add(null);
+      }
+    }
+
+    var s1 = node.getAttribute('s');
+    int s = 0;
+    if (s1 != null) {
+      try {
+        s = int.parse(s1.toString());
+      } catch (_) {}
+
+      String rC = node.getAttribute('r').toString();
+
+      if (_cellStyleReferenced.containsKey(name)) {
+        _cellStyleReferenced[name][rC] = s;
+      } else {
+        _cellStyleReferenced[name] = {rC: s};
       }
     }
 
@@ -1408,7 +1556,6 @@ abstract class Excel {
     switch (type) {
       // sharedString
       case 's':
-        print(_sharedStrings.toList().toString());
         value = _sharedStrings[
             int.parse(_parseValue(node.findElements('v').first))];
         break;
@@ -1432,11 +1579,10 @@ abstract class Excel {
       // number
       case 'n':
       default:
-        var s = node.getAttribute('s');
         var valueNode = node.findElements('v');
         var content = valueNode.first;
-        if (s != null) {
-          var fmtId = _numFormats[int.parse(s)];
+        if (s1 != null) {
+          var fmtId = _numFormats[s];
           // date
           if (((fmtId >= 14) && (fmtId <= 17)) || (fmtId == 22)) {
             var delta = num.parse(_parseValue(content)) * 24 * 3600 * 1000;
@@ -1591,14 +1737,28 @@ abstract class Excel {
     ];
 
     if (_colorChanges &&
-        _colorMap.containsKey(sheet) &&
-        _colorMap[sheet].containsKey(rC)) {
-      String color = _colorMap[sheet][rC].toString();
-
+        _cellStyleOther.containsKey(sheet) &&
+        _cellStyleOther[sheet].containsKey(rC)) {
+      CellStyle cellStyle = _cellStyleOther[sheet][rC];
+      int upperLevelPos = _checkPosition(_cellStyleList, cellStyle);
+      if (upperLevelPos == -1) {
+        int lowerLevelPos = _checkPosition(_innerCellStyle, cellStyle);
+        if (lowerLevelPos != -1) {
+          upperLevelPos = lowerLevelPos + _cellStyleList.length;
+        } else {
+          upperLevelPos = 0;
+        }
+      }
       attributes.insert(
         1,
-        XmlAttribute(XmlName('s'),
-            '${_cellXfs.containsKey(color) ? _cellXfs.keys.toList().indexOf(color) + 1 : 0}'),
+        XmlAttribute(XmlName('s'), '$upperLevelPos'),
+      );
+    } else if (_colorChanges &&
+        _cellStyleReferenced.containsKey(sheet) &&
+        _cellStyleReferenced[sheet].containsKey(rC)) {
+      attributes.insert(
+        1,
+        XmlAttribute(XmlName('s'), '${_cellStyleReferenced[sheet][rC]}'),
       );
     }
     var children = value == null
@@ -1609,61 +1769,4 @@ abstract class Excel {
           ];
     return XmlElement(XmlName('c'), attributes, children);
   }
-}
-
-class CellIndex {
-  const CellIndex.indexByColumnRow({this.columnIndex, this.rowIndex});
-
-  static CellIndex indexByString(String cellIndex) {
-    return CellIndex.indexByColumnRow(
-        rowIndex: cellCoordsFromCellId(cellIndex)[0],
-        columnIndex: cellCoordsFromCellId(cellIndex)[1]);
-  }
-
-  final int rowIndex;
-
-  int get _rowIndex => rowIndex;
-
-  final int columnIndex;
-
-  int get _columnIndex => columnIndex;
-}
-
-/// Table of a spreadsheet file
-class DataTable {
-  final String name;
-  DataTable(this.name);
-
-  int _maxRows = 0, _maxCols = 0;
-
-  List<List> _rows = List<List>();
-
-  /// List of table's rows
-  List<List> get rows => _rows;
-
-  /// Get max rows
-  int get maxRows => _maxRows;
-
-  /// Get max cols
-  int get maxCols => _maxCols;
-}
-
-class _Span {
-  _Span();
-
-  List<int> __start = List<int>();
-
-  List<int> __end = List<int>();
-
-  set _start(List<int> val) => __start = val;
-
-  set _end(List<int> val) => __end = val;
-
-  int get rowSpanStart => __start[0];
-
-  int get rowSpanEnd => __end[0];
-
-  int get columnSpanStart => __start[1];
-
-  int get columnSpanEnd => __end[1];
 }

@@ -10,22 +10,26 @@ Excel is a flutter and dart library for creating and updating excel-sheets for X
 
 ## Usage
 
-### Read XLSX File
+### Imports
 
 ````dart
     import 'dart:io';
     import 'package:path/path.dart';
     import 'package:excel/excel.dart';
     
-    var file = "Path_to_pre_existing_Excel_File/NewExcel.xlsx";
+````
+### Read XLSX File
+
+````dart
+    var file = "Path_to_pre_existing_Excel_File/excel_file.xlsx";
     var bytes = File(file).readAsBytesSync();
-    var decoder = Excel.decodeBytes(bytes, update: true);
+    var updater = Excel.decodeBytes(bytes, update: true);
     
-    for (var table in decoder.tables.keys) {
+    for (var table in updater.tables.keys) {
       print(table); //sheet Name
-      print(decoder.tables[table].maxCols);
-      print(decoder.tables[table].maxRows);
-      for (var row in decoder.tables[table].rows) {
+      print(updater.tables[table].maxCols);
+      print(updater.tables[table].maxRows);
+      for (var row in updater.tables[table].rows) {
         print("$row");
       }
     }
@@ -34,10 +38,10 @@ Excel is a flutter and dart library for creating and updating excel-sheets for X
 ### Create XLSX File
     
 ````dart
-    var decoder = Excel.createExcel(); //automatically creates 3 sheets Sheet1, Sheet2 and Sheet3 
+    var updater = Excel.createExcel(); //automatically creates 3 sheets Sheet1, Sheet2 and Sheet3 
      
-    //find desired sheet name in decoder/file;
-    for (var tableName in decoder.tables.keys) {
+    //find desired sheet name in updater/file;
+    for (var tableName in updater.tables.keys) {
       if( desiredSheetName.toString() == tableName.toString() ){
         sheet = tableName.toString();
         break;
@@ -49,28 +53,28 @@ Excel is a flutter and dart library for creating and updating excel-sheets for X
  
  ````dart
       /* 
-      * decoder.updateCell('sheetName',cell,value,options?);
-      * if sheet === 'sheetName' does not exist in decoder, it will create automatically after calling updateCell method
+      * updater.updateCell('sheetName',cell,value,options?);
+      * if sheet === 'sheetName' does not exist in updater, it will create automatically after calling updateCell method
       * cell can be identified  with Cell Address or by 2D array having row and column Index;
       * Cell options are optional
       */
       
       
       //update cell with cellAddress
-      decoder.updateCell(sheet, CellIndex.indexByString("A1"), "Here value of A1");
+      updater.updateCell(sheet, CellIndex.indexByString("A1"), "Here value of A1");
         
       //update cell with row and column index
-      decoder.updateCell(sheet, CellIndex.indexByColumnRow(columnIndex: 2, rowIndex: 0),"Here value of C1");
+      updater.updateCell(sheet, CellIndex.indexByColumnRow(columnIndex: 2, rowIndex: 0),"Here value of C1");
         
       //update cell and it's background color
       deocder.updateCell(sheet, CellIndex.indexByString("A2"), "Here value of A2",backgroundColorHex: "#1AFF1A")
       
       //update alignment
-      decoder.updateCell(sheet, CellIndex.indexByString("E5"), "Here value of E5",horizontalAlign: HorizontalAlign.Right);
+      updater.updateCell(sheet, CellIndex.indexByString("E5"), "Here value of E5",horizontalAlign: HorizontalAlign.Right);
     
       // Save the Changes in file
 
-      decoder.encode().then((onValue) {
+      updater.encode().then((onValue) {
         File(join("Path_to_destination/excel.xlsx"))
         ..createSync(recursive: true)
         ..writeAsBytesSync(onValue);
@@ -90,8 +94,9 @@ key | description
 
 ## Features coming in next version
 On-going implementation for future:
-- spanned rows (Comming Soon in future updates)
-- spanned columns (Comming Soon in future updates)
+- Formulas
+- Font Family
+- Text Size
 
 ## Important:
 For XLSX format, this implementation only supports native Excel format for date, time and boolean type conversion.
