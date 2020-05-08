@@ -843,7 +843,7 @@ abstract class Excel {
     }
 
     if (_spanMap.containsKey(sheet) && _cellStyleOther.containsKey(sheet)) {
-      Map newColorMap = Map<String, CellStyle>();
+      Map<String, CellStyle> newColorMap = Map<String, CellStyle>();
       _cellStyleOther[sheet].forEach((key, value) {
         List l = cellCoordsFromCellId(key);
         int startRow = l[0], startColumn = l[1];
@@ -935,7 +935,7 @@ abstract class Excel {
     }
 
     if (_spanMap.containsKey(sheet) && _cellStyleOther.containsKey(sheet)) {
-      Map newColorMap = Map<String, List<String>>();
+      Map<String, CellStyle> newColorMap = Map<String, CellStyle>();
       _cellStyleOther[sheet].forEach((key, value) {
         List l = cellCoordsFromCellId(key);
         int startRow = l[0], startColumn = l[1];
@@ -1000,7 +1000,7 @@ abstract class Excel {
     }
 
     if (_spanMap.containsKey(sheet) && _cellStyleOther.containsKey(sheet)) {
-      Map newColorMap = Map<String, List<String>>();
+      Map<String, CellStyle> newColorMap = Map<String, CellStyle>();
       _cellStyleOther[sheet].forEach((key, value) {
         List l = cellCoordsFromCellId(key);
         int startRow = l[0], startColumn = l[1];
@@ -1087,7 +1087,7 @@ abstract class Excel {
     }
 
     if (_spanMap.containsKey(sheet) && _cellStyleOther.containsKey(sheet)) {
-      Map newColorMap = Map<String, List<String>>();
+      Map<String, CellStyle> newColorMap = Map<String, CellStyle>();
       _cellStyleOther[sheet].forEach((key, value) {
         List l = cellCoordsFromCellId(key);
         int startRow = l[0], startColumn = l[1];
