@@ -41,7 +41,7 @@ void main(List<String> args) {
   updater.merge(
       sheet, CellIndex.indexByString("A1"), CellIndex.indexByString("E4"),
       customValue: "Now it is merged");
-
+      
   updater.removeColumn(sheet, 2);
   updater.insertRow(sheet, 2);
 

@@ -42,7 +42,7 @@ String _twoDigits(int n) {
 
 /// Read and parse XSLX spreadsheet
 class XlsxDecoder extends Excel {
-  String get mediaType {
+  String get _mediaType {
     return "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
   }
 

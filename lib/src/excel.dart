@@ -101,7 +101,7 @@ abstract class Excel {
   String _stylesTarget, _sharedStringsTarget;
 
   /// Media type
-  String get mediaType;
+  String get _mediaType;
 
   /// Filename extension
   String get extension;
@@ -383,9 +383,9 @@ abstract class Excel {
   }
 
   /// Encode data url
-  String dataUrl() {
+  String _dataUrl() {
     var buffer = StringBuffer();
-    buffer.write('data:$mediaType;base64,');
+    buffer.write('data:$_mediaType;base64,');
     encode().then((onValue) {
       buffer.write(base64Encode(onValue));
     });
