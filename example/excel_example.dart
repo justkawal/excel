@@ -44,14 +44,17 @@ void main(List<String> args) {
       customValue: "Now it is merged");
 
   updater.removeColumn(sheet, 2);
+
   updater.insertRow(sheet, 2);
 
   updater.setDefaultSheet(sheet).then((_) {});
 
   updater.getDefaultSheet().then((value) {
-    print(value);
+    print("Default Sheet:" + value.toString());
   });
 
+  // After removal of column and insertion of row merged - A1:E4 becomes merged - A1:D5
+  // So we have to call un-merge at A1:D5
   updater.unMerge(sheet, getPosition("A1:D5"));
 
   // Saving the file
