@@ -18,12 +18,6 @@ void main(List<String> args) {
   // if sheet with name = Sheet24 does not exist then it will be automatically created.
   var sheet = 'Sheet24';
 
-  int getPosition(String val) {
-    List<String> spannedCells = updater.getSpannedItems(sheet);
-    print(spannedCells.toString());
-    return spannedCells.indexOf(val);
-  }
-
   updater.updateCell(sheet, CellIndex.indexByString("A1"), "Here Value of A1",
       backgroundColorHex: "#1AFF1A", verticalAlign: VerticalAlign.Bottom);
 
@@ -43,19 +37,33 @@ void main(List<String> args) {
       sheet, CellIndex.indexByString("A1"), CellIndex.indexByString("E4"),
       customValue: "Now it is merged");
 
+  // Remove a column from index = 2
   updater.removeColumn(sheet, 2);
 
+  // Insert row at index = 2;
   updater.insertRow(sheet, 2);
 
-  updater.setDefaultSheet(sheet).then((_) {});
+  updater.setDefaultSheet(sheet).then((isSet) {
+    // isSet is bool which tells that whether the setting of default sheet is successful or not.
+    if (isSet) {
+      print("$sheet is set to default sheet.");
+    } else {
+      print("Unable to set $sheet to default sheet.");
+    }
+  });
 
   updater.getDefaultSheet().then((value) {
     print("Default Sheet:" + value.toString());
   });
 
+  // Check which cells are merged
+  updater.getSpannedItems(sheet).forEach((cells) {
+    print("Merged:" + cells.toString());
+  });
+
   // After removal of column and insertion of row merged - A1:E4 becomes merged - A1:D5
   // So we have to call un-merge at A1:D5
-  updater.unMerge(sheet, getPosition("A1:D5"));
+  updater.unMerge(sheet, "A1:D5");
 
   // Saving the file
 

@@ -382,6 +382,7 @@ abstract class Excel {
     return ZipEncoder().encode(_cloneArchive(_archive));
   }
 
+  /// It returns the name of the default sheet.
   Future<String> getDefaultSheet() async {
     XmlElement _sheet =
         _xmlFiles['xl/workbook.xml'].findAllElements('sheet').first;
@@ -398,6 +399,7 @@ abstract class Excel {
     return null;
   }
 
+  /// It returns to true if the passed sheetName is set to default sheet otherwise returns false
   Future<bool> setDefaultSheet(String sheetName) async {
     int position = -1;
     List<XmlElement> sheetList =
@@ -1459,15 +1461,14 @@ abstract class Excel {
    *        updater.unMerge(sheet, spannedCells.indexOf(cellToUnMerge));
    * 
    */
-  unMerge(String sheet, int position) {
+  unMerge(String sheet, String unmergeCells) {
     if (_spannedItems != null &&
         _spannedItems.containsKey(sheet) &&
         _spanMap != null &&
         _spanMap.containsKey(sheet) &&
-        position >= 0 &&
-        position < _spannedItems[sheet].length) {
-      String cellId = _spannedItems[sheet][position];
-      List<String> lis = cellId.split(RegExp(r":"));
+        unmergeCells != null &&
+        _spannedItems[sheet].contains(unmergeCells)) {
+      List<String> lis = unmergeCells.split(RegExp(r":"));
       if (lis.length == 2) {
         bool remove = false;
         List<int> start, end;
@@ -1489,7 +1490,7 @@ abstract class Excel {
           _cleanUpSpanMap(sheet);
         }
       }
-      _spannedItems[sheet].remove(cellId);
+      _spannedItems[sheet].remove(unmergeCells);
       _mergeChangeLookup = sheet;
     }
   }
