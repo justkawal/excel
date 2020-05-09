@@ -47,7 +47,7 @@ dependencies:
 ### Create XLSX File
     
 ````dart
-    var updater = Excel.createExcel(); //automatically creates 3 sheets Sheet1, Sheet2 and Sheet3 
+    var updater = Excel.createExcel(); //automatically creates 3 empty sheets Sheet1, Sheet2 and Sheet3 
      
     //find desired sheet name in updater/file;
     for (var tableName in updater.tables.keys) {
@@ -68,6 +68,7 @@ dependencies:
       * Cell options are optional
       */
       
+      var sheet = 'SheetName';
       
       //update cell with cellAddress
       updater.updateCell(sheet, CellIndex.indexByString("A1"), "Here value of A1");
@@ -132,6 +133,54 @@ key | description
     
    ````
  
+  ### Get Default Opening Sheet
+ 
+ ````dart
+     /* 
+     * Asynchronous method which returns the name of the default sheet
+     * updater.getDefaultSheet();
+     */
+ 
+      updater.getDefaultSheet().then((value) {
+        print("Default Sheet:" + value.toString());
+      });
+      
+      or
+      
+      var defaultSheet = await updater.getDefaultSheet();
+      print("Default Sheet:" + defaultSheet.toString());
+    
+   ````
+   
+  ### Set Default Opening Sheet
+ 
+ ````dart
+     /* 
+     * Asynchronous method which sets the name of the default sheet
+     * returns bool if successful then true else false
+     * updater.setDefaultSheet(sheet);
+     * sheet = 'SheetName'
+     */
+ 
+      updater.setDefaultSheet(sheet).then((isSet) {
+        if (isSet) {
+            print("$sheet is set to default sheet.");
+        } else {
+            print("Unable to set $sheet to default sheet.");
+        }
+      });
+      
+      or
+      
+      var isSet = await updater.setDefaultSheet(sheet);
+      if (isSet) {
+        print("$sheet is set to default sheet.");
+      } else {
+        print("Unable to set $sheet to default sheet.");
+      }
+    
+   ````
+   
  ### Saving XLSX File
  
  ````dart
@@ -150,6 +199,9 @@ On-going implementation for future:
 - Formulas
 - Font Family
 - Text Size
+- Italic
+- Underline
+- Bold
 
 ## Important:
 For XLSX format, this implementation only supports native Excel format for date, time and boolean type conversion.
