@@ -132,7 +132,7 @@ abstract class Excel {
   _damagedExcel({String text}) {
     String t = '\nDamaged Excel file:';
     if (text != null) {
-      t += ' $text not found.';
+      t += ' $text';
     }
     throw ArgumentError(t + '\n');
   }
@@ -380,6 +380,63 @@ abstract class Excel {
       _archiveFiles[xmlFile] = ArchiveFile(xmlFile, content.length, content);
     }
     return ZipEncoder().encode(_cloneArchive(_archive));
+  }
+
+  Future<String> getDefaultSheet() async {
+    XmlElement _sheet =
+        _xmlFiles['xl/workbook.xml'].findAllElements('sheet').first;
+
+    if (_sheet != null) {
+      var defaultSheet = _sheet.getAttribute('name');
+      if (defaultSheet != null) {
+        return defaultSheet.toString();
+      } else {
+        _damagedExcel(
+            text: 'Excel sheet corrupted!! Try creating new excel file.');
+      }
+    }
+    return null;
+  }
+
+  Future<bool> setDefaultSheet(String sheetName) async {
+    int position = -1;
+    List<XmlElement> sheetList =
+        _xmlFiles['xl/workbook.xml'].findAllElements('sheet').toList();
+    XmlElement elementFound;
+
+    for (int i = 0; i < sheetList.length; i++) {
+      var _sheetName = sheetList[i].getAttribute('name');
+      if (_sheetName != null && _sheetName.toString() == sheetName) {
+        elementFound = sheetList[i];
+        position = i;
+        break;
+      }
+    }
+
+    if (position == -1) {
+      return false;
+    }
+    if (position == 0) {
+      return true;
+    }
+
+    _xmlFiles['xl/workbook.xml']
+        .findAllElements('sheets')
+        .first
+        .children
+        .removeAt(position);
+
+    _xmlFiles['xl/workbook.xml']
+        .findAllElements('sheets')
+        .first
+        .children
+        .insert(0, elementFound);
+
+    String expectedSheet = await getDefaultSheet();
+
+    print((expectedSheet == sheetName).toString());
+
+    return expectedSheet == sheetName;
   }
 
   /// Encode data url

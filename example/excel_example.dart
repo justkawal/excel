@@ -20,6 +20,7 @@ void main(List<String> args) {
 
   int getPosition(String val) {
     List<String> spannedCells = updater.getSpannedItems(sheet);
+    print(spannedCells.toString());
     return spannedCells.indexOf(val);
   }
 
@@ -41,11 +42,17 @@ void main(List<String> args) {
   updater.merge(
       sheet, CellIndex.indexByString("A1"), CellIndex.indexByString("E4"),
       customValue: "Now it is merged");
-      
+
   updater.removeColumn(sheet, 2);
   updater.insertRow(sheet, 2);
 
-  // updater.unMerge(sheet, getPosition("A1:E4"));
+  updater.setDefaultSheet(sheet).then((_) {});
+
+  updater.getDefaultSheet().then((value) {
+    print(value);
+  });
+
+  updater.unMerge(sheet, getPosition("A1:D5"));
 
   // Saving the file
 
