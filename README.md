@@ -1,16 +1,16 @@
 ## Donate (Be the First to Donate)
 
-Please consider donating if you think excel is helpful to you or that my work is valuable. I will be happy if you can help me buy a [cup of coffee. Paypal Me ](https://www.paypal.me/kawal7415) on paypal.me/kawal7415
+Please consider donating if you think excel is helpful to you or that my work is valuable. I will be happy if you can help me upgrade my lazy laptop. [Paypal Me on paypal.me/kawal7415](https://www.paypal.me/kawal7415)
 
 [![GitHub issues](https://img.shields.io/github/issues/kawal7415/excel)](https://github.com/kawal7415/excel/issues)[![GitHub forks](https://img.shields.io/github/forks/kawal7415/excel)](https://github.com/kawal7415/excel/network)[![GitHub stars](https://img.shields.io/github/stars/kawal7415/excel)](https://github.com/kawal7415/excel/stargazers)
 
 # Excel
 
-Excel is a flutter and dart library for creating and updating excel-sheets for XLSX files.
+[Excel](https://www.pub.dev/packages/excel) is a flutter and dart library for creating and updating excel-sheets for XLSX files.
 
 ## Usage
 
-### Adding dependency
+### Adding dependency in pubspec.yaml
 
 ````dart
     
@@ -92,6 +92,46 @@ key | description
  horizontalAlign | align text horizontally ````enum HorizontalAlign { Left, Center, Right }```` eg. HorizontalAlign.Right
 
 
+ ### Merge Cells
+ 
+ ````dart
+     /* 
+     * updater.merge('sheetName', starting_cell, ending_cell, 'customValue');
+     * sheet === 'sheetName' in which merging of rows and columns is to be done
+     * starting_cell and ending_cell can be identified with Cell Address or by 2D array having row and column Index;
+     * customValue is optional
+     */
+ 
+      updater.merge(sheet, CellIndex.indexByString("A1"), CellIndex.indexByString("E4"), customValue: "Put this text after merge");
+    
+   ````
+   
+ ### Get Merged Cells List
+ 
+ ````dart
+      // Check which cells are merged
+ 
+      updater.getSpannedItems(sheet).forEach((cells) {
+        print("Merged:" + cells.toString());
+      });
+    
+   ````
+   
+ ### Un-Merge Cells
+ 
+ ````dart
+     /* 
+     * updater.unMerge(sheet, cell);
+     * sheet === 'sheetName' in which un-merging of rows and columns is to be done
+     * cell should be identified with string only with an example as "A1:E4"
+     * to check if "A1:E4" is un-merged or not
+     * call the method updater.getSpannedItems(sheet); and verify that it is not present in it.
+     */
+ 
+      updater.unMerge(sheet, "A1:E4");
+    
+   ````
+ 
  ### Saving XLSX File
  
  ````dart

@@ -441,16 +441,6 @@ abstract class Excel {
     return expectedSheet == sheetName;
   }
 
-  /// Encode data url
-  String _dataUrl() {
-    var buffer = StringBuffer();
-    buffer.write('data:$_mediaType;base64,');
-    encode().then((onValue) {
-      buffer.write(base64Encode(onValue));
-    });
-    return buffer.toString();
-  }
-
   Archive _cloneArchive(Archive archive) {
     var clone = Archive();
     archive.files.forEach((file) {
@@ -1225,6 +1215,7 @@ abstract class Excel {
 
   void merge(String sheet, CellIndex start, CellIndex end,
       {dynamic customValue}) {
+    _checkSheetArguments(sheet);
     int startColumn = start._columnIndex,
         startRow = start._rowIndex,
         endColumn = end._columnIndex,
