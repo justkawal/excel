@@ -436,8 +436,6 @@ abstract class Excel {
 
     String expectedSheet = await getDefaultSheet();
 
-    print((expectedSheet == sheetName).toString());
-
     return expectedSheet == sheetName;
   }
 
