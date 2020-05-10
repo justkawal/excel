@@ -2,7 +2,21 @@
 All notable changes to this project will be documented in this file.
 
 ## [Future Updates coming soon]
-- Spanning of Rows and Columns
+- Formulas
+- Font Family
+- Text Size
+- Italic
+- Underline
+- Bold
+- Add row / column from Iterables
+
+## [1.0.3] - 2020-05-10
+### Added
+- Merging of Rows and Columns
+- Un-Merging of Rows and Columns
+- Font Color
+- Background Color
+- Setting Default Sheet
 
 ## [1.0.2] - 2020-02-18
 ### Improved

@@ -214,6 +214,7 @@ On-going implementation for future:
 - Italic
 - Underline
 - Bold
+- Add row / column from Iterables
 
 ## Paypal Me
 
