@@ -5,9 +5,9 @@ import 'package:excel/excel.dart';
 void main(List<String> args) {
   var file = "/Users/kawal/Desktop/excel2.xlsx";
   var bytes = File(file).readAsBytesSync();
-  var excel = Excel.createExcel();
+  //var excel = Excel.createExcel();
   // or
-  //var excel = Excel.decodeBytes(bytes, update: true);
+  var excel = Excel.decodeBytes(bytes, update: true);
   for (var table in excel.tables.keys) {
     print(table);
     print(excel.tables[table].maxCols);
