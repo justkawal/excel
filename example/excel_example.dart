@@ -21,8 +21,7 @@ void main(List<String> args) {
   var sheet = 'Sheet24';
 
   excel.updateCell(sheet, CellIndex.indexByString("A1"), "Here Value of A1",
-      backgroundColorHex: "#1AFF1A",
-      horizontalAlign: HorizontalAlign.Center);
+      backgroundColorHex: "#1AFF1A", horizontalAlign: HorizontalAlign.Center);
 
   excel.updateCell(
       sheet,
@@ -73,9 +72,9 @@ void main(List<String> args) {
 
   // After removal of column and insertion of row merged - A1:E4 becomes merged - A1:D5
   // So we have to call un-merge at A1:D5
-  /* if (mergedCells.contains("A1:D5")) {
+  if (mergedCells.contains("A1:D5")) {
     excel.unMerge(sheet, "A1:D5");
-  } */
+  }
 
   // Saving the file
 
