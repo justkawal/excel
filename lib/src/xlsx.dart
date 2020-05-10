@@ -40,12 +40,8 @@ String _twoDigits(int n) {
   return "0$n";
 }
 
-/// Read and parse XSLX spreadsheet
+/// Read and parse XSLX file
 class XlsxDecoder extends Excel {
-  String get _mediaType {
-    return "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
-  }
-
   String get extension {
     return ".xlsx";
   }

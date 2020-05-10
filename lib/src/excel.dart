@@ -103,7 +103,7 @@ abstract class Excel {
   /// Filename extension
   String get extension;
 
-  /// Tables contained in spreadsheet file indexed by their names
+  /// Tables contained in excel file indexed by their names
   Map<String, DataTable> get tables => _tables;
 
   Excel();

@@ -77,7 +77,7 @@ dependencies:
       excel.updateCell(sheet, CellIndex.indexByColumnRow(columnIndex: 2, rowIndex: 0), "Here value of C1");
         
       //update cell and it's background color
-      deocder.updateCell(sheet, CellIndex.indexByString("A2"), "Here value of A2", backgroundColorHex: "#1AFF1A")
+      excel.updateCell(sheet, CellIndex.indexByString("A2"), "Here value of A2", backgroundColorHex: "#1AFF1A")
       
       //update alignment
       excel.updateCell(sheet, CellIndex.indexByString("E5"), "Here value of E5", horizontalAlign: HorizontalAlign.Right);

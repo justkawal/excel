@@ -1,6 +1,6 @@
 part of excel;
 
-/// Table of a spreadsheet file
+/// Table of a excel file
 class DataTable {
   final String name;
   DataTable(this.name);
