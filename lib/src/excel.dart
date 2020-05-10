@@ -100,9 +100,6 @@ abstract class Excel {
   List<int> _numFormats;
   String _stylesTarget, _sharedStringsTarget;
 
-  /// Media type
-  String get _mediaType;
-
   /// Filename extension
   String get extension;
 
@@ -181,7 +178,7 @@ abstract class Excel {
       }
     }
     if (_sheetId == -1) {
-      if (sheetIdList.length == 0) {
+      if (sheetIdList.isEmpty) {
         _sheetId = 1;
       } else {
         _sheetId = sheetIdList.length;
@@ -276,7 +273,7 @@ abstract class Excel {
       });
       document.findAllElements('patternFill').forEach((node) {
         String patternType = node.getAttribute('patternType').toString(), rgb;
-        if (node.children.length > 0) {
+        if (node.children.isNotEmpty) {
           node.findElements('fgColor').forEach((child) {
             rgb = node.getAttribute('rgb').toString();
             _patternFill.add(rgb);
@@ -304,7 +301,7 @@ abstract class Excel {
             backgroundColor = _patternFill[fillId];
           }
 
-          if (node.children.length > 0) {
+          if (node.children.isNotEmpty) {
             node.findElements('alignment').forEach((child) {
               if (_getFontIndex(child, 'wrapText') == 1) {
                 textWrapping = TextWrapping.WrapText;
@@ -640,7 +637,7 @@ abstract class Excel {
 
         if (horizontalALign != HorizontalAlign.Left) {
           String hor =
-              verticalAlign == HorizontalAlign.Right ? 'right' : 'middle';
+              horizontalALign == HorizontalAlign.Right ? 'right' : 'middle';
           childAttributes.add(XmlAttribute(XmlName('horizontal'), '$hor'));
         }
 
@@ -753,7 +750,7 @@ abstract class Excel {
         Iterable<XmlElement> iterMergeElement =
             _xmlFiles[_xmlSheetId[s]].findAllElements('mergeCells');
         XmlElement mergeElement;
-        if (iterMergeElement.length > 0) {
+        if (iterMergeElement.isNotEmpty) {
           mergeElement = iterMergeElement.first;
         } else {
           if (_xmlFiles[_xmlSheetId[s]].findAllElements('worksheet').length >
@@ -1157,7 +1154,7 @@ abstract class Excel {
   List<int> _isInsideSpanning(String sheet, int rowIndex, int columnIndex) {
     int newRowIndex = rowIndex, newColumnIndex = columnIndex;
 
-    if (_spanMap.containsKey(sheet) && _spanMap[sheet].length > 0) {
+    if (_spanMap.containsKey(sheet) && _spanMap[sheet].isNotEmpty) {
       for (int i = 0; i < _spanMap[sheet].length; i++) {
         _Span spanObj = _spanMap[sheet][i];
 
@@ -1286,7 +1283,7 @@ abstract class Excel {
     s._start = [startRow, startColumn];
     s._end = [endRow, endColumn];
 
-    if (_spanMap.containsKey(sheet) && _spanMap[sheet].length > 0) {
+    if (_spanMap.containsKey(sheet) && _spanMap[sheet].isNotEmpty) {
       l = List<_Span>.of(_spanMap[sheet]);
     }
     l.add(s);
@@ -1393,7 +1390,7 @@ abstract class Excel {
 
     if (_spanMap != null &&
         _spanMap.containsKey(sheet) &&
-        _spanMap[sheet].length > 0) {
+        _spanMap[sheet].isNotEmpty) {
       List<_Span> data = _spanMap[sheet];
       for (int i = 0; i < data.length; i++) {
         _Span spanObj = data[i];

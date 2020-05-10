@@ -108,7 +108,7 @@ class XlsxDecoder extends Excel {
       if (backgroundColorHex != null && backgroundColorHex != "none") {
         backgroundColorHex = isColorAppropriate(backgroundColorHex);
       }
-      CellStyle cellStyle = new CellStyle(
+      CellStyle cellStyle = CellStyle(
           fontColorHex: fontColorHex,
           backgroundColorHex: backgroundColorHex,
           horizontalAlign: horizontalAlign,
@@ -285,13 +285,13 @@ class XlsxDecoder extends Excel {
           itemList = List<String>(),
           mapList = List<String>();
 
-      if (spannedCells.containsKey(key) && spannedCells[key].length > 0) {
+      if (spannedCells.containsKey(key) && spannedCells[key].isNotEmpty) {
         spanList = List<String>.from(spannedCells[key]);
       }
-      if (_spannedItems.containsKey(key) && _spannedItems[key].length > 0) {
+      if (_spannedItems.containsKey(key) && _spannedItems[key].isNotEmpty) {
         itemList = List<String>.from(_spannedItems[key]);
       }
-      if (_spanMap.containsKey(key) && _spanMap[key].length > 0) {
+      if (_spanMap.containsKey(key) && _spanMap[key].isNotEmpty) {
         mapList = List<String>.from(_spanMap[key]);
       }
 

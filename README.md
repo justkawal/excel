@@ -15,7 +15,7 @@ Please consider donating if you think excel is helpful to you or that my work is
 ````dart
     
 dependencies:
-    excel: ^1.0.3
+    excel: ^1.0.4
         
 ````
 

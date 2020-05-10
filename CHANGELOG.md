@@ -10,6 +10,10 @@ All notable changes to this project will be documented in this file.
 - Bold
 - Add row / column from Iterables
 
+## [1.0.4] - 2020-05-10
+### Improved
+- Analysis related changes
+
 ## [1.0.3] - 2020-05-10
 ### Added
 - Merging of Rows and Columns
