@@ -5,7 +5,7 @@ const String _relationships =
 const _spreasheetXlsx = 'xlsx';
 
 enum TextWrapping { WrapText, Clip }
-enum VerticalAlign { Top, Middle, Bottom }
+enum VerticalAlign { Top, Center, Bottom }
 enum HorizontalAlign { Left, Center, Right }
 
 // Normalize line
@@ -313,8 +313,8 @@ abstract class Excel {
               if (vertical != null) {
                 if (vertical.toString() == 'top') {
                   verticalAlign = VerticalAlign.Top;
-                } else if (vertical.toString() == 'middle') {
-                  verticalAlign = VerticalAlign.Middle;
+                } else if (vertical.toString() == 'center') {
+                  verticalAlign = VerticalAlign.Center;
                 }
               }
 
@@ -637,7 +637,7 @@ abstract class Excel {
 
         if (horizontalALign != HorizontalAlign.Left) {
           String hor =
-              horizontalALign == HorizontalAlign.Right ? 'right' : 'middle';
+              horizontalALign == HorizontalAlign.Right ? 'right' : 'center';
           childAttributes.add(XmlAttribute(XmlName('horizontal'), '$hor'));
         }
 

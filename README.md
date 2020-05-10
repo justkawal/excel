@@ -101,7 +101,7 @@ key | description
  fontColorHex | Font Color eg. "#0000FF"
  backgroundColorHex | Background color of cell eg. "#faf487"
  wrap | Text wrapping ````enum TextWrapping { WrapText, Clip }```` eg. TextWrapping.Clip
- verticalAlign | align text vertically ````enum VerticalAlign { Top, Middle, Bottom }```` eg. VerticalAlign.Top
+ verticalAlign | align text vertically ````enum VerticalAlign { Top, Center, Bottom }```` eg. VerticalAlign.Top
  horizontalAlign | align text horizontally ````enum HorizontalAlign { Left, Center, Right }```` eg. HorizontalAlign.Right
 
 

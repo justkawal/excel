@@ -13,6 +13,7 @@ All notable changes to this project will be documented in this file.
 ## [1.0.4] - 2020-05-10
 ### Improved
 - Analysis related changes
+- Vertical Alignment Issue
 
 ## [1.0.3] - 2020-05-10
 ### Added
