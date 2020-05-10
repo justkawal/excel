@@ -32,13 +32,13 @@ dependencies:
 ````dart
     var file = "Path_to_pre_existing_Excel_File/excel_file.xlsx";
     var bytes = File(file).readAsBytesSync();
-    var updater = Excel.decodeBytes(bytes, update: true);
+    var excel = Excel.decodeBytes(bytes, update: true);
     
-    for (var table in updater.tables.keys) {
+    for (var table in excel.tables.keys) {
       print(table); //sheet Name
-      print(updater.tables[table].maxCols);
-      print(updater.tables[table].maxRows);
-      for (var row in updater.tables[table].rows) {
+      print(excel.tables[table].maxCols);
+      print(excel.tables[table].maxRows);
+      for (var row in excel.tables[table].rows) {
         print("$row");
       }
     }
@@ -47,10 +47,10 @@ dependencies:
 ### Create XLSX File
     
 ````dart
-    var updater = Excel.createExcel(); //automatically creates 3 empty sheets Sheet1, Sheet2 and Sheet3 
+    var excel = Excel.createExcel(); //automatically creates 3 empty sheets Sheet1, Sheet2 and Sheet3 
      
-    //find desired sheet name in updater/file;
-    for (var tableName in updater.tables.keys) {
+    //find desired sheet name in excel/file;
+    for (var tableName in excel.tables.keys) {
       if( desiredSheetName.toString() == tableName.toString() ){
         sheet = tableName.toString();
         break;
@@ -62,8 +62,8 @@ dependencies:
  
  ````dart
       /* 
-      * updater.updateCell('sheetName', cell, value, options?);
-      * if sheet === 'sheetName' does not exist in updater, it will be created automatically after calling updateCell method
+      * excel.updateCell('sheetName', cell, value, options?);
+      * if sheet === 'sheetName' does not exist in excel, it will be created automatically after calling updateCell method
       * cell can be identified with Cell Address or by 2D array having row and column Index;
       * Cell options are optional
       */
@@ -71,28 +71,28 @@ dependencies:
       var sheet = 'SheetName';
       
       //update cell with cellAddress
-      updater.updateCell(sheet, CellIndex.indexByString("A1"), "Here value of A1");
+      excel.updateCell(sheet, CellIndex.indexByString("A1"), "Here value of A1");
         
       //update cell with row and column index
-      updater.updateCell(sheet, CellIndex.indexByColumnRow(columnIndex: 2, rowIndex: 0), "Here value of C1");
+      excel.updateCell(sheet, CellIndex.indexByColumnRow(columnIndex: 2, rowIndex: 0), "Here value of C1");
         
       //update cell and it's background color
       deocder.updateCell(sheet, CellIndex.indexByString("A2"), "Here value of A2", backgroundColorHex: "#1AFF1A")
       
       //update alignment
-      updater.updateCell(sheet, CellIndex.indexByString("E5"), "Here value of E5", horizontalAlign: HorizontalAlign.Right);
+      excel.updateCell(sheet, CellIndex.indexByString("E5"), "Here value of E5", horizontalAlign: HorizontalAlign.Right);
 
       // Insert column at index = 17;
-      updater.insertColumn(sheet, 17);
+      excel.insertColumn(sheet, 17);
     
       // Remove column at index = 2
-      updater.removeColumn(sheet, 2);
+      excel.removeColumn(sheet, 2);
     
       // Insert row at index = 2;
-      updater.insertRow(sheet, 2);
+      excel.insertRow(sheet, 2);
     
       // Remove row at index = 17
-      updater.removeRow(sheet, 2);
+      excel.removeRow(sheet, 2);
     
    ````
 ### Cell Options
@@ -109,13 +109,13 @@ key | description
  
  ````dart
      /* 
-     * updater.merge('sheetName', starting_cell, ending_cell, 'customValue');
+     * excel.merge('sheetName', starting_cell, ending_cell, 'customValue');
      * sheet === 'sheetName' in which merging of rows and columns is to be done
      * starting_cell and ending_cell can be identified with Cell Address or by 2D array having row and column Index;
      * customValue is optional
      */
  
-      updater.merge(sheet, CellIndex.indexByString("A1"), CellIndex.indexByString("E4"), customValue: "Put this text after merge");
+      excel.merge(sheet, CellIndex.indexByString("A1"), CellIndex.indexByString("E4"), customValue: "Put this text after merge");
     
    ````
    
@@ -124,7 +124,7 @@ key | description
  ````dart
       // Check which cells are merged
  
-      updater.getMergedCells(sheet).forEach((cells) {
+      excel.getMergedCells(sheet).forEach((cells) {
         print("Merged:" + cells.toString());
       });
     
@@ -134,14 +134,14 @@ key | description
  
  ````dart
      /* 
-     * updater.unMerge(sheet, cell);
+     * excel.unMerge(sheet, cell);
      * sheet === 'sheetName' in which un-merging of rows and columns is to be done
      * cell should be identified with string only with an example as "A1:E4"
      * to check if "A1:E4" is un-merged or not
-     * call the method updater.getMergedCells(sheet); and verify that it is not present in it.
+     * call the method excel.getMergedCells(sheet); and verify that it is not present in it.
      */
  
-      updater.unMerge(sheet, "A1:E4");
+      excel.unMerge(sheet, "A1:E4");
     
    ````
  
@@ -150,16 +150,16 @@ key | description
  ````dart
      /* 
      * Asynchronous method which returns the name of the default sheet
-     * updater.getDefaultSheet();
+     * excel.getDefaultSheet();
      */
  
-      updater.getDefaultSheet().then((value) {
+      excel.getDefaultSheet().then((value) {
         print("Default Sheet:" + value.toString());
       });
       
       or
       
-      var defaultSheet = await updater.getDefaultSheet();
+      var defaultSheet = await excel.getDefaultSheet();
       print("Default Sheet:" + defaultSheet.toString());
     
    ````
@@ -170,11 +170,11 @@ key | description
      /* 
      * Asynchronous method which sets the name of the default sheet
      * returns bool if successful then true else false
-     * updater.setDefaultSheet(sheet);
+     * excel.setDefaultSheet(sheet);
      * sheet = 'SheetName'
      */
  
-      updater.setDefaultSheet(sheet).then((isSet) {
+      excel.setDefaultSheet(sheet).then((isSet) {
         if (isSet) {
             print("$sheet is set to default sheet.");
         } else {
@@ -184,7 +184,7 @@ key | description
       
       or
       
-      var isSet = await updater.setDefaultSheet(sheet);
+      var isSet = await excel.setDefaultSheet(sheet);
       if (isSet) {
         print("$sheet is set to default sheet.");
       } else {
@@ -198,7 +198,7 @@ key | description
  ````dart
       // Save the Changes in file
 
-      updater.encode().then((onValue) {
+      excel.encode().then((onValue) {
         File(join("Path_to_destination/excel.xlsx"))
         ..createSync(recursive: true)
         ..writeAsBytesSync(onValue);
@@ -214,10 +214,6 @@ On-going implementation for future:
 - Italic
 - Underline
 - Bold
-
-## Important:
-For XLSX format, this implementation only supports native Excel format for date, time and boolean type conversion.
-In other words, custom format for date, time, boolean aren't supported and also the files exported from LibreOffice as well.
 
 ## Paypal Me
 

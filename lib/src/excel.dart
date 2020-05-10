@@ -1445,9 +1445,9 @@ abstract class Excel {
    * Usage this function to unMerge the merged cells.
    * 
    *        var sheet = 'DesiredSheet';
-   *        List<String> spannedCells = updater.getMergedCells(sheet);
+   *        List<String> spannedCells = excel.getMergedCells(sheet);
    *        var cellToUnMerge = "A1:A2";
-   *        updater.unMerge(sheet, cellToUnMerge);
+   *        excel.unMerge(sheet, cellToUnMerge);
    * 
    */
   unMerge(String sheet, String unmergeCells) {
