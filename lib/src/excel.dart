@@ -1437,7 +1437,7 @@ abstract class Excel {
   }
 
   /// returns an Iterable of cell-Id for the previously merged cell-Ids.
-  Iterable<String> getSpannedItems(String sheet) {
+  Iterable<String> getMergedCells(String sheet) {
     return _spannedItems != null && _spannedItems.containsKey(sheet)
         ? List<String>.of(_spannedItems[sheet])
         : [];
@@ -1447,9 +1447,9 @@ abstract class Excel {
    * Usage this function to unMerge the merged cells.
    * 
    *        var sheet = 'DesiredSheet';
-   *        List<String> spannedCells = updater.getSpannedItems(sheet);
+   *        List<String> spannedCells = updater.getMergedCells(sheet);
    *        var cellToUnMerge = "A1:A2";
-   *        updater.unMerge(sheet, spannedCells.indexOf(cellToUnMerge));
+   *        updater.unMerge(sheet, cellToUnMerge);
    * 
    */
   unMerge(String sheet, String unmergeCells) {

@@ -81,6 +81,18 @@ dependencies:
       
       //update alignment
       updater.updateCell(sheet, CellIndex.indexByString("E5"), "Here value of E5", horizontalAlign: HorizontalAlign.Right);
+
+      // Insert column at index = 17;
+      updater.insertColumn(sheet, 17);
+    
+      // Remove column at index = 2
+      updater.removeColumn(sheet, 2);
+    
+      // Insert row at index = 2;
+      updater.insertRow(sheet, 2);
+    
+      // Remove row at index = 17
+      updater.removeRow(sheet, 2);
     
    ````
 ### Cell Options
@@ -112,7 +124,7 @@ key | description
  ````dart
       // Check which cells are merged
  
-      updater.getSpannedItems(sheet).forEach((cells) {
+      updater.getMergedCells(sheet).forEach((cells) {
         print("Merged:" + cells.toString());
       });
     
@@ -126,7 +138,7 @@ key | description
      * sheet === 'sheetName' in which un-merging of rows and columns is to be done
      * cell should be identified with string only with an example as "A1:E4"
      * to check if "A1:E4" is un-merged or not
-     * call the method updater.getSpannedItems(sheet); and verify that it is not present in it.
+     * call the method updater.getMergedCells(sheet); and verify that it is not present in it.
      */
  
       updater.unMerge(sheet, "A1:E4");

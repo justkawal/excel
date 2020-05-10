@@ -37,11 +37,17 @@ void main(List<String> args) {
       sheet, CellIndex.indexByString("A1"), CellIndex.indexByString("E4"),
       customValue: "Now it is merged");
 
-  // Remove a column from index = 2
+  // Insert column at index = 17;
+  updater.insertColumn(sheet, 17);
+
+  // Remove column at index = 2
   updater.removeColumn(sheet, 2);
 
   // Insert row at index = 2;
   updater.insertRow(sheet, 2);
+
+  // Remove row at index = 17
+  updater.removeRow(sheet, 2);
 
   updater.setDefaultSheet(sheet).then((isSet) {
     // isSet is bool which tells that whether the setting of default sheet is successful or not.
@@ -57,13 +63,16 @@ void main(List<String> args) {
   });
 
   // Check which cells are merged
-  updater.getSpannedItems(sheet).forEach((cells) {
+  List<String> mergedCells = updater.getMergedCells(sheet);
+  mergedCells.forEach((cells) {
     print("Merged:" + cells.toString());
   });
 
   // After removal of column and insertion of row merged - A1:E4 becomes merged - A1:D5
   // So we have to call un-merge at A1:D5
-  updater.unMerge(sheet, "A1:D5");
+  if (mergedCells.contains("A1:D5")) {
+    updater.unMerge(sheet, "A1:D5");
+  }
 
   // Saving the file
 
