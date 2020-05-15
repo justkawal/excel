@@ -1094,6 +1094,41 @@ abstract class Excel {
     }
   }
 
+  /// append row
+  appendRow(String sheetName, List<dynamic> data) {
+    _checkSheetArguments(sheetName);
+    var targetRow = _tables[sheetName].maxRows;
+    data.asMap().forEach((index, value) => updateCell(
+        sheetName,
+        CellIndex.indexByColumnRow(columnIndex: index, rowIndex: targetRow),
+        value));
+  }
+
+  /// find and replace
+  int findAndReplace(String sheetName, dynamic source, String target) {
+    _checkSheetArguments(sheetName);
+    var replaceCount = 0;
+    var rowIndex = 0;
+    for (var row in _tables[sheetName].rows) {
+      var sourceRegx = RegExp(source.toString());
+      if (source.runtimeType == RegExp) {
+        sourceRegx == source;
+      }
+      row.asMap().forEach((columnIndex, value) {
+        if (value != null && sourceRegx.hasMatch(value)) {
+          updateCell(
+              sheetName,
+              CellIndex.indexByColumnRow(
+                  columnIndex: columnIndex, rowIndex: rowIndex),
+              value.toString().replaceAll(sourceRegx, target.toString()));
+          replaceCount += 1;
+        }
+      });
+      rowIndex += 1;
+    }
+    return replaceCount;
+  }
+
   /// Remove row in [sheet] at position [rowIndex]
   removeRow(String sheet, int rowIndex) {
     if (!_sheets.containsKey(sheet) || rowIndex >= _tables[sheet]._maxRows) {
