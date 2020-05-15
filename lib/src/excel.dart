@@ -1094,28 +1094,50 @@ abstract class Excel {
     }
   }
 
-  /// append row
-  appendRow(String sheetName, List<dynamic> data) {
+  /// Append [row]
+  appendRow(String sheetName, List<dynamic> row) {
+    int targetRow = _tables[sheetName].maxRows;
+    insertRowIterables(sheetName, row, targetRow);
+  }
+
+  insertRowIterables(String sheetName, List<dynamic> row, int rowIndex,
+      {CellIndex startingColumn}) {
+    if (row == null || rowIndex == null) {
+      return;
+    }
     _checkSheetArguments(sheetName);
-    var targetRow = _tables[sheetName].maxRows;
-    data.asMap().forEach((index, value) => updateCell(
+    _checkSheetMaxRow(sheetName, rowIndex);
+    int columnIndex = 0;
+    if (startingColumn != null) {
+      columnIndex = startingColumn.columnIndex;
+    }
+    _checkSheetMaxCol(sheetName, columnIndex + row.length);
+    row.asMap().forEach((index, value) => updateCell(
         sheetName,
-        CellIndex.indexByColumnRow(columnIndex: index, rowIndex: targetRow),
+        CellIndex.indexByColumnRow(columnIndex: index, rowIndex: rowIndex),
         value));
   }
 
-  /// find and replace
-  int findAndReplace(String sheetName, dynamic source, String target) {
+  /// Replace the [source] with [target]
+  ///
+  /// Here [source] can also be a user's custom [RegExp]
+  ///
+  /// optional argument [first] can be used to replace count of source occuring first
+  ///
+  /// If [first] is set to [3] then it will replace only first 3 occurences of the source
+  int findAndReplace(String sheetName, dynamic source, String target,
+      {int first = -1}) {
     _checkSheetArguments(sheetName);
-    var replaceCount = 0;
-    var rowIndex = 0;
+    int replaceCount = 0, rowIndex = 0;
     for (var row in _tables[sheetName].rows) {
-      var sourceRegx = RegExp(source.toString());
+      RegExp sourceRegx = RegExp(source.toString());
       if (source.runtimeType == RegExp) {
         sourceRegx == source;
       }
       row.asMap().forEach((columnIndex, value) {
-        if (value != null && sourceRegx.hasMatch(value)) {
+        if (value != null &&
+            sourceRegx.hasMatch(value) &&
+            (first == -1 || first != replaceCount)) {
           updateCell(
               sheetName,
               CellIndex.indexByColumnRow(

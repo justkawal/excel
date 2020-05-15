@@ -58,7 +58,9 @@ void main(List<String> args) {
   // excel.insertRow(sheet, 2);
 
   excel.appendRow(sheet, ["bustin", "jiebr"]);
-  excel.findAndReplace(sheet, 'bustin', 'raman');
+
+  int replacedCount = excel.findAndReplace(sheet, 'bustin', 'raman');
+  print("Replaced Count:" + replacedCount.toString());
 
   excel.setDefaultSheet(sheet).then((isSet) {
     // isSet is bool which tells that whether the setting of default sheet is successful or not.

@@ -2,14 +2,17 @@
 All notable changes to this project will be documented in this file.
 
 ## [Future Updates coming soon]
-- Find and Replace
-- Add row / column from Iterables
 - Formulas
 - Font Family
 - Text Size
 - Italic
 - Underline
 - Bold
+
+## [1.0.6] - 2020-05-16
+### Added Functionality
+- Find and Replace
+- Add row / column from Iterables
 
 ## [1.0.5] - 2020-05-15
 ### Removed
