@@ -4,7 +4,36 @@ Please consider donating if you think excel is helpful. I will be happy if you c
 
 [Paypal Me on paypal.me/kawal7415](https://www.paypal.me/kawal7415)
 
-[![GitHub issues](https://img.shields.io/github/issues/kawal7415/excel)](https://github.com/kawal7415/excel/issues)[![GitHub forks](https://img.shields.io/github/forks/kawal7415/excel)](https://github.com/kawal7415/excel/network)[![GitHub stars](https://img.shields.io/github/stars/kawal7415/excel)](https://github.com/kawal7415/excel/stargazers)
+<div align="center"> 
+  <a href="https://flutter.io">  
+    <img src="https://img.shields.io/badge/Platform-Flutter-yellow.svg"  
+      alt="Platform" />  
+  </a> 
+   <a href="https://pub.dartlang.org/packages/excel">  
+    <img src="https://img.shields.io/pub/v/excel.svg"  
+      alt="Pub Package" />  
+  </a>
+   <a href="https://opensource.org/licenses/MIT">  
+    <img src="https://img.shields.io/badge/License-MIT-red.svg"  
+      alt="License: MIT" />  
+  </a>  
+   <a href="https://www.paypal.me/kawal7415">  
+    <img src="https://img.shields.io/badge/Donate-PayPal-green.svg"  
+      alt="Donate" />  
+  </a>
+   <a href="https://github.com/kawal7415/excel/issues">  
+    <img src="https://img.shields.io/github/issues/kawal7415/excel"  
+      alt="Issue" />  
+  </a> 
+   <a href="https://github.com/kawal7415/excel/network">  
+    <img src="https://img.shields.io/github/forks/kawal7415/excel"  
+      alt="Forks" />  
+  </a> 
+   <a href="https://github.com/kawal7415/excel/stargazers">  
+    <img src="https://img.shields.io/github/stars/kawal7415/excel"  
+      alt="Stars" />  
+  </a>
+</div><br>  
 
 # Excel
 
