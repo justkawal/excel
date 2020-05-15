@@ -37,16 +37,43 @@ Please consider donating if you think excel is helpful. I will be happy if you c
 
 [Excel](https://www.pub.dev/packages/excel) is a flutter and dart library for creating and updating excel-sheets for XLSX files.
 
-## Usage
 
-### Adding dependency in pubspec.yaml
+# Installing
+
+### 1. Depend on it
+Add this to your package's `pubspec.yaml` file:
+
+```yaml
+dependencies:
+  excel: ^1.0.5
+```
+
+### 2. Install it
+
+You can install packages from the command line:
+
+with `pub`:
+
+```css
+$  pub get
+```
+
+with `Flutter`:
+
+```css
+$  flutter packages get
+```
+
+### 3. Import it
+
+Now in your `Dart` code, you can use: 
 
 ````dart
-    
-dependencies:
-    excel: ^1.0.4
-        
+    import 'package:excel/excel.dart';
 ````
+
+
+# Usage
 
 ### Imports
 
@@ -75,7 +102,7 @@ dependencies:
     
 ````
 
-### Read XLSX Flutter's Asset Folder
+### Read XLSX from Flutter's Asset Folder
 
 ````dart
     import 'package:flutter/services.dart' show ByteData, rootBundle;
@@ -262,13 +289,13 @@ key | description
 ## Features coming in next version
 On-going implementation for future:
 - Find and Replace
+- Add row / column from Iterables
 - Formulas
 - Font Family
 - Text Size
 - Italic
 - Underline
 - Bold
-- Add row / column from Iterables
 
 ## Help us to keep going.
 
