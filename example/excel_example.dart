@@ -3,11 +3,11 @@ import 'package:path/path.dart';
 import 'package:excel/excel.dart';
 
 void main(List<String> args) {
-  var file = "/Users/kawal/Desktop/excel2.xlsx";
+  var file = "/home/raman/Documents/excel/example/test.xlsx";
   var bytes = File(file).readAsBytesSync();
-  var excel = Excel.createExcel();
+  //var excel = Excel.createExcel();
   // or
-  //var excel = Excel.decodeBytes(bytes, update: true);
+  var excel = Excel.decodeBytes(bytes, update: true);
   for (var table in excel.tables.keys) {
     print(table);
     print(excel.tables[table].maxCols);
@@ -46,16 +46,19 @@ void main(List<String> args) {
       sheet, CellIndex.indexByString("A5"), CellIndex.indexByString("E5"));
 
   // Remove row at index = 17
-  excel.removeRow(sheet, 2);
+  // excel.removeRow(sheet, 2);
 
-  // Remove column at index = 2
-  excel.removeColumn(sheet, 2);
+  // // Remove column at index = 2
+  // excel.removeColumn(sheet, 2);
 
-  // Insert column at index = 17;
-  excel.insertColumn(sheet, 2);
+  // // Insert column at index = 17;
+  // excel.insertColumn(sheet, 2);
 
-  // Insert row at index = 2;
-  excel.insertRow(sheet, 2);
+  // // Insert row at index = 2;
+  // excel.insertRow(sheet, 2);
+
+  excel.appendRow(sheet,["bustin","jiebr"]);
+  excel.findAndReplace(sheet, 'bustin', 'raman');
 
   excel.setDefaultSheet(sheet).then((isSet) {
     // isSet is bool which tells that whether the setting of default sheet is successful or not.
@@ -84,7 +87,7 @@ void main(List<String> args) {
 
   // Saving the file
 
-  String outputFile = "/Users/kawal/Desktop/excel2copy.xlsx";
+  String outputFile = "/home/raman/Documents/excel/example/output.xlsx";
   excel.encode().then((onValue) {
     File(join(outputFile))
       ..createSync(recursive: true)
