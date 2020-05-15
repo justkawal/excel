@@ -1,6 +1,8 @@
-## Donate (Be the First to Donate)
+## Donate (It's up to you)
 
-Please consider donating if you think excel is helpful to you or that my work is valuable. I will be happy if you can help me upgrade my lazy laptop. [Paypal Me on paypal.me/kawal7415](https://www.paypal.me/kawal7415)
+Please consider donating if you think excel is helpful. I will be happy if you can help me upgrade my **lazy** laptop.
+
+[Paypal Me on paypal.me/kawal7415](https://www.paypal.me/kawal7415)
 
 [![GitHub issues](https://img.shields.io/github/issues/kawal7415/excel)](https://github.com/kawal7415/excel/issues)[![GitHub forks](https://img.shields.io/github/forks/kawal7415/excel)](https://github.com/kawal7415/excel/network)[![GitHub stars](https://img.shields.io/github/stars/kawal7415/excel)](https://github.com/kawal7415/excel/stargazers)
 
@@ -27,6 +29,7 @@ dependencies:
     import 'package:excel/excel.dart';
     
 ````
+
 ### Read XLSX File
 
 ````dart
@@ -44,6 +47,29 @@ dependencies:
     }
     
 ````
+
+### Read XLSX Flutter's Asset Folder
+
+````dart
+    import 'package:flutter/services.dart' show ByteData, rootBundle;
+    
+    /* Your blah blah code here */
+    
+    ByteData data = await rootBundle.load("assets/existing_excel_file.xlsx");
+    var bytes = data.buffer.asUint8List(data.offsetInBytes, data.lengthInBytes);
+    var excel = Excel.decodeBytes(bytes, update: true);
+        
+    for (var table in excel.tables.keys) {
+      print(table); //sheet Name
+      print(excel.tables[table].maxCols);
+      print(excel.tables[table].maxRows);
+      for (var row in excel.tables[table].rows) {
+        print("$row");
+      }
+    }
+    
+````
+
 ### Create XLSX File
     
 ````dart
@@ -208,6 +234,7 @@ key | description
 
 ## Features coming in next version
 On-going implementation for future:
+- Find and Replace
 - Formulas
 - Font Family
 - Text Size
