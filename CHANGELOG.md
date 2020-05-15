@@ -2,13 +2,19 @@
 All notable changes to this project will be documented in this file.
 
 ## [Future Updates coming soon]
+- Find and Replace
+- Add row / column from Iterables
 - Formulas
 - Font Family
 - Text Size
 - Italic
 - Underline
 - Bold
-- Add row / column from Iterables
+
+## [1.0.5] - 2020-05-15
+### Removed
+- Bugs related to Spanning
+- Unwanted removal of rows and columns from spanned cells
 
 ## [1.0.4] - 2020-05-10
 ### Improved

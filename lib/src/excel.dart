@@ -694,10 +694,10 @@ abstract class Excel {
               if (_spanMap[key][j] != null) {
                 _Span spanObj = _spanMap[key][j];
 
-                Map gotMap = _isLocationChangeRequired(
+                Map<String, List<int>> gotMap = _isLocationChangeRequired(
                     key, startColumn, startRow, endColumn, endRow, spanObj);
-                List<int> gotPosition = gotMap["gotPosition"],
-                    changeValue = gotMap["changeValue"][0];
+                List<int> gotPosition = gotMap["gotPosition"];
+                int changeValue = gotMap["changeValue"][0];
 
                 if (changeValue == 1) {
                   startColumn = gotPosition[0];
@@ -705,6 +705,24 @@ abstract class Excel {
                   endColumn = gotPosition[2];
                   endRow = gotPosition[3];
                   _spanMap[key][j] = null;
+                } else {
+                  Map<String, List<int>> gotMap2 = _isLocationChangeRequired(
+                      key,
+                      spanObj.columnSpanStart,
+                      spanObj.rowSpanStart,
+                      spanObj.columnSpanEnd,
+                      spanObj.rowSpanEnd,
+                      checkerPos);
+                  List<int> gotPosition2 = gotMap2["gotPosition"];
+                  int changeValue2 = gotMap2["changeValue"][0];
+
+                  if (changeValue2 == 1) {
+                    startColumn = gotPosition2[0];
+                    startRow = gotPosition2[1];
+                    endColumn = gotPosition2[2];
+                    endRow = gotPosition2[3];
+                    _spanMap[key][j] = null;
+                  }
                 }
               }
             }
@@ -715,6 +733,7 @@ abstract class Excel {
           }
         }
       }
+      _cleanUpSpanMap(key);
     });
 
     _mergeChangeLook.forEach((key) {
@@ -950,7 +969,12 @@ abstract class Excel {
             startColumn -= 1;
           }
           endColumn -= 1;
-          if (startColumn >= endColumn) {
+          if (/* startColumn >= endColumn */
+              (columnIndex == (endColumn + 1)) &&
+                  (columnIndex ==
+                      (columnIndex < startColumn
+                          ? startColumn + 1
+                          : startColumn))) {
             if (!deleteSingleColColor.contains(clr))
               deleteSingleColColor.add(clr);
             _spanMap[sheet][i] = null;
@@ -1102,7 +1126,10 @@ abstract class Excel {
             startRow -= 1;
           }
           endRow -= 1;
-          if (startRow >= endRow) {
+          if (/* startRow >= endRow */
+              (rowIndex == (endRow + 1)) &&
+                  (rowIndex ==
+                      (rowIndex < startRow ? startRow + 1 : startRow))) {
             if (!deleteSingleRowColor.contains(clr))
               deleteSingleRowColor.add(clr);
             _spanMap[sheet][i] = null;
@@ -1321,7 +1348,7 @@ abstract class Excel {
           changeValue = 1;
         }
 
-        if (startColumn >= spanObj.columnSpanStart) {
+        /* if (startColumn >= spanObj.columnSpanStart) {
           startColumn = spanObj.columnSpanStart;
           changeValue = 1;
         }
@@ -1329,13 +1356,13 @@ abstract class Excel {
         if (endColumn <= spanObj.columnSpanEnd) {
           endColumn = spanObj.columnSpanEnd;
           changeValue = 1;
-        }
+        } */
       }
 
       if ((startRow < spanObj.rowSpanStart && endRow >= spanObj.rowSpanStart) ||
           (startRow <= spanObj.rowSpanEnd && endRow > spanObj.rowSpanEnd)) {
         /**
-           * Start Column stretching to left positionc
+           * Start Column stretching to left position
            */
         if (startColumn >= spanObj.columnSpanStart &&
             startColumn <= spanObj.columnSpanEnd) {
@@ -1351,7 +1378,7 @@ abstract class Excel {
           changeValue = 1;
         }
 
-        if (startRow >= spanObj.rowSpanStart) {
+        /* if (startRow >= spanObj.rowSpanStart) {
           startRow = spanObj.rowSpanStart;
           changeValue = 1;
         }
@@ -1359,13 +1386,27 @@ abstract class Excel {
         if (endRow <= spanObj.rowSpanEnd) {
           endRow = spanObj.rowSpanEnd;
           changeValue = 1;
-        }
+        } */
+      }
+    }
+    if (changeValue == 1) {
+      if (startColumn > spanObj.columnSpanStart) {
+        startColumn = spanObj.columnSpanStart;
+      }
+      if (endColumn < spanObj.columnSpanEnd) {
+        endColumn = spanObj.columnSpanEnd;
+      }
+      if (startRow > spanObj.rowSpanStart) {
+        startRow = spanObj.rowSpanStart;
+      }
+      if (endRow < spanObj.rowSpanEnd) {
+        endRow = spanObj.rowSpanEnd;
       }
     }
 
     return Map<String, List<int>>.from({
-      "gotPosition": List<int>.from([changeValue]),
-      "changeValue": List<int>.from([startColumn, startRow, endColumn, endRow])
+      "changeValue": List<int>.from([changeValue]),
+      "gotPosition": List<int>.from([startColumn, startRow, endColumn, endRow])
     });
   }
 
@@ -1397,8 +1438,8 @@ abstract class Excel {
 
         Map<String, List<int>> gotMap = _isLocationChangeRequired(
             sheet, startColumn, startRow, endColumn, endRow, spanObj);
-        List<int> gotPosition = gotMap['gotPosition'],
-            changeValue = gotMap['changeValue'];
+        List<int> gotPosition = gotMap['gotPosition'];
+        int changeValue = gotMap['changeValue'][0];
 
         if (changeValue == 1) {
           startColumn = gotPosition[0];

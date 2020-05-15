@@ -5,9 +5,9 @@ import 'package:excel/excel.dart';
 void main(List<String> args) {
   var file = "/Users/kawal/Desktop/excel2.xlsx";
   var bytes = File(file).readAsBytesSync();
-  //var excel = Excel.createExcel();
+  var excel = Excel.createExcel();
   // or
-  var excel = Excel.decodeBytes(bytes, update: true);
+  //var excel = Excel.decodeBytes(bytes, update: true);
   for (var table in excel.tables.keys) {
     print(table);
     print(excel.tables[table].maxCols);
@@ -39,17 +39,23 @@ void main(List<String> args) {
       sheet, CellIndex.indexByString("A1"), CellIndex.indexByString("E4"),
       customValue: "Now it is merged");
 
-  // Insert column at index = 17;
-  excel.insertColumn(sheet, 17);
+  excel.merge(
+      sheet, CellIndex.indexByString("F1"), CellIndex.indexByString("F5"));
+
+  excel.merge(
+      sheet, CellIndex.indexByString("A5"), CellIndex.indexByString("E5"));
+
+  // Remove row at index = 17
+  excel.removeRow(sheet, 2);
 
   // Remove column at index = 2
   excel.removeColumn(sheet, 2);
 
+  // Insert column at index = 17;
+  excel.insertColumn(sheet, 2);
+
   // Insert row at index = 2;
   excel.insertRow(sheet, 2);
-
-  // Remove row at index = 17
-  excel.removeRow(sheet, 2);
 
   excel.setDefaultSheet(sheet).then((isSet) {
     // isSet is bool which tells that whether the setting of default sheet is successful or not.
