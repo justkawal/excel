@@ -45,19 +45,19 @@ void main(List<String> args) {
   excel.merge(
       sheet, CellIndex.indexByString("A5"), CellIndex.indexByString("E5"));
 
-  // Remove row at index = 17
+  // Remove row at index = 2
   // excel.removeRow(sheet, 2);
 
   // // Remove column at index = 2
   // excel.removeColumn(sheet, 2);
 
-  // // Insert column at index = 17;
+  // // Insert column at index = 2;
   // excel.insertColumn(sheet, 2);
 
   // // Insert row at index = 2;
   // excel.insertRow(sheet, 2);
 
-  excel.appendRow(sheet,["bustin","jiebr"]);
+  excel.appendRow(sheet, ["bustin", "jiebr"]);
   excel.findAndReplace(sheet, 'bustin', 'raman');
 
   excel.setDefaultSheet(sheet).then((isSet) {
