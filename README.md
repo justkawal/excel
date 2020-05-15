@@ -4,7 +4,6 @@ Please consider donating if you think excel is helpful. I will be happy if you c
 
 [Paypal Me on paypal.me/kawal7415](https://www.paypal.me/kawal7415)
 
-<div align="center"> 
   <a href="https://flutter.io">  
     <img src="https://img.shields.io/badge/Platform-Flutter-yellow.svg"  
       alt="Platform" />  
@@ -33,7 +32,6 @@ Please consider donating if you think excel is helpful. I will be happy if you c
     <img src="https://img.shields.io/github/stars/kawal7415/excel"  
       alt="Stars" />  
   </a>
-</div><br>  
 
 # Excel
 
