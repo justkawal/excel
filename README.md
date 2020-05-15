@@ -243,6 +243,6 @@ On-going implementation for future:
 - Bold
 - Add row / column from Iterables
 
-## Paypal Me
+## Help us to keep going.
 
-[Paypal Me](https://www.paypal.me/kawal7415)
+[![Donate with PayPal](https://github.com/kawal7415/excel/blob/master/paypal_png.png)](https://www.paypal.me/kawal7415)
