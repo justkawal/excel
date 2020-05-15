@@ -1,4 +1,4 @@
-## Donate (It's up to you)
+## Donate (Be the first one)
 
 Please consider donating if you think excel is helpful. I will be happy if you can help me upgrade my **lazy** laptop.
 
