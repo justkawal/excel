@@ -1094,60 +1094,192 @@ abstract class Excel {
     }
   }
 
-  /// Append [row]
+  /// Append [row] iterables just post the last filled index in the [sheetName]
   appendRow(String sheetName, List<dynamic> row) {
     int targetRow = _tables[sheetName].maxRows;
     insertRowIterables(sheetName, row, targetRow);
   }
 
+  /// getting the List of _Span Objects which have the rowIndex containing and
+  /// also lower the range by giving the starting columnIndex
+  List<_Span> _getSpannedObjects(
+      String sheetName, int rowIndex, int startingColumnIndex) {
+    List<_Span> obtained;
+
+    if (_isContain(_spanMap) && _isContain(_spanMap[sheetName])) {
+      obtained = List<_Span>();
+      _spanMap[sheetName].forEach((spanObject) {
+        if (spanObject != null &&
+            spanObject.rowSpanStart <= rowIndex &&
+            rowIndex <= spanObject.rowSpanEnd &&
+            startingColumnIndex <= spanObject.columnSpanEnd) {
+          obtained.add(spanObject);
+        }
+      });
+    }
+    return obtained;
+  }
+
+  /// Checking if the columnIndex and the rowIndex passed is inside ?
+  /// the spanObjectList which is got from above function
+  bool _isInsideSpanObject(
+      List<_Span> spanObjectList, int columnIndex, int rowIndex) {
+    for (int i = 0; i < spanObjectList.length; i++) {
+      _Span spanObject = spanObjectList[i];
+
+      if (spanObject != null &&
+          spanObject.columnSpanStart <= columnIndex &&
+          columnIndex <= spanObject.columnSpanEnd &&
+          spanObject.rowSpanStart <= rowIndex &&
+          rowIndex <= spanObject.rowSpanEnd) {
+        if (columnIndex < spanObject.columnSpanEnd) {
+          return false;
+        } else if (columnIndex == spanObject.columnSpanEnd) {
+          return true;
+        }
+      }
+    }
+    return true;
+  }
+
+  /// Helps to add the [row] iterables in the given row = [rowIndex] in [sheetName]
+  ///
+  /// [startingColumn] tells from where we should start puttin the [row] iterables
+  ///
+  /// [overwriteMergedCells] when set to [true] tells it to consider overwriting mergedCell
+  /// [overwriteMergedCells] when set to [false] puts the cell value to next unique cell.
+  ///
   insertRowIterables(String sheetName, List<dynamic> row, int rowIndex,
-      {CellIndex startingColumn}) {
-    if (row == null || rowIndex == null) {
+      {int startingColumn = 0, bool overwriteMergedCells = true}) {
+    if (row == null || rowIndex == null || row.length == 0) {
       return;
     }
     _checkSheetArguments(sheetName);
     _checkSheetMaxRow(sheetName, rowIndex);
     int columnIndex = 0;
-    if (startingColumn != null) {
-      columnIndex = startingColumn.columnIndex;
+    if (startingColumn > 0) {
+      columnIndex = startingColumn;
     }
     _checkSheetMaxCol(sheetName, columnIndex + row.length);
-    row.asMap().forEach((index, value) => updateCell(
-        sheetName,
-        CellIndex.indexByColumnRow(columnIndex: index, rowIndex: rowIndex),
-        value));
-  }
+    int rowsLength = _tables[sheetName].maxRows,
+        maxIterationIndex = row.length - 1,
+        currentRowPosition = 0; // position in [row] iterables
 
-  /// Replace the [source] with [target]
-  ///
-  /// Here [source] can also be a user's custom [RegExp]
-  ///
-  /// optional argument [first] can be used to replace count of source occuring first
-  ///
-  /// If [first] is set to [3] then it will replace only first 3 occurences of the source
-  int findAndReplace(String sheetName, dynamic source, String target,
-      {int first = -1}) {
-    _checkSheetArguments(sheetName);
-    int replaceCount = 0, rowIndex = 0;
-    for (var row in _tables[sheetName].rows) {
-      RegExp sourceRegx = RegExp(source.toString());
-      if (source.runtimeType == RegExp) {
-        sourceRegx == source;
+    if (overwriteMergedCells || rowIndex >= rowsLength) {
+      // Normally iterating and putting the data present in the [row] as we are on the last index.
+
+      while (currentRowPosition <= maxIterationIndex) {
+        updateCell(
+            sheetName,
+            CellIndex.indexByColumnRow(
+                columnIndex: columnIndex, rowIndex: rowIndex),
+            row[currentRowPosition]);
+        currentRowPosition++;
+        columnIndex++;
       }
-      row.asMap().forEach((columnIndex, value) {
-        if (value != null &&
-            sourceRegx.hasMatch(value) &&
-            (first == -1 || first != replaceCount)) {
+    } else {
+      // expensive function as per time complexity
+      _selfCorrectSpanMap();
+      List<_Span> _spanObjectsList =
+          _getSpannedObjects(sheetName, rowIndex, columnIndex);
+
+      if (_spanObjectsList == null || _spanObjectsList.length <= 0) {
+        while (currentRowPosition <= maxIterationIndex) {
           updateCell(
               sheetName,
               CellIndex.indexByColumnRow(
                   columnIndex: columnIndex, rowIndex: rowIndex),
-              value.toString().replaceAll(sourceRegx, target.toString()));
+              row[currentRowPosition]);
+          currentRowPosition++;
+          columnIndex++;
+        }
+      } else {
+        while (currentRowPosition <= maxIterationIndex) {
+          if (_isInsideSpanObject(_spanObjectsList, columnIndex, rowIndex)) {
+            updateCell(
+                sheetName,
+                CellIndex.indexByColumnRow(
+                    columnIndex: columnIndex, rowIndex: rowIndex),
+                row[currentRowPosition]);
+            currentRowPosition++;
+          }
+          columnIndex++;
+        }
+      }
+    }
+  }
+
+  /// Returns the [count] of replaced [source] with [target]
+  ///
+  /// Yipee [source] is dynamic which allows you to pass your custom [RegExp]
+  ///
+  /// optional argument [first] is used to replace the number of [first] earlier occurrences
+  ///
+  /// Example: If [first] is set to [3] then it will replace only first 3 occurrences of the [source] with [target].
+  ///
+  /// Other [options] are used to narrow down the starting and ending ranges of cells.
+  int findAndReplace(String sheetName, dynamic source, dynamic target,
+      {int first = -1,
+      int startingRow = -1,
+      int endingRow = -1,
+      int startingColumn = -1,
+      int endingColumn = -1}) {
+    _checkSheetArguments(sheetName);
+    int replaceCount = 0,
+        _startingRow = 0,
+        _endingRow = -1,
+        _startingColumn = 0,
+        _endingColumn = -1;
+
+    if (startingRow != -1 && endingRow != -1) {
+      if (startingRow > endingRow) {
+        _endingRow = startingRow;
+        _startingRow = endingRow;
+      } else {
+        _endingRow = endingRow;
+        _startingRow = startingRow;
+      }
+    }
+
+    if (startingColumn != -1 && endingColumn != -1) {
+      if (startingColumn > endingColumn) {
+        _endingColumn = startingColumn;
+        _startingColumn = endingColumn;
+      } else {
+        _endingColumn = endingColumn;
+        _startingColumn = startingColumn;
+      }
+    }
+
+    int rowsLength = _tables[sheetName].maxRows,
+        columnLength = _tables[sheetName].maxCols;
+    RegExp sourceRegx;
+    if (source.runtimeType == RegExp) {
+      sourceRegx == source;
+    } else {
+      sourceRegx = RegExp(source.toString());
+    }
+
+    for (int i = _startingRow; i < rowsLength; i++) {
+      if (_endingRow != -1 && i > _endingRow) {
+        break;
+      }
+      for (int j = _startingColumn; j < columnLength; j++) {
+        if (_endingColumn != -1 && j > _endingColumn) {
+          break;
+        }
+        var value = _tables[sheetName].rows[i][j];
+        if (value != null &&
+            sourceRegx.hasMatch(value) &&
+            (first == -1 || first != replaceCount)) {
+          _tables[sheetName].rows[i][j] =
+              value.toString().replaceAll(sourceRegx, target.toString());
+
           replaceCount += 1;
         }
-      });
-      rowIndex += 1;
+      }
     }
+
     return replaceCount;
   }
 
@@ -1521,6 +1653,14 @@ abstract class Excel {
     return [startColumn, startRow, endColumn, endRow];
   }
 
+  String getColumnAlphabet(int collIndex) {
+    return '${numericToLetters(collIndex + 1)}';
+  }
+
+  int getColumnIndex(String columnAlphabet) {
+    return cellCoordsFromCellId('${columnAlphabet}2')[1];
+  }
+
   String getCellId(int colI, int rowI) =>
       '${numericToLetters(colI + 1)}${rowI + 1}';
 
@@ -1531,7 +1671,7 @@ abstract class Excel {
 
   /// returns an Iterable of cell-Id for the previously merged cell-Ids.
   Iterable<String> getMergedCells(String sheet) {
-    return _spannedItems != null && _spannedItems.containsKey(sheet)
+    return _spannedItems != null && _isContain(_spannedItems[sheet])
         ? List<String>.of(_spannedItems[sheet])
         : [];
   }

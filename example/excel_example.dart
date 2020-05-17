@@ -3,11 +3,11 @@ import 'package:path/path.dart';
 import 'package:excel/excel.dart';
 
 void main(List<String> args) {
-  var file = "/home/raman/Documents/excel/example/test.xlsx";
+  var file = "/Users/kawal/Desktop/excel2.xlsx";
   var bytes = File(file).readAsBytesSync();
-  //var excel = Excel.createExcel();
+  var excel = Excel.createExcel();
   // or
-  var excel = Excel.decodeBytes(bytes, update: true);
+  //var excel = Excel.decodeBytes(bytes, update: true);
   for (var table in excel.tables.keys) {
     print(table);
     print(excel.tables[table].maxCols);
@@ -21,7 +21,9 @@ void main(List<String> args) {
   var sheet = 'Sheet24';
 
   excel.updateCell(sheet, CellIndex.indexByString("A1"), "Here Value of A1",
-      backgroundColorHex: "#1AFF1A", horizontalAlign: HorizontalAlign.Center);
+      backgroundColorHex: "#1AFF1A",
+      horizontalAlign: HorizontalAlign.Center,
+      verticalAlign: VerticalAlign.Center);
 
   excel.updateCell(
       sheet,
@@ -45,17 +47,17 @@ void main(List<String> args) {
   excel.merge(
       sheet, CellIndex.indexByString("A5"), CellIndex.indexByString("E5"));
 
-  // Remove row at index = 2
-  // excel.removeRow(sheet, 2);
+  //Remove row at index = 2
+  excel.removeRow(sheet, 2);
 
-  // // Remove column at index = 2
-  // excel.removeColumn(sheet, 2);
+  // Remove column at index = 2
+  excel.removeColumn(sheet, 2);
 
-  // // Insert column at index = 2;
-  // excel.insertColumn(sheet, 2);
+  // Insert column at index = 2;
+  excel.insertColumn(sheet, 2);
 
-  // // Insert row at index = 2;
-  // excel.insertRow(sheet, 2);
+  // Insert row at index = 2;
+  excel.insertRow(sheet, 2);
 
   excel.appendRow(sheet, ["bustin", "jiebr"]);
 
@@ -75,6 +77,13 @@ void main(List<String> args) {
     print("Default Sheet:" + value.toString());
   });
 
+  excel.insertRowIterables(sheet, ["A", "B", "C", "D", "E", "F", "G", "H"], 2,
+      startingColumn: 3, overwriteMergedCells: false);
+
+  excel.insertRowIterables(
+      sheet, ["Insert", "ing", "in", "9th", "row", "as", "iterables"], 8,
+      startingColumn: 13);
+
   // Check which cells are merged
   List<String> mergedCells = excel.getMergedCells(sheet);
   mergedCells.forEach((cells) {
@@ -89,7 +98,7 @@ void main(List<String> args) {
 
   // Saving the file
 
-  String outputFile = "/home/raman/Documents/excel/example/output.xlsx";
+  String outputFile = "/Users/kawal/Desktop/excel_example.xlsx";
   excel.encode().then((onValue) {
     File(join(outputFile))
       ..createSync(recursive: true)
