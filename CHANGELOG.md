@@ -9,7 +9,11 @@ All notable changes to this project will be documented in this file.
 - Underline
 - Bold
 
-## [1.0.6] - 2020-05-16
+## [1.0.7] - 2020-05-21
+### Removed
+- Bugs related to removal of rows
+
+## [1.0.6] - 2020-05-21
 ### Added Functionality
 - Find and Replace
 - Add row / column from Iterables

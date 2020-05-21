@@ -20,6 +20,9 @@ void main(List<String> args) {
   // if sheet with name = Sheet24 does not exist then it will be automatically created.
   var sheet = 'Sheet24';
 
+  //Remove row at index = 0
+  excel.removeRow(sheet, 0);
+
   excel.updateCell(sheet, CellIndex.indexByString("A1"), "Here Value of A1",
       backgroundColorHex: "#1AFF1A",
       horizontalAlign: HorizontalAlign.Center,
@@ -30,9 +33,6 @@ void main(List<String> args) {
       CellIndex.indexByColumnRow(columnIndex: 2, rowIndex: 0),
       "Here Value of C1",
       wrap: TextWrapping.WrapText);
-
-  //Remove row at index = 0
-  excel.removeRow(sheet, 0);
 
   excel.updateCell(sheet, CellIndex.indexByString("A2"), "Here Value of A2",
       backgroundColorHex: "#1AFF1A", wrap: TextWrapping.Clip);

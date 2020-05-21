@@ -825,6 +825,11 @@ abstract class Excel {
   _setSheetElements() {
     _sharedStrings = List<String>();
     _tables.forEach((sheet, table) {
+      // clear the previous contents of the sheet if it exists in order to reduce the time to find and compare with the sheet rows
+      // and hence just do the work of putting the data only i.e. creating new rows
+      _sheets[sheet].children.clear();
+      /** Above function is important in order to wipe out the old contents of the sheet. */
+
       for (int rowIndex = 0; rowIndex < table.rows.length; rowIndex++) {
         for (int columnIndex = 0;
             columnIndex < table.rows[rowIndex].length;
