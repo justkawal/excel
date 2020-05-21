@@ -1146,7 +1146,7 @@ abstract class Excel {
   ///
   /// [startingColumn] tells from where we should start puttin the [row] iterables
   ///
-  /// [overwriteMergedCells] when set to [true] tells it to consider overwriting mergedCell
+  /// [overwriteMergedCells] when set to [true] will overwriting mergedCell
   /// [overwriteMergedCells] when set to [false] puts the cell value to next unique cell.
   ///
   insertRowIterables(String sheetName, List<dynamic> row, int rowIndex,
