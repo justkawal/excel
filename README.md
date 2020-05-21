@@ -267,7 +267,7 @@ key | description
 key | description
 ------------ | -------------
  startingColumn | starting column index from which list-iterables should be started
- overwriteMergedCells | overwriteMergedCells is by defalut set to ```true```, when set to ```false``` it will stop over-write and will write only in unique cells
+ overwriteMergedCells | overwriteMergedCells is by-defalut set to ```true```, when set to ```false``` it will stop over-write and will write only in unique cells
    
  ### Append Row
  
