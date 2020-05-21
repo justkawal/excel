@@ -241,7 +241,7 @@ key | description
       
       or
       
-      int replacedCount = excel.findAndReplace(sheet, RegExp('your something regexp pattern'), 'Google');
+      int replacedCount = excel.findAndReplace(sheet, RegExp('your blah blah important regexp pattern'), 'Google');
       print("Replaced Count:" + replacedCount.toString());
     
    ````
