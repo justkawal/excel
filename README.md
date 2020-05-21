@@ -1,6 +1,6 @@
 ## Donate (Be the first one)
 
-Please consider donating if you think excel is helpful. I will be happy if you can help me upgrade my **lazy** laptop.
+I can code faster but my laptop is **lazy**. Help me upgrade it. Please consider donating if you think excel is helpful. 
 
 [Paypal Me on paypal.me/kawal7415](https://www.paypal.me/kawal7415)
 
@@ -224,8 +224,66 @@ key | description
       excel.unMerge(sheet, "A1:E4");
     
    ````
+   
+ ### Find and Replace
  
-  ### Get Default Opening Sheet
+ ````dart
+     /* 
+     * int replacedCount = excel.findAndReplace(sheetName, source, target);
+     * sheet === 'sheetName' in which replacement is to be done
+     * source is the string or ( User's Custom Pattern Matching RegExp )
+     * target is the string which is put in cells in place of source
+     * 
+     * it returns the number of replacements made
+     */
+ 
+      int replacedCount = excel.findAndReplace(sheet, 'Flutter', 'Google');
+      
+      or
+      
+      int replacedCount = excel.findAndReplace(sheet, RegExp('your something regexp pattern'), 'Google');
+      print("Replaced Count:" + replacedCount.toString());
+    
+   ````
+   
+ ### Insert Row Iterables
+ 
+ ````dart
+      /* 
+      * excel.insertRowIterables(sheet, list-iterables, rowIndex, iterable-options?);
+      * sheet === 'sheetName'
+      * list-iterables === list of iterables which has to be put in specific row
+      * rowIndex === the row in which the iterables has to be put
+      * Iterable options are optional
+      */
+      
+      /// It will put the list-iterables in the 8th index row
+      List<String> dataList = ["Google", "loves", "Flutter", "and", "Flutter", "loves", "Google"];
+      excel.insertRowIterables(sheet, dataList, 8);
+    
+   ````
+
+### Iterable Options
+key | description
+------------ | -------------
+ startingColumn | starting column index from which list-iterables should be 
+ overwriteMergedCells | overwriteMergedCells is by defalut set to ```true```, when set to ```false``` it will stop over-write and will write only in unique cells
+   
+ ### Append Row
+ 
+ ````dart
+     /* 
+     * excel.appendRow(sheetName, list-iterables);
+     * sheet === 'sheetName' in which the list-iterables is to be put in the last available row.
+     * list-iterables === list of iterables
+     * 
+     */
+     
+      excel.appendRow(sheet, ["Flutter", "till", "Eternity"]);
+    
+   ````
+ 
+### Get Default Opening Sheet
  
  ````dart
      /* 
@@ -244,7 +302,7 @@ key | description
     
    ````
    
-  ### Set Default Opening Sheet
+### Set Default Opening Sheet
  
  ````dart
      /* 
@@ -288,8 +346,6 @@ key | description
 
 ## Features coming in next version
 On-going implementation for future:
-- Find and Replace
-- Add row / column from Iterables
 - Formulas
 - Font Family
 - Text Size
