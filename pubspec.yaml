@@ -9,7 +9,3 @@ environment:
 dependencies:
   archive: ^2.0.0
   xml: ^4.1.0
-
-dev_dependencies:
-  path: ^1.5.1
-  test: ^1.2.0
