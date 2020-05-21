@@ -732,8 +732,8 @@ abstract class Excel {
             _spanMap[key][i] = spanObj1;
           }
         }
+        _cleanUpSpanMap(key);
       }
-      _cleanUpSpanMap(key);
     });
 
     _mergeChangeLook.forEach((key) {
@@ -952,7 +952,7 @@ abstract class Excel {
 
     bool updateSpanCell = false;
 
-    if (_spanMap.containsKey(sheet)) {
+    if (_spanMap != null && _spanMap.containsKey(sheet)) {
       List spannedItems = List<String>();
       for (int i = 0; i < _spanMap[sheet].length; i++) {
         _Span spanObj = _spanMap[sheet][i];
@@ -995,8 +995,8 @@ abstract class Excel {
         }
       }
       _spannedItems[sheet] = spannedItems;
+      _cleanUpSpanMap(sheet);
     }
-    _cleanUpSpanMap(sheet);
 
     if (updateSpanCell) {
       _mergeChangeLookup = sheet;
@@ -1338,9 +1338,8 @@ abstract class Excel {
         }
       }
       _spannedItems[sheet] = spannedItems;
+      _cleanUpSpanMap(sheet);
     }
-
-    _cleanUpSpanMap(sheet);
 
     if (updateSpanCell) {
       _mergeChangeLookup = sheet;
@@ -1721,9 +1720,11 @@ abstract class Excel {
 
   // Cleaning up the null values from the Span Map
   _cleanUpSpanMap(String sheet) {
-    _spanMap[sheet].removeWhere((value) => value == null);
-    if (_spanMap.containsKey(sheet) && _spanMap[sheet].length < 1) {
-      _spanMap.remove(sheet);
+    if (_spanMap != null && sheet != null && _spanMap.containsKey(sheet)) {
+      _spanMap[sheet].removeWhere((value) => value == null);
+      if (_spanMap[sheet].length < 1) {
+        _spanMap.remove(sheet);
+      }
     }
   }
 

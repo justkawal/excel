@@ -31,6 +31,9 @@ void main(List<String> args) {
       "Here Value of C1",
       wrap: TextWrapping.WrapText);
 
+  //Remove row at index = 0
+  excel.removeRow(sheet, 0);
+
   excel.updateCell(sheet, CellIndex.indexByString("A2"), "Here Value of A2",
       backgroundColorHex: "#1AFF1A", wrap: TextWrapping.Clip);
 
