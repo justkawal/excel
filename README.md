@@ -32,6 +32,10 @@ I can code faster but my laptop is **lazy**. Help me upgrade it. Please consider
     <img src="https://img.shields.io/github/stars/kawal7415/excel"  
       alt="Stars" />  
   </a>
+  
+
+
+#### Also checkout our new animations library: [AnimatedText](https://www.pub.dev/packages/animated_text)
 
 # Excel
 
