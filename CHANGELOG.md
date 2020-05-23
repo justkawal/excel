@@ -9,6 +9,10 @@ All notable changes to this project will be documented in this file.
 - Underline
 - Bold
 
+## [1.0.8] - 2020-05-23
+### Removed
+- Bugs related to appendRows
+
 ## [1.0.7] - 2020-05-21
 ### Removed
 - Bugs related to removal of rows

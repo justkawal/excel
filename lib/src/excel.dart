@@ -1101,6 +1101,7 @@ abstract class Excel {
 
   /// Append [row] iterables just post the last filled index in the [sheetName]
   appendRow(String sheetName, List<dynamic> row) {
+    _checkSheetArguments(sheetName);
     int targetRow = _tables[sheetName].maxRows;
     insertRowIterables(sheetName, row, targetRow);
   }
