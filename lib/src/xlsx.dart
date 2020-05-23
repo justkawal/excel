@@ -1,45 +1,5 @@
 part of excel;
 
-const String _relationshipsStyles =
-    "http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles";
-const String _relationshipsWorksheet =
-    "http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet";
-const String _relationshipsSharedStrings =
-    "http://schemas.openxmlformats.org/officeDocument/2006/relationships/sharedStrings";
-
-/// Convert a character based column
-int lettersToNumeric(String letters) {
-  var sum = 0, mul = 1, n;
-  for (var index = letters.length - 1; index >= 0; index--) {
-    var c = letters[index].codeUnitAt(0);
-    n = 1;
-    if (65 <= c && c <= 90) {
-      n += c - 65;
-    } else if (97 <= c && c <= 122) {
-      n += c - 97;
-    }
-    sum += n * mul;
-    mul = mul * 26;
-  }
-  return sum;
-}
-
-int _letterOnly(int rune) {
-  if (65 <= rune && rune <= 90) {
-    return rune;
-  } else if (97 <= rune && rune <= 122) {
-    return rune - 32;
-  }
-  return 0;
-}
-
-String _twoDigits(int n) {
-  if (n > 9) {
-    return "$n";
-  }
-  return "0$n";
-}
-
 /// Read and parse XSLX file
 class XlsxDecoder extends Excel {
   String get extension {

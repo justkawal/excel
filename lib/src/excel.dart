@@ -4,29 +4,6 @@ const String _relationships =
     'http://schemas.openxmlformats.org/officeDocument/2006/relationships';
 const _spreasheetXlsx = 'xlsx';
 
-enum TextWrapping { WrapText, Clip }
-enum VerticalAlign { Top, Center, Bottom }
-enum HorizontalAlign { Left, Center, Right }
-
-// Normalize line
-String _normalizeNewLine(String text) {
-  return text.replaceAll('\r\n', '\n');
-}
-
-/// Returns the coordinates from a cell name.
-/// "A2" returns [2, 1] and the "B3" return [3, 2].
-List<int> cellCoordsFromCellId(String cellId) {
-  var letters = cellId.runes.map(_letterOnly);
-  var lettersPart =
-      utf8.decode(letters.where((rune) => rune > 0).toList(growable: false));
-  var numericsPart = cellId.substring(lettersPart.length);
-
-  return [
-    int.parse(numericsPart) - 1,
-    lettersToNumeric(lettersPart) - 1
-  ]; // [x , y]
-}
-
 Excel _newExcel(Archive archive, bool update) {
   // Lookup at file format
   var format;
@@ -48,37 +25,8 @@ Excel _newExcel(Archive archive, bool update) {
   }
 }
 
-List<String> _noCompression = <String>[
-  'mimetype',
-  'Thumbnails/thumbnail.png',
-];
-
-/// Convert a number to character based column
-String numericToLetters(int number) {
-  var letters = '';
-
-  while (number != 0) {
-    // Set remainder from 1..26
-    var remainder = number % 26;
-
-    if (remainder == 0) {
-      remainder = 26;
-    }
-
-    // Convert the remainder to a character.
-    var letter = String.fromCharCode(65 + remainder - 1);
-
-    // Accumulate the column letters, right to left.
-    letters = letter + letters;
-
-    // Get the next order of magnitude.
-    number = (number - 1) ~/ 26;
-  }
-  return letters;
-}
-
 /// Decode a excel file.
-abstract class Excel {
+ class Excel {
   bool _update, _colorChanges, _mergeChanges;
   Archive _archive;
   Map<String, XmlNode> _sheets;
@@ -99,9 +47,6 @@ abstract class Excel {
       _mergeChangeLook;
   List<int> _numFormats;
   String _stylesTarget, _sharedStringsTarget;
-
-  /// Filename extension
-  String get extension;
 
   /// Tables contained in excel file indexed by their names
   Map<String, DataTable> get tables => _tables;
@@ -126,22 +71,14 @@ abstract class Excel {
     return _newExcel(archive, update);
   }
 
-  _damagedExcel({String text}) {
-    String t = '\nDamaged Excel file:';
-    if (text != null) {
-      t += ' $text';
-    }
-    throw ArgumentError(t + '\n');
-  }
+int _getAvailableRid() {
+  _rId.sort(
+      (a, b) => int.parse(a.substring(3)).compareTo(int.parse(b.substring(3))));
 
-  int _getAvailableRid() {
-    _rId.sort((a, b) =>
-        int.parse(a.substring(3)).compareTo(int.parse(b.substring(3))));
-
-    List<String> got = List<String>.from(_rId.last.split(''));
-    got.removeWhere((item) => !'0123456789'.split('').contains(item));
-    return int.parse(got.join().toString()) + 1;
-  }
+  List<String> got = List<String>.from(_rId.last.split(''));
+  got.removeWhere((item) => !'0123456789'.split('').contains(item));
+  return int.parse(got.join().toString()) + 1;
+}
 
   /// Uses the [newSheet] as the name of the sheet and also adds it to the [ xl/worksheets/ ] directory
   /// Add the sheet details in the workbook.xml. as well as in the workbook.xml.rels
@@ -353,6 +290,13 @@ abstract class Excel {
       } catch (_) {}
     }
     return applyFontInt;
+  }
+
+  Sheet operator [](String sheetName) {
+    if(_isContain(_tables[sheetName])){
+      return 
+    }
+    return Sheet._(this)._newSheet;
   }
 
   /// Encode bytes after update

@@ -16,6 +16,7 @@ void main(List<String> args) {
       print("$row");
     }
   }
+  var t = excel[''];
 
   // if sheet with name = Sheet24 does not exist then it will be automatically created.
   var sheet = 'Sheet24';
