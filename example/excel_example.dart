@@ -8,18 +8,30 @@ void main(List<String> args) {
   var excel = Excel.createExcel();
   // or
   //var excel = Excel.decodeBytes(bytes, update: true);
-  for (var table in excel.tables.keys) {
+  /* for (var table in excel.tables.keys) {
     print(table);
     print(excel.tables[table].maxCols);
     print(excel.tables[table].maxRows);
     for (var row in excel.tables[table].rows) {
       print("$row");
     }
-  }
-  var t = excel[''];
+  } */
+  
+ var sheet = excel['mySheet'];
+ sheet.loadCells; /// A1 , B1 , C1 , D1
+ sheet.loadRow(); /// List of rows.
+ sheet.cell(CellIndex.indexByColumnRow()).value = 'k'; /// inserting iterables at 0 index.
+ sheet.appendRow(); /// appending rows
+ sheet.maxRows; /// coutn of rows
+ sheet.maxCols; /// count of cols
+ sheet.clearRow(0);
+ 
+ sheet.cellByIndex('').value = ''; /// putting value by cellByIndex
+ sheet.rows[0][1].value = Formula(''); /// putting value by 
+ sheet.rows[0][1].cellStyle = CellStyle();
 
   // if sheet with name = Sheet24 does not exist then it will be automatically created.
-  var sheet = 'Sheet24';
+  //var sheet = 'Sheet24';
 
   //Remove row at index = 0
   excel.removeRow(sheet, 0);

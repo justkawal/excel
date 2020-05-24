@@ -25,4 +25,5 @@ enum CellType {
   String,
   int,
   Formula,
+  double,
 }

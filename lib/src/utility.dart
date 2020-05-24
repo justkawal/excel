@@ -9,6 +9,9 @@ List<String> _noCompression = <String>[
   'Thumbnails/thumbnail.png',
 ];
 
+String getCellId(int colI, int rowI) =>
+    '${numericToLetters(colI + 1)}${rowI + 1}';
+
 /// Convert a character based column
 int lettersToNumeric(String letters) {
   var sum = 0, mul = 1, n;

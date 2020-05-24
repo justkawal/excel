@@ -16,7 +16,6 @@ part 'src/cell_style.dart';
 part 'src/enum.dart';
 part 'src/sheet/sheet.dart';
 part 'src/save/save.dart';
-part 'src/sheet/row.dart';
 part 'src/sheet/data.dart';
 part 'src/sheet/formula.dart';
 part 'src/constants.dart';

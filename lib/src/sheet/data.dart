@@ -4,13 +4,56 @@ class Data {
   CellStyle _cellStyle;
   dynamic _value;
   CellType _cellType;
+  Sheet _sheet;
+  String _sheetName;
   bool _isFormula;
+  int _rowIndex;
+  int _colIndex;
 
-  Data._() {
+  Data._(Sheet sheet, int row, int col) {
+    this._sheet = sheet;
     this._value = null;
     this._cellStyle = null;
     this._isFormula = false;
     this._cellType = CellType.String;
+    this._sheetName = sheet.sheetName;
+    this._rowIndex = row;
+    this._colIndex = col;
+  }
+
+  /// returns the newData object when called from Sheet Class
+  static Data newData(Sheet sheet, int row, int col) {
+    return Data._(sheet, row, col);
+  }
+
+  /// returns the cell type
+  CellType get cellType {
+    return this._cellType;
+  }
+
+  /// returns true is the cellType is CellType.Formula
+  bool get isFormula {
+    return this._isFormula;
+  }
+
+  /// returns the row Index
+  int get rowIndex {
+    return this._rowIndex;
+  }
+
+  /// returns the column Index
+  int get colIndex {
+    return this._colIndex;
+  }
+
+  /// returns the sheet-name
+  String get sheetName {
+    return this._sheetName;
+  }
+
+  /// returns the string based cellId as A1, A2 or Z5
+  String get cellId {
+    return getCellId(this._colIndex, this._rowIndex);
   }
 
   set value(dynamic _value) {
@@ -18,22 +61,28 @@ class Data {
       if (_value is Formula || _value.runtimeType == Formula) {
       } else {
         this._value = _value;
-        this._cellType =
-            _value.runtimeType == int || _value.runtimeType == double
-                ? CellType.int
-                : CellType.String;
+        this._cellType = _value.runtimeType == int
+            ? CellType.int
+            : _value.runtimeType == double ? CellType.double : CellType.String;
       }
     }
   }
 
+  /// returns the value stored in this cell;
+  ///
+  /// It will return null if no value is stored in this cell.
   get value {
     return _value;
   }
 
+  /// sets the user defined CellStyle in this current cell
   set style(CellStyle _style) {
     this._cellStyle = _style;
   }
 
+  /// returns the user-defined CellStyle
+  ///
+  /// if no cellStyle is set then it returns null
   get style {
     return this._cellStyle;
   }

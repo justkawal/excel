@@ -26,7 +26,7 @@ Excel _newExcel(Archive archive, bool update) {
 }
 
 /// Decode a excel file.
- class Excel {
+class Excel {
   bool _update, _colorChanges, _mergeChanges;
   Archive _archive;
   Map<String, XmlNode> _sheets;
@@ -71,14 +71,14 @@ Excel _newExcel(Archive archive, bool update) {
     return _newExcel(archive, update);
   }
 
-int _getAvailableRid() {
-  _rId.sort(
-      (a, b) => int.parse(a.substring(3)).compareTo(int.parse(b.substring(3))));
+  int _getAvailableRid() {
+    _rId.sort((a, b) =>
+        int.parse(a.substring(3)).compareTo(int.parse(b.substring(3))));
 
-  List<String> got = List<String>.from(_rId.last.split(''));
-  got.removeWhere((item) => !'0123456789'.split('').contains(item));
-  return int.parse(got.join().toString()) + 1;
-}
+    List<String> got = List<String>.from(_rId.last.split(''));
+    got.removeWhere((item) => !'0123456789'.split('').contains(item));
+    return int.parse(got.join().toString()) + 1;
+  }
 
   /// Uses the [newSheet] as the name of the sheet and also adds it to the [ xl/worksheets/ ] directory
   /// Add the sheet details in the workbook.xml. as well as in the workbook.xml.rels
@@ -292,11 +292,13 @@ int _getAvailableRid() {
     return applyFontInt;
   }
 
+  Map<String, Sheet> _sheetMap = Map<String, Sheet>();
+
   Sheet operator [](String sheetName) {
-    if(_isContain(_tables[sheetName])){
-      return 
+    if (_isContain(_sheetMap[sheetName])) {
+      return _sheetMap[sheetName];
     }
-    return Sheet._(this)._newSheet;
+    return Sheet(this, sheetName);
   }
 
   /// Encode bytes after update
@@ -1609,9 +1611,6 @@ int _getAvailableRid() {
   int getColumnIndex(String columnAlphabet) {
     return cellCoordsFromCellId('${columnAlphabet}2')[1];
   }
-
-  String getCellId(int colI, int rowI) =>
-      '${numericToLetters(colI + 1)}${rowI + 1}';
 
   String _getSpanCellId(
       int startColumn, int startRow, int endColumn, int endRow) {
