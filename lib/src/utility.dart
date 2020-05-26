@@ -88,10 +88,18 @@ List<int> cellCoordsFromCellId(String cellId) {
   ]; // [x , y]
 }
 
+/// Throw error at situation where further more can't be processed as
+/// important parts of excel are missing indicating it to be broken or corrupted.
 _damagedExcel({String text}) {
   String t = '\nDamaged Excel file:';
   if (text != null) {
     t += ' $text';
   }
   throw ArgumentError(t + '\n');
+}
+
+/// return A2:B2 for spanning storage in unmerge list when [0,2] [2,2] is passed
+String _getSpanCellId(
+    int startColumn, int startRow, int endColumn, int endRow) {
+  return '${getCellId(startColumn, startRow)}:${getCellId(endColumn, endRow)}';
 }

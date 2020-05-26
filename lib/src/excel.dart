@@ -26,7 +26,7 @@ Excel _newExcel(Archive archive, bool update) {
 }
 
 /// Decode a excel file.
-class Excel {
+abstract class Excel {
   bool _update, _colorChanges, _mergeChanges;
   Archive _archive;
   Map<String, XmlNode> _sheets;
@@ -39,7 +39,7 @@ class Excel {
   Map<String, List<String>> _spannedItems;
   Map<String, DataTable> _tables;
   List<CellStyle> _cellStyleList, _innerCellStyle;
-  Map<String, List<_Span>> _spanMap;
+  Map<String, List<_Span>> _spanMapt;
   List<String> _sharedStrings,
       _rId,
       _fontColorHex,
@@ -295,10 +295,13 @@ class Excel {
   Map<String, Sheet> _sheetMap = Map<String, Sheet>();
 
   Sheet operator [](String sheetName) {
-    if (_isContain(_sheetMap[sheetName])) {
-      return _sheetMap[sheetName];
+    if (!_isContain(_sheetMap)) {
+      _sheetMap = Map<String, Sheet>();
     }
-    return Sheet(this, sheetName);
+    if (!_isContain(_sheetMap['$sheetName'])) {
+      _sheetMap['$sheetName'] = Sheet(this, '$sheetName');
+    }
+    return _sheetMap['$sheetName'];
   }
 
   /// Encode bytes after update
@@ -798,7 +801,7 @@ class Excel {
       _createSheet(sheet);
     }
   }
-
+/* 
   /// Check if columnIndex is not out of Excel Column limits.
   _checkSheetMaxCol(String sheet, int colIndex) {
     if ((_tables[sheet]._maxCols >= 16384) || colIndex >= 16384) {
@@ -811,11 +814,22 @@ class Excel {
     if ((_tables[sheet]._maxRows >= 1048576) || rowIndex >= 1048576) {
       throw ArgumentError('Reached Max (1048576) rows value.');
     }
-  }
+  } */
 
   /// Insert column in [sheet] at position [columnIndex]
   insertColumn(String sheet, int columnIndex) {
-    _checkSheetArguments(sheet);
+    if (columnIndex < 0) {
+      return;
+    }
+    if (!_isContain(_sheetMap)) {
+      _sheetMap = Map<String, Sheet>();
+    }
+    if (!_isContain(_sheetMap['$sheet'])) {
+      _sheetMap['$sheet'] = Sheet(this, '$sheet');
+    }
+    _sheetMap[sheet].insertColumn(columnIndex);
+
+    /*  _checkSheetArguments(sheet);
     _checkSheetMaxCol(sheet, columnIndex);
     if (columnIndex < 0) {
       throw RangeError.range(columnIndex, 0, _tables[sheet]._maxCols);
@@ -884,12 +898,17 @@ class Excel {
     } else {
       table.rows.forEach((row) => row.insert(columnIndex, null));
       table._maxCols++;
-    }
+    } */
   }
 
   /// Remove column in [sheet] at position [columnIndex]
   removeColumn(String sheet, int columnIndex) {
-    if (!_sheets.containsKey(sheet) || columnIndex >= _tables[sheet]._maxCols) {
+    if (columnIndex >= 0 &&
+        _isContain(_sheetMap) &&
+        _isContain(_sheetMap['$sheet'])) {
+      _sheetMap['$sheet'].removeColumn(columnIndex);
+    }
+    /* if (!_sheets.containsKey(sheet) || columnIndex >= _tables[sheet]._maxCols) {
       return;
     }
     if (!_update) {
@@ -971,12 +990,23 @@ class Excel {
 
     var table = _tables[sheet];
     table.rows.forEach((row) => row.removeAt(columnIndex));
-    table._maxCols--;
+    table._maxCols--; */
   }
 
   /// Insert row in [sheet] at position [rowIndex]
   insertRow(String sheet, int rowIndex) {
-    _checkSheetArguments(sheet);
+    if (rowIndex < 0) {
+      return;
+    }
+    if (!_isContain(_sheetMap)) {
+      _sheetMap = Map<String, Sheet>();
+    }
+    if (!_isContain(_sheetMap['$sheet'])) {
+      _sheetMap['$sheet'] = Sheet(this, '$sheet');
+    }
+    _sheetMap[sheet].insertRow(rowIndex);
+
+    /* _checkSheetArguments(sheet);
     _checkSheetMaxRow(sheet, rowIndex);
 
     if (rowIndex < 0) {
@@ -1042,7 +1072,7 @@ class Excel {
     } else {
       table.rows.insert(rowIndex, List.generate(table._maxCols, (_) => null));
       table._maxRows++;
-    }
+    } */
   }
 
   /// Append [row] iterables just post the last filled index in the [sheetName]
@@ -1237,7 +1267,13 @@ class Excel {
 
   /// Remove row in [sheet] at position [rowIndex]
   removeRow(String sheet, int rowIndex) {
-    if (!_sheets.containsKey(sheet) || rowIndex >= _tables[sheet]._maxRows) {
+    if (rowIndex >= 0 &&
+        sheet != null &&
+        _isContain(_sheetMap) &&
+        _isContain(_sheetMap[sheet])) {
+      _sheetMap[sheet].removeRow(rowIndex);
+    }
+    /* if (!_sheets.containsKey(sheet) || rowIndex >= _tables[sheet]._maxRows) {
       return;
     }
     if (!_update) {
@@ -1315,9 +1351,9 @@ class Excel {
 
     var table = _tables[sheet];
     table.rows.removeAt(rowIndex);
-    table._maxRows--;
+    table._maxRows--; */
   }
-
+/* 
   List<int> _isInsideSpanning(String sheet, int rowIndex, int columnIndex) {
     int newRowIndex = rowIndex, newColumnIndex = columnIndex;
 
@@ -1337,7 +1373,7 @@ class Excel {
     }
 
     return [newRowIndex, newColumnIndex];
-  }
+  } */
 
   /// Update the contents from sheet of the cell index: [columnIndex , rowIndex] where indexing starts from 0
   ///
@@ -1358,7 +1394,7 @@ class Excel {
       insertColumn(sheet, columnIndex);
     }
 
-    if (rowIndex >= _tables[sheet]._maxRows) {
+    if (rowIndex >= _tables[sheet]._maxRows){
       insertRow(sheet, rowIndex);
     }
 
@@ -1612,11 +1648,6 @@ class Excel {
     return cellCoordsFromCellId('${columnAlphabet}2')[1];
   }
 
-  String _getSpanCellId(
-      int startColumn, int startRow, int endColumn, int endRow) {
-    return '${getCellId(startColumn, startRow)}:${getCellId(endColumn, endRow)}';
-  }
-
   /// returns an Iterable of cell-Id for the previously merged cell-Ids.
   Iterable<String> getMergedCells(String sheet) {
     return _spannedItems != null && _isContain(_spannedItems[sheet])
@@ -1664,16 +1695,6 @@ class Excel {
       }
       _spannedItems[sheet].remove(unmergeCells);
       _mergeChangeLookup = sheet;
-    }
-  }
-
-  // Cleaning up the null values from the Span Map
-  _cleanUpSpanMap(String sheet) {
-    if (_spanMap != null && sheet != null && _spanMap.containsKey(sheet)) {
-      _spanMap[sheet].removeWhere((value) => value == null);
-      if (_spanMap[sheet].length < 1) {
-        _spanMap.remove(sheet);
-      }
     }
   }
 

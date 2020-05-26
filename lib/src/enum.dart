@@ -26,4 +26,5 @@ enum CellType {
   int,
   Formula,
   double,
+  bool,
 }

@@ -16,19 +16,34 @@ void main(List<String> args) {
       print("$row");
     }
   } */
-  
- var sheet = excel['mySheet'];
- sheet.loadCells; /// A1 , B1 , C1 , D1
- sheet.loadRow(); /// List of rows.
- sheet.cell(CellIndex.indexByColumnRow()).value = 'k'; /// inserting iterables at 0 index.
- sheet.appendRow(); /// appending rows
- sheet.maxRows; /// coutn of rows
- sheet.maxCols; /// count of cols
- sheet.clearRow(0);
- 
- sheet.cellByIndex('').value = ''; /// putting value by cellByIndex
- sheet.rows[0][1].value = Formula(''); /// putting value by 
- sheet.rows[0][1].cellStyle = CellStyle();
+
+  var sheet = excel['mySheet'];
+  /// A1 , B1 , C1 , D1
+  sheet.rows;
+
+  /// List of rows.
+  sheet.loadRow();
+
+  /// putting value = 'k' at A1 index.
+  sheet.cell(CellIndex.indexByString("A1")).value = 'k';
+
+  /// appending rows
+  sheet.appendRow();
+
+  /// coutn of rows
+  sheet.maxRows;
+
+  /// count of cols
+  sheet.maxCols;
+
+  sheet.clearRow(0);
+  sheet.removeColumn(0);
+  sheet.removeRow(0);
+  sheet.insertColumn(0);
+
+  /// putting value by cellByIndex
+  sheet.cellByIndex('').value = '';
+
 
   // if sheet with name = Sheet24 does not exist then it will be automatically created.
   //var sheet = 'Sheet24';
