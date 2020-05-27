@@ -12,6 +12,7 @@ class Sheet {
   Sheet(Excel excel, String sheetName, {Map<int, Map<int, Data>> sh}) {
     this._sheetData = sh ?? Map<int, Map<int, Data>>();
     this._spanList = List<_Span>();
+    this._spannedItems = List<String>();
     this._excel = excel;
     this._sheet = sheetName;
   }
@@ -429,35 +430,151 @@ class Sheet {
       newRowIndex = updatedPosition[0];
       newColumnIndex = updatedPosition[1];
     }
-
-    if (!_isContain(this._sheetData)) {
-      this._sheetData = Map<int, Map<int, Data>>();
-    }
     if (value != null) {
       print(value.runtimeType.toString());
     }
 
-    if (this._sheetData.isNotEmpty && _isContain(this._sheetData[rowIndex])) {
-      if (!_isContain(this._sheetData[rowIndex][columnIndex])) {
-        this._sheetData[rowIndex][columnIndex] =
-            Data.newData(this, rowIndex, columnIndex);
-      }
-      this._sheetData[rowIndex][columnIndex]._value =
-          this._sheetData[rowIndex][columnIndex]._value ?? value;
-      this._sheetData[rowIndex][columnIndex]._cellStyle =
-          this._sheetData[rowIndex][columnIndex]._cellStyle ?? cellStyle;
+    if (this._sheetData.isNotEmpty &&
+        _isContain(this._sheetData[newRowIndex])) {
+      this._sheetData[newRowIndex][newColumnIndex] =
+          Data.newData(this, newRowIndex, newColumnIndex);
     } else {
-      this._sheetData[rowIndex] = {
-        columnIndex: Data.newData(this, rowIndex, columnIndex)
+      this._sheetData[newRowIndex] = {
+        newColumnIndex: Data.newData(this, newRowIndex, newColumnIndex)
       };
     }
+    this._sheetData[newRowIndex][newColumnIndex]._value =
+        this._sheetData[newRowIndex][newColumnIndex]._value ?? value;
+    this._sheetData[newRowIndex][newColumnIndex]._cellStyle =
+        this._sheetData[newRowIndex][newColumnIndex]._cellStyle ?? cellStyle;
 
     if (!_excel._sharedStrings.contains('$value')) {
       _excel._sharedStrings.add(value.toString());
     }
   }
 
-  merge() {}
+  /// Merge the Cells starting from the [start] to [end].
+  merge(CellIndex start, CellIndex end, {dynamic customValue}) {
+    _checkSheetArguments();
+    int startColumn = start._columnIndex,
+        startRow = start._rowIndex,
+        endColumn = end._columnIndex,
+        endRow = end._rowIndex;
+
+    _checkMaxCol(startColumn);
+    _checkMaxCol(endColumn);
+    _checkMaxRow(startRow);
+    _checkMaxRow(endRow);
+
+    if ((startColumn == endColumn && startRow == endRow) ||
+        (startColumn < 0 || startRow < 0 || endColumn < 0 || endRow < 0) ||
+        (_spannedItems != null &&
+            _spannedItems.contains(
+                _getSpanCellId(startColumn, startRow, endColumn, endRow)))) {
+      return;
+    }
+
+    List<int> gotPosition = _getSpanPosition(start, end);
+
+    _excel._mergeChanges = true;
+
+    startColumn = gotPosition[0];
+    startRow = gotPosition[1];
+    endColumn = gotPosition[2];
+    endRow = gotPosition[3];
+
+    bool getValue = true;
+
+    Data value = Data.newData(this, startRow, startColumn);
+    if (customValue != null) {
+      value.value = customValue;
+      getValue = false;
+    }
+
+    for (int j = startRow; j <= endRow; j++) {
+      for (int k = startColumn; k <= endColumn; k++) {
+        if (_isContain(this._sheetData) &&
+            _isContain(this._sheetData[j]) &&
+            _isContain(this._sheetData[j][k])) {
+          if (getValue &&
+              this._sheetData[j][k].value != null &&
+              this._sheetData[j][k].style != null) {
+            value = this._sheetData[j][k];
+            getValue = false;
+          }
+          this._sheetData[j].remove(k);
+        }
+      }
+    }
+
+    if (_isContain(this._sheetData[startRow])) {
+      this._sheetData[startRow][startColumn] = value;
+    } else {
+      this._sheetData[startRow] = {startColumn: value};
+    }
+
+    String sp = _getSpanCellId(startColumn, startRow, endColumn, endRow);
+
+    if (!_spannedItems.contains(sp)) {
+      _spannedItems.add(sp);
+    }
+
+    _Span s = _Span();
+    s._start = [startRow, startColumn];
+    s._end = [endRow, endColumn];
+
+    _spanList.add(s);
+    _excel._mergeChangeLookup = this.sheetName;
+  }
+
+  /// Helps to find the interaction between the pre-existing span position
+  /// and updates if with new span if there any interaction(Cross-Sectional Spanning) exists.
+  List<int> _getSpanPosition(CellIndex start, CellIndex end) {
+    int startColumn = start._columnIndex,
+        startRow = start._rowIndex,
+        endColumn = end._columnIndex,
+        endRow = end._rowIndex;
+
+    bool remove = false;
+
+    if (startRow > endRow) {
+      startRow = end._rowIndex;
+      endRow = start._rowIndex;
+    }
+    if (endColumn < startColumn) {
+      endColumn = start._columnIndex;
+      startColumn = end._columnIndex;
+    }
+
+    if (_spanList != null) {
+      for (int i = 0; i < _spanList.length; i++) {
+        _Span spanObj = _spanList[i];
+
+        Map<String, List<int>> gotMap = _isLocationChangeRequired(
+            startColumn, startRow, endColumn, endRow, spanObj);
+        List<int> gotPosition = gotMap['gotPosition'];
+        int changeValue = gotMap['changeValue'][0];
+
+        if (changeValue == 1) {
+          startColumn = gotPosition[0];
+          startRow = gotPosition[1];
+          endColumn = gotPosition[2];
+          endRow = gotPosition[3];
+          String sp = _getSpanCellId(spanObj.columnSpanStart,
+              spanObj.rowSpanStart, spanObj.columnSpanEnd, spanObj.rowSpanEnd);
+          if (_spannedItems != null && _spannedItems.contains(sp)) {
+            _spannedItems.remove(sp);
+          }
+          remove = true;
+          _spanList[i] = null;
+        }
+      }
+      if (remove) {
+        _cleanUpSpanMap();
+      }
+    }
+    return [startColumn, startRow, endColumn, endRow];
+  }
 
   /// returns true if the contents are successfully cleared else false
   bool clearRow(int rowIndex) {
@@ -541,9 +658,7 @@ class Sheet {
 
   // Cleaning up the null values from the Span Map
   _cleanUpSpanMap() {
-    if (this._spanList != null &&
-        this.sheetName != null &&
-        this._spanList.isNotEmpty) {
+    if (_spanList != null && _spanList.isNotEmpty) {
       this._spanList.removeWhere((value) => value == null);
     }
   }

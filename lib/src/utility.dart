@@ -103,3 +103,93 @@ String _getSpanCellId(
     int startColumn, int startRow, int endColumn, int endRow) {
   return '${getCellId(startColumn, startRow)}:${getCellId(endColumn, endRow)}';
 }
+
+/// Helps to find out the updated SpanObject location
+/// as there is the cross-sectional interaction between the two spanning objects.
+Map<String, List<int>> _isLocationChangeRequired(
+    int startColumn, int startRow, int endColumn, int endRow, _Span spanObj) {
+  int changeValue = 0;
+
+  if (startRow <= spanObj.rowSpanStart &&
+      startColumn <= spanObj.columnSpanStart &&
+      endRow >= spanObj.rowSpanEnd &&
+      endColumn >= spanObj.columnSpanEnd) {
+    changeValue = 1;
+  } else {
+    if ((startColumn < spanObj.columnSpanStart &&
+            endColumn >= spanObj.columnSpanStart) ||
+        (startColumn <= spanObj.columnSpanEnd &&
+            endColumn > spanObj.columnSpanEnd)) {
+      /**
+           * Start Row stretching to up position
+           */
+      if (startRow >= spanObj.rowSpanStart && startRow <= spanObj.rowSpanEnd) {
+        changeValue = 1;
+      }
+      /**
+           * End Row stretching to bottom position
+           */
+      if (endRow >= spanObj.rowSpanStart && endRow <= spanObj.rowSpanEnd) {
+        endRow = spanObj.rowSpanEnd;
+        changeValue = 1;
+      }
+
+      /* if (startColumn >= spanObj.columnSpanStart) {
+          startColumn = spanObj.columnSpanStart;
+          changeValue = 1;
+        }
+
+        if (endColumn <= spanObj.columnSpanEnd) {
+          endColumn = spanObj.columnSpanEnd;
+          changeValue = 1;
+        } */
+    }
+
+    if ((startRow < spanObj.rowSpanStart && endRow >= spanObj.rowSpanStart) ||
+        (startRow <= spanObj.rowSpanEnd && endRow > spanObj.rowSpanEnd)) {
+      /**
+           * Start Column stretching to left position
+           */
+      if (startColumn >= spanObj.columnSpanStart &&
+          startColumn <= spanObj.columnSpanEnd) {
+        changeValue = 1;
+      }
+      /**
+           * End Column stretching to right position
+           */
+      if (endColumn >= spanObj.columnSpanStart &&
+          endColumn <= spanObj.columnSpanEnd) {
+        changeValue = 1;
+      }
+
+      /* if (startRow >= spanObj.rowSpanStart) {
+          startRow = spanObj.rowSpanStart;
+          changeValue = 1;
+        }
+
+        if (endRow <= spanObj.rowSpanEnd) {
+          endRow = spanObj.rowSpanEnd;
+          changeValue = 1;
+        } */
+    }
+  }
+  if (changeValue == 1) {
+    if (startColumn > spanObj.columnSpanStart) {
+      startColumn = spanObj.columnSpanStart;
+    }
+    if (endColumn < spanObj.columnSpanEnd) {
+      endColumn = spanObj.columnSpanEnd;
+    }
+    if (startRow > spanObj.rowSpanStart) {
+      startRow = spanObj.rowSpanStart;
+    }
+    if (endRow < spanObj.rowSpanEnd) {
+      endRow = spanObj.rowSpanEnd;
+    }
+  }
+
+  return Map<String, List<int>>.from({
+    "changeValue": List<int>.from([changeValue]),
+    "gotPosition": List<int>.from([startColumn, startRow, endColumn, endRow])
+  });
+}

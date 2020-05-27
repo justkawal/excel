@@ -1,10 +1,12 @@
 library excel;
 
 import 'dart:convert';
+import 'dart:html';
 import 'dart:typed_data';
 
 import 'package:archive/archive.dart';
 import 'package:xml/xml.dart';
+import 'dart:math' as math;
 
 part 'src/excel.dart';
 part 'src/utility.dart';

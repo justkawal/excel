@@ -25,7 +25,7 @@ void main(List<String> args) {
   sheet.loadRow();
 
   /// putting value = 'k' at A1 index.
-  sheet.cell(CellIndex.indexByString("A1"))=Data.;
+  sheet.cell(CellIndex.indexByString("A1"))=Data;
 
   /// appending rows
   sheet.appendRow();

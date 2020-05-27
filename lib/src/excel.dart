@@ -797,9 +797,9 @@ abstract class Excel {
     if (!_update) {
       throw ArgumentError("'update' should be set to 'true' on constructor");
     }
-    if (!_sheets.containsKey(sheet)) {
+    /* if (!_sheets.containsKey(sheet)) {
       _createSheet(sheet);
-    }
+    } */
   }
 /* 
   /// Check if columnIndex is not out of Excel Column limits.
@@ -1381,13 +1381,22 @@ abstract class Excel {
   ///
   /// Font / Background color can be updated by providing Hex String to [fontColorHex] / [backgroundColorHex] as required.
   updateCell(String sheet, CellIndex cellIndex, dynamic value,
-      {String fontColorHex,
-      String backgroundColorHex,
-      TextWrapping wrap,
-      VerticalAlign verticalAlign,
-      HorizontalAlign horizontalAlign}) {
-    _checkSheetArguments(sheet);
-    int columnIndex = cellIndex._columnIndex;
+      {CellStyle cellStyle}) {
+    if (value == null || cellIndex == null) {
+      return;
+    }
+    if (!_isContain(_sheetMap['$sheet'])) {
+      _sheetMap['$sheet'] = Sheet(this, '$sheet');
+    }
+    if (cellStyle != null) {
+      _colorChanges = true;
+      _sheetMap['$sheet']
+          ._updateSheetClassCell(cellIndex, value, cellStyle: cellStyle);
+    } else {
+      _sheetMap['$sheet']._updateSheetClassCell(cellIndex, value);
+    }
+
+    /*  int columnIndex = cellIndex._columnIndex;
     int rowIndex = cellIndex._rowIndex;
 
     if (columnIndex >= _tables[sheet]._maxCols) {
@@ -1408,13 +1417,31 @@ abstract class Excel {
     _tables[sheet].rows[newRowIndex][newColumnIndex] = value.toString();
     if (!_sharedStrings.contains('$value')) {
       _sharedStrings.add(value.toString());
-    }
+    } */
   }
 
-  void merge(String sheet, CellIndex start, CellIndex end,
-      {dynamic customValue}) {
+/* 
+  String _isColorAppropriate(String value) {
+    String hex;
+    if (value.length != 7) {
+      throw ArgumentError(
+          "InAppropriate Color provided. Use colorHex as example of: #FF0000");
+    }
+    hex = value.replaceAll(RegExp(r'#'), 'FF').toString();
+    return hex;
+  }
+ */
+  merge(String sheet, CellIndex start, CellIndex end, {dynamic customValue}) {
     _checkSheetArguments(sheet);
-    int startColumn = start._columnIndex,
+    if (start == null || end == null) {
+      return;
+    }
+    if (!_isContain(_sheetMap['$sheet'])) {
+      _sheetMap['$sheet'] = Sheet(this, '$sheet');
+    }
+    _sheetMap['$sheet'].merge(start, end, customValue: customValue);
+
+    /*  int startColumn = start._columnIndex,
         startRow = start._rowIndex,
         endColumn = end._columnIndex,
         endRow = end._rowIndex;
@@ -1491,101 +1518,10 @@ abstract class Excel {
     }
     l.add(s);
     _spanMap[sheet] = l;
-    _mergeChangeLookup = sheet;
+    _mergeChangeLookup = sheet; */
   }
 
-  Map<String, List<int>> _isLocationChangeRequired(String sheet,
-      int startColumn, int startRow, int endColumn, int endRow, _Span spanObj) {
-    int changeValue = 0;
-
-    if (startRow <= spanObj.rowSpanStart &&
-        startColumn <= spanObj.columnSpanStart &&
-        endRow >= spanObj.rowSpanEnd &&
-        endColumn >= spanObj.columnSpanEnd) {
-      changeValue = 1;
-    } else {
-      if ((startColumn < spanObj.columnSpanStart &&
-              endColumn >= spanObj.columnSpanStart) ||
-          (startColumn <= spanObj.columnSpanEnd &&
-              endColumn > spanObj.columnSpanEnd)) {
-        /**
-           * Start Row stretching to up position
-           */
-        if (startRow >= spanObj.rowSpanStart &&
-            startRow <= spanObj.rowSpanEnd) {
-          startRow = spanObj.rowSpanStart;
-          changeValue = 1;
-        }
-        /**
-           * End Row stretching to bottom position
-           */
-        if (endRow >= spanObj.rowSpanStart && endRow <= spanObj.rowSpanEnd) {
-          endRow = spanObj.rowSpanEnd;
-          changeValue = 1;
-        }
-
-        /* if (startColumn >= spanObj.columnSpanStart) {
-          startColumn = spanObj.columnSpanStart;
-          changeValue = 1;
-        }
-
-        if (endColumn <= spanObj.columnSpanEnd) {
-          endColumn = spanObj.columnSpanEnd;
-          changeValue = 1;
-        } */
-      }
-
-      if ((startRow < spanObj.rowSpanStart && endRow >= spanObj.rowSpanStart) ||
-          (startRow <= spanObj.rowSpanEnd && endRow > spanObj.rowSpanEnd)) {
-        /**
-           * Start Column stretching to left position
-           */
-        if (startColumn >= spanObj.columnSpanStart &&
-            startColumn <= spanObj.columnSpanEnd) {
-          startColumn = spanObj.columnSpanStart;
-          changeValue = 1;
-        }
-        /**
-           * End Column stretching to right position
-           */
-        if (endColumn >= spanObj.columnSpanStart &&
-            endColumn <= spanObj.columnSpanEnd) {
-          endColumn = spanObj.columnSpanEnd;
-          changeValue = 1;
-        }
-
-        /* if (startRow >= spanObj.rowSpanStart) {
-          startRow = spanObj.rowSpanStart;
-          changeValue = 1;
-        }
-
-        if (endRow <= spanObj.rowSpanEnd) {
-          endRow = spanObj.rowSpanEnd;
-          changeValue = 1;
-        } */
-      }
-    }
-    if (changeValue == 1) {
-      if (startColumn > spanObj.columnSpanStart) {
-        startColumn = spanObj.columnSpanStart;
-      }
-      if (endColumn < spanObj.columnSpanEnd) {
-        endColumn = spanObj.columnSpanEnd;
-      }
-      if (startRow > spanObj.rowSpanStart) {
-        startRow = spanObj.rowSpanStart;
-      }
-      if (endRow < spanObj.rowSpanEnd) {
-        endRow = spanObj.rowSpanEnd;
-      }
-    }
-
-    return Map<String, List<int>>.from({
-      "changeValue": List<int>.from([changeValue]),
-      "gotPosition": List<int>.from([startColumn, startRow, endColumn, endRow])
-    });
-  }
-
+/* 
   /// Helps to find the interaction between the pre-existing span position
   /// and updates if with new span if there any interaction(Cross-Sectional Spanning) exists.
   List<int> _getSpanPosition(String sheet, CellIndex start, CellIndex end) {
@@ -1638,7 +1574,7 @@ abstract class Excel {
       }
     }
     return [startColumn, startRow, endColumn, endRow];
-  }
+  } */
 
   String getColumnAlphabet(int collIndex) {
     return '${numericToLetters(collIndex + 1)}';
