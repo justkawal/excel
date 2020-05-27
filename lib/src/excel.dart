@@ -198,6 +198,9 @@ abstract class Excel {
           XmlAttribute(
               XmlName('Target'), 'worksheets/sheet${sheetNumber + 1}.xml'),
         ]));
+    if (!_rId.contains('rId$ridNumber')) {
+      _rId.add('rId$ridNumber');
+    }
 
     _xmlFiles['xl/workbook.xml']
         .findAllElements('sheets')
