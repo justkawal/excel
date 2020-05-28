@@ -793,7 +793,7 @@ abstract class Excel {
     });
   }
 
-  _checkSheetArguments(String sheet) {
+  _checkSheetArguments() {
     if (!_update) {
       throw ArgumentError("'update' should be set to 'true' on constructor");
     }
@@ -801,785 +801,240 @@ abstract class Excel {
       _createSheet(sheet);
     } */
   }
-/* 
-  /// Check if columnIndex is not out of Excel Column limits.
-  _checkSheetMaxCol(String sheet, int colIndex) {
-    if ((_tables[sheet]._maxCols >= 16384) || colIndex >= 16384) {
-      throw ArgumentError('Reached Max (16384) or (XFD) columns value.');
-    }
-  }
 
-  /// Check if rowIndex is not out of Excel Row limits.
-  _checkSheetMaxRow(String sheet, int rowIndex) {
-    if ((_tables[sheet]._maxRows >= 1048576) || rowIndex >= 1048576) {
-      throw ArgumentError('Reached Max (1048576) rows value.');
-    }
-  } */
-
-  /// Insert column in [sheet] at position [columnIndex]
-  insertColumn(String sheet, int columnIndex) {
-    if (columnIndex < 0) {
+  /**
+   * 
+   * 
+   * Inserts an empty `column` in sheet at position = `columnIndex`.
+   * 
+   * If `columnIndex == null` or `columnIndex < 0` if will not execute 
+   * 
+   * If the `sheet` does not exists then it will be created automatically.
+   * 
+   * 
+   */
+  void insertColumn(String sheet, int columnIndex) {
+    if (columnIndex == null || columnIndex < 0) {
       return;
     }
-    if (!_isContain(_sheetMap)) {
-      _sheetMap = Map<String, Sheet>();
-    }
-    if (!_isContain(_sheetMap['$sheet'])) {
-      _sheetMap['$sheet'] = Sheet(this, '$sheet');
-    }
-    _sheetMap[sheet].insertColumn(columnIndex);
-
-    /*  _checkSheetArguments(sheet);
-    _checkSheetMaxCol(sheet, columnIndex);
-    if (columnIndex < 0) {
-      throw RangeError.range(columnIndex, 0, _tables[sheet]._maxCols);
-    }
-
-    bool updateSpanCell = false;
-
-    if (_spanMap.containsKey(sheet)) {
-      List spannedItems = List<String>();
-      for (int i = 0; i < _spanMap[sheet].length; i++) {
-        _Span spanObj = _spanMap[sheet][i];
-        int startColumn = spanObj.columnSpanStart,
-            startRow = spanObj.rowSpanStart,
-            endColumn = spanObj.columnSpanEnd,
-            endRow = spanObj.rowSpanEnd;
-
-        if (columnIndex <= endColumn) {
-          _Span newSpanObj = _Span();
-          if (columnIndex <= startColumn) {
-            startColumn += 1;
-          }
-          endColumn += 1;
-          newSpanObj._start = [startRow, startColumn];
-          newSpanObj._end = [endRow, endColumn];
-          _spanMap[sheet][i] = newSpanObj;
-          updateSpanCell = true;
-          _mergeChanges = true;
-        }
-        String rc = _getSpanCellId(startColumn, startRow, endColumn, endRow);
-        if (!spannedItems.contains(rc)) {
-          spannedItems.add(rc);
-        }
-      }
-      _spannedItems[sheet] = spannedItems;
-    }
-
-    if (updateSpanCell) {
-      _mergeChangeLookup = sheet;
-    }
-
-    if (_spanMap.containsKey(sheet) && _cellStyleOther.containsKey(sheet)) {
-      Map<String, CellStyle> newColorMap = Map<String, CellStyle>();
-      _cellStyleOther[sheet].forEach((key, value) {
-        List l = cellCoordsFromCellId(key);
-        int startRow = l[0], startColumn = l[1];
-        String newKey = key;
-        if (startColumn >= columnIndex) {
-          newKey = getCellId(startColumn + 1, startRow);
-        }
-        newColorMap[newKey] = value;
-      });
-      _cellStyleOther[sheet] = Map.from(newColorMap);
-    }
-
-    var table = _tables[sheet];
-    int columnLength = _tables[sheet]._maxCols;
-    if (columnIndex >= columnLength) {
-      table.rows.forEach((row) {
-        int len = columnLength;
-        while (len <= columnIndex) {
-          row.insert(len, null);
-          len++;
-        }
-      });
-      table._maxCols += columnIndex - columnLength + 1;
-    } else {
-      table.rows.forEach((row) => row.insert(columnIndex, null));
-      table._maxCols++;
-    } */
+    _availSheet(sheet);
+    _sheetMap['$sheet'].insertColumn(columnIndex);
   }
 
-  /// Remove column in [sheet] at position [columnIndex]
-  removeColumn(String sheet, int columnIndex) {
-    if (columnIndex >= 0 &&
-        _isContain(_sheetMap) &&
+  /**
+   * 
+   * 
+   * If `sheet` exists and `columnIndex < maxColumns` then it removes column at index = `columnIndex`
+   * 
+   * 
+   */
+  void removeColumn(String sheet, int columnIndex) {
+    if (columnIndex != null &&
+        columnIndex >= 0 &&
         _isContain(_sheetMap['$sheet'])) {
       _sheetMap['$sheet'].removeColumn(columnIndex);
     }
-    /* if (!_sheets.containsKey(sheet) || columnIndex >= _tables[sheet]._maxCols) {
+  }
+
+  /**
+   * 
+   * 
+   * Inserts an empty row in `sheet` at position = `rowIndex`.
+   * 
+   * If `rowIndex == null` or `rowIndex < 0` if will not execute 
+   * 
+   * If the `sheet` does not exists then it will be created automatically.
+   * 
+   * 
+   */
+  void insertRow(String sheet, int rowIndex) {
+    if (rowIndex != null && rowIndex < 0) {
       return;
     }
-    if (!_update) {
-      throw ArgumentError("'update' should be set to 'true' on constructor");
-    }
-    if (columnIndex < 0) {
-      throw RangeError.range(columnIndex, 0, _tables[sheet]._maxCols - 1);
-    }
-
-    List<String> deleteSingleColColor = List<String>();
-
-    bool updateSpanCell = false;
-
-    if (_spanMap != null && _spanMap.containsKey(sheet)) {
-      List spannedItems = List<String>();
-      for (int i = 0; i < _spanMap[sheet].length; i++) {
-        _Span spanObj = _spanMap[sheet][i];
-        int startColumn = spanObj.columnSpanStart,
-            startRow = spanObj.rowSpanStart,
-            endColumn = spanObj.columnSpanEnd,
-            endRow = spanObj.rowSpanEnd;
-
-        String clr = getCellId(startColumn, startRow);
-
-        if (columnIndex <= endColumn) {
-          _Span newSpanObj = _Span();
-          if (columnIndex < startColumn) {
-            startColumn -= 1;
-          }
-          endColumn -= 1;
-          if (/* startColumn >= endColumn */
-              (columnIndex == (endColumn + 1)) &&
-                  (columnIndex ==
-                      (columnIndex < startColumn
-                          ? startColumn + 1
-                          : startColumn))) {
-            if (!deleteSingleColColor.contains(clr))
-              deleteSingleColColor.add(clr);
-            _spanMap[sheet][i] = null;
-          } else {
-            newSpanObj._start = [startRow, startColumn];
-            newSpanObj._end = [endRow, endColumn];
-            _spanMap[sheet][i] = newSpanObj;
-          }
-          updateSpanCell = true;
-          _mergeChanges = true;
-        }
-
-        if (_spanMap[sheet][i] != null) {
-          String rc = _getSpanCellId(startColumn, startRow, endColumn, endRow);
-          if (!spannedItems.contains(rc)) {
-            spannedItems.add(rc);
-          }
-        }
-      }
-      _spannedItems[sheet] = spannedItems;
-      _cleanUpSpanMap(sheet);
-    }
-
-    if (updateSpanCell) {
-      _mergeChangeLookup = sheet;
-    }
-
-    if (_spanMap.containsKey(sheet) && _cellStyleOther.containsKey(sheet)) {
-      Map<String, CellStyle> newColorMap = Map<String, CellStyle>();
-      _cellStyleOther[sheet].forEach((key, value) {
-        List l = cellCoordsFromCellId(key);
-        int startRow = l[0], startColumn = l[1];
-        String newKey = key;
-        if (!deleteSingleColColor.contains(key)) {
-          if (startColumn > columnIndex) {
-            newKey = getCellId(startColumn - 1, startRow);
-          }
-          newColorMap[newKey] = value;
-        }
-      });
-      _cellStyleOther[sheet] = Map.from(newColorMap);
-    }
-
-    var table = _tables[sheet];
-    table.rows.forEach((row) => row.removeAt(columnIndex));
-    table._maxCols--; */
+    _availSheet(sheet);
+    _sheetMap['$sheet'].insertRow(rowIndex);
   }
 
-  /// Insert row in [sheet] at position [rowIndex]
-  insertRow(String sheet, int rowIndex) {
-    if (rowIndex < 0) {
+  /**
+   * 
+   * 
+   * If `sheet` exists and `rowIndex < maxRows` then it removes row at index = `rowIndex`
+   * 
+   * 
+   */
+  void removeRow(String sheet, int rowIndex) {
+    if (rowIndex != null && rowIndex >= 0 && _isContain(_sheetMap['$sheet'])) {
+      _sheetMap['$sheet'].removeRow(rowIndex);
+    }
+  }
+
+  /**
+   * 
+   * 
+   * Appends [row] iterables just post the last filled index in the [sheet]
+   * 
+   * If `sheet` does not exist then it will be automatically created.
+   * 
+   * 
+   */
+  void appendRow(String sheet, List<dynamic> row) {
+    if (row == null || row.length == 0) {
       return;
     }
-    if (!_isContain(_sheetMap)) {
-      _sheetMap = Map<String, Sheet>();
-    }
-    if (!_isContain(_sheetMap['$sheet'])) {
-      _sheetMap['$sheet'] = Sheet(this, '$sheet');
-    }
-    _sheetMap[sheet].insertRow(rowIndex);
-
-    /* _checkSheetArguments(sheet);
-    _checkSheetMaxRow(sheet, rowIndex);
-
-    if (rowIndex < 0) {
-      throw RangeError.range(rowIndex, 0, _tables[sheet]._maxRows);
-    }
-
-    bool updateSpanCell = false;
-
-    if (_spanMap.containsKey(sheet)) {
-      List spannedItems = List<String>();
-      for (int i = 0; i < _spanMap[sheet].length; i++) {
-        _Span spanObj = _spanMap[sheet][i];
-        int startColumn = spanObj.columnSpanStart,
-            startRow = spanObj.rowSpanStart,
-            endColumn = spanObj.columnSpanEnd,
-            endRow = spanObj.rowSpanEnd;
-
-        if (rowIndex <= endRow) {
-          _Span newSpanObj = _Span();
-          if (rowIndex <= startRow) {
-            startRow += 1;
-          }
-          endRow += 1;
-          newSpanObj._start = [startRow, startColumn];
-          newSpanObj._end = [endRow, endColumn];
-          _spanMap[sheet][i] = newSpanObj;
-          updateSpanCell = true;
-          _mergeChanges = true;
-        }
-        String rc = _getSpanCellId(startColumn, startRow, endColumn, endRow);
-        if (!spannedItems.contains(rc)) {
-          spannedItems.add(rc);
-        }
-      }
-      _spannedItems[sheet] = spannedItems;
-    }
-
-    if (updateSpanCell) {
-      _mergeChangeLookup = sheet;
-    }
-
-    if (_spanMap.containsKey(sheet) && _cellStyleOther.containsKey(sheet)) {
-      Map<String, CellStyle> newColorMap = Map<String, CellStyle>();
-      _cellStyleOther[sheet].forEach((key, value) {
-        List l = cellCoordsFromCellId(key);
-        int startRow = l[0], startColumn = l[1];
-        String newKey = key;
-        if (startRow >= rowIndex) {
-          newKey = getCellId(startColumn, startRow + 1);
-        }
-        newColorMap[newKey] = value;
-      });
-      _cellStyleOther[sheet] = Map.from(newColorMap);
-    }
-
-    var table = _tables[sheet];
-    if (rowIndex >= _tables[sheet]._maxRows) {
-      while (_tables[sheet]._maxRows <= rowIndex) {
-        table.rows.insert(_tables[sheet]._maxRows,
-            List.generate(table._maxCols, (_) => null));
-        table._maxRows++;
-      }
-    } else {
-      table.rows.insert(rowIndex, List.generate(table._maxCols, (_) => null));
-      table._maxRows++;
-    } */
+    _checkSheetArguments();
+    _availSheet(sheet);
+    int targetRow = _sheetMap['$sheet'].maxRows;
+    insertRowIterables(sheet, row, targetRow);
   }
 
-  /// Append [row] iterables just post the last filled index in the [sheetName]
-  appendRow(String sheetName, List<dynamic> row) {
-    _checkSheetArguments(sheetName);
-    int targetRow = _tables[sheetName].maxRows;
-    insertRowIterables(sheetName, row, targetRow);
-  }
-
-  /// getting the List of _Span Objects which have the rowIndex containing and
-  /// also lower the range by giving the starting columnIndex
-  List<_Span> _getSpannedObjects(
-      String sheetName, int rowIndex, int startingColumnIndex) {
-    List<_Span> obtained;
-
-    if (_isContain(_spanMap) && _isContain(_spanMap[sheetName])) {
-      obtained = List<_Span>();
-      _spanMap[sheetName].forEach((spanObject) {
-        if (spanObject != null &&
-            spanObject.rowSpanStart <= rowIndex &&
-            rowIndex <= spanObject.rowSpanEnd &&
-            startingColumnIndex <= spanObject.columnSpanEnd) {
-          obtained.add(spanObject);
-        }
-      });
-    }
-    return obtained;
-  }
-
-  /// Checking if the columnIndex and the rowIndex passed is inside ?
-  /// the spanObjectList which is got from above function
-  bool _isInsideSpanObject(
-      List<_Span> spanObjectList, int columnIndex, int rowIndex) {
-    for (int i = 0; i < spanObjectList.length; i++) {
-      _Span spanObject = spanObjectList[i];
-
-      if (spanObject != null &&
-          spanObject.columnSpanStart <= columnIndex &&
-          columnIndex <= spanObject.columnSpanEnd &&
-          spanObject.rowSpanStart <= rowIndex &&
-          rowIndex <= spanObject.rowSpanEnd) {
-        if (columnIndex < spanObject.columnSpanEnd) {
-          return false;
-        } else if (columnIndex == spanObject.columnSpanEnd) {
-          return true;
-        }
-      }
-    }
-    return true;
-  }
-
-  /// Helps to add the [row] iterables in the given row = [rowIndex] in [sheetName]
-  ///
-  /// [startingColumn] tells from where we should start puttin the [row] iterables
-  ///
-  /// [overwriteMergedCells] when set to [true] will overwriting mergedCell
-  /// [overwriteMergedCells] when set to [false] puts the cell value to next unique cell.
-  ///
-  insertRowIterables(String sheetName, List<dynamic> row, int rowIndex,
+  /**
+   * 
+   * 
+   * If `sheet` does not exist then it will be automatically created.
+   * 
+   * Adds the [row] iterables in the given rowIndex = [rowIndex] in [sheet]
+   * 
+   * [startingColumn] tells from where we should start putting the [row] iterables
+   * 
+   * [overwriteMergedCells] when set to [true] will over-write mergedCell and does not jumps to next unqiue cell.
+   * 
+   * [overwriteMergedCells] when set to [false] puts the cell value to next unique cell available by putting the value in merged cells only once and jumps to next unique cell.
+   * 
+   * 
+   */
+  void insertRowIterables(String sheet, List<dynamic> row, int rowIndex,
       {int startingColumn = 0, bool overwriteMergedCells = true}) {
-    if (row == null || rowIndex == null || row.length == 0) {
+    if (rowIndex == null || rowIndex < 0) {
       return;
     }
-    _checkSheetArguments(sheetName);
-    _checkSheetMaxRow(sheetName, rowIndex);
-    int columnIndex = 0;
-    if (startingColumn > 0) {
-      columnIndex = startingColumn;
-    }
-    _checkSheetMaxCol(sheetName, columnIndex + row.length);
-    int rowsLength = _tables[sheetName].maxRows,
-        maxIterationIndex = row.length - 1,
-        currentRowPosition = 0; // position in [row] iterables
-
-    if (overwriteMergedCells || rowIndex >= rowsLength) {
-      // Normally iterating and putting the data present in the [row] as we are on the last index.
-
-      while (currentRowPosition <= maxIterationIndex) {
-        updateCell(
-            sheetName,
-            CellIndex.indexByColumnRow(
-                columnIndex: columnIndex, rowIndex: rowIndex),
-            row[currentRowPosition]);
-        currentRowPosition++;
-        columnIndex++;
-      }
-    } else {
-      // expensive function as per time complexity
-      _selfCorrectSpanMap();
-      List<_Span> _spanObjectsList =
-          _getSpannedObjects(sheetName, rowIndex, columnIndex);
-
-      if (_spanObjectsList == null || _spanObjectsList.length <= 0) {
-        while (currentRowPosition <= maxIterationIndex) {
-          updateCell(
-              sheetName,
-              CellIndex.indexByColumnRow(
-                  columnIndex: columnIndex, rowIndex: rowIndex),
-              row[currentRowPosition]);
-          currentRowPosition++;
-          columnIndex++;
-        }
-      } else {
-        while (currentRowPosition <= maxIterationIndex) {
-          if (_isInsideSpanObject(_spanObjectsList, columnIndex, rowIndex)) {
-            updateCell(
-                sheetName,
-                CellIndex.indexByColumnRow(
-                    columnIndex: columnIndex, rowIndex: rowIndex),
-                row[currentRowPosition]);
-            currentRowPosition++;
-          }
-          columnIndex++;
-        }
-      }
-    }
+    _checkSheetArguments();
+    _availSheet(sheet);
+    _sheetMap['$sheet'].insertRowIterables(row, rowIndex,
+        startingColumn: startingColumn,
+        overwriteMergedCells: overwriteMergedCells);
   }
 
-  /// Returns the [count] of replaced [source] with [target]
-  ///
-  /// Yipee [source] is dynamic which allows you to pass your custom [RegExp]
-  ///
-  /// optional argument [first] is used to replace the number of [first] earlier occurrences
-  ///
-  /// Example: If [first] is set to [3] then it will replace only first 3 occurrences of the [source] with [target].
-  ///
-  /// Other [options] are used to narrow down the starting and ending ranges of cells.
-  int findAndReplace(String sheetName, dynamic source, dynamic target,
+  /**
+   * 
+   * 
+   * Returns the `count` of replaced `source` with `target`
+   *
+   * `source` is dynamic which allows you to pass your custom `RegExp` providing more control over it.
+   *
+   * optional argument `first` is used to replace the number of first earlier occurrences
+   *
+   * If `first` is set to `3` then it will replace only first `3 occurrences` of the `source` with `target`.
+   * 
+   *        excel.findAndReplace('MySheetName', 'sad', 'happy', first: 3);
+   * 
+   *        or
+   * 
+   *        var mySheet = excel['mySheetName'];
+   *        mySheet.findAndReplace('MySheetName', 'sad', 'happy', first: 3);
+   * 
+   * In the above example it will replace all the occurences of `sad` with `happy` in the cells
+   *
+   * Other `options` are used to `narrow down` the `starting and ending ranges of cells`.
+   * 
+   * 
+   */
+  int findAndReplace(String sheet, dynamic source, dynamic target,
       {int first = -1,
       int startingRow = -1,
       int endingRow = -1,
       int startingColumn = -1,
       int endingColumn = -1}) {
-    _checkSheetArguments(sheetName);
-    int replaceCount = 0,
-        _startingRow = 0,
-        _endingRow = -1,
-        _startingColumn = 0,
-        _endingColumn = -1;
-
-    if (startingRow != -1 && endingRow != -1) {
-      if (startingRow > endingRow) {
-        _endingRow = startingRow;
-        _startingRow = endingRow;
-      } else {
-        _endingRow = endingRow;
-        _startingRow = startingRow;
-      }
-    }
-
-    if (startingColumn != -1 && endingColumn != -1) {
-      if (startingColumn > endingColumn) {
-        _endingColumn = startingColumn;
-        _startingColumn = endingColumn;
-      } else {
-        _endingColumn = endingColumn;
-        _startingColumn = startingColumn;
-      }
-    }
-
-    int rowsLength = _tables[sheetName].maxRows,
-        columnLength = _tables[sheetName].maxCols;
-    RegExp sourceRegx;
-    if (source.runtimeType == RegExp) {
-      sourceRegx == source;
-    } else {
-      sourceRegx = RegExp(source.toString());
-    }
-
-    for (int i = _startingRow; i < rowsLength; i++) {
-      if (_endingRow != -1 && i > _endingRow) {
-        break;
-      }
-      for (int j = _startingColumn; j < columnLength; j++) {
-        if (_endingColumn != -1 && j > _endingColumn) {
-          break;
-        }
-        var value = _tables[sheetName].rows[i][j];
-        if (value != null &&
-            sourceRegx.hasMatch(value) &&
-            (first == -1 || first != replaceCount)) {
-          _tables[sheetName].rows[i][j] =
-              value.toString().replaceAll(sourceRegx, target.toString());
-
-          replaceCount += 1;
-        }
-      }
-    }
+    int replaceCount = 0;
 
     return replaceCount;
   }
 
-  /// Remove row in [sheet] at position [rowIndex]
-  removeRow(String sheet, int rowIndex) {
-    if (rowIndex >= 0 &&
-        sheet != null &&
-        _isContain(_sheetMap) &&
-        _isContain(_sheetMap[sheet])) {
-      _sheetMap[sheet].removeRow(rowIndex);
-    }
-    /* if (!_sheets.containsKey(sheet) || rowIndex >= _tables[sheet]._maxRows) {
-      return;
-    }
-    if (!_update) {
-      throw ArgumentError("'update' should be set to 'true' on constructor");
-    }
-    if (rowIndex < 0) {
-      throw RangeError.range(rowIndex, 0, _tables[sheet]._maxRows - 1);
-    }
-    List<String> deleteSingleRowColor = List<String>();
-
-    bool updateSpanCell = false;
-
-    if (_spanMap != null && _spanMap.containsKey(sheet)) {
-      List spannedItems = List<String>();
-      for (int i = 0; i < _spanMap[sheet].length; i++) {
-        _Span spanObj = _spanMap[sheet][i];
-        int startColumn = spanObj.columnSpanStart,
-            startRow = spanObj.rowSpanStart,
-            endColumn = spanObj.columnSpanEnd,
-            endRow = spanObj.rowSpanEnd;
-
-        String clr = getCellId(startColumn, startRow);
-
-        if (rowIndex <= endRow) {
-          _Span newSpanObj = _Span();
-          if (rowIndex < startRow) {
-            startRow -= 1;
-          }
-          endRow -= 1;
-          if (/* startRow >= endRow */
-              (rowIndex == (endRow + 1)) &&
-                  (rowIndex ==
-                      (rowIndex < startRow ? startRow + 1 : startRow))) {
-            if (!deleteSingleRowColor.contains(clr))
-              deleteSingleRowColor.add(clr);
-            _spanMap[sheet][i] = null;
-          } else {
-            newSpanObj._start = [startRow, startColumn];
-            newSpanObj._end = [endRow, endColumn];
-            _spanMap[sheet][i] = newSpanObj;
-          }
-          updateSpanCell = true;
-          _mergeChanges = true;
-        }
-        if (_spanMap[sheet][i] != null) {
-          String rc = _getSpanCellId(startColumn, startRow, endColumn, endRow);
-          if (!spannedItems.contains(rc)) {
-            spannedItems.add(rc);
-          }
-        }
-      }
-      _spannedItems[sheet] = spannedItems;
-      _cleanUpSpanMap(sheet);
-    }
-
-    if (updateSpanCell) {
-      _mergeChangeLookup = sheet;
-    }
-
-    if (_spanMap.containsKey(sheet) && _cellStyleOther.containsKey(sheet)) {
-      Map<String, CellStyle> newColorMap = Map<String, CellStyle>();
-      _cellStyleOther[sheet].forEach((key, value) {
-        List l = cellCoordsFromCellId(key);
-        int startRow = l[0], startColumn = l[1];
-        String newKey = key;
-        if (!deleteSingleRowColor.contains(key)) {
-          if (startRow > rowIndex) {
-            newKey = getCellId(startColumn, startRow - 1);
-          }
-          newColorMap[newKey] = value;
-        }
-      });
-      _cellStyleOther[sheet] = Map.from(newColorMap);
-    }
-
-    var table = _tables[sheet];
-    table.rows.removeAt(rowIndex);
-    table._maxRows--; */
-  }
-/* 
-  List<int> _isInsideSpanning(String sheet, int rowIndex, int columnIndex) {
-    int newRowIndex = rowIndex, newColumnIndex = columnIndex;
-
-    if (_spanMap.containsKey(sheet) && _spanMap[sheet].isNotEmpty) {
-      for (int i = 0; i < _spanMap[sheet].length; i++) {
-        _Span spanObj = _spanMap[sheet][i];
-
-        if (rowIndex >= spanObj.rowSpanStart &&
-            rowIndex <= spanObj.rowSpanEnd &&
-            columnIndex >= spanObj.columnSpanStart &&
-            columnIndex <= spanObj.columnSpanEnd) {
-          newRowIndex = spanObj.rowSpanStart;
-          newColumnIndex = spanObj.columnSpanStart;
-          break;
-        }
-      }
-    }
-
-    return [newRowIndex, newColumnIndex];
-  } */
-
-  /// Update the contents from sheet of the cell index: [columnIndex , rowIndex] where indexing starts from 0
-  ///
-  /// --or-- by Cell-Id: "A1"
-  ///
-  /// Font / Background color can be updated by providing Hex String to [fontColorHex] / [backgroundColorHex] as required.
-  updateCell(String sheet, CellIndex cellIndex, dynamic value,
-      {CellStyle cellStyle}) {
-    if (value == null || cellIndex == null) {
-      return;
+  /**
+   * 
+   * 
+   * Make `sheet` available if it does not exist in the `_sheetMap`
+   * 
+   * 
+   */
+  _availSheet(String sheet) {
+    if (_sheetMap == null) {
+      _sheetMap = Map<String, Sheet>();
     }
     if (!_isContain(_sheetMap['$sheet'])) {
       _sheetMap['$sheet'] = Sheet(this, '$sheet');
     }
+  }
+
+  /**
+   * 
+   * 
+   * Updates the contents of `sheet` of the `cellIndex: CellIndex.indexByColumnRow(0, 0);` where indexing starts from 0
+   * 
+   * ----or---- by `cellIndex: CellIndex.indexByString("A3");`.
+   * 
+   * Styling of cell can be done by passing the CellStyle object to `cellStyle`.
+   * 
+   * If `sheet` does not exist then it will be automatically created.
+   * 
+   * 
+   */
+  void updateCell(String sheet, CellIndex cellIndex, dynamic value,
+      {CellStyle cellStyle}) {
+    if (cellIndex == null) {
+      return;
+    }
+    _availSheet(sheet);
+
     if (cellStyle != null) {
       _colorChanges = true;
-      _sheetMap['$sheet']
-          ._updateSheetClassCell(cellIndex, value, cellStyle: cellStyle);
+      _sheetMap['$sheet'].updateCell(cellIndex, value, cellStyle: cellStyle);
     } else {
-      _sheetMap['$sheet']._updateSheetClassCell(cellIndex, value);
+      _sheetMap['$sheet'].updateCell(cellIndex, value);
     }
-
-    /*  int columnIndex = cellIndex._columnIndex;
-    int rowIndex = cellIndex._rowIndex;
-
-    if (columnIndex >= _tables[sheet]._maxCols) {
-      insertColumn(sheet, columnIndex);
-    }
-
-    if (rowIndex >= _tables[sheet]._maxRows){
-      insertRow(sheet, rowIndex);
-    }
-
-    int newRowIndex = rowIndex, newColumnIndex = columnIndex;
-    if (_spanMap.containsKey(sheet)) {
-      List updatedPosition = _isInsideSpanning(sheet, rowIndex, columnIndex);
-      newRowIndex = updatedPosition[0];
-      newColumnIndex = updatedPosition[1];
-    }
-
-    _tables[sheet].rows[newRowIndex][newColumnIndex] = value.toString();
-    if (!_sharedStrings.contains('$value')) {
-      _sharedStrings.add(value.toString());
-    } */
   }
 
-/* 
-  String _isColorAppropriate(String value) {
-    String hex;
-    if (value.length != 7) {
-      throw ArgumentError(
-          "InAppropriate Color provided. Use colorHex as example of: #FF0000");
-    }
-    hex = value.replaceAll(RegExp(r'#'), 'FF').toString();
-    return hex;
-  }
- */
+  /**
+   * 
+   * 
+   * Merges the cells starting from `start` to `end`.
+   * 
+   * If `custom value` is not defined then it will look for the very first available value in range `start` to `end` by searching row-wise from left to right.
+   * 
+   * If `sheet` does not exist then it will be automatically created.
+   * 
+   * 
+   */
   merge(String sheet, CellIndex start, CellIndex end, {dynamic customValue}) {
-    _checkSheetArguments(sheet);
+    _checkSheetArguments();
     if (start == null || end == null) {
       return;
     }
-    if (!_isContain(_sheetMap['$sheet'])) {
-      _sheetMap['$sheet'] = Sheet(this, '$sheet');
-    }
+    _availSheet(sheet);
     _sheetMap['$sheet'].merge(start, end, customValue: customValue);
-
-    /*  int startColumn = start._columnIndex,
-        startRow = start._rowIndex,
-        endColumn = end._columnIndex,
-        endRow = end._rowIndex;
-
-    _checkSheetMaxCol(sheet, startColumn);
-    _checkSheetMaxCol(sheet, endColumn);
-    _checkSheetMaxRow(sheet, startRow);
-    _checkSheetMaxRow(sheet, endRow);
-
-    if ((startColumn == endColumn && startRow == endRow) ||
-        (startColumn < 0 || startRow < 0 || endColumn < 0 || endRow < 0) ||
-        (_spannedItems != null &&
-            _spannedItems.containsKey(sheet) &&
-            _spannedItems[sheet].contains(
-                _getSpanCellId(startColumn, startRow, endColumn, endRow)))) {
-      return;
-    }
-
-    List<int> gotPosition = _getSpanPosition(sheet, start, end);
-
-    String value;
-    bool gotValue = true;
-
-    if (customValue != null) {
-      value = '$customValue';
-      gotValue = false;
-    }
-    _mergeChanges = true;
-
-    startColumn = gotPosition[0];
-    startRow = gotPosition[1];
-    endColumn = gotPosition[2];
-    endRow = gotPosition[3];
-
-    for (int j = startRow; j <= endRow; j++) {
-      for (int k = startColumn; k <= endColumn; k++) {
-        if ((_tables != null && !_tables.containsKey(sheet)) ||
-            j == _tables[sheet].maxRows ||
-            k == _tables[sheet].maxCols) {
-          updateCell(sheet,
-              CellIndex.indexByColumnRow(columnIndex: k, rowIndex: j), null);
-        } else {
-          if (gotValue && _tables[sheet].rows[j][k] != null) {
-            value = "${_tables[sheet].rows[j][k]}";
-            gotValue = false;
-          }
-          _tables[sheet].rows[j][k] = null;
-        }
-      }
-    }
-
-    _tables[sheet].rows[startRow][startColumn] = value;
-
-    String sp = _getSpanCellId(startColumn, startRow, endColumn, endRow);
-    List<String> ls = List<String>();
-
-    if (_spannedItems != null && _spannedItems.containsKey(sheet)) {
-      ls = List<String>.of(_spannedItems[sheet]);
-    }
-    if (!ls.contains(sp)) {
-      ls.add(sp);
-    }
-
-    _spannedItems[sheet] = ls;
-
-    _tables[sheet].rows[startRow][startColumn] = value;
-    List l = List<_Span>();
-    _Span s = _Span();
-    s._start = [startRow, startColumn];
-    s._end = [endRow, endColumn];
-
-    if (_spanMap.containsKey(sheet) && _spanMap[sheet].isNotEmpty) {
-      l = List<_Span>.of(_spanMap[sheet]);
-    }
-    l.add(s);
-    _spanMap[sheet] = l;
-    _mergeChangeLookup = sheet; */
   }
 
-/* 
-  /// Helps to find the interaction between the pre-existing span position
-  /// and updates if with new span if there any interaction(Cross-Sectional Spanning) exists.
-  List<int> _getSpanPosition(String sheet, CellIndex start, CellIndex end) {
-    int startColumn = start._columnIndex,
-        startRow = start._rowIndex,
-        endColumn = end._columnIndex,
-        endRow = end._rowIndex;
-
-    bool remove = false;
-
-    if (startRow > endRow) {
-      startRow = end._rowIndex;
-      endRow = start._rowIndex;
-    }
-    if (endColumn < startColumn) {
-      endColumn = start._columnIndex;
-      startColumn = end._columnIndex;
-    }
-
-    if (_spanMap != null &&
-        _spanMap.containsKey(sheet) &&
-        _spanMap[sheet].isNotEmpty) {
-      List<_Span> data = _spanMap[sheet];
-      for (int i = 0; i < data.length; i++) {
-        _Span spanObj = data[i];
-
-        Map<String, List<int>> gotMap = _isLocationChangeRequired(
-            sheet, startColumn, startRow, endColumn, endRow, spanObj);
-        List<int> gotPosition = gotMap['gotPosition'];
-        int changeValue = gotMap['changeValue'][0];
-
-        if (changeValue == 1) {
-          startColumn = gotPosition[0];
-          startRow = gotPosition[1];
-          endColumn = gotPosition[2];
-          endRow = gotPosition[3];
-          String sp = _getSpanCellId(spanObj.columnSpanStart,
-              spanObj.rowSpanStart, spanObj.columnSpanEnd, spanObj.rowSpanEnd);
-          if (_spannedItems != null &&
-              _spannedItems.containsKey(sheet) &&
-              _spannedItems[sheet].contains(sp)) {
-            _spannedItems[sheet].remove(sp);
-          }
-          remove = true;
-          _spanMap[sheet][i] = null;
-        }
-      }
-      if (remove) {
-        _cleanUpSpanMap(sheet);
-      }
-    }
-    return [startColumn, startRow, endColumn, endRow];
-  } */
-
+  /**
+   * 
+   * 
+   * Returns Column based String alphabet when column index is passed
+   * 
+   *      `getColumnAlphabet(0); // returns A`
+   *      `getColumnAlphabet(5); // returns F`
+   * 
+   */
   String getColumnAlphabet(int collIndex) {
     return '${numericToLetters(collIndex + 1)}';
   }
 
+  /**
+   * 
+   * 
+   * Returns Column based int index when column alphabet is passed
+   * 
+   *      `getColumnAlphabet(A); // returns 0`
+   *      `getColumnAlphabet(F); // returns 5`
+   * 
+   */
   int getColumnIndex(String columnAlphabet) {
     return cellCoordsFromCellId('${columnAlphabet}2')[1];
   }

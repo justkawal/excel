@@ -189,7 +189,7 @@ class Sheet {
 
   /// insert Column at index = [colIndex]
   insertColumn(int colIndex) {
-    if (colIndex < 0) {
+    if (colIndex == null || colIndex < 0) {
       return;
     }
     _checkMaxCol(colIndex);
@@ -413,7 +413,8 @@ class Sheet {
     _countRowAndCol();
   }
 
-  _updateSheetClassCell(CellIndex cellIndex, dynamic value,
+
+  updateCell(CellIndex cellIndex, dynamic value,
       {CellStyle cellStyle}) {
     _checkSheetArguments();
     int columnIndex = cellIndex._columnIndex;
@@ -425,7 +426,10 @@ class Sheet {
     _checkMaxRow(rowIndex);
 
     int newRowIndex = rowIndex, newColumnIndex = columnIndex;
-    if (this._spanList != null && this._spanList.isNotEmpty) {
+
+    /// Check if this is lying in merged-cell cross-section
+    /// If yes then get the starting position of merged cells
+    if (this._spanList.isNotEmpty) {
       List updatedPosition = _isInsideSpanning(rowIndex, columnIndex);
       newRowIndex = updatedPosition[0];
       newColumnIndex = updatedPosition[1];
@@ -434,19 +438,17 @@ class Sheet {
       print(value.runtimeType.toString());
     }
 
-    if (this._sheetData.isNotEmpty &&
-        _isContain(this._sheetData[newRowIndex])) {
-      this._sheetData[newRowIndex][newColumnIndex] =
-          Data.newData(this, newRowIndex, newColumnIndex);
-    } else {
-      this._sheetData[newRowIndex] = {
-        newColumnIndex: Data.newData(this, newRowIndex, newColumnIndex)
-      };
+    /// Puts Data
+    _putData(newRowIndex, newColumnIndex, value);
+
+    /// Puts the cellStyle
+    if (cellStyle != null) {
+      this._sheetData[newRowIndex][newColumnIndex]._cellStyle = cellStyle;
     }
-    this._sheetData[newRowIndex][newColumnIndex]._value =
-        this._sheetData[newRowIndex][newColumnIndex]._value ?? value;
-    this._sheetData[newRowIndex][newColumnIndex]._cellStyle =
-        this._sheetData[newRowIndex][newColumnIndex]._cellStyle ?? cellStyle;
+
+    /// Sets value of `isFormula` to true if this is `instance of Formula`.
+    this._sheetData[newRowIndex][newColumnIndex]._isFormula =
+        value is Formula || value.runtimeType == Formula;
 
     if (!_excel._sharedStrings.contains('$value')) {
       _excel._sharedStrings.add(value.toString());
@@ -574,6 +576,200 @@ class Sheet {
       }
     }
     return [startColumn, startRow, endColumn, endRow];
+  }
+
+  /// Append [row] iterables just post the last filled index in the [sheetName]
+  appendRow(List<dynamic> row) {
+    _checkSheetArguments();
+    int targetRow = this.maxRows;
+    insertRowIterables(row, targetRow);
+  }
+
+  /// getting the List of _Span Objects which have the rowIndex containing and
+  /// also lower the range by giving the starting columnIndex
+  List<_Span> _getSpannedObjects(int rowIndex, int startingColumnIndex) {
+    List<_Span> obtained;
+
+    if (this._spanList.isNotEmpty) {
+      obtained = List<_Span>();
+      this._spanList.forEach((spanObject) {
+        if (spanObject != null &&
+            spanObject.rowSpanStart <= rowIndex &&
+            rowIndex <= spanObject.rowSpanEnd &&
+            startingColumnIndex <= spanObject.columnSpanEnd) {
+          obtained.add(spanObject);
+        }
+      });
+    }
+    return obtained;
+  }
+
+  /// Checking if the columnIndex and the rowIndex passed is inside ?
+  /// the spanObjectList which is got from above function
+  bool _isInsideSpanObject(
+      List<_Span> spanObjectList, int columnIndex, int rowIndex) {
+    for (int i = 0; i < spanObjectList.length; i++) {
+      _Span spanObject = spanObjectList[i];
+
+      if (spanObject != null &&
+          spanObject.columnSpanStart <= columnIndex &&
+          columnIndex <= spanObject.columnSpanEnd &&
+          spanObject.rowSpanStart <= rowIndex &&
+          rowIndex <= spanObject.rowSpanEnd) {
+        if (columnIndex < spanObject.columnSpanEnd) {
+          return false;
+        } else if (columnIndex == spanObject.columnSpanEnd) {
+          return true;
+        }
+      }
+    }
+    return true;
+  }
+
+  /// Helps to add the [row] iterables in the given row = [rowIndex] in [sheetName]
+  ///
+  /// [startingColumn] tells from where we should start puttin the [row] iterables
+  ///
+  /// [overwriteMergedCells] when set to [true] will overwriting mergedCell
+  ///
+  /// [overwriteMergedCells] when set to [false] puts the cell value to next unique cell.
+  ///
+  insertRowIterables(List<dynamic> row, int rowIndex,
+      {int startingColumn = 0, bool overwriteMergedCells = true}) {
+    if (row == null || row.length == 0 || rowIndex == null || rowIndex < 0) {
+      return;
+    }
+    _checkSheetArguments();
+    _checkMaxRow(rowIndex);
+    int columnIndex = 0;
+    if (startingColumn > 0) {
+      columnIndex = startingColumn;
+    }
+    _checkMaxCol(columnIndex + row.length);
+    int rowsLength = this.maxRows,
+        maxIterationIndex = row.length - 1,
+        currentRowPosition = 0; // position in [row] iterables
+
+    if (overwriteMergedCells || rowIndex >= rowsLength) {
+      // Normally iterating and putting the data present in the [row] as we are on the last index.
+
+      while (currentRowPosition <= maxIterationIndex) {
+        _putData(rowIndex, columnIndex, row[currentRowPosition]);
+        currentRowPosition++;
+        columnIndex++;
+      }
+    } else {
+      // expensive function as per time complexity
+      _excel._selfCorrectSpanMap();
+      List<_Span> _spanObjectsList = _getSpannedObjects(rowIndex, columnIndex);
+
+      if (_spanObjectsList == null || _spanObjectsList.length <= 0) {
+        while (currentRowPosition <= maxIterationIndex) {
+          _putData(rowIndex, columnIndex, row[currentRowPosition]);
+          currentRowPosition++;
+          columnIndex++;
+        }
+      } else {
+        while (currentRowPosition <= maxIterationIndex) {
+          if (_isInsideSpanObject(_spanObjectsList, columnIndex, rowIndex)) {
+            _putData(rowIndex, columnIndex, row[currentRowPosition]);
+            currentRowPosition++;
+          }
+          columnIndex++;
+        }
+      }
+    }
+  }
+
+  _putData(int rowIndex, int columnIndex, dynamic value) {
+    if (_isContain(this._sheetData[rowIndex])) {
+      if (!_isContain(this._sheetData[rowIndex][columnIndex])) {
+        this._sheetData[rowIndex][columnIndex] =
+            Data.newData(this, rowIndex, columnIndex);
+      }
+    } else {
+      this._sheetData[rowIndex] = {
+        columnIndex: Data.newData(this, rowIndex, columnIndex)
+      };
+    }
+    this._sheetData[rowIndex][columnIndex].value = value;
+  }
+
+  /// Returns the [count] of replaced [source] with [target]
+  ///
+  /// Yipee [source] is dynamic which allows you to pass your custom [RegExp]
+  ///
+  /// optional argument [first] is used to replace the number of [first] earlier occurrences
+  ///
+  /// Example: If [first] is set to [3] then it will replace only first 3 occurrences of the [source] with [target].
+  ///
+  /// Other [options] are used to narrow down the starting and ending ranges of cells.
+  int findAndReplace(dynamic source, dynamic target,
+      {int first = -1,
+      int startingRow = -1,
+      int endingRow = -1,
+      int startingColumn = -1,
+      int endingColumn = -1}) {
+    _checkSheetArguments();
+    int replaceCount = 0,
+        _startingRow = 0,
+        _endingRow = -1,
+        _startingColumn = 0,
+        _endingColumn = -1;
+
+    if (startingRow != -1 && endingRow != -1) {
+      if (startingRow > endingRow) {
+        _endingRow = startingRow;
+        _startingRow = endingRow;
+      } else {
+        _endingRow = endingRow;
+        _startingRow = startingRow;
+      }
+    }
+
+    if (startingColumn != -1 && endingColumn != -1) {
+      if (startingColumn > endingColumn) {
+        _endingColumn = startingColumn;
+        _startingColumn = endingColumn;
+      } else {
+        _endingColumn = endingColumn;
+        _startingColumn = startingColumn;
+      }
+    }
+
+    int rowsLength = this.maxRows, columnLength = this.maxCols;
+    RegExp sourceRegx;
+    if (source.runtimeType == RegExp) {
+      sourceRegx == source;
+    } else {
+      sourceRegx = RegExp(source.toString());
+    }
+
+    for (int i = _startingRow; i < rowsLength; i++) {
+      if (_endingRow != -1 && i > _endingRow) {
+        break;
+      }
+      for (int j = _startingColumn; j < columnLength; j++) {
+        if (_endingColumn != -1 && j > _endingColumn) {
+          break;
+        }
+        if (this._sheetData.isNotEmpty &&
+            _isContain(this._sheetData[i]) &&
+            _isContain(this._sheetData[i][j]) &&
+            sourceRegx.hasMatch(this._sheetData[i][j].toString()) &&
+            (first == -1 || first != replaceCount)) {
+          this
+              ._sheetData[i][j]
+              .value
+              .toString()
+              .replaceAll(sourceRegx, target.toString());
+
+          replaceCount += 1;
+        }
+      }
+    }
+
+    return replaceCount;
   }
 
   /// returns true if the contents are successfully cleared else false
