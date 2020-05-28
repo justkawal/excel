@@ -10,7 +10,7 @@ List<String> _noCompression = <String>[
 ];
 
 String getCellId(int colI, int rowI) =>
-    '${numericToLetters(colI + 1)}${rowI + 1}';
+    '${_numericToLetters(colI + 1)}${rowI + 1}';
 
 /// Convert a character based column
 int lettersToNumeric(String letters) {
@@ -46,7 +46,7 @@ String _twoDigits(int n) {
 }
 
 /// Convert a number to character based column
-String numericToLetters(int number) {
+String _numericToLetters(int number) {
   var letters = '';
 
   while (number != 0) {
@@ -69,14 +69,24 @@ String numericToLetters(int number) {
   return letters;
 }
 
-// Normalize line
+/// Normalize line
 String _normalizeNewLine(String text) {
   return text.replaceAll('\r\n', '\n');
 }
 
-/// Returns the coordinates from a cell name.
-/// "A2" returns [2, 1] and the "B3" return [3, 2].
-List<int> cellCoordsFromCellId(String cellId) {
+/**
+ * 
+ * 
+ * Returns the coordinates from a cell name.
+ * 
+ *        cellCoordsFromCellId("A2"); // returns [2, 1]
+ *        cellCoordsFromCellId("B3"); // returns [3, 2]
+ * 
+ * It is useful to convert CellId to Indexing.
+ * 
+ * 
+ */
+List<int> _cellCoordsFromCellId(String cellId) {
   var letters = cellId.runes.map(_letterOnly);
   var lettersPart =
       utf8.decode(letters.where((rune) => rune > 0).toList(growable: false));
@@ -88,8 +98,14 @@ List<int> cellCoordsFromCellId(String cellId) {
   ]; // [x , y]
 }
 
-/// Throw error at situation where further more can't be processed as
-/// important parts of excel are missing indicating it to be broken or corrupted.
+/**
+ * 
+ * 
+ * Throw error at situation where further processing is not possible
+ * It is also called when important parts of excel files are missing as corrupted excel file is used
+ * 
+ * 
+ */
 _damagedExcel({String text}) {
   String t = '\nDamaged Excel file:';
   if (text != null) {
@@ -98,82 +114,64 @@ _damagedExcel({String text}) {
   throw ArgumentError(t + '\n');
 }
 
-/// return A2:B2 for spanning storage in unmerge list when [0,2] [2,2] is passed
-String _getSpanCellId(
-    int startColumn, int startRow, int endColumn, int endRow) {
+/**
+ * 
+ * 
+ * return A2:B2 for spanning storage in unmerge list when [0,2] [2,2] is passed
+ * 
+ * 
+ */
+String getSpanCellId(int startColumn, int startRow, int endColumn, int endRow) {
   return '${getCellId(startColumn, startRow)}:${getCellId(endColumn, endRow)}';
 }
 
-/// Helps to find out the updated SpanObject location
-/// as there is the cross-sectional interaction between the two spanning objects.
+/**
+ * 
+ * 
+ * returns updated SpanObject location as there might be cross-sectional interaction between the two spanning objects.
+ * 
+ * 
+ */
 Map<String, List<int>> _isLocationChangeRequired(
     int startColumn, int startRow, int endColumn, int endRow, _Span spanObj) {
-  int changeValue = 0;
+  bool changeValue = false;
 
-  if (startRow <= spanObj.rowSpanStart &&
-      startColumn <= spanObj.columnSpanStart &&
-      endRow >= spanObj.rowSpanEnd &&
-      endColumn >= spanObj.columnSpanEnd) {
-    changeValue = 1;
-  } else {
-    if ((startColumn < spanObj.columnSpanStart &&
-            endColumn >= spanObj.columnSpanStart) ||
-        (startColumn <= spanObj.columnSpanEnd &&
-            endColumn > spanObj.columnSpanEnd)) {
-      /**
-           * Start Row stretching to up position
-           */
-      if (startRow >= spanObj.rowSpanStart && startRow <= spanObj.rowSpanEnd) {
-        changeValue = 1;
-      }
-      /**
-           * End Row stretching to bottom position
-           */
-      if (endRow >= spanObj.rowSpanStart && endRow <= spanObj.rowSpanEnd) {
-        endRow = spanObj.rowSpanEnd;
-        changeValue = 1;
-      }
+  changeValue = (
+          // Overlapping checker
+          startRow <= spanObj.rowSpanStart &&
+              startColumn <= spanObj.columnSpanStart &&
+              endRow >= spanObj.rowSpanEnd &&
+              endColumn >= spanObj.columnSpanEnd)
+      // first check starts here
+      ||
+      ( // outwards checking
+          ((startColumn < spanObj.columnSpanStart &&
+                      endColumn >= spanObj.columnSpanStart) ||
+                  (startColumn <= spanObj.columnSpanEnd &&
+                      endColumn > spanObj.columnSpanEnd))
+              // inwards checking
+              &&
+              ((startRow >= spanObj.rowSpanStart &&
+                      startRow <= spanObj.rowSpanEnd) ||
+                  (endRow >= spanObj.rowSpanStart &&
+                      endRow <= spanObj.rowSpanEnd)))
 
-      /* if (startColumn >= spanObj.columnSpanStart) {
-          startColumn = spanObj.columnSpanStart;
-          changeValue = 1;
-        }
+      // second check starts here
+      ||
+      (
+          // outwards checking
+          ((startRow < spanObj.rowSpanStart &&
+                      endRow >= spanObj.rowSpanStart) ||
+                  (startRow <= spanObj.rowSpanEnd &&
+                      endRow > spanObj.rowSpanEnd))
+              // inwards checking
+              &&
+              ((startColumn >= spanObj.columnSpanStart &&
+                      startColumn <= spanObj.columnSpanEnd) ||
+                  (endColumn >= spanObj.columnSpanStart &&
+                      endColumn <= spanObj.columnSpanEnd)));
 
-        if (endColumn <= spanObj.columnSpanEnd) {
-          endColumn = spanObj.columnSpanEnd;
-          changeValue = 1;
-        } */
-    }
-
-    if ((startRow < spanObj.rowSpanStart && endRow >= spanObj.rowSpanStart) ||
-        (startRow <= spanObj.rowSpanEnd && endRow > spanObj.rowSpanEnd)) {
-      /**
-           * Start Column stretching to left position
-           */
-      if (startColumn >= spanObj.columnSpanStart &&
-          startColumn <= spanObj.columnSpanEnd) {
-        changeValue = 1;
-      }
-      /**
-           * End Column stretching to right position
-           */
-      if (endColumn >= spanObj.columnSpanStart &&
-          endColumn <= spanObj.columnSpanEnd) {
-        changeValue = 1;
-      }
-
-      /* if (startRow >= spanObj.rowSpanStart) {
-          startRow = spanObj.rowSpanStart;
-          changeValue = 1;
-        }
-
-        if (endRow <= spanObj.rowSpanEnd) {
-          endRow = spanObj.rowSpanEnd;
-          changeValue = 1;
-        } */
-    }
-  }
-  if (changeValue == 1) {
+  if (changeValue) {
     if (startColumn > spanObj.columnSpanStart) {
       startColumn = spanObj.columnSpanStart;
     }
@@ -189,7 +187,34 @@ Map<String, List<int>> _isLocationChangeRequired(
   }
 
   return Map<String, List<int>>.from({
-    "changeValue": List<int>.from([changeValue]),
+    "changeValue": List<int>.from([changeValue ? 1 : 0]),
     "gotPosition": List<int>.from([startColumn, startRow, endColumn, endRow])
   });
+}
+
+/**
+ * 
+ * 
+ * Returns Column based String alphabet when column index is passed
+ * 
+ *      `getColumnAlphabet(0); // returns A`
+ *      `getColumnAlphabet(5); // returns F`
+ * 
+ */
+String getColumnAlphabet(int collIndex) {
+  return '${_numericToLetters(collIndex + 1)}';
+}
+
+/**
+ * 
+ * 
+ * Returns Column based int index when column alphabet is passed
+ * 
+ *     `getColumnAlphabet("A"); // returns 0`
+ *     `getColumnAlphabet("F"); // returns 5`
+ * 
+ * 
+ */
+int getColumnIndex(String columnAlphabet) {
+  return _cellCoordsFromCellId('${columnAlphabet}2')[1];
 }

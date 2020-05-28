@@ -145,7 +145,7 @@ class Sheet {
         }
 
         if (_spanList[i] != null) {
-          String rc = _getSpanCellId(startColumn, startRow, endColumn, endRow);
+          String rc = getSpanCellId(startColumn, startRow, endColumn, endRow);
           if (!this._spannedItems.contains(rc)) {
             this._spannedItems.add(rc);
           }
@@ -218,7 +218,7 @@ class Sheet {
           updateSpanCell = true;
           _excel._mergeChanges = true;
         }
-        String rc = _getSpanCellId(startColumn, startRow, endColumn, endRow);
+        String rc = getSpanCellId(startColumn, startRow, endColumn, endRow);
         if (!_spannedItems.contains(rc)) {
           this._spannedItems.add(rc);
         }
@@ -311,7 +311,7 @@ class Sheet {
           _excel._mergeChanges = true;
         }
         if (this._spanList[i] != null) {
-          String rc = _getSpanCellId(startColumn, startRow, endColumn, endRow);
+          String rc = getSpanCellId(startColumn, startRow, endColumn, endRow);
           if (!this._spannedItems.contains(rc)) {
             this._spannedItems.add(rc);
           }
@@ -381,7 +381,7 @@ class Sheet {
           updateSpanCell = true;
           _excel._mergeChanges = true;
         }
-        String rc = _getSpanCellId(startColumn, startRow, endColumn, endRow);
+        String rc = getSpanCellId(startColumn, startRow, endColumn, endRow);
         if (!this._spannedItems.contains(rc)) {
           this._spannedItems.add(rc);
         }
@@ -413,9 +413,7 @@ class Sheet {
     _countRowAndCol();
   }
 
-
-  updateCell(CellIndex cellIndex, dynamic value,
-      {CellStyle cellStyle}) {
+  updateCell(CellIndex cellIndex, dynamic value, {CellStyle cellStyle}) {
     _checkSheetArguments();
     int columnIndex = cellIndex._columnIndex;
     int rowIndex = cellIndex._rowIndex;
@@ -472,7 +470,7 @@ class Sheet {
         (startColumn < 0 || startRow < 0 || endColumn < 0 || endRow < 0) ||
         (_spannedItems != null &&
             _spannedItems.contains(
-                _getSpanCellId(startColumn, startRow, endColumn, endRow)))) {
+                getSpanCellId(startColumn, startRow, endColumn, endRow)))) {
       return;
     }
 
@@ -515,7 +513,7 @@ class Sheet {
       this._sheetData[startRow] = {startColumn: value};
     }
 
-    String sp = _getSpanCellId(startColumn, startRow, endColumn, endRow);
+    String sp = getSpanCellId(startColumn, startRow, endColumn, endRow);
 
     if (!_spannedItems.contains(sp)) {
       _spannedItems.add(sp);
@@ -562,7 +560,7 @@ class Sheet {
           startRow = gotPosition[1];
           endColumn = gotPosition[2];
           endRow = gotPosition[3];
-          String sp = _getSpanCellId(spanObj.columnSpanStart,
+          String sp = getSpanCellId(spanObj.columnSpanStart,
               spanObj.rowSpanStart, spanObj.columnSpanEnd, spanObj.rowSpanEnd);
           if (_spannedItems != null && _spannedItems.contains(sp)) {
             _spannedItems.remove(sp);

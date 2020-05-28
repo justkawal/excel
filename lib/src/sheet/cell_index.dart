@@ -12,7 +12,7 @@ class CellIndex {
   }
 
   static CellIndex indexByString(String cellIndex) {
-    List<int> li = cellCoordsFromCellId(cellIndex);
+    List<int> li = _cellCoordsFromCellId(cellIndex);
 
     return CellIndex._(cellIndex, li[1], li[0]);
   }

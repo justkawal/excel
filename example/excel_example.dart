@@ -18,17 +18,15 @@ void main(List<String> args) {
   } */
 
   var sheet = excel['mySheet'];
-  /// A1 , B1 , C1 , D1
-  sheet.rows;
 
   /// List of rows.
-  sheet.loadRow();
+  sheet.cells;
 
   /// putting value = 'k' at A1 index.
-  sheet.cell(CellIndex.indexByString("A1"))=Data;
+  sheet.cell(CellIndex.indexByString("A1")).value = 'g';
 
   /// appending rows
-  sheet.appendRow();
+  sheet.appendRow([8]);
 
   /// coutn of rows
   sheet.maxRows;
@@ -41,61 +39,51 @@ void main(List<String> args) {
   sheet.removeRow(0);
   sheet.insertColumn(0);
 
-  /// putting value by cellByIndex
-  sheet.cellByIndex('').value = '';
-
-
   // if sheet with name = Sheet24 does not exist then it will be automatically created.
-  //var sheet = 'Sheet24';
+  var sheet1 = 'Sheet24';
 
   //Remove row at index = 0
-  excel.removeRow(sheet, 0);
+  excel.removeRow('sheet', 0);
 
-  excel.updateCell(sheet, CellIndex.indexByString("A1"), "Here Value of A1",
-      backgroundColorHex: "#1AFF1A",
-      horizontalAlign: HorizontalAlign.Center,
-      verticalAlign: VerticalAlign.Center);
+  excel.updateCell(sheet1, CellIndex.indexByString("A1"), "Here Value of A1");
 
   excel.updateCell(
-      sheet,
+      sheet1,
       CellIndex.indexByColumnRow(columnIndex: 2, rowIndex: 0),
-      "Here Value of C1",
-      wrap: TextWrapping.WrapText);
+      "Here Value of C1");
 
-  excel.updateCell(sheet, CellIndex.indexByString("A2"), "Here Value of A2",
-      backgroundColorHex: "#1AFF1A", wrap: TextWrapping.Clip);
+  excel.updateCell(sheet1, CellIndex.indexByString("A2"), "Here Value of A2");
 
-  excel.updateCell(sheet, CellIndex.indexByString("E5"), "E5",
-      horizontalAlign: HorizontalAlign.Right, wrap: TextWrapping.Clip);
+  excel.updateCell(sheet1, CellIndex.indexByString("E5"), "E5");
 
   excel.merge(
-      sheet, CellIndex.indexByString("A1"), CellIndex.indexByString("E4"),
+      sheet1, CellIndex.indexByString("A1"), CellIndex.indexByString("E4"),
       customValue: "Now it is merged");
 
   excel.merge(
-      sheet, CellIndex.indexByString("F1"), CellIndex.indexByString("F5"));
+      sheet1, CellIndex.indexByString("F1"), CellIndex.indexByString("F5"));
 
   excel.merge(
-      sheet, CellIndex.indexByString("A5"), CellIndex.indexByString("E5"));
+      sheet1, CellIndex.indexByString("A5"), CellIndex.indexByString("E5"));
 
   //Remove row at index = 2
-  excel.removeRow(sheet, 2);
+  excel.removeRow(sheet1, 2);
 
   // Remove column at index = 2
-  excel.removeColumn(sheet, 2);
+  excel.removeColumn(sheet1, 2);
 
   // Insert column at index = 2;
-  excel.insertColumn(sheet, 2);
+  excel.insertColumn(sheet1, 2);
 
   // Insert row at index = 2;
-  excel.insertRow(sheet, 2);
+  excel.insertRow(sheet1, 2);
 
-  excel.appendRow(sheet, ["bustin", "jiebr"]);
+  excel.appendRow(sheet1, ["bustin", "jiebr"]);
 
-  int replacedCount = excel.findAndReplace(sheet, 'bustin', 'raman');
+  int replacedCount = excel.findAndReplace(sheet1, 'bustin', 'raman');
   print("Replaced Count:" + replacedCount.toString());
 
-  excel.setDefaultSheet(sheet).then((isSet) {
+  excel.setDefaultSheet(sheet1).then((isSet) {
     // isSet is bool which tells that whether the setting of default sheet is successful or not.
     if (isSet) {
       print("$sheet is set to default sheet.");
@@ -108,15 +96,15 @@ void main(List<String> args) {
     print("Default Sheet:" + value.toString());
   });
 
-  excel.insertRowIterables(sheet, ["A", "B", "C", "D", "E", "F", "G", "H"], 2,
+  excel.insertRowIterables(sheet1, ["A", "B", "C", "D", "E", "F", "G", "H"], 2,
       startingColumn: 3, overwriteMergedCells: false);
 
   excel.insertRowIterables(
-      sheet, ["Insert", "ing", "in", "9th", "row", "as", "iterables"], 8,
+      sheet1, ["Insert", "ing", "in", "9th", "row", "as", "iterables"], 8,
       startingColumn: 13);
 
   // Check which cells are merged
-  List<String> mergedCells = excel.getMergedCells(sheet);
+  List<String> mergedCells = excel.getMergedCells(sheet1);
   mergedCells.forEach((cells) {
     print("Merged:" + cells.toString());
   });
@@ -124,7 +112,7 @@ void main(List<String> args) {
   // After removal of column and insertion of row merged - A1:E4 becomes merged - A1:D5
   // So we have to call un-merge at A1:D5
   if (mergedCells.contains("A1:D5")) {
-    excel.unMerge(sheet, "A1:D5");
+    excel.unMerge(sheet1, "A1:D5");
   }
 
   // Saving the file

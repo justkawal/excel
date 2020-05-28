@@ -644,7 +644,7 @@ abstract class Excel {
                 _Span spanObj = _spanMap[key][j];
 
                 Map<String, List<int>> gotMap = _isLocationChangeRequired(
-                    key, startColumn, startRow, endColumn, endRow, spanObj);
+                    startColumn, startRow, endColumn, endRow, spanObj);
                 List<int> gotPosition = gotMap["gotPosition"];
                 int changeValue = gotMap["changeValue"][0];
 
@@ -656,7 +656,6 @@ abstract class Excel {
                   _spanMap[key][j] = null;
                 } else {
                   Map<String, List<int>> gotMap2 = _isLocationChangeRequired(
-                      key,
                       spanObj.columnSpanStart,
                       spanObj.rowSpanStart,
                       spanObj.columnSpanEnd,
@@ -692,7 +691,7 @@ abstract class Excel {
           List spanList = List<String>();
           spanObjList.forEach((value) {
             _Span spanObj = value;
-            String rC = _getSpanCellId(
+            String rC = getSpanCellId(
                 spanObj.columnSpanStart,
                 spanObj.rowSpanStart,
                 spanObj.columnSpanEnd,
@@ -907,7 +906,6 @@ abstract class Excel {
     if (rowIndex == null || rowIndex < 0) {
       return;
     }
-    _checkSheetArguments();
     _availSheet(sheet);
     _sheetMap['$sheet'].insertRowIterables(row, rowIndex,
         startingColumn: startingColumn,
@@ -957,6 +955,7 @@ abstract class Excel {
    * 
    */
   _availSheet(String sheet) {
+    _checkSheetArguments();
     if (_sheetMap == null) {
       _sheetMap = Map<String, Sheet>();
     }
@@ -1004,39 +1003,13 @@ abstract class Excel {
    * 
    * 
    */
-  merge(String sheet, CellIndex start, CellIndex end, {dynamic customValue}) {
-    _checkSheetArguments();
+  void merge(String sheet, CellIndex start, CellIndex end,
+      {dynamic customValue}) {
     if (start == null || end == null) {
       return;
     }
     _availSheet(sheet);
     _sheetMap['$sheet'].merge(start, end, customValue: customValue);
-  }
-
-  /**
-   * 
-   * 
-   * Returns Column based String alphabet when column index is passed
-   * 
-   *      `getColumnAlphabet(0); // returns A`
-   *      `getColumnAlphabet(5); // returns F`
-   * 
-   */
-  String getColumnAlphabet(int collIndex) {
-    return '${numericToLetters(collIndex + 1)}';
-  }
-
-  /**
-   * 
-   * 
-   * Returns Column based int index when column alphabet is passed
-   * 
-   *      `getColumnAlphabet(A); // returns 0`
-   *      `getColumnAlphabet(F); // returns 5`
-   * 
-   */
-  int getColumnIndex(String columnAlphabet) {
-    return cellCoordsFromCellId('${columnAlphabet}2')[1];
   }
 
   /// returns an Iterable of cell-Id for the previously merged cell-Ids.
@@ -1047,12 +1020,15 @@ abstract class Excel {
   }
 
   /**
-   * Usage this function to unMerge the merged cells.
+   * 
+   * 
+   * unMerge the merged cells.
    * 
    *        var sheet = 'DesiredSheet';
    *        List<String> spannedCells = excel.getMergedCells(sheet);
    *        var cellToUnMerge = "A1:A2";
    *        excel.unMerge(sheet, cellToUnMerge);
+   * 
    * 
    */
   unMerge(String sheet, String unmergeCells) {
@@ -1067,8 +1043,8 @@ abstract class Excel {
         bool remove = false;
         List<int> start, end;
         start =
-            cellCoordsFromCellId(lis[0]); // [x,y] => [startRow, startColumn]
-        end = cellCoordsFromCellId(lis[1]); // [x,y] => [endRow, endColumn]
+            _cellCoordsFromCellId(lis[0]); // [x,y] => [startRow, startColumn]
+        end = _cellCoordsFromCellId(lis[1]); // [x,y] => [endRow, endColumn]
         for (int i = 0; i < _spanMap[sheet].length; i++) {
           _Span spanObject = _spanMap[sheet][i];
 
@@ -1279,7 +1255,7 @@ abstract class Excel {
   }
 
   int _getCellNumber(XmlElement cell) {
-    return cellCoordsFromCellId(cell.getAttribute('r'))[1];
+    return _cellCoordsFromCellId(cell.getAttribute('r'))[1];
   }
 
   int _getRowNumber(XmlElement row) {
