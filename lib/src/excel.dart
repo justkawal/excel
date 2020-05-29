@@ -36,10 +36,8 @@ abstract class Excel {
   Map<String, String> _worksheetTargets;
   Map<String, Map<String, CellStyle>> _cellStyleOther;
   Map<String, Map<String, int>> _cellStyleReferenced;
-  Map<String, List<String>> _spannedItems;
   Map<String, DataTable> _tables;
   List<CellStyle> _cellStyleList, _innerCellStyle;
-  Map<String, List<_Span>> _spanMapt;
   List<String> _sharedStrings,
       _rId,
       _fontColorHex,
@@ -51,7 +49,9 @@ abstract class Excel {
   /// Tables contained in excel file indexed by their names
   Map<String, DataTable> get tables => _tables;
 
-  Excel();
+  Excel() {
+    print("Excel Constructor called");
+  }
 
   factory Excel.createExcel() {
     String newSheet =
@@ -294,14 +294,31 @@ abstract class Excel {
 
   Map<String, Sheet> _sheetMap = Map<String, Sheet>();
 
-  Sheet operator [](String sheetName) {
+  Sheet operator [](String sheet) {
     if (!_isContain(_sheetMap)) {
       _sheetMap = Map<String, Sheet>();
     }
-    if (!_isContain(_sheetMap['$sheetName'])) {
-      _sheetMap['$sheetName'] = Sheet(this, '$sheetName');
+    if (!_isContain(_sheetMap['$sheet'])) {
+      _sheetMap['$sheet'] = Sheet(this, '$sheet');
     }
-    return _sheetMap['$sheetName'];
+    return _sheetMap['$sheet'];
+  }
+
+  /**
+   * 
+   * 
+   * It will copy contents of `sheetObject` to `sheet`
+   * 
+   * If `sheet` does not exist then it will be automatically created with contents of `sheetObject`
+   * 
+   * 
+   */
+  operator []=(String sheet, Sheet oldSheetObject) {
+    if (!_isContain(_sheetMap)) {
+      _sheetMap = Map<String, Sheet>();
+    }
+
+    _sheetMap['$sheet'] = Sheet._clone(this, '$sheet', oldSheetObject);
   }
 
   /// Encode bytes after update
@@ -792,6 +809,13 @@ abstract class Excel {
     });
   }
 
+  /**
+   * 
+   * 
+   * Check whether `_update` is set to true or not
+   * 
+   * 
+   */
   _checkSheetArguments() {
     if (!_update) {
       throw ArgumentError("'update' should be set to 'true' on constructor");
@@ -950,7 +974,7 @@ abstract class Excel {
   /**
    * 
    * 
-   * Make `sheet` available if it does not exist in the `_sheetMap`
+   * Make `sheet` available if it does not exist in `_sheetMap`
    * 
    * 
    */
@@ -960,7 +984,7 @@ abstract class Excel {
       _sheetMap = Map<String, Sheet>();
     }
     if (!_isContain(_sheetMap['$sheet'])) {
-      _sheetMap['$sheet'] = Sheet(this, '$sheet');
+      _sheetMap['$sheet'] = Sheet._(this, '$sheet');
     }
   }
 

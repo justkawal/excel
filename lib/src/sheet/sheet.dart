@@ -9,12 +9,51 @@ class Sheet {
   List<_Span> _spanList = List<_Span>();
   Map<int, Map<int, Data>> _sheetData = Map<int, Map<int, Data>>();
 
-  Sheet(Excel excel, String sheetName, {Map<int, Map<int, Data>> sh}) {
-    this._sheetData = sh ?? Map<int, Map<int, Data>>();
-    this._spanList = List<_Span>();
-    this._spannedItems = List<String>();
+  /**
+   * 
+   * 
+   * It will clone the object by changing the `this` reference of previous oldSheetObject and putting `new this` reference, with copying the values too
+   * 
+   * 
+   */
+  Sheet._clone(Excel excel, String sheetName, Sheet oldSheetObject)
+      : this._(
+          excel,
+          sheetName,
+          sh: oldSheetObject._sheetData,
+          spanL_: oldSheetObject._spanList,
+          spanI_: oldSheetObject._spannedItems,
+          maxR_: oldSheetObject._maxRows,
+          maxC_: oldSheetObject._maxCols,
+        );
+
+  Sheet._(
+    Excel excel,
+    String sheetName, {
+    Map<int, Map<int, Data>> sh,
+    List<_Span> spanL_,
+    List<String> spanI_,
+    int maxR_,
+    int maxC_,
+  }) {
     this._excel = excel;
     this._sheet = sheetName;
+    this._spanList = spanL_ ?? List<_Span>();
+    this._spannedItems = spanI_ ?? List<String>();
+    this._maxCols = maxC_ ?? 0;
+    this._maxRows = maxR_ ?? 0;
+    this._sheetData = sh ?? Map<int, Map<int, Data>>.from(sh);
+
+    /// copy the data objects into a temp folder and then while putting it into `this._sheetData` change the data objects references.
+    if (sh != null) {
+      Map<int, Map<int, Data>> temp = Map<int, Map<int, Data>>.from(sh);
+      temp.forEach((key, value) {
+        this._sheetData[key].forEach((key1, oldDataObject) {
+          Data newDataObject = Data._clone(this, oldDataObject);
+          this._sheetData[key][key1] = newDataObject;
+        });
+      });
+    }
   }
 
   Data cell(CellIndex cellIndex) {

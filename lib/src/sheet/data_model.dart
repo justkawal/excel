@@ -10,12 +10,45 @@ class Data {
   int _rowIndex;
   int _colIndex;
 
-  Data._(Sheet sheet, int row, int col) {
+  /**
+   * 
+   * 
+   * It will clone the object by changing the `this` reference of previous DataObject and putting `new this` reference, with copying the values too
+   * 
+   * 
+   */
+  Data._clone(Sheet sheet, Data dataObject)
+      : this._(
+          sheet,
+          dataObject._rowIndex,
+          dataObject.colIndex,
+          value_: dataObject._value,
+          cellStyle_: dataObject._cellStyle,
+          isFormula_: dataObject._isFormula,
+          cellType_: dataObject._cellType,
+        );
+
+  /**
+   * 
+   * 
+   * Initializes the new `Data Object`
+   * 
+   * 
+   */
+  Data._(
+    Sheet sheet,
+    int row,
+    int col, {
+    dynamic value_,
+    CellStyle cellStyle_,
+    bool isFormula_,
+    CellType cellType_,
+  }) {
     this._sheet = sheet;
-    this._value = null;
-    this._cellStyle = null;
-    this._isFormula = false;
-    this._cellType = CellType.String;
+    this._value = value_;
+    this._cellStyle = cellStyle_;
+    this._isFormula = isFormula_ ?? false;
+    this._cellType = cellType_ ?? CellType.String;
     this._sheetName = sheet.sheetName;
     this._rowIndex = row;
     this._colIndex = col;

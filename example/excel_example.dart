@@ -19,6 +19,9 @@ void main(List<String> args) {
 
   var sheet = excel['mySheet'];
 
+  /// copies the contents of 
+  excel['copiedInto'] = sheet;
+
   /// List of rows.
   sheet.cells;
 
