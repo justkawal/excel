@@ -36,6 +36,7 @@ abstract class Excel {
   Map<String, String> _worksheetTargets;
   Map<String, Map<String, CellStyle>> _cellStyleOther;
   Map<String, Map<String, int>> _cellStyleReferenced;
+  Map<String, Sheet> _sheetMap = Map<String, Sheet>();
   Map<String, DataTable> _tables;
   List<CellStyle> _cellStyleList, _innerCellStyle;
   List<String> _sharedStrings,
@@ -80,10 +81,15 @@ abstract class Excel {
     return int.parse(got.join().toString()) + 1;
   }
 
-  /// Uses the [newSheet] as the name of the sheet and also adds it to the [ xl/worksheets/ ] directory
-  /// Add the sheet details in the workbook.xml. as well as in the workbook.xml.rels
-  /// Then add the sheet physically into the [_xmlFiles] so as to get it into the archieve.
-  /// Also add it into the [_sheets] and [_tables] map so as to allow the editing.
+  /**
+   * 
+   * 
+   * Uses the [newSheet] as the name of the sheet and also adds it to the [ xl/worksheets/ ] directory
+   * 
+   * Creates the sheet with name `newSheet` as file output and then adds it to the archive directory.
+   * 
+   * 
+   */
   _createSheet(String newSheet) {
     List<XmlNode> list =
         _xmlFiles['xl/workbook.xml'].findAllElements('sheets').first.children;
@@ -292,14 +298,21 @@ abstract class Excel {
     return applyFontInt;
   }
 
-  Map<String, Sheet> _sheetMap = Map<String, Sheet>();
-
+  /**
+   * 
+   * 
+   * It will return the SheetObject of `sheet`.
+   * 
+   * If the `sheet` does not exist then it will create `sheet` with `New Sheet Object`
+   * 
+   * 
+   */
   Sheet operator [](String sheet) {
     if (!_isContain(_sheetMap)) {
       _sheetMap = Map<String, Sheet>();
     }
     if (!_isContain(_sheetMap['$sheet'])) {
-      _sheetMap['$sheet'] = Sheet(this, '$sheet');
+      _sheetMap['$sheet'] = Sheet._(this, '$sheet');
     }
     return _sheetMap['$sheet'];
   }
@@ -307,7 +320,18 @@ abstract class Excel {
   /**
    * 
    * 
-   * It will copy contents of `sheetObject` to `sheet`
+   * Returns the `Map<String, Sheet>`
+   * 
+   * where `key` is the `Sheet Name` and the `value` is the `Sheet Object`
+   * 
+   * 
+   */
+  Map<String, Sheet> get sheets {
+    return Map<String, Sheet>.from(_sheetMap);
+  }
+
+  /**
+   * 
    * 
    * If `sheet` does not exist then it will be automatically created with contents of `sheetObject`
    * 
@@ -321,7 +345,13 @@ abstract class Excel {
     _sheetMap['$sheet'] = Sheet._clone(this, '$sheet', oldSheetObject);
   }
 
-  /// Encode bytes after update
+  /**
+   * 
+   * 
+   * It will start setting the edited values of sheets and then exports the file.
+   * 
+   * 
+   */
   Future<List> encode() async {
     if (!_update) {
       throw ArgumentError("'update' should be set to 'true' on constructor");
@@ -345,7 +375,13 @@ abstract class Excel {
     return ZipEncoder().encode(_cloneArchive(_archive));
   }
 
-  /// It returns the name of the default sheet.
+  /**
+   * 
+   * 
+   * returns the name of the `defaultSheet` (the sheet which opens firstly when xlsx file is opened in `excel based software`).
+   * 
+   * 
+   */
   Future<String> getDefaultSheet() async {
     XmlElement _sheet =
         _xmlFiles['xl/workbook.xml'].findAllElements('sheet').first;
