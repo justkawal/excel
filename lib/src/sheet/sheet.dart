@@ -883,30 +883,78 @@ class Sheet {
     }
   }
 
+  /**
+   * 
+   * 
+   * For checking that whether the `update` is set to true or not.
+   * 
+   * 
+   */
   _checkSheetArguments() {
     if (!_excel._update) {
       throw ArgumentError("'update' should be set to 'true' on constructor");
     }
   }
 
-  // Cleaning up the null values from the Span Map
+  /**
+   * 
+   * 
+   * returns List of Spanned Cells as 
+   *      
+   *      ["A1:A2", "A4:G6", "Y4:Y6", ....]
+   * 
+   * return type if String based cell-id
+   * 
+   */
+
+  List<String> get spannedItems {
+    this._spannedItems = List<String>();
+
+    if (this._spanList != null && this._spanList.isNotEmpty) {
+      this._spanList.forEach((spanObj) {
+        String rC = getSpanCellId(spanObj.columnSpanStart, spanObj.rowSpanStart,
+            spanObj.columnSpanEnd, spanObj.rowSpanEnd);
+        if (!this._spannedItems.contains(rC)) {
+          this._spannedItems.add(rC);
+        }
+      });
+    }
+
+    return this._spannedItems;
+  }
+
+  /**
+   * 
+   * 
+   * Cleans the `_SpanList` by removing the indexes where null value exists.
+   * 
+   * 
+   */
   _cleanUpSpanMap() {
     if (_spanList != null && _spanList.isNotEmpty) {
       this._spanList.removeWhere((value) => value == null);
     }
   }
 
-  /// get sheetName
+  /**
+   * 
+   * return `SheetName`
+   * 
+   */
   String get sheetName {
     return this._sheet;
   }
 
-  /// List of table's rows
+  /**
+   * 
+   * returns row at index = `rowIndex`
+   * 
+   */
   List<Data> row(int rowIndex) {
-    if (rowIndex < 0) {
-      return null;
+    if (rowIndex == null || rowIndex < 0) {
+      return [];
     }
-    if (_isContain(this._sheetData) && _isContain(this._sheetData[rowIndex])) {
+    if (_isContain(this._sheetData[rowIndex])) {
       return List.generate(this.maxCols, (colIndex) {
         if (_isContain(this._sheetData[rowIndex][colIndex])) {
           return this._sheetData[rowIndex][colIndex];
@@ -917,10 +965,18 @@ class Sheet {
     return [];
   }
 
-  /// Get max rows
+  /**
+   * 
+   * returns count of `rows` having data in `sheet`
+   * 
+   */
   int get maxRows => this._maxRows;
 
-  /// Get max cols
+  /**
+   * 
+   * returns count of `cols` having data in `sheet`
+   * 
+   */
   int get maxCols => this._maxCols;
 }
 /* 
