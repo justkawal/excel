@@ -12,6 +12,19 @@ List<String> _noCompression = <String>[
 String getCellId(int colI, int rowI) =>
     '${_numericToLetters(colI + 1)}${rowI + 1}';
 
+String _isColorAppropriate(String value) {
+  String hex;
+  if (value.length == 8) {
+    return value;
+  }
+  if (value.length != 7) {
+    throw ArgumentError(
+        "InAppropriate Color provided. Use colorHex as example of: #FF0000");
+  }
+  hex = value.replaceAll(RegExp(r'#'), 'FF').toString();
+  return hex;
+}
+
 /// Convert a character based column
 int lettersToNumeric(String letters) {
   var sum = 0, mul = 1, n;

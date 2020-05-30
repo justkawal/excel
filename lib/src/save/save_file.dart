@@ -142,6 +142,167 @@ class Save {
     });
   }
 
+  /* _processStylesFile() {
+    _innerCellStyle = List<CellStyle>();
+    List<String> innerPatternFill = List<String>(),
+        innerFontColor = List<String>();
+
+    _cellStyleOther.keys.toList().forEach((otherSheet) {
+      _cellStyleOther[otherSheet].forEach((String _, CellStyle cellStyleOther) {
+        int pos = _checkPosition(_innerCellStyle, cellStyleOther);
+        if (pos == -1) {
+          _innerCellStyle.add(cellStyleOther);
+        }
+      });
+    });
+
+    _innerCellStyle.forEach((cellStyle) {
+      String fontColor = cellStyle.getFontColorHex,
+          backgroundColor = cellStyle.getBackgroundColorHex;
+
+      if (!_fontColorHex.contains(fontColor) &&
+          !innerFontColor.contains(fontColor)) {
+        innerFontColor.add(fontColor);
+      }
+      if (!_patternFill.contains(backgroundColor) &&
+          !innerPatternFill.contains(backgroundColor)) {
+        innerPatternFill.add(backgroundColor);
+      }
+    });
+
+    XmlElement fonts =
+        _xmlFiles['xl/styles.xml'].findAllElements('fonts').first;
+
+    var fontAttribute = fonts.getAttributeNode('count');
+    if (fontAttribute != null) {
+      fontAttribute.value = '${_fontColorHex.length + innerFontColor.length}';
+    } else {
+      fonts.attributes.add(XmlAttribute(
+          XmlName('count'), '${_fontColorHex.length + innerFontColor.length}'));
+    }
+
+    innerFontColor.forEach((colorValue) =>
+        fonts.children.add(XmlElement(XmlName('font'), [], [
+          XmlElement(
+              XmlName('color'), [XmlAttribute(XmlName('rgb'), colorValue)], [])
+        ])));
+
+    XmlElement fills =
+        _xmlFiles['xl/styles.xml'].findAllElements('fills').first;
+
+    var fillAttribute = fills.getAttributeNode('count');
+
+    if (fillAttribute != null) {
+      fillAttribute.value = '${_patternFill.length + innerPatternFill.length}';
+    } else {
+      fills.attributes.add(XmlAttribute(XmlName('count'),
+          '${_patternFill.length + innerPatternFill.length}'));
+    }
+
+    innerPatternFill.forEach((color) {
+      if (color.length >= 2) {
+        if (color.substring(0, 2).toUpperCase() == 'FF') {
+          fills.children.add(XmlElement(XmlName('fill'), [], [
+            XmlElement(XmlName('patternFill'), [
+              XmlAttribute(XmlName('patternType'), 'solid')
+            ], [
+              XmlElement(XmlName('fgColor'),
+                  [XmlAttribute(XmlName('rgb'), color)], []),
+              XmlElement(
+                  XmlName('bgColor'), [XmlAttribute(XmlName('rgb'), color)], [])
+            ])
+          ]));
+        } else if (color == "none" ||
+            color == "gray125" ||
+            color == "lightGray") {
+          fills.children.add(XmlElement(XmlName('fill'), [], [
+            XmlElement(XmlName('patternFill'),
+                [XmlAttribute(XmlName('patternType'), color)], [])
+          ]));
+        }
+      } else {
+        _damagedExcel(text: "Corrupted Styles Found");
+      }
+    });
+
+    XmlElement celx =
+        _xmlFiles['xl/styles.xml'].findAllElements('cellXfs').first;
+    var cellAttribute = celx.getAttributeNode('count');
+
+    if (cellAttribute != null) {
+      cellAttribute.value = '${_cellStyleList.length + _innerCellStyle.length}';
+    } else {
+      celx.attributes.add(XmlAttribute(XmlName('count'),
+          '${_cellStyleList.length + _innerCellStyle.length}'));
+    }
+
+    _innerCellStyle.forEach((cellStyle) {
+      String backgroundColor = cellStyle.getBackgroundColorHex,
+          fontColor = cellStyle.getFontColorHex;
+
+      HorizontalAlign horizontalALign = cellStyle.getHorizontalAlignment;
+      VerticalAlign verticalAlign = cellStyle.getVericalAlignment;
+      TextWrapping textWrapping = cellStyle.getTextWrapping;
+      int backgroundIndex = innerPatternFill.indexOf(backgroundColor),
+          fontIndex = innerFontColor.indexOf(fontColor);
+
+      var attributes = <XmlAttribute>[
+        XmlAttribute(XmlName('borderId'), '0'),
+        XmlAttribute(XmlName('fillId'),
+            '${backgroundIndex == -1 ? 0 : backgroundIndex + _patternFill.length}'),
+        XmlAttribute(XmlName('fontId'),
+            '${fontIndex == -1 ? 0 : fontIndex + _fontColorHex.length}'),
+        XmlAttribute(XmlName('numFmtId'), '0'),
+        XmlAttribute(XmlName('xfId'), '0'),
+      ];
+
+      if ((_patternFill.contains(backgroundColor) ||
+              innerPatternFill.contains(backgroundColor)) &&
+          backgroundColor != "none" &&
+          backgroundColor != "gray125" &&
+          backgroundColor.toLowerCase() != "lightgray") {
+        attributes.add(XmlAttribute(XmlName('applyFill'), '1'));
+      }
+
+      if ((_fontColorHex.contains(fontColor) ||
+          innerFontColor.contains(fontColor))) {
+        attributes.add(XmlAttribute(XmlName('applyFont'), '1'));
+      }
+
+      var children = <XmlElement>[];
+
+      if (horizontalALign != HorizontalAlign.Left ||
+          textWrapping != null ||
+          verticalAlign != VerticalAlign.Bottom) {
+        attributes.add(XmlAttribute(XmlName('applyAlignment'), '1'));
+        var childAttributes = <XmlAttribute>[];
+
+        if (textWrapping != null) {
+          childAttributes.add(XmlAttribute(
+              XmlName(textWrapping == TextWrapping.Clip
+                  ? 'shrinkToFit'
+                  : 'wrapText'),
+              '1'));
+        }
+
+        if (verticalAlign != VerticalAlign.Bottom) {
+          String ver = verticalAlign == VerticalAlign.Top ? 'top' : 'center';
+          childAttributes.add(XmlAttribute(XmlName('vertical'), '$ver'));
+        }
+
+        if (horizontalALign != HorizontalAlign.Left) {
+          String hor =
+              horizontalALign == HorizontalAlign.Right ? 'right' : 'center';
+          childAttributes.add(XmlAttribute(XmlName('horizontal'), '$hor'));
+        }
+
+        children.add(XmlElement(XmlName('alignment'), childAttributes, []));
+      }
+
+      celx.children.add(XmlElement(XmlName('xf'), attributes, children));
+    });
+  } */
+
   /// Writing Font Color in [xl/styles.xml] from the Cells of the sheets.
 
   _processStylesFile() {
@@ -152,7 +313,7 @@ class Save {
     _excel._sheetMap.forEach((sheetName, sheetObject) {
       sheetObject._sheetData.forEach((_, colMap) {
         colMap.forEach((_, dataObject) {
-          if (dataObject != null) {
+          if (dataObject != null && dataObject.cellStyle != null) {
             int pos = _checkPosition(_innerCellStyle, dataObject.cellStyle);
             if (pos == -1) {
               _innerCellStyle.add(dataObject.cellStyle);

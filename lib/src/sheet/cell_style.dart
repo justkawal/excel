@@ -9,17 +9,25 @@ class CellStyle {
   TextWrapping textWrapping;
 
   CellStyle({
-    this.fontColorHex = "FF000000",
-    this.backgroundColorHex = "none",
+    this.fontColorHex,
+    this.backgroundColorHex,
     this.horizontalAlign,
     this.verticalAlign,
     this.textWrapping,
   }) {
     this.textWrapping = textWrapping;
 
-    this.fontColorHex == fontColorHex ?? "FF000000";
+    if (fontColorHex != null) {
+      this.fontColorHex = _isColorAppropriate(fontColorHex);
+    } else {
+      this.fontColorHex = "FF000000";
+    }
 
-    this.backgroundColorHex = backgroundColorHex ?? "none";
+    if (backgroundColorHex != null && backgroundColorHex != "none") {
+      this.backgroundColorHex = _isColorAppropriate(backgroundColorHex);
+    } else {
+      this.backgroundColorHex = "none";
+    }
 
     this.verticalAlign = verticalAlign ?? VerticalAlign.Bottom;
 
@@ -29,13 +37,21 @@ class CellStyle {
   String get getFontColorHex => this.fontColorHex;
 
   set setFontColorHex(String fontColorHex) {
-    this.fontColorHex == fontColorHex ?? "FF000000";
+    if (fontColorHex != null) {
+      this.fontColorHex = _isColorAppropriate(fontColorHex);
+    } else {
+      this.fontColorHex = "FF000000";
+    }
   }
 
   String get getBackgroundColorHex => this.backgroundColorHex;
 
   set setBackgroundColorHex(String backgroundColorHex) {
-    this.backgroundColorHex = backgroundColorHex ?? "none";
+    if (backgroundColorHex != null) {
+      this.backgroundColorHex = _isColorAppropriate(backgroundColorHex);
+    } else {
+      this.backgroundColorHex = "none";
+    }
   }
 
   HorizontalAlign get getHorizontalAlignment => this.horizontalAlign;
@@ -63,4 +79,12 @@ class CellStyle {
       o.verticalAlign == this.verticalAlign &&
       o.horizontalAlign == this.horizontalAlign &&
       o.backgroundColorHex == this.backgroundColorHex;
+
+  @override
+  String toString() {
+    String b = "Background Color: " + this.backgroundColorHex;
+    String f = "Font Color: " + this.fontColorHex;
+
+    return b + "\n" + f;
+  }
 }

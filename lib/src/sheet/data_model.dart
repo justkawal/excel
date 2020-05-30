@@ -121,6 +121,7 @@ class Data {
   }
 
   set cellStyle(CellStyle cellStyle_) {
+    _sheet._excel._colorChanges = true;
     this._cellStyle = cellStyle_;
   }
 }
