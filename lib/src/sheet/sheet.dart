@@ -148,7 +148,6 @@ class Sheet {
     if (colIndex < 0 || colIndex >= this.maxCols) {
       return;
     }
-    _checkSheetArguments();
 
     bool updateSpanCell = false;
 
@@ -232,7 +231,6 @@ class Sheet {
       return;
     }
     _checkMaxCol(colIndex);
-    _checkSheetArguments();
 
     bool updateSpanCell = false;
 
@@ -318,7 +316,6 @@ class Sheet {
       return;
     }
     _checkMaxRow(rowIndex);
-    _checkSheetArguments();
 
     bool updateSpanCell = false;
 
@@ -404,7 +401,7 @@ class Sheet {
     if (rowIndex < 0) {
       return;
     }
-    _checkSheetArguments();
+
     _checkMaxRow(rowIndex);
 
     bool updateSpanCell = false;
@@ -463,7 +460,6 @@ class Sheet {
   }
 
   updateCell(CellIndex cellIndex, dynamic value, {CellStyle cellStyle}) {
-    _checkSheetArguments();
     int columnIndex = cellIndex._columnIndex;
     int rowIndex = cellIndex._rowIndex;
     if (columnIndex < 0 || rowIndex < 0) {
@@ -505,7 +501,6 @@ class Sheet {
 
   /// Merge the Cells starting from the [start] to [end].
   merge(CellIndex start, CellIndex end, {dynamic customValue}) {
-    _checkSheetArguments();
     int startColumn = start._columnIndex,
         startRow = start._rowIndex,
         endColumn = end._columnIndex,
@@ -548,7 +543,7 @@ class Sheet {
             _isContain(this._sheetData[j][k])) {
           if (getValue &&
               this._sheetData[j][k].value != null &&
-              this._sheetData[j][k].style != null) {
+              this._sheetData[j][k].cellStyle != null) {
             value = this._sheetData[j][k];
             getValue = false;
           }
@@ -677,7 +672,6 @@ class Sheet {
 
   /// Append [row] iterables just post the last filled index in the [sheetName]
   appendRow(List<dynamic> row) {
-    _checkSheetArguments();
     int targetRow = this.maxRows;
     insertRowIterables(row, targetRow);
   }
@@ -736,7 +730,7 @@ class Sheet {
     if (row == null || row.length == 0 || rowIndex == null || rowIndex < 0) {
       return;
     }
-    _checkSheetArguments();
+
     _checkMaxRow(rowIndex);
     int columnIndex = 0;
     if (startingColumn > 0) {
@@ -808,7 +802,6 @@ class Sheet {
       int endingRow = -1,
       int startingColumn = -1,
       int endingColumn = -1}) {
-    _checkSheetArguments();
     int replaceCount = 0,
         _startingRow = 0,
         _endingRow = -1,
@@ -941,19 +934,6 @@ class Sheet {
   _checkMaxRow(int rowIndex) {
     if ((this._maxRows >= 1048576) || rowIndex >= 1048576) {
       throw ArgumentError('Reached Max (1048576) rows value.');
-    }
-  }
-
-  /**
-   * 
-   * 
-   * For checking that whether the `update` is set to true or not.
-   * 
-   * 
-   */
-  _checkSheetArguments() {
-    if (!_excel._update) {
-      throw ArgumentError("'update' should be set to 'true' on constructor");
     }
   }
 

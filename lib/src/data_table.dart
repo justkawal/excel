@@ -1,9 +1,9 @@
 part of excel;
 
 /// Table of a excel file
-class DataTable {
+class DataTableo {
   final String name;
-  DataTable(this.name);
+  DataTableo(this.name);
 
   int _maxRows = 0, _maxCols = 0;
 

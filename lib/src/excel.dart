@@ -1,9 +1,5 @@
 part of excel;
 
-const String _relationships =
-    'http://schemas.openxmlformats.org/officeDocument/2006/relationships';
-const _spreasheetXlsx = 'xlsx';
-
 Excel _newExcel(Archive archive, bool update) {
   // Lookup at file format
   var format;
@@ -18,7 +14,7 @@ Excel _newExcel(Archive archive, bool update) {
 
   switch (format) {
     case _spreasheetXlsx:
-      return Excel._(archive, update: update);
+      return Excel._(archive);
     default:
       throw UnsupportedError('Excel format unsupported.');
   }
@@ -26,54 +22,37 @@ Excel _newExcel(Archive archive, bool update) {
 
 /// Decode a excel file.
 class Excel {
-  bool _update, _colorChanges, _mergeChanges;
+  bool _colorChanges, _mergeChanges;
   Archive _archive;
   Map<String, XmlNode> _sheets;
   Map<String, XmlDocument> _xmlFiles;
   Map<String, String> _xmlSheetId;
-  Map<String, String> _worksheetTargets;
-  Map<String, Map<String, CellStyle>> _cellStyleOther;
   Map<String, Map<String, int>> _cellStyleReferenced;
-  Map<String, Sheet> _sheetMap = Map<String, Sheet>();
-  Map<String, DataTable> _tables;
-  List<CellStyle> _cellStyleList, _innerCellStyle;
-  List<String> _sharedStrings,
-      _rId,
-      _fontColorHex,
-      _patternFill,
-      _mergeChangeLook;
+  Map<String, Sheet> _sheetMap;
+  List<CellStyle> _cellStyleList;
+  List<String> _sharedStrings, _fontColorHex, _patternFill, _mergeChangeLook;
   List<int> _numFormats;
   String _stylesTarget, _sharedStringsTarget;
-  Parse p;
+  Parse parser;
 
-  /// Tables contained in excel file indexed by their names
-  Map<String, DataTable> get tables => _tables;
-
-  Excel._(Archive archive, {bool update = false}) {
+  Excel._(Archive archive) {
     print("Excel Constructor called");
-    _archive = archive;
-    _update = update;
+    this._archive = archive;
     _colorChanges = false;
     _mergeChanges = false;
-    if (_update) {
-      _sheets = <String, XmlNode>{};
-      _xmlFiles = <String, XmlDocument>{};
-    }
-    _worksheetTargets = <String, String>{};
+    _sheets = <String, XmlNode>{};
+    _xmlFiles = <String, XmlDocument>{};
     _xmlSheetId = <String, String>{};
-    _cellStyleOther = <String, Map<String, CellStyle>>{};
+    _sheetMap = Map<String, Sheet>();
     _cellStyleReferenced = <String, Map<String, int>>{};
     _fontColorHex = List<String>();
     _patternFill = List<String>();
-    _tables = <String, DataTable>{};
     _sharedStrings = List<String>();
     _cellStyleList = List<CellStyle>();
-    _innerCellStyle = List<CellStyle>();
-    _rId = List<String>();
     _mergeChangeLook = List<String>();
     _numFormats = List<int>();
-    p = Parse._(this);
-    p._startParsing();
+    parser = Parse._(this);
+    parser._startParsing();
   }
 
   factory Excel.createExcel() {
@@ -92,120 +71,6 @@ class Excel {
       {bool update = false, bool verify = false}) {
     var archive = ZipDecoder().decodeBuffer(input, verify: verify);
     return _newExcel(archive, update);
-  }
-
-  int _getAvailableRid() {
-    _rId.sort((a, b) =>
-        int.parse(a.substring(3)).compareTo(int.parse(b.substring(3))));
-
-    List<String> got = List<String>.from(_rId.last.split(''));
-    got.removeWhere((item) => !'0123456789'.split('').contains(item));
-    return int.parse(got.join().toString()) + 1;
-  }
-
-  /**
-   *
-   * Uses the [newSheet] as the name of the sheet and also adds it to the [ xl/worksheets/ ] directory
-   * 
-   * Creates the sheet with name `newSheet` as file output and then adds it to the archive directory.
-   * 
-   */
-  _createSheet(String newSheet) {
-    List<XmlNode> list =
-        _xmlFiles['xl/workbook.xml'].findAllElements('sheets').first.children;
-    if (list.isEmpty) {
-      throw ArgumentError('');
-    }
-    int _sheetId = -1;
-    List<int> sheetIdList = List<int>();
-
-    _xmlFiles['xl/workbook.xml']
-        .findAllElements('sheet')
-        .forEach((sheetIdNode) {
-      var sheetId = sheetIdNode.getAttribute('sheetId');
-      if (sheetId != null) {
-        int t = int.parse(sheetId.toString());
-        if (!sheetIdList.contains(t)) {
-          sheetIdList.add(t);
-        }
-      } else {
-        _damagedExcel(text: 'Corrupted Sheet Indexing');
-      }
-    });
-
-    sheetIdList.sort();
-
-    for (int i = 0; i < sheetIdList.length - 1; i++) {
-      if ((sheetIdList[i] + 1) != sheetIdList[i + 1]) {
-        _sheetId = (sheetIdList[i] + 1);
-      }
-    }
-    if (_sheetId == -1) {
-      if (sheetIdList.isEmpty) {
-        _sheetId = 1;
-      } else {
-        _sheetId = sheetIdList.length;
-      }
-    }
-
-    int sheetNumber = _sheetId;
-    int ridNumber = _getAvailableRid();
-
-    _xmlFiles['xl/_rels/workbook.xml.rels']
-        .findAllElements('Relationships')
-        .first
-        .children
-        .add(XmlElement(XmlName('Relationship'), <XmlAttribute>[
-          XmlAttribute(XmlName('Id'), 'rId$ridNumber'),
-          XmlAttribute(XmlName('Type'), '$_relationships/worksheet'),
-          XmlAttribute(
-              XmlName('Target'), 'worksheets/sheet${sheetNumber + 1}.xml'),
-        ]));
-
-    _xmlFiles['xl/workbook.xml']
-        .findAllElements('sheets')
-        .first
-        .children
-        .add(XmlElement(
-          XmlName('sheet'),
-          <XmlAttribute>[
-            XmlAttribute(XmlName('state'), 'visible'),
-            XmlAttribute(XmlName('name'), newSheet),
-            XmlAttribute(XmlName('sheetId'), '${sheetNumber + 1}'),
-            XmlAttribute(XmlName('r:id'), 'rId$ridNumber')
-          ],
-        ));
-
-    _worksheetTargets['rId$ridNumber'] =
-        'worksheets/sheet${sheetNumber + 1}.xml';
-
-    var content = utf8.encode(
-        "<worksheet xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\" xmlns:mc=\"http://schemas.openxmlformats.org/markup-compatibility/2006\" mc:Ignorable=\"x14ac xr xr2 xr3\" xmlns:x14ac=\"http://schemas.microsoft.com/office/spreadsheetml/2009/9/ac\" xmlns:xr=\"http://schemas.microsoft.com/office/spreadsheetml/2014/revision\" xmlns:xr2=\"http://schemas.microsoft.com/office/spreadsheetml/2015/revision2\" xmlns:xr3=\"http://schemas.microsoft.com/office/spreadsheetml/2016/revision3\"> <dimension ref=\"A1\"/> <sheetViews> <sheetView tabSelected=\"1\" workbookViewId=\"0\"/> </sheetViews> <sheetData/> <pageMargins left=\"0.7\" right=\"0.7\" top=\"0.75\" bottom=\"0.75\" header=\"0.3\" footer=\"0.3\"/> </worksheet>");
-
-    _archive.addFile(ArchiveFile(
-        'xl/worksheets/sheet${sheetNumber + 1}.xml', content.length, content));
-    var _newSheet = _archive.findFile('xl/$_sharedStringsTarget');
-
-    _newSheet.decompress();
-    var document = parse(utf8.decode(_newSheet.content));
-    if (_xmlFiles != null) {
-      _xmlFiles['xl/worksheets/sheet${sheetNumber + 1}.xml'] = document;
-    }
-
-    _xmlFiles['[Content_Types].xml']
-        .findAllElements('Types')
-        .first
-        .children
-        .add(XmlElement(
-          XmlName('Override'),
-          <XmlAttribute>[
-            XmlAttribute(XmlName('ContentType'),
-                'application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml'),
-            XmlAttribute(XmlName('PartName'),
-                '/xl/worksheets/sheet${sheetNumber + 1}.xml'),
-          ],
-        ));
-    p._parseTable(_xmlFiles['xl/workbook.xml'].findAllElements('sheet').last);
   }
 
   /**
@@ -254,7 +119,10 @@ class Excel {
    * It will start setting the edited values of `sheets` into the `files` and then `exports the file`.
    * 
    */
-  Future<List> encode() async {}
+  Future<List> encode() async {
+    Save s = Save._(this);
+    return s._save();
+  }
 
   /**
    * 
@@ -307,17 +175,6 @@ class Excel {
     String expectedSheet = await getDefaultSheet();
 
     return expectedSheet == sheetName;
-  }
-
-  /**
-   * 
-   * Check whether `_update` is set to true or not
-   * 
-   */
-  _checkSheetArguments() {
-    if (!_update) {
-      throw ArgumentError("'update' should be set to 'true' on constructor");
-    }
   }
 
   /**
@@ -389,7 +246,6 @@ class Excel {
     if (row == null || row.length == 0) {
       return;
     }
-    _checkSheetArguments();
     _availSheet(sheet);
     int targetRow = _sheetMap['$sheet'].maxRows;
     insertRowIterables(sheet, row, targetRow);
@@ -458,7 +314,9 @@ class Excel {
    * 
    */
   _availSheet(String sheet) {
-    _checkSheetArguments();
+    if (!_isContain('$sheet')) {
+      parser._createSheet('$sheet');
+    }
     if (_sheetMap == null) {
       _sheetMap = Map<String, Sheet>();
     }
@@ -529,7 +387,6 @@ class Excel {
    * 
    */
   unMerge(String sheet, String unmergeCells) {
-    _checkSheetArguments();
     if (_isContain(_sheetMap['$sheet'])) {
       _sheetMap['$sheet'].unMerge(unmergeCells);
     }

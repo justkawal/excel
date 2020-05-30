@@ -3,16 +3,14 @@ part of excel;
 class Save {
   Excel _excel;
   Map<String, ArchiveFile> _archiveFiles;
+  List<CellStyle> _innerCellStyle;
   Save._(Excel excel) {
     this._excel = excel;
     this._archiveFiles = Map<String, ArchiveFile>();
+    _innerCellStyle = List<CellStyle>();
   }
 
-  Future<List> encode() async {
-    if (!_excel._update) {
-      throw ArgumentError("'update' should be set to 'true' on constructor");
-    }
-
+  Future<List> _save() async {
     if (_excel._colorChanges) {
       _processStylesFile();
     }
@@ -144,21 +142,25 @@ class Save {
   /// Writing Font Color in [xl/styles.xml] from the Cells of the sheets.
 
   _processStylesFile() {
-    _excel._innerCellStyle = List<CellStyle>();
+    _innerCellStyle = List<CellStyle>();
     List<String> innerPatternFill = List<String>(),
         innerFontColor = List<String>();
 
-    _excel._cellStyleOther.keys.toList().forEach((otherSheet) {
-      _excel._cellStyleOther[otherSheet]
-          .forEach((String _, CellStyle cellStyleOther) {
-        int pos = _checkPosition(_excel._innerCellStyle, cellStyleOther);
-        if (pos == -1) {
-          _excel._innerCellStyle.add(cellStyleOther);
-        }
+    _excel._sheetMap.forEach((sheetName, sheetObject) {
+      sheetObject._sheetData.forEach((_, colMap) {
+        colMap.forEach((_, dataObject) {
+          if (dataObject != null) {
+            int pos = _checkPosition(_innerCellStyle, dataObject.cellStyle);
+
+            if (pos == -1) {
+              _innerCellStyle.add(dataObject.cellStyle);
+            }
+          }
+        });
       });
     });
 
-    _excel._innerCellStyle.forEach((cellStyle) {
+    _innerCellStyle.forEach((cellStyle) {
       String fontColor = cellStyle.getFontColorHex,
           backgroundColor = cellStyle.getBackgroundColorHex;
 
@@ -235,13 +237,13 @@ class Save {
 
     if (cellAttribute != null) {
       cellAttribute.value =
-          '${_excel._cellStyleList.length + _excel._innerCellStyle.length}';
+          '${_excel._cellStyleList.length + _innerCellStyle.length}';
     } else {
       celx.attributes.add(XmlAttribute(XmlName('count'),
-          '${_excel._cellStyleList.length + _excel._innerCellStyle.length}'));
+          '${_excel._cellStyleList.length + _innerCellStyle.length}'));
     }
 
-    _excel._innerCellStyle.forEach((cellStyle) {
+    _innerCellStyle.forEach((cellStyle) {
       String backgroundColor = cellStyle.getBackgroundColorHex,
           fontColor = cellStyle.getFontColorHex;
 
@@ -413,12 +415,17 @@ class Save {
     ];
 
     if (_excel._colorChanges &&
-        _excel._cellStyleOther.containsKey(sheet) &&
-        _excel._cellStyleOther[sheet].containsKey(rC)) {
-      CellStyle cellStyle = _excel._cellStyleOther[sheet][rC];
+        _isContain(_excel._sheetMap[sheet]) &&
+        _isContain(_excel._sheetMap[sheet]._sheetData) &&
+        _isContain(_excel._sheetMap[sheet]._sheetData[rowIndex]) &&
+        _isContain(_excel._sheetMap[sheet]._sheetData[rowIndex][columnIndex]) &&
+        _excel._sheetMap[sheet]._sheetData[rowIndex][columnIndex].cellStyle !=
+            null) {
+      CellStyle cellStyle =
+          _excel._sheetMap[sheet]._sheetData[rowIndex][columnIndex].cellStyle;
       int upperLevelPos = _checkPosition(_excel._cellStyleList, cellStyle);
       if (upperLevelPos == -1) {
-        int lowerLevelPos = _checkPosition(_excel._innerCellStyle, cellStyle);
+        int lowerLevelPos = _checkPosition(_innerCellStyle, cellStyle);
         if (lowerLevelPos != -1) {
           upperLevelPos = lowerLevelPos + _excel._cellStyleList.length;
         } else {

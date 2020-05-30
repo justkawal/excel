@@ -116,7 +116,7 @@ class Data {
   /// returns the user-defined CellStyle
   ///
   /// if no cellStyle is set then it returns null
-  get style {
+  get cellStyle {
     return this._cellStyle;
   }
 }
