@@ -54,7 +54,10 @@ class Save {
     _excel._sheetMap.forEach((sheet, value) {
       // clear the previous contents of the sheet if it exists in order to reduce the time to find and compare with the sheet rows
       // and hence just do the work of putting the data only i.e. creating new rows
-      _excel._sheets[sheet].children.clear();
+      if (_excel._sheets[sheet] != null &&
+          _excel._sheets[sheet].children.isNotEmpty) {
+        _excel._sheets[sheet].children.clear();
+      }
       /** Above function is important in order to wipe out the old contents of the sheet. */
 
       value._sheetData.forEach((rowIndex, map) {
@@ -151,7 +154,6 @@ class Save {
         colMap.forEach((_, dataObject) {
           if (dataObject != null) {
             int pos = _checkPosition(_innerCellStyle, dataObject.cellStyle);
-
             if (pos == -1) {
               _innerCellStyle.add(dataObject.cellStyle);
             }

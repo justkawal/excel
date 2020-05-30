@@ -19,18 +19,17 @@ void main(List<String> args) {
 
   var sheet = excel['mySheet'];
 
-  /// copies the contents of
-  excel['copiedInto'] = sheet;
-
   /// List of rows.
   sheet.cells;
 
   /// putting value = 'k' at A1 index.
-  sheet.cell(CellIndex.indexByString("A1")).value = 'g';
+  var cell = sheet.cell(CellIndex.indexByString("A1"));
+  cell.value = 5;
+  cell.cellStyle = CellStyle(backgroundColorHex: "#8B0000");
 
   /// appending rows
   sheet.appendRow([8]);
-
+/* 
   /// coutn of rows
   sheet.maxRows;
 
@@ -117,6 +116,9 @@ void main(List<String> args) {
   if (mergedCells.contains("A1:D5")) {
     excel.unMerge(sheet1, "A1:D5");
   }
+
+  /// copies the contents of
+  excel['copiedInto'] = excel['Sheet24']; */
 
   // Saving the file
 

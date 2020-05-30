@@ -148,7 +148,7 @@ class Parse {
     sharedStrings.decompress();
     var document = parse(utf8.decode(sharedStrings.content));
     if (_excel._xmlFiles != null) {
-      _excel._xmlFiles["xl/$_excel._sharedStringsTarget}"] = document;
+      _excel._xmlFiles["xl/${_excel._sharedStringsTarget}"] = document;
     }
     document.findAllElements('si').forEach((node) {
       _parseSharedString(node);
@@ -349,7 +349,11 @@ class Parse {
     var name = node.getAttribute('name');
     var target = _worksheetTargets[node.getAttribute('r:id')];
 
-    Sheet sheetObject = _excel['$name'];
+    if (!_isContain(_excel._sheetMap['$name'])) {
+      _excel._sheetMap['$name'] = Sheet._(_excel, '$name');
+    }
+
+    Sheet sheetObject = _excel._sheetMap['$name'];
 
     var file = _excel._archive.findFile('xl/$target');
     file.decompress();
@@ -363,7 +367,7 @@ class Parse {
     });
 
     _excel._sheets[name] = sheet;
-    
+
     _excel._xmlFiles['xl/$target'] = content;
     _excel._xmlSheetId[name] = 'xl/$target';
 
@@ -558,6 +562,10 @@ class Parse {
           XmlAttribute(
               XmlName('Target'), 'worksheets/sheet${sheetNumber + 1}.xml'),
         ]));
+
+    if (!_rId.contains('rId$ridNumber')) {
+      _rId.add('rId$ridNumber');
+    }
 
     _excel._xmlFiles['xl/workbook.xml']
         .findAllElements('sheets')

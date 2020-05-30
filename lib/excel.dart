@@ -10,7 +10,6 @@ part 'src/excel.dart';
 part 'src/utility.dart';
 part 'src/xlsx.dart';
 part 'src/sheet/cell_index.dart';
-part 'src/data_table.dart';
 part 'src/span.dart';
 part 'src/sheet/cell_style.dart';
 part 'src/enum.dart';

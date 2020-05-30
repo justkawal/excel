@@ -102,9 +102,7 @@ class Excel {
    * 
    */
   operator []=(String sheet, Sheet oldSheetObject) {
-    if (!_isContain(_sheetMap)) {
-      _sheetMap = Map<String, Sheet>();
-    }
+    _availSheet(sheet);
 
     _sheetMap['$sheet'] = Sheet._clone(this, '$sheet', oldSheetObject);
   }

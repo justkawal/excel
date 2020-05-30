@@ -119,4 +119,8 @@ class Data {
   get cellStyle {
     return this._cellStyle;
   }
+
+  set cellStyle(CellStyle cellStyle_) {
+    this._cellStyle = cellStyle_;
+  }
 }

@@ -44,6 +44,15 @@ class Sheet {
     this._maxRows = maxR_ ?? 0;
     this._sheetData = Map<int, Map<int, Data>>();
 
+    if (spanL_ != null) {
+      _excel._mergeChangeLookup = sheetName;
+      this._spanList = List<_Span>.from(spanL_);
+    }
+
+    if (spanI_ != null) {
+      this._spannedItems = List<String>.from(spanI_);
+    }
+
     /// copy the data objects into a temp folder and then while putting it into `this._sheetData` change the data objects references.
     if (sh != null) {
       this._sheetData = Map<int, Map<int, Data>>.from(sh);
