@@ -29,6 +29,39 @@ int lettersToNumeric(String letters) {
   return sum;
 }
 
+bool _isEmptyRow(List row) {
+  return row.fold(true, (value, element) => value && (element == null));
+}
+
+bool _isNotEmptyRow(List row) {
+  return !_isEmptyRow(row);
+}
+
+Iterable<XmlElement> _findRows(XmlElement table) {
+  return table.findElements('row');
+}
+
+Iterable<XmlElement> _findCells(XmlElement row) {
+  return row.findElements('c');
+}
+
+int _getCellNumber(XmlElement cell) {
+  return _cellCoordsFromCellId(cell.getAttribute('r'))[1];
+}
+
+int _getRowNumber(XmlElement row) {
+  return int.parse(row.getAttribute('r'));
+}
+
+int _checkPosition(List<CellStyle> list, CellStyle cellStyle) {
+  for (int i = 0; i < list.length; i++) {
+    if (list[i] == cellStyle) {
+      return i;
+    }
+  }
+  return -1;
+}
+
 int _letterOnly(int rune) {
   if (65 <= rune && rune <= 90) {
     return rune;

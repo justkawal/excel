@@ -8,7 +8,6 @@ Excel _newExcel(Archive archive, bool update) {
   // Lookup at file format
   var format;
 
-  // Try OpenDocument format
   var mimetype = archive.findFile('mimetype');
   if (mimetype == null) {
     var xl = archive.findFile('xl/workbook.xml');
@@ -19,20 +18,19 @@ Excel _newExcel(Archive archive, bool update) {
 
   switch (format) {
     case _spreasheetXlsx:
-      return XlsxDecoder(archive, update: update);
+      return Excel._(archive, update: update);
     default:
-      throw UnsupportedError('Excel format unsupported');
+      throw UnsupportedError('Excel format unsupported.');
   }
 }
 
 /// Decode a excel file.
-abstract class Excel {
+class Excel {
   bool _update, _colorChanges, _mergeChanges;
   Archive _archive;
   Map<String, XmlNode> _sheets;
   Map<String, XmlDocument> _xmlFiles;
   Map<String, String> _xmlSheetId;
-  Map<String, ArchiveFile> _archiveFiles;
   Map<String, String> _worksheetTargets;
   Map<String, Map<String, CellStyle>> _cellStyleOther;
   Map<String, Map<String, int>> _cellStyleReferenced;
@@ -46,12 +44,36 @@ abstract class Excel {
       _mergeChangeLook;
   List<int> _numFormats;
   String _stylesTarget, _sharedStringsTarget;
+  Parse p;
 
   /// Tables contained in excel file indexed by their names
   Map<String, DataTable> get tables => _tables;
 
-  Excel() {
+  Excel._(Archive archive, {bool update = false}) {
     print("Excel Constructor called");
+    _archive = archive;
+    _update = update;
+    _colorChanges = false;
+    _mergeChanges = false;
+    if (_update) {
+      _sheets = <String, XmlNode>{};
+      _xmlFiles = <String, XmlDocument>{};
+    }
+    _worksheetTargets = <String, String>{};
+    _xmlSheetId = <String, String>{};
+    _cellStyleOther = <String, Map<String, CellStyle>>{};
+    _cellStyleReferenced = <String, Map<String, int>>{};
+    _fontColorHex = List<String>();
+    _patternFill = List<String>();
+    _tables = <String, DataTable>{};
+    _sharedStrings = List<String>();
+    _cellStyleList = List<CellStyle>();
+    _innerCellStyle = List<CellStyle>();
+    _rId = List<String>();
+    _mergeChangeLook = List<String>();
+    _numFormats = List<int>();
+    p = Parse._(this);
+    p._startParsing();
   }
 
   factory Excel.createExcel() {
@@ -82,12 +104,10 @@ abstract class Excel {
   }
 
   /**
-   * 
-   * 
+   *
    * Uses the [newSheet] as the name of the sheet and also adds it to the [ xl/worksheets/ ] directory
    * 
    * Creates the sheet with name `newSheet` as file output and then adds it to the archive directory.
-   * 
    * 
    */
   _createSheet(String newSheet) {
@@ -185,126 +205,14 @@ abstract class Excel {
                 '/xl/worksheets/sheet${sheetNumber + 1}.xml'),
           ],
         ));
-    _parseTable(_xmlFiles['xl/workbook.xml'].findAllElements('sheet').last);
-  }
-
-  // Reading the styles from the excel file.
-  _parseStyles(String _stylesTarget) {
-    var styles = _archive.findFile('xl/$_stylesTarget');
-    if (styles != null) {
-      styles.decompress();
-      var document = parse(utf8.decode(styles.content));
-      if (_xmlFiles != null) {
-        _xmlFiles['xl/$_stylesTarget'] = document;
-      }
-      _fontColorHex = List<String>();
-      _patternFill = List<String>();
-      _cellStyleList = List<CellStyle>();
-      int fontIndex = 0;
-      document
-          .findAllElements('font')
-          .first
-          .findElements('color')
-          .forEach((child) {
-        var colorHex = child.getAttribute('rgb');
-        if (colorHex != null && !_fontColorHex.contains(colorHex.toString())) {
-          _fontColorHex.add(colorHex.toString());
-          fontIndex = 1;
-        } else if (fontIndex == 0 && !_fontColorHex.contains("FF000000")) {
-          _fontColorHex.add("FF000000");
-        }
-      });
-      document.findAllElements('patternFill').forEach((node) {
-        String patternType = node.getAttribute('patternType').toString(), rgb;
-        if (node.children.isNotEmpty) {
-          node.findElements('fgColor').forEach((child) {
-            rgb = node.getAttribute('rgb').toString();
-            _patternFill.add(rgb);
-          });
-        } else {
-          _patternFill.add(patternType);
-        }
-      });
-
-      document.findAllElements('cellXfs').forEach((node1) {
-        node1.findAllElements('xf').forEach((node) {
-          _numFormats.add(_getFontIndex(node, 'numFmtId'));
-
-          String fontColor = "FF000000", backgroundColor = "none";
-          HorizontalAlign horizontalAlign = HorizontalAlign.Left;
-          VerticalAlign verticalAlign = VerticalAlign.Bottom;
-          TextWrapping textWrapping;
-          int fontId = _getFontIndex(node, 'fontId');
-          if (fontId < _fontColorHex.length) {
-            fontColor = _fontColorHex[fontId];
-          }
-
-          int fillId = _getFontIndex(node, 'fillId');
-          if (fillId < _patternFill.length) {
-            backgroundColor = _patternFill[fillId];
-          }
-
-          if (node.children.isNotEmpty) {
-            node.findElements('alignment').forEach((child) {
-              if (_getFontIndex(child, 'wrapText') == 1) {
-                textWrapping = TextWrapping.WrapText;
-              } else if (_getFontIndex(child, 'shrinkToFit') == 1) {
-                textWrapping = TextWrapping.Clip;
-              }
-
-              var vertical = node.getAttribute('vertical');
-              if (vertical != null) {
-                if (vertical.toString() == 'top') {
-                  verticalAlign = VerticalAlign.Top;
-                } else if (vertical.toString() == 'center') {
-                  verticalAlign = VerticalAlign.Center;
-                }
-              }
-
-              var horizontal = node.getAttribute('horizontal');
-              if (horizontal != null) {
-                if (horizontal.toString() == 'center') {
-                  horizontalAlign = HorizontalAlign.Center;
-                } else if (horizontal.toString() == 'right') {
-                  horizontalAlign = HorizontalAlign.Right;
-                }
-              }
-            });
-          }
-
-          CellStyle cellStyle = CellStyle(
-              fontColorHex: fontColor,
-              backgroundColorHex: backgroundColor,
-              horizontalAlign: horizontalAlign,
-              verticalAlign: verticalAlign,
-              textWrapping: textWrapping);
-
-          _cellStyleList.add(cellStyle);
-        });
-      });
-    } else {
-      _damagedExcel(text: 'styles');
-    }
-  }
-
-  int _getFontIndex(var node, String text) {
-    int applyFontInt = 0;
-    var applyFont = node.getAttribute(text);
-    if (applyFont != null) {
-      try {
-        applyFontInt = int.parse(applyFont.toString());
-      } catch (_) {}
-    }
-    return applyFontInt;
+    p._parseTable(_xmlFiles['xl/workbook.xml'].findAllElements('sheet').last);
   }
 
   /**
    * 
-   * 
    * It will return the SheetObject of `sheet`.
    * 
    * If the `sheet` does not exist then it will create `sheet` with `New Sheet Object`
-   * 
    * 
    */
   Sheet operator [](String sheet) {
@@ -319,11 +227,9 @@ abstract class Excel {
 
   /**
    * 
-   * 
    * Returns the `Map<String, Sheet>`
    * 
    * where `key` is the `Sheet Name` and the `value` is the `Sheet Object`
-   * 
    * 
    */
   Map<String, Sheet> get sheets {
@@ -332,9 +238,7 @@ abstract class Excel {
 
   /**
    * 
-   * 
    * If `sheet` does not exist then it will be automatically created with contents of `sheetObject`
-   * 
    * 
    */
   operator []=(String sheet, Sheet oldSheetObject) {
@@ -345,50 +249,16 @@ abstract class Excel {
     _sheetMap['$sheet'] = Sheet._clone(this, '$sheet', oldSheetObject);
   }
 
-  _createOrRemoveSheet() {
-    /// iterating `_sheets` and removing those sheets which does not exist inside `_sheetMap`
-    /*  _sheets.forEach((key, value) {
-      
-      
-    }); */
-  }
-
   /**
    * 
-   * 
-   * It will start setting the edited values of sheets and then exports the file.
-   * 
+   * It will start setting the edited values of `sheets` into the `files` and then `exports the file`.
    * 
    */
-  Future<List> encode() async {
-    if (!_update) {
-      throw ArgumentError("'update' should be set to 'true' on constructor");
-    }
-    _createOrRemoveSheet();
-
-    if (_colorChanges) {
-      _processStylesFile();
-    }
-    _setSheetElements();
-    _setSharedStrings();
-
-    if (_mergeChanges) {
-      _setMerge();
-    }
-
-    for (var xmlFile in _xmlFiles.keys) {
-      var xml = _xmlFiles[xmlFile].toString();
-      var content = utf8.encode(xml);
-      _archiveFiles[xmlFile] = ArchiveFile(xmlFile, content.length, content);
-    }
-    return ZipEncoder().encode(_cloneArchive(_archive));
-  }
+  Future<List> encode() async {}
 
   /**
    * 
-   * 
    * returns the name of the `defaultSheet` (the sheet which opens firstly when xlsx file is opened in `excel based software`).
-   * 
    * 
    */
   Future<String> getDefaultSheet() async {
@@ -430,449 +300,33 @@ abstract class Excel {
       return true;
     }
 
-    _xmlFiles['xl/workbook.xml']
-        .findAllElements('sheets')
-        .first
-        .children
-        .removeAt(position);
-
-    _xmlFiles['xl/workbook.xml']
-        .findAllElements('sheets')
-        .first
-        .children
-        .insert(0, elementFound);
+    _xmlFiles['xl/workbook.xml'].findAllElements('sheets').first.children
+      ..removeAt(position)
+      ..insert(0, elementFound);
 
     String expectedSheet = await getDefaultSheet();
 
     return expectedSheet == sheetName;
   }
 
-  Archive _cloneArchive(Archive archive) {
-    var clone = Archive();
-    archive.files.forEach((file) {
-      if (file.isFile) {
-        ArchiveFile copy;
-        if (_archiveFiles.containsKey(file.name)) {
-          copy = _archiveFiles[file.name];
-        } else {
-          var content = (file.content as Uint8List).toList();
-          var compress = !_noCompression.contains(file.name);
-          copy = ArchiveFile(file.name, content.length, content)
-            ..compress = compress;
-        }
-        clone.addFile(copy);
-      }
-    });
-    return clone;
-  }
-
-  _normalizeTable(DataTable table) {
-    if (table._maxRows == 0) {
-      table._rows.clear();
-    } else if (table._maxRows < table._rows.length) {
-      table._rows.removeRange(table._maxRows, table._rows.length);
-    }
-
-    for (var row = 0; row < table._rows.length; row++) {
-      if (table._maxCols == 0) {
-        table._rows[row].clear();
-      } else if (table._maxCols < table._rows[row].length) {
-        table._rows[row].removeRange(table._maxCols, table._rows[row].length);
-      } else if (table._maxCols > table._rows[row].length) {
-        var repeat = table._maxCols - table._rows[row].length;
-        for (var index = 0; index < repeat; index++) {
-          table._rows[row].add(null);
-        }
-      }
-    }
-  }
-
-  int _checkPosition(List<CellStyle> list, CellStyle cellStyle) {
-    for (int i = 0; i < list.length; i++) {
-      if (list[i] == cellStyle) {
-        return i;
-      }
-    }
-    return -1;
-  }
-
-  /// Writing Font Color in [xl/styles.xml] from the Cells of the sheets.
-
-  _processStylesFile() {
-    _innerCellStyle = List<CellStyle>();
-    List<String> innerPatternFill = List<String>(),
-        innerFontColor = List<String>();
-
-    _cellStyleOther.keys.toList().forEach((otherSheet) {
-      _cellStyleOther[otherSheet].forEach((String _, CellStyle cellStyleOther) {
-        int pos = _checkPosition(_innerCellStyle, cellStyleOther);
-        if (pos == -1) {
-          _innerCellStyle.add(cellStyleOther);
-        }
-      });
-    });
-
-    _innerCellStyle.forEach((cellStyle) {
-      String fontColor = cellStyle.getFontColorHex,
-          backgroundColor = cellStyle.getBackgroundColorHex;
-
-      if (!_fontColorHex.contains(fontColor) &&
-          !innerFontColor.contains(fontColor)) {
-        innerFontColor.add(fontColor);
-      }
-      if (!_patternFill.contains(backgroundColor) &&
-          !innerPatternFill.contains(backgroundColor)) {
-        innerPatternFill.add(backgroundColor);
-      }
-    });
-
-    XmlElement fonts =
-        _xmlFiles['xl/styles.xml'].findAllElements('fonts').first;
-
-    var fontAttribute = fonts.getAttributeNode('count');
-    if (fontAttribute != null) {
-      fontAttribute.value = '${_fontColorHex.length + innerFontColor.length}';
-    } else {
-      fonts.attributes.add(XmlAttribute(
-          XmlName('count'), '${_fontColorHex.length + innerFontColor.length}'));
-    }
-
-    innerFontColor.forEach((colorValue) =>
-        fonts.children.add(XmlElement(XmlName('font'), [], [
-          XmlElement(
-              XmlName('color'), [XmlAttribute(XmlName('rgb'), colorValue)], [])
-        ])));
-
-    XmlElement fills =
-        _xmlFiles['xl/styles.xml'].findAllElements('fills').first;
-
-    var fillAttribute = fills.getAttributeNode('count');
-
-    if (fillAttribute != null) {
-      fillAttribute.value = '${_patternFill.length + innerPatternFill.length}';
-    } else {
-      fills.attributes.add(XmlAttribute(XmlName('count'),
-          '${_patternFill.length + innerPatternFill.length}'));
-    }
-
-    innerPatternFill.forEach((color) {
-      if (color.length >= 2) {
-        if (color.substring(0, 2).toUpperCase() == 'FF') {
-          fills.children.add(XmlElement(XmlName('fill'), [], [
-            XmlElement(XmlName('patternFill'), [
-              XmlAttribute(XmlName('patternType'), 'solid')
-            ], [
-              XmlElement(XmlName('fgColor'),
-                  [XmlAttribute(XmlName('rgb'), color)], []),
-              XmlElement(
-                  XmlName('bgColor'), [XmlAttribute(XmlName('rgb'), color)], [])
-            ])
-          ]));
-        } else if (color == "none" ||
-            color == "gray125" ||
-            color == "lightGray") {
-          fills.children.add(XmlElement(XmlName('fill'), [], [
-            XmlElement(XmlName('patternFill'),
-                [XmlAttribute(XmlName('patternType'), color)], [])
-          ]));
-        }
-      } else {
-        _damagedExcel(text: "Corrupted Styles Found");
-      }
-    });
-
-    XmlElement celx =
-        _xmlFiles['xl/styles.xml'].findAllElements('cellXfs').first;
-    var cellAttribute = celx.getAttributeNode('count');
-
-    if (cellAttribute != null) {
-      cellAttribute.value = '${_cellStyleList.length + _innerCellStyle.length}';
-    } else {
-      celx.attributes.add(XmlAttribute(XmlName('count'),
-          '${_cellStyleList.length + _innerCellStyle.length}'));
-    }
-
-    _innerCellStyle.forEach((cellStyle) {
-      String backgroundColor = cellStyle.getBackgroundColorHex,
-          fontColor = cellStyle.getFontColorHex;
-
-      HorizontalAlign horizontalALign = cellStyle.getHorizontalAlignment;
-      VerticalAlign verticalAlign = cellStyle.getVericalAlignment;
-      TextWrapping textWrapping = cellStyle.getTextWrapping;
-      int backgroundIndex = innerPatternFill.indexOf(backgroundColor),
-          fontIndex = innerFontColor.indexOf(fontColor);
-
-      var attributes = <XmlAttribute>[
-        XmlAttribute(XmlName('borderId'), '0'),
-        XmlAttribute(XmlName('fillId'),
-            '${backgroundIndex == -1 ? 0 : backgroundIndex + _patternFill.length}'),
-        XmlAttribute(XmlName('fontId'),
-            '${fontIndex == -1 ? 0 : fontIndex + _fontColorHex.length}'),
-        XmlAttribute(XmlName('numFmtId'), '0'),
-        XmlAttribute(XmlName('xfId'), '0'),
-      ];
-
-      if ((_patternFill.contains(backgroundColor) ||
-              innerPatternFill.contains(backgroundColor)) &&
-          backgroundColor != "none" &&
-          backgroundColor != "gray125" &&
-          backgroundColor.toLowerCase() != "lightgray") {
-        attributes.add(XmlAttribute(XmlName('applyFill'), '1'));
-      }
-
-      if ((_fontColorHex.contains(fontColor) ||
-          innerFontColor.contains(fontColor))) {
-        attributes.add(XmlAttribute(XmlName('applyFont'), '1'));
-      }
-
-      var children = <XmlElement>[];
-
-      if (horizontalALign != HorizontalAlign.Left ||
-          textWrapping != null ||
-          verticalAlign != VerticalAlign.Bottom) {
-        attributes.add(XmlAttribute(XmlName('applyAlignment'), '1'));
-        var childAttributes = <XmlAttribute>[];
-
-        if (textWrapping != null) {
-          childAttributes.add(XmlAttribute(
-              XmlName(textWrapping == TextWrapping.Clip
-                  ? 'shrinkToFit'
-                  : 'wrapText'),
-              '1'));
-        }
-
-        if (verticalAlign != VerticalAlign.Bottom) {
-          String ver = verticalAlign == VerticalAlign.Top ? 'top' : 'center';
-          childAttributes.add(XmlAttribute(XmlName('vertical'), '$ver'));
-        }
-
-        if (horizontalALign != HorizontalAlign.Left) {
-          String hor =
-              horizontalALign == HorizontalAlign.Right ? 'right' : 'center';
-          childAttributes.add(XmlAttribute(XmlName('horizontal'), '$hor'));
-        }
-
-        children.add(XmlElement(XmlName('alignment'), childAttributes, []));
-      }
-
-      celx.children.add(XmlElement(XmlName('xf'), attributes, children));
-    });
-  }
-
-  /// Writing the value of excel cells into the separate
-  /// sharedStrings file so as to minimize the size of excel files.
-  _setSharedStrings() {
-    String count = _sharedStrings.length.toString();
-    List uniqueList = _sharedStrings.toSet().toList();
-    String uniqueCount = uniqueList.length.toString();
-
-    XmlElement shareString =
-        _xmlFiles['xl/$_sharedStringsTarget'].findAllElements('sst').first;
-
-    [
-      ['count', count],
-      ['uniqueCount', uniqueCount]
-    ].forEach((value) {
-      if (shareString.getAttributeNode(value[0]) == null) {
-        shareString.attributes.add(XmlAttribute(XmlName(value[0]), value[1]));
-      } else {
-        shareString.getAttributeNode(value[0]).value = value[1];
-      }
-    });
-
-    shareString.children.clear();
-
-    _sharedStrings.forEach((string) {
-      shareString.children.add(XmlElement(XmlName('si'), [], [
-        XmlElement(XmlName('t'), [], [XmlText(string)])
-      ]));
-    });
-  }
-
-  ///Self correct the spanning of rows and columns by checking their cross-sectional relationship between if exists.
-  _selfCorrectSpanMap() {
-    _mergeChangeLook.forEach((key) {
-      if (_isContain(_sheetMap['$key']) &&
-          _sheetMap['$key']._spanList != null &&
-          _sheetMap['$key']._spanList.isNotEmpty) {
-        List<_Span> spanList = List<_Span>.from(_sheetMap['$key']._spanList);
-
-        for (int i = 0; i < spanList.length; i++) {
-          if (spanList[i] != null) {
-            _Span checkerPos = spanList[i];
-            int startRow = checkerPos.rowSpanStart,
-                startColumn = checkerPos.columnSpanStart,
-                endRow = checkerPos.rowSpanEnd,
-                endColumn = checkerPos.columnSpanEnd;
-
-            for (int j = i + 1; j < spanList.length; j++) {
-              if (spanList[j] != null) {
-                _Span spanObj = spanList[j];
-
-                Map<String, List<int>> gotMap = _isLocationChangeRequired(
-                    startColumn, startRow, endColumn, endRow, spanObj);
-                List<int> gotPosition = gotMap["gotPosition"];
-                int changeValue = gotMap["changeValue"][0];
-
-                if (changeValue == 1) {
-                  startColumn = gotPosition[0];
-                  startRow = gotPosition[1];
-                  endColumn = gotPosition[2];
-                  endRow = gotPosition[3];
-                  spanList[j] = null;
-                } else {
-                  Map<String, List<int>> gotMap2 = _isLocationChangeRequired(
-                      spanObj.columnSpanStart,
-                      spanObj.rowSpanStart,
-                      spanObj.columnSpanEnd,
-                      spanObj.rowSpanEnd,
-                      checkerPos);
-                  List<int> gotPosition2 = gotMap2["gotPosition"];
-                  int changeValue2 = gotMap2["changeValue"][0];
-
-                  if (changeValue2 == 1) {
-                    startColumn = gotPosition2[0];
-                    startRow = gotPosition2[1];
-                    endColumn = gotPosition2[2];
-                    endRow = gotPosition2[3];
-                    spanList[j] = null;
-                  }
-                }
-              }
-            }
-            _Span spanObj1 = _Span();
-            spanObj1._start = [startRow, startColumn];
-            spanObj1._end = [endRow, endColumn];
-            spanList[i] = spanObj1;
-          }
-        }
-        _sheetMap['$key']._spanList = List<_Span>.from(spanList);
-        _sheetMap['$key']._cleanUpSpanMap();
-      }
-    });
-
-    _mergeChangeLook.forEach((key) {
-      if (_isContain(_sheetMap['$key'])) {
-        _sheetMap['$key'].spannedItems;
-      }
-    });
-  }
-
-  /// Writing the merged cells information into the excel properties files.
-  _setMerge() {
-    _selfCorrectSpanMap();
-    _mergeChangeLook.forEach((s) {
-      if (_isContain(_sheetMap['$s']) &&
-          _sheetMap['$s']._spanList != null &&
-          _sheetMap['$s']._spanList.isNotEmpty &&
-          _xmlSheetId.containsKey(s) &&
-          _xmlFiles.containsKey(_xmlSheetId[s])) {
-        Iterable<XmlElement> iterMergeElement =
-            _xmlFiles[_xmlSheetId[s]].findAllElements('mergeCells');
-        XmlElement mergeElement;
-        if (iterMergeElement.isNotEmpty) {
-          mergeElement = iterMergeElement.first;
-        } else {
-          if (_xmlFiles[_xmlSheetId[s]].findAllElements('worksheet').length >
-              0) {
-            int index = _xmlFiles[_xmlSheetId[s]]
-                .findAllElements('worksheet')
-                .first
-                .children
-                .indexOf(_xmlFiles[_xmlSheetId[s]]
-                    .findAllElements("sheetData")
-                    .first);
-            if (index == -1) {
-              _damagedExcel();
-            }
-            _xmlFiles[_xmlSheetId[s]]
-                .findAllElements('worksheet')
-                .first
-                .children
-                .insert(
-                    index + 1,
-                    XmlElement(XmlName('mergeCells'),
-                        [XmlAttribute(XmlName('count'), '0')]));
-
-            mergeElement =
-                _xmlFiles[_xmlSheetId[s]].findAllElements('mergeCells').first;
-          } else {
-            _damagedExcel();
-          }
-        }
-
-        List<String> _spannedItems =
-            List<String>.from(_sheetMap['$s'].spannedItems);
-
-        [
-          ['count', _spannedItems.length.toString()],
-        ].forEach((value) {
-          if (mergeElement.getAttributeNode(value[0]) == null) {
-            mergeElement.attributes
-                .add(XmlAttribute(XmlName(value[0]), value[1]));
-          } else {
-            mergeElement.getAttributeNode(value[0]).value = value[1];
-          }
-        });
-
-        mergeElement.children.clear();
-
-        _spannedItems.forEach((value) {
-          mergeElement.children.add(XmlElement(XmlName('mergeCell'),
-              [XmlAttribute(XmlName('ref'), '$value')], []));
-        });
-      }
-    });
-  }
-
-  /// Writing cell contained text into the excel sheet files.
-  _setSheetElements() {
-    _sharedStrings = List<String>();
-    _tables.forEach((sheet, table) {
-      // clear the previous contents of the sheet if it exists in order to reduce the time to find and compare with the sheet rows
-      // and hence just do the work of putting the data only i.e. creating new rows
-      _sheets[sheet].children.clear();
-      /** Above function is important in order to wipe out the old contents of the sheet. */
-
-      for (int rowIndex = 0; rowIndex < table.rows.length; rowIndex++) {
-        for (int columnIndex = 0;
-            columnIndex < table.rows[rowIndex].length;
-            columnIndex++) {
-          if (table.rows[rowIndex][columnIndex] != null) {
-            var foundRow = _findRowByIndex(_sheets[sheet], rowIndex);
-            _updateCell(sheet, foundRow, columnIndex, rowIndex,
-                table.rows[rowIndex][columnIndex]);
-          }
-        }
-      }
-    });
-  }
-
   /**
    * 
-   * 
    * Check whether `_update` is set to true or not
-   * 
    * 
    */
   _checkSheetArguments() {
     if (!_update) {
       throw ArgumentError("'update' should be set to 'true' on constructor");
     }
-    /* if (!_sheets.containsKey(sheet)) {
-      _createSheet(sheet);
-    } */
   }
 
   /**
-   * 
    * 
    * Inserts an empty `column` in sheet at position = `columnIndex`.
    * 
    * If `columnIndex == null` or `columnIndex < 0` if will not execute 
    * 
    * If the `sheet` does not exists then it will be created automatically.
-   * 
    * 
    */
   void insertColumn(String sheet, int columnIndex) {
@@ -885,9 +339,7 @@ abstract class Excel {
 
   /**
    * 
-   * 
    * If `sheet` exists and `columnIndex < maxColumns` then it removes column at index = `columnIndex`
-   * 
    * 
    */
   void removeColumn(String sheet, int columnIndex) {
@@ -900,13 +352,11 @@ abstract class Excel {
 
   /**
    * 
-   * 
    * Inserts an empty row in `sheet` at position = `rowIndex`.
    * 
    * If `rowIndex == null` or `rowIndex < 0` if will not execute 
    * 
    * If the `sheet` does not exists then it will be created automatically.
-   * 
    * 
    */
   void insertRow(String sheet, int rowIndex) {
@@ -919,9 +369,7 @@ abstract class Excel {
 
   /**
    * 
-   * 
    * If `sheet` exists and `rowIndex < maxRows` then it removes row at index = `rowIndex`
-   * 
    * 
    */
   void removeRow(String sheet, int rowIndex) {
@@ -932,11 +380,9 @@ abstract class Excel {
 
   /**
    * 
-   * 
    * Appends [row] iterables just post the last filled index in the [sheet]
    * 
    * If `sheet` does not exist then it will be automatically created.
-   * 
    * 
    */
   void appendRow(String sheet, List<dynamic> row) {
@@ -951,7 +397,6 @@ abstract class Excel {
 
   /**
    * 
-   * 
    * If `sheet` does not exist then it will be automatically created.
    * 
    * Adds the [row] iterables in the given rowIndex = [rowIndex] in [sheet]
@@ -961,7 +406,6 @@ abstract class Excel {
    * [overwriteMergedCells] when set to [true] will over-write mergedCell and does not jumps to next unqiue cell.
    * 
    * [overwriteMergedCells] when set to [false] puts the cell value to next unique cell available by putting the value in merged cells only once and jumps to next unique cell.
-   * 
    * 
    */
   void insertRowIterables(String sheet, List<dynamic> row, int rowIndex,
@@ -976,7 +420,6 @@ abstract class Excel {
   }
 
   /**
-   * 
    * 
    * Returns the `count` of replaced `source` with `target`
    *
@@ -997,7 +440,6 @@ abstract class Excel {
    *
    * Other `options` are used to `narrow down` the `starting and ending ranges of cells`.
    * 
-   * 
    */
   int findAndReplace(String sheet, dynamic source, dynamic target,
       {int first = -1,
@@ -1012,9 +454,7 @@ abstract class Excel {
 
   /**
    * 
-   * 
    * Make `sheet` available if it does not exist in `_sheetMap`
-   * 
    * 
    */
   _availSheet(String sheet) {
@@ -1029,7 +469,6 @@ abstract class Excel {
 
   /**
    * 
-   * 
    * Updates the contents of `sheet` of the `cellIndex: CellIndex.indexByColumnRow(0, 0);` where indexing starts from 0
    * 
    * ----or---- by `cellIndex: CellIndex.indexByString("A3");`.
@@ -1037,7 +476,6 @@ abstract class Excel {
    * Styling of cell can be done by passing the CellStyle object to `cellStyle`.
    * 
    * If `sheet` does not exist then it will be automatically created.
-   * 
    * 
    */
   void updateCell(String sheet, CellIndex cellIndex, dynamic value,
@@ -1057,13 +495,11 @@ abstract class Excel {
 
   /**
    * 
-   * 
    * Merges the cells starting from `start` to `end`.
    * 
    * If `custom value` is not defined then it will look for the very first available value in range `start` to `end` by searching row-wise from left to right.
    * 
    * If `sheet` does not exist then it will be automatically created.
-   * 
    * 
    */
   void merge(String sheet, CellIndex start, CellIndex end,
@@ -1084,7 +520,6 @@ abstract class Excel {
 
   /**
    * 
-   * 
    * unMerge the merged cells.
    * 
    *        var sheet = 'DesiredSheet';
@@ -1092,364 +527,17 @@ abstract class Excel {
    *        var cellToUnMerge = "A1:A2";
    *        excel.unMerge(sheet, cellToUnMerge);
    * 
-   * 
    */
   unMerge(String sheet, String unmergeCells) {
-    if (_spannedItems != null &&
-        _spannedItems.containsKey(sheet) &&
-        _spanMap != null &&
-        _spanMap.containsKey(sheet) &&
-        unmergeCells != null &&
-        _spannedItems[sheet].contains(unmergeCells)) {
-      List<String> lis = unmergeCells.split(RegExp(r":"));
-      if (lis.length == 2) {
-        bool remove = false;
-        List<int> start, end;
-        start =
-            _cellCoordsFromCellId(lis[0]); // [x,y] => [startRow, startColumn]
-        end = _cellCoordsFromCellId(lis[1]); // [x,y] => [endRow, endColumn]
-        for (int i = 0; i < _spanMap[sheet].length; i++) {
-          _Span spanObject = _spanMap[sheet][i];
-
-          if (spanObject.columnSpanStart == start[1] &&
-              spanObject.rowSpanStart == start[0] &&
-              spanObject.columnSpanEnd == end[1] &&
-              spanObject.rowSpanEnd == end[0]) {
-            _spanMap[sheet][i] = null;
-            remove = true;
-          }
-        }
-        if (remove) {
-          _cleanUpSpanMap(sheet);
-        }
-      }
-      _spannedItems[sheet].remove(unmergeCells);
-      _mergeChangeLookup = sheet;
+    _checkSheetArguments();
+    if (_isContain(_sheetMap['$sheet'])) {
+      _sheetMap['$sheet'].unMerge(unmergeCells);
     }
-  }
-
-  bool _isEmptyRow(List row) {
-    return row.fold(true, (value, element) => value && (element == null));
-  }
-
-  bool _isNotEmptyRow(List row) {
-    return !_isEmptyRow(row);
   }
 
   set _mergeChangeLookup(String value) {
     if (!_mergeChangeLook.contains(value)) {
       _mergeChangeLook.add(value);
     }
-  }
-
-  _countFilledRow(DataTable table, List row) {
-    if (_isNotEmptyRow(row) && table._maxRows < table._rows.length) {
-      table._maxRows = table._rows.length;
-    }
-  }
-
-  _countFilledColumn(DataTable table, List row, dynamic value) {
-    if (value != null && table._maxCols < row.length) {
-      table._maxCols = row.length;
-    }
-  }
-
-  _parseTable(XmlElement node) {
-    var name = node.getAttribute('name');
-    var target = _worksheetTargets[node.getAttribute('r:id')];
-
-    tables[name] = DataTable(name);
-    var table = tables[name];
-
-    var file = _archive.findFile('xl/$target');
-    file.decompress();
-
-    var content = parse(utf8.decode(file.content));
-    var worksheet = content.findElements('worksheet').first;
-    var sheet = worksheet.findElements('sheetData').first;
-
-    _findRows(sheet).forEach((child) {
-      _parseRow(child, table, name);
-    });
-
-    if (_update) {
-      _sheets[name] = sheet;
-      _xmlFiles['xl/$target'] = content;
-    }
-    _xmlSheetId[name] = 'xl/$target';
-
-    _normalizeTable(table);
-  }
-
-  _parseRow(XmlElement node, DataTable table, String name) {
-    var row = List();
-
-    _findCells(node).forEach((child) {
-      _parseCell(child, table, row, name);
-    });
-
-    var rowIndex = _getRowNumber(node) - 1;
-    if (_isNotEmptyRow(row) && rowIndex > table._rows.length) {
-      var repeat = rowIndex - table._rows.length;
-      for (var index = 0; index < repeat; index++) {
-        table._rows.add(List());
-      }
-    }
-
-    if (_isNotEmptyRow(row)) {
-      table._rows.add(row);
-    } else {
-      table._rows.add(List());
-    }
-
-    _countFilledRow(table, row);
-  }
-
-  _parseCell(XmlElement node, DataTable table, List row, String name) {
-    var colIndex = _getCellNumber(node);
-    if (colIndex > row.length) {
-      var repeat = colIndex - row.length;
-      for (var index = 0; index < repeat; index++) {
-        row.add(null);
-      }
-    }
-
-    var s1 = node.getAttribute('s');
-    int s = 0;
-    if (s1 != null) {
-      try {
-        s = int.parse(s1.toString());
-      } catch (_) {}
-
-      String rC = node.getAttribute('r').toString();
-
-      if (_cellStyleReferenced.containsKey(name)) {
-        _cellStyleReferenced[name][rC] = s;
-      } else {
-        _cellStyleReferenced[name] = {rC: s};
-      }
-    }
-
-    if (node.children.isEmpty) {
-      return;
-    }
-
-    var value, type = node.getAttribute('t');
-
-    switch (type) {
-      // sharedString
-      case 's':
-        value = _sharedStrings[
-            int.parse(_parseValue(node.findElements('v').first))];
-        break;
-      // boolean
-      case 'b':
-        value = _parseValue(node.findElements('v').first) == '1';
-        break;
-      // error
-      case 'e':
-      // formula
-      case 'str':
-        value = _parseValue(node.findElements('v').first);
-        break;
-      // inline string
-      case 'inlineStr':
-        // <c r='B2' t='inlineStr'>
-        // <is><t>Dartonico</t></is>
-        // </c>
-        value = _parseValue(node.findAllElements('t').first);
-        break;
-      // number
-      case 'n':
-      default:
-        var valueNode = node.findElements('v');
-        var content = valueNode.first;
-        if (s1 != null) {
-          var fmtId = _numFormats[s];
-          // date
-          if (((fmtId >= 14) && (fmtId <= 17)) || (fmtId == 22)) {
-            var delta = num.parse(_parseValue(content)) * 24 * 3600 * 1000;
-            var date = DateTime(1899, 12, 30);
-            value = date
-                .add(Duration(milliseconds: delta.toInt()))
-                .toIso8601String();
-            // time
-          } else if (((fmtId >= 18) && (fmtId <= 21)) ||
-              ((fmtId >= 45) && (fmtId <= 47))) {
-            var delta = num.parse(_parseValue(content)) * 24 * 3600 * 1000;
-            var date = DateTime(0);
-            date = date.add(Duration(milliseconds: delta.toInt()));
-            value =
-                '${_twoDigits(date.hour)}:${_twoDigits(date.minute)}:${_twoDigits(date.second)}';
-            // number
-          } else {
-            value = num.parse(_parseValue(content));
-          }
-        } else {
-          value = num.parse(_parseValue(content));
-        }
-    }
-    row.add(value);
-    if (!_sharedStrings.contains('$value')) {
-      _sharedStrings.add('$value');
-    }
-
-    _countFilledColumn(table, row, value);
-  }
-
-  _parseValue(XmlElement node) {
-    var buffer = StringBuffer();
-
-    node.children.forEach((child) {
-      if (child is XmlText) {
-        buffer.write(_normalizeNewLine(child.text));
-      }
-    });
-
-    return buffer.toString();
-  }
-
-  Iterable<XmlElement> _findRows(XmlElement table) {
-    return table.findElements('row');
-  }
-
-  Iterable<XmlElement> _findCells(XmlElement row) {
-    return row.findElements('c');
-  }
-
-  int _getCellNumber(XmlElement cell) {
-    return _cellCoordsFromCellId(cell.getAttribute('r'))[1];
-  }
-
-  int _getRowNumber(XmlElement row) {
-    return int.parse(row.getAttribute('r'));
-  }
-
-  XmlElement _findRowByIndex(XmlElement table, int rowIndex) {
-    XmlElement row;
-    var rows = _findRows(table);
-
-    var currentIndex = 0;
-    for (var currentRow in rows) {
-      currentIndex = _getRowNumber(currentRow) - 1;
-      if (currentIndex >= rowIndex) {
-        row = currentRow;
-        break;
-      }
-    }
-
-    // Create row if required
-    if (row == null || currentIndex != rowIndex) {
-      row = __insertRow(table, row, rowIndex);
-    }
-
-    return row;
-  }
-
-  XmlElement _updateCell(String sheet, XmlElement node, int columnIndex,
-      int rowIndex, dynamic value) {
-    XmlElement cell;
-    var cells = _findCells(node);
-
-    var currentIndex = 0; // cells could be empty
-    for (var currentCell in cells) {
-      currentIndex = _getCellNumber(currentCell);
-      if (currentIndex >= columnIndex) {
-        cell = currentCell;
-        break;
-      }
-    }
-
-    if (cell == null || currentIndex != columnIndex) {
-      cell = _insertCell(sheet, node, cell, columnIndex, rowIndex, value);
-    } else {
-      cell = _replaceCell(sheet, node, cell, columnIndex, rowIndex, value);
-    }
-
-    return cell;
-  }
-
-  XmlElement _createRow(int rowIndex) => XmlElement(XmlName('row'),
-      [XmlAttribute(XmlName('r'), (rowIndex + 1).toString())], []);
-
-  XmlElement __insertRow(XmlElement table, XmlElement lastRow, int rowIndex) {
-    var row = _createRow(rowIndex);
-    if (lastRow == null) {
-      table.children.add(row);
-    } else {
-      var index = table.children.indexOf(lastRow);
-      table.children.insert(index, row);
-    }
-    return row;
-  }
-
-  XmlElement _insertCell(String sheet, XmlElement row, XmlElement lastCell,
-      int columnIndex, int rowIndex, dynamic value) {
-    var cell = _createCell(sheet, columnIndex, rowIndex, value);
-    if (lastCell == null) {
-      row.children.add(cell);
-    } else {
-      var index = row.children.indexOf(lastCell);
-      row.children.insert(index, cell);
-    }
-    return cell;
-  }
-
-  XmlElement _replaceCell(String sheet, XmlElement row, XmlElement lastCell,
-      int columnIndex, int rowIndex, dynamic value) {
-    var index = lastCell == null ? 0 : row.children.indexOf(lastCell);
-    var cell = _createCell(sheet, columnIndex, rowIndex, value);
-    row.children
-      ..removeAt(index)
-      ..insert(index, cell);
-    return cell;
-  }
-
-  // Manage value's type
-  XmlElement _createCell(
-      String sheet, int columnIndex, int rowIndex, dynamic value) {
-    if (!_sharedStrings.contains(value.toString())) {
-      _sharedStrings.add(value.toString());
-    }
-
-    String rC = getCellId(columnIndex, rowIndex);
-
-    var attributes = <XmlAttribute>[
-      XmlAttribute(XmlName('r'), rC),
-      XmlAttribute(XmlName('t'), 's'),
-    ];
-
-    if (_colorChanges &&
-        _cellStyleOther.containsKey(sheet) &&
-        _cellStyleOther[sheet].containsKey(rC)) {
-      CellStyle cellStyle = _cellStyleOther[sheet][rC];
-      int upperLevelPos = _checkPosition(_cellStyleList, cellStyle);
-      if (upperLevelPos == -1) {
-        int lowerLevelPos = _checkPosition(_innerCellStyle, cellStyle);
-        if (lowerLevelPos != -1) {
-          upperLevelPos = lowerLevelPos + _cellStyleList.length;
-        } else {
-          upperLevelPos = 0;
-        }
-      }
-      attributes.insert(
-        1,
-        XmlAttribute(XmlName('s'), '$upperLevelPos'),
-      );
-    } else if (_colorChanges &&
-        _cellStyleReferenced.containsKey(sheet) &&
-        _cellStyleReferenced[sheet].containsKey(rC)) {
-      attributes.insert(
-        1,
-        XmlAttribute(XmlName('s'), '${_cellStyleReferenced[sheet][rC]}'),
-      );
-    }
-    var children = value == null
-        ? <XmlElement>[]
-        : <XmlElement>[
-            XmlElement(XmlName('v'), [],
-                [XmlText(_sharedStrings.indexOf(value.toString()).toString())]),
-          ];
-    return XmlElement(XmlName('c'), attributes, children);
   }
 }

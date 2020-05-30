@@ -363,7 +363,7 @@ class Sheet {
       _excel._mergeChangeLookup = this.sheetName;
     }
 
-    if (_isContain(this._sheetData) && this._sheetData.isNotEmpty) {
+    if (this._sheetData.isNotEmpty) {
       Map<int, Map<int, Data>> _data = Map<int, Map<int, Data>>();
       if (rowIndex <= this.maxRows - 1) {
         /// do the shifting task
@@ -389,7 +389,17 @@ class Sheet {
     }
   }
 
-  /// insert Row at index = [rowIndex]
+  /**
+   * 
+   * 
+   * Inserts an empty row in `sheet` at position = `rowIndex`.
+   * 
+   * If `rowIndex == null` or `rowIndex < 0` if will not execute 
+   * 
+   * If the `sheet` does not exists then it will be created automatically.
+   * 
+   * 
+   */
   insertRow(int rowIndex) {
     if (rowIndex < 0) {
       return;
@@ -481,6 +491,7 @@ class Sheet {
     /// Puts the cellStyle
     if (cellStyle != null) {
       this._sheetData[newRowIndex][newColumnIndex]._cellStyle = cellStyle;
+      _excel._colorChanges = true;
     }
 
     /// Sets value of `isFormula` to true if this is `instance of Formula`.
@@ -566,8 +577,57 @@ class Sheet {
     _excel._mergeChangeLookup = this.sheetName;
   }
 
-  /// Helps to find the interaction between the pre-existing span position
-  /// and updates if with new span if there any interaction(Cross-Sectional Spanning) exists.
+  /**
+   * 
+   * 
+   * unMerge the merged cells.
+   * 
+   *        var sheet = 'DesiredSheet';
+   *        List<String> spannedCells = excel.getMergedCells(sheet);
+   *        var cellToUnMerge = "A1:A2";
+   *        excel.unMerge(sheet, cellToUnMerge);
+   * 
+   * 
+   */
+  unMerge(String unmergeCells) {
+    if (unmergeCells != null &&
+        _spannedItems.isNotEmpty &&
+        _spanList.isNotEmpty &&
+        _spannedItems.contains(unmergeCells)) {
+      List<String> lis = unmergeCells.split(RegExp(r":"));
+      if (lis.length == 2) {
+        bool remove = false;
+        List<int> start, end;
+        start =
+            _cellCoordsFromCellId(lis[0]); // [x,y] => [startRow, startColumn]
+        end = _cellCoordsFromCellId(lis[1]); // [x,y] => [endRow, endColumn]
+        for (int i = 0; i < _spanList.length; i++) {
+          _Span spanObject = _spanList[i];
+
+          if (spanObject.columnSpanStart == start[1] &&
+              spanObject.rowSpanStart == start[0] &&
+              spanObject.columnSpanEnd == end[1] &&
+              spanObject.rowSpanEnd == end[0]) {
+            _spanList[i] = null;
+            remove = true;
+          }
+        }
+        if (remove) {
+          _cleanUpSpanMap();
+        }
+      }
+      _spannedItems.remove(unmergeCells);
+      _excel._mergeChangeLookup = this.sheetName;
+    }
+  }
+
+  /**
+   * 
+   * 
+   * Helps to find the interaction between the pre-existing span position and updates if with new span if there any interaction(Cross-Sectional Spanning) exists.
+   * 
+   * 
+   */
   List<int> _getSpanPosition(CellIndex start, CellIndex end) {
     int startColumn = start._columnIndex,
         startRow = start._rowIndex,
@@ -697,7 +757,7 @@ class Sheet {
       }
     } else {
       // expensive function as per time complexity
-      _excel._selfCorrectSpanMap();
+      _selfCorrectSpanMap(_excel);
       List<_Span> _spanObjectsList = _getSpannedObjects(rowIndex, columnIndex);
 
       if (_spanObjectsList == null || _spanObjectsList.length <= 0) {
@@ -730,6 +790,7 @@ class Sheet {
       };
     }
     this._sheetData[rowIndex][columnIndex].value = value;
+    _countRowAndCol();
   }
 
   /// Returns the [count] of replaced [source] with [target]
@@ -979,28 +1040,3 @@ class Sheet {
    */
   int get maxCols => this._maxCols;
 }
-/* 
-/// Table of a excel file
-class DataTable {
-  final String name;
-  DataTable(this.name);
-
-  int _maxRows = 0, _maxCols = 0;
-
-
-
-
-  /// Get max cols
-  int get maxCols => _maxCols;
-}
- */
-
-/* 
-  /// change sheetName
-  set sheetName(String newSheetName) {
-    if(_isContain(this._excel._sheetMap) && _isContain(this._excel._sheetMap[])){
-
-    }
-    
-    this._sheet = newSheetName;
-  } */
