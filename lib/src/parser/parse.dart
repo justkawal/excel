@@ -363,6 +363,7 @@ class Parse {
     });
 
     _excel._sheets[name] = sheet;
+    
     _excel._xmlFiles['xl/$target'] = content;
     _excel._xmlSheetId[name] = 'xl/$target';
 
@@ -602,7 +603,7 @@ class Parse {
                 '/xl/worksheets/sheet${sheetNumber + 1}.xml'),
           ],
         ));
-    /* _parseTable(
-        _excel._xmlFiles['xl/workbook.xml'].findAllElements('sheet').last); */
+    _parseTable(
+        _excel._xmlFiles['xl/workbook.xml'].findAllElements('sheet').last);
   }
 }

@@ -81,12 +81,7 @@ class Excel {
    * 
    */
   Sheet operator [](String sheet) {
-    if (!_isContain(_sheetMap)) {
-      _sheetMap = Map<String, Sheet>();
-    }
-    if (!_isContain(_sheetMap['$sheet'])) {
-      _sheetMap['$sheet'] = Sheet._(this, '$sheet');
-    }
+    _availSheet(sheet);
     return _sheetMap['$sheet'];
   }
 
@@ -314,7 +309,7 @@ class Excel {
    * 
    */
   _availSheet(String sheet) {
-    if (!_isContain('$sheet')) {
+    if (!_isContain(_sheets['$sheet'])) {
       parser._createSheet('$sheet');
     }
     if (_sheetMap == null) {

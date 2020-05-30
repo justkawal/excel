@@ -3,8 +3,8 @@ import 'package:path/path.dart';
 import 'package:excel/excel.dart';
 
 void main(List<String> args) {
-  var file = "/Users/kawal/Desktop/excel2.xlsx";
-  var bytes = File(file).readAsBytesSync();
+  //var file = "/Users/kawal/Desktop/excel2.xlsx";
+  //var bytes = File(file).readAsBytesSync();
   var excel = Excel.createExcel();
   // or
   //var excel = Excel.decodeBytes(bytes, update: true);
@@ -19,7 +19,7 @@ void main(List<String> args) {
 
   var sheet = excel['mySheet'];
 
-  /// copies the contents of 
+  /// copies the contents of
   excel['copiedInto'] = sheet;
 
   /// List of rows.

@@ -42,10 +42,11 @@ class Sheet {
     this._spannedItems = spanI_ ?? List<String>();
     this._maxCols = maxC_ ?? 0;
     this._maxRows = maxR_ ?? 0;
-    this._sheetData = sh ?? Map<int, Map<int, Data>>.from(sh);
+    this._sheetData = Map<int, Map<int, Data>>();
 
     /// copy the data objects into a temp folder and then while putting it into `this._sheetData` change the data objects references.
     if (sh != null) {
+      this._sheetData = Map<int, Map<int, Data>>.from(sh);
       Map<int, Map<int, Data>> temp = Map<int, Map<int, Data>>.from(sh);
       temp.forEach((key, value) {
         this._sheetData[key].forEach((key1, oldDataObject) {
