@@ -13,15 +13,16 @@ String getCellId(int colI, int rowI) =>
     '${_numericToLetters(colI + 1)}${rowI + 1}';
 
 String _isColorAppropriate(String value) {
-  String hex;
+  String hex = value;
+  if (value.length == 7) {
+    return value.replaceAll(RegExp(r'#'), 'FF').toString();
+  }
   if (value.length == 8) {
     return value;
   }
-  if (value.length != 7) {
-    throw ArgumentError(
-        "InAppropriate Color provided. Use colorHex as example of: #FF0000");
+  if (value.length == 9) {
+    return value.replaceAll(RegExp(r'#'), '').toString();
   }
-  hex = value.replaceAll(RegExp(r'#'), 'FF').toString();
   return hex;
 }
 
@@ -41,14 +42,14 @@ int lettersToNumeric(String letters) {
   }
   return sum;
 }
-
+/* 
 bool _isEmptyRow(List row) {
   return row.fold(true, (value, element) => value && (element == null));
 }
 
 bool _isNotEmptyRow(List row) {
   return !_isEmptyRow(row);
-}
+} */
 
 Iterable<XmlElement> _findRows(XmlElement table) {
   return table.findElements('row');

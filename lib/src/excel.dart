@@ -36,7 +36,6 @@ class Excel {
   Parse parser;
 
   Excel._(Archive archive) {
-    print("Excel Constructor called");
     this._archive = archive;
     _colorChanges = false;
     _mergeChanges = false;
@@ -75,9 +74,25 @@ class Excel {
 
   /**
    * 
+   * 
+   * It will return `tables` as map in order to mimic the previous versions reading the data.
+   * 
+   * 
+   */
+  Map<String, Sheet> get tables {
+    if (this._sheetMap == null) {
+      _damagedExcel(text: "Corrupted file.");
+    }
+    return Map<String, Sheet>.from(this._sheetMap);
+  }
+
+  /**
+   * 
+   * 
    * It will return the SheetObject of `sheet`.
    * 
    * If the `sheet` does not exist then it will create `sheet` with `New Sheet Object`
+   * 
    * 
    */
   Sheet operator [](String sheet) {
@@ -87,9 +102,11 @@ class Excel {
 
   /**
    * 
+   * 
    * Returns the `Map<String, Sheet>`
    * 
    * where `key` is the `Sheet Name` and the `value` is the `Sheet Object`
+   * 
    * 
    */
   Map<String, Sheet> get sheets {
@@ -98,13 +115,70 @@ class Excel {
 
   /**
    * 
+   * 
    * If `sheet` does not exist then it will be automatically created with contents of `sheetObject`
+   * 
    * 
    */
   operator []=(String sheet, Sheet oldSheetObject) {
     _availSheet(sheet);
 
     _sheetMap['$sheet'] = Sheet._clone(this, '$sheet', oldSheetObject);
+  }
+
+  /**
+   * 
+   * 
+   * If `existingSheetName` exist then `sheetName` will be linked with `existingSheetName's` object.
+   * 
+   * Important Note: After linkage the operations performed on `sheetName`, will also get performed on `existingSheetName` and `vica-versa`.
+   * 
+   * If `existingSheetName` does not exist then no-linkage will be performed;
+   * 
+   * 
+   */
+  void link(String sheetName, Sheet existingSheetName) {
+    if (_isContain(_sheetMap[existingSheetName])) {
+      _availSheet(sheetName);
+
+      _sheetMap['$sheetName'] = _sheetMap[existingSheetName];
+    }
+  }
+
+  /**
+   * 
+   * If `sheet` exist then it will be `deleted`.
+   * 
+   */
+  void delete(String sheet) {
+    ///
+    /// remove the sheet `name` or `key` from the below locations if they exist.
+
+    ///
+    /// remove the `Sheet Object` from `_sheetMap`.
+    if (_isContain(_sheetMap[sheet])) {
+      _sheetMap.remove(sheet);
+    }
+
+    ///
+    /// remove from `_mergeChageLook`.
+    if (_mergeChangeLook.contains(sheet)) {
+      _mergeChangeLook.remove(sheet);
+    }
+
+    ///
+    /// remove from `_xmlSheetId` and set the flag `_rIdCheck` to true in order to re-process the _rIds and serialize them.
+    if (_isContain(_xmlSheetId[sheet])) {
+      _xmlSheetId.remove(sheet);
+
+      /// _rIdCheck = true;
+    }
+
+    ///
+    /// remove from key = `sheet` from `_sheets`
+    if (_isContain(_sheets[sheet])) {
+      _sheets.remove(sheet);
+    }
   }
 
   /**
@@ -138,7 +212,13 @@ class Excel {
     return null;
   }
 
-  /// It returns to true if the passed sheetName is set to default sheet otherwise returns false
+  /**
+   * 
+   * 
+   * It returns `true` if the passed `sheetName` is successfully set to `default opening sheet` otherwise returns `false`.
+   * 
+   * 
+   */
   Future<bool> setDefaultSheet(String sheetName) async {
     int position = -1;
     List<XmlElement> sheetList =
@@ -172,11 +252,13 @@ class Excel {
 
   /**
    * 
+   * 
    * Inserts an empty `column` in sheet at position = `columnIndex`.
    * 
    * If `columnIndex == null` or `columnIndex < 0` if will not execute 
    * 
    * If the `sheet` does not exists then it will be created automatically.
+   * 
    * 
    */
   void insertColumn(String sheet, int columnIndex) {
@@ -189,7 +271,9 @@ class Excel {
 
   /**
    * 
+   * 
    * If `sheet` exists and `columnIndex < maxColumns` then it removes column at index = `columnIndex`
+   * 
    * 
    */
   void removeColumn(String sheet, int columnIndex) {
@@ -202,11 +286,13 @@ class Excel {
 
   /**
    * 
+   * 
    * Inserts an empty row in `sheet` at position = `rowIndex`.
    * 
    * If `rowIndex == null` or `rowIndex < 0` if will not execute 
    * 
    * If the `sheet` does not exists then it will be created automatically.
+   * 
    * 
    */
   void insertRow(String sheet, int rowIndex) {
@@ -219,7 +305,9 @@ class Excel {
 
   /**
    * 
+   * 
    * If `sheet` exists and `rowIndex < maxRows` then it removes row at index = `rowIndex`
+   * 
    * 
    */
   void removeRow(String sheet, int rowIndex) {
@@ -230,9 +318,11 @@ class Excel {
 
   /**
    * 
+   * 
    * Appends [row] iterables just post the last filled index in the [sheet]
    * 
    * If `sheet` does not exist then it will be automatically created.
+   * 
    * 
    */
   void appendRow(String sheet, List<dynamic> row) {
@@ -246,6 +336,7 @@ class Excel {
 
   /**
    * 
+   * 
    * If `sheet` does not exist then it will be automatically created.
    * 
    * Adds the [row] iterables in the given rowIndex = [rowIndex] in [sheet]
@@ -255,6 +346,7 @@ class Excel {
    * [overwriteMergedCells] when set to [true] will over-write mergedCell and does not jumps to next unqiue cell.
    * 
    * [overwriteMergedCells] when set to [false] puts the cell value to next unique cell available by putting the value in merged cells only once and jumps to next unique cell.
+   * 
    * 
    */
   void insertRowIterables(String sheet, List<dynamic> row, int rowIndex,
@@ -269,6 +361,7 @@ class Excel {
   }
 
   /**
+   * 
    * 
    * Returns the `count` of replaced `source` with `target`
    *
@@ -289,6 +382,7 @@ class Excel {
    *
    * Other `options` are used to `narrow down` the `starting and ending ranges of cells`.
    * 
+   * 
    */
   int findAndReplace(String sheet, dynamic source, dynamic target,
       {int first = -1,
@@ -303,7 +397,9 @@ class Excel {
 
   /**
    * 
+   * 
    * Make `sheet` available if it does not exist in `_sheetMap`
+   * 
    * 
    */
   _availSheet(String sheet) {
@@ -320,6 +416,7 @@ class Excel {
 
   /**
    * 
+   * 
    * Updates the contents of `sheet` of the `cellIndex: CellIndex.indexByColumnRow(0, 0);` where indexing starts from 0
    * 
    * ----or---- by `cellIndex: CellIndex.indexByString("A3");`.
@@ -327,6 +424,7 @@ class Excel {
    * Styling of cell can be done by passing the CellStyle object to `cellStyle`.
    * 
    * If `sheet` does not exist then it will be automatically created.
+   * 
    * 
    */
   void updateCell(String sheet, CellIndex cellIndex, dynamic value,
@@ -346,11 +444,13 @@ class Excel {
 
   /**
    * 
+   * 
    * Merges the cells starting from `start` to `end`.
    * 
    * If `custom value` is not defined then it will look for the very first available value in range `start` to `end` by searching row-wise from left to right.
    * 
    * If `sheet` does not exist then it will be automatically created.
+   * 
    * 
    */
   void merge(String sheet, CellIndex start, CellIndex end,
@@ -371,12 +471,14 @@ class Excel {
 
   /**
    * 
+   * 
    * unMerge the merged cells.
    * 
    *        var sheet = 'DesiredSheet';
    *        List<String> spannedCells = excel.getMergedCells(sheet);
    *        var cellToUnMerge = "A1:A2";
    *        excel.unMerge(sheet, cellToUnMerge);
+   * 
    * 
    */
   unMerge(String sheet, String unmergeCells) {

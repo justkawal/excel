@@ -88,8 +88,8 @@ class Parse {
     if (sharedStrings == null) {
       _excel._sharedStringsTarget = 'sharedStrings.xml';
 
-      // Running it with false will collect all the rid and will
-      // help us to get the available rid to assign it to sharedStrings.xml
+      /// Running it with false will collect all the `rid` and will
+      /// help us to get the available rid to assign it to `sharedStrings.xml` back
       _parseContent(run: false);
 
       if (_excel._xmlFiles.containsKey("xl/_rels/workbook.xml.rels")) {
@@ -380,19 +380,6 @@ class Parse {
     _findCells(node).forEach((child) {
       _parseCell(child, sheetObject, rowIndex, name);
     });
-/* 
-    if (_isNotEmptyRow(row) && rowIndex > table._rows.length) {
-      var repeat = rowIndex - table._rows.length;
-      for (var index = 0; index < repeat; index++) {
-        table._rows.add(List());
-      }
-    }
-
-    if (_isNotEmptyRow(row)) {
-      table._rows.add(row);
-    } else {
-      table._rows.add(List());
-    } */
   }
 
   _parseCell(XmlElement node, Sheet sheetObject, int rowIndex, String name) {
@@ -473,10 +460,14 @@ class Parse {
           value = num.parse(_parseValue(content));
         }
     }
+   // print("$value :" + value.runtimeType.toString());
     sheetObject.updateCell(
         CellIndex.indexByColumnRow(columnIndex: colIndex, rowIndex: rowIndex),
         value);
-    if (!_excel._sharedStrings.contains('$value')) {
+    if (
+        value.runtimeType == String &&
+        !_excel._sharedStrings.contains('$value')) {
+      print("parsing: " + value.toString());
       _excel._sharedStrings.add('$value');
     }
   }

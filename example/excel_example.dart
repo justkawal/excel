@@ -3,32 +3,42 @@ import 'package:path/path.dart';
 import 'package:excel/excel.dart';
 
 void main(List<String> args) {
-  //var file = "/Users/kawal/Desktop/excel2.xlsx";
-  //var bytes = File(file).readAsBytesSync();
-  var excel = Excel.createExcel();
+  var file = "/Users/kawal/Desktop/form.xlsx";
+  var bytes = File(file).readAsBytesSync();
+  // var excel = Excel.createExcel();
   // or
-  //var excel = Excel.decodeBytes(bytes, update: true);
-  /* for (var table in excel.tables.keys) {
+  var excel = Excel.decodeBytes(bytes, update: true);
+  for (var table in excel.tables.keys) {
     print(table);
     print(excel.tables[table].maxCols);
     print(excel.tables[table].maxRows);
     for (var row in excel.tables[table].rows) {
       print("$row");
     }
-  } */
+  }
 
   var sheet = excel['mySheet'];
 
   /// List of rows.
-  sheet.cells;
+  sheet.rows;
 
   /// putting value = 'k' at A1 index.
   var cell = sheet.cell(CellIndex.indexByString("A1"));
-  cell.value = 5;
-  cell.cellStyle = CellStyle(backgroundColorHex: "#8B0000");
+  cell.value = "Heya How are you I am fine ok goood night";
+  CellStyle _cellStyle = CellStyle();
+  _cellStyle.fontColor = "#000000";
+  cell.cellStyle = _cellStyle;
 
   /// appending rows
   sheet.appendRow([8]);
+  excel.setDefaultSheet("mySheet").then((isSet) {
+    // isSet is bool which tells that whether the setting of default sheet is successful or not.
+    if (isSet) {
+      print("$sheet is set to default sheet.");
+    } else {
+      print("Unable to set $sheet to default sheet.");
+    }
+  });
 /* 
   /// coutn of rows
   sheet.maxRows;
@@ -85,14 +95,6 @@ void main(List<String> args) {
   int replacedCount = excel.findAndReplace(sheet1, 'bustin', 'raman');
   print("Replaced Count:" + replacedCount.toString());
 
-  excel.setDefaultSheet(sheet1).then((isSet) {
-    // isSet is bool which tells that whether the setting of default sheet is successful or not.
-    if (isSet) {
-      print("$sheet is set to default sheet.");
-    } else {
-      print("Unable to set $sheet to default sheet.");
-    }
-  });
 
   excel.getDefaultSheet().then((value) {
     print("Default Sheet:" + value.toString());
@@ -122,7 +124,7 @@ void main(List<String> args) {
 
   // Saving the file
 
-  String outputFile = "/Users/kawal/Desktop/excel_example.xlsx";
+  String outputFile = "/Users/kawal/Desktop/error/form.xlsx";
   excel.encode().then((onValue) {
     File(join(outputFile))
       ..createSync(recursive: true)

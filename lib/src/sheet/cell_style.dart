@@ -23,7 +23,7 @@ class CellStyle {
       this.fontColorHex = "FF000000";
     }
 
-    if (backgroundColorHex != null && backgroundColorHex != "none") {
+    if (backgroundColorHex != null) {
       this.backgroundColorHex = _isColorAppropriate(backgroundColorHex);
     } else {
       this.backgroundColorHex = "none";
@@ -34,9 +34,9 @@ class CellStyle {
     this.horizontalAlign = horizontalAlign ?? HorizontalAlign.Left;
   }
 
-  String get getFontColorHex => this.fontColorHex;
+  String get fontColor => this.fontColorHex;
 
-  set setFontColorHex(String fontColorHex) {
+  set fontColor(String fontColorHex) {
     if (fontColorHex != null) {
       this.fontColorHex = _isColorAppropriate(fontColorHex);
     } else {
@@ -44,9 +44,9 @@ class CellStyle {
     }
   }
 
-  String get getBackgroundColorHex => this.backgroundColorHex;
+  String get backgroundColor => this.backgroundColorHex;
 
-  set setBackgroundColorHex(String backgroundColorHex) {
+  set backgroundColor(String backgroundColorHex) {
     if (backgroundColorHex != null) {
       this.backgroundColorHex = _isColorAppropriate(backgroundColorHex);
     } else {
@@ -54,22 +54,21 @@ class CellStyle {
     }
   }
 
-  HorizontalAlign get getHorizontalAlignment => this.horizontalAlign;
+  HorizontalAlign get horizontalAlignment => this.horizontalAlign;
 
-  set setHorizontalAlignment(HorizontalAlign horizontalAlign) {
+  set horizontalAlignment(HorizontalAlign horizontalAlign) {
     this.horizontalAlign = horizontalAlign ?? HorizontalAlign.Left;
   }
 
-  VerticalAlign get getVericalAlignment => this.verticalAlign;
+  VerticalAlign get verticalAlignment => this.verticalAlign;
 
-  set setVericalAlignment(VerticalAlign verticalAlign) {
+  set verticalAlignment(VerticalAlign verticalAlign) {
     this.verticalAlign = verticalAlign ?? VerticalAlign.Bottom;
   }
 
-  TextWrapping get getTextWrapping => this.textWrapping;
+  TextWrapping get wrap => this.textWrapping;
 
-  set setTextWrapping(TextWrapping textWrapping) =>
-      this.textWrapping = textWrapping;
+  set wrap(TextWrapping textWrapping) => this.textWrapping = textWrapping;
 
   @override
   bool operator ==(o) =>

@@ -12,7 +12,9 @@ class Sheet {
   /**
    * 
    * 
+   * 
    * It will clone the object by changing the `this` reference of previous oldSheetObject and putting `new this` reference, with copying the values too
+   * 
    * 
    * 
    */
@@ -107,8 +109,8 @@ class Sheet {
     return this._sheetData[cellIndex._rowIndex][cellIndex._columnIndex];
   }
 
-  List<List<Data>> get cells {
-    List<List<Data>> _data = List<List<Data>>();
+  List<List<dynamic>> get rows {
+    List<List<dynamic>> _data = List<List<dynamic>>();
 
     if (!_isContain(this._sheetData) || this._sheetData.isEmpty) {
       return _data;
@@ -119,9 +121,9 @@ class Sheet {
         return List.generate(this._maxCols, (colIndex) {
           if (_isContain(this._sheetData[rowIndex]) &&
               _isContain(this._sheetData[rowIndex][colIndex])) {
-            return this._sheetData[rowIndex][colIndex];
+            return this._sheetData[rowIndex][colIndex].value;
           }
-          return Data.newData(this, rowIndex, colIndex);
+          return null;
         });
       });
     }
@@ -399,11 +401,13 @@ class Sheet {
   /**
    * 
    * 
+   * 
    * Inserts an empty row in `sheet` at position = `rowIndex`.
    * 
    * If `rowIndex == null` or `rowIndex < 0` if will not execute 
    * 
    * If the `sheet` does not exists then it will be created automatically.
+   * 
    * 
    * 
    */
@@ -472,7 +476,7 @@ class Sheet {
   updateCell(CellIndex cellIndex, dynamic value, {CellStyle cellStyle}) {
     int columnIndex = cellIndex._columnIndex;
     int rowIndex = cellIndex._rowIndex;
-    if (columnIndex < 0 || rowIndex < 0) {
+    if (columnIndex < 0 || rowIndex < 0 || value == null) {
       return;
     }
     _checkMaxCol(columnIndex);
@@ -487,9 +491,6 @@ class Sheet {
       newRowIndex = updatedPosition[0];
       newColumnIndex = updatedPosition[1];
     }
-    if (value != null) {
-      print(value.runtimeType.toString());
-    }
 
     /// Puts Data
     _putData(newRowIndex, newColumnIndex, value);
@@ -499,17 +500,15 @@ class Sheet {
       this._sheetData[newRowIndex][newColumnIndex]._cellStyle = cellStyle;
       _excel._colorChanges = true;
     }
-
-    /// Sets value of `isFormula` to true if this is `instance of Formula`.
-    this._sheetData[newRowIndex][newColumnIndex]._isFormula =
-        value is Formula || value.runtimeType == Formula;
-
-    if (!_excel._sharedStrings.contains('$value')) {
-      _excel._sharedStrings.add(value.toString());
-    }
   }
 
-  /// Merge the Cells starting from the [start] to [end].
+  /**
+   * 
+   * 
+   * Merge the Cells starting from the [start] to [end].
+   * 
+   * 
+   */
   merge(CellIndex start, CellIndex end, {dynamic customValue}) {
     int startColumn = start._columnIndex,
         startRow = start._rowIndex,
@@ -542,7 +541,7 @@ class Sheet {
 
     Data value = Data.newData(this, startRow, startColumn);
     if (customValue != null) {
-      value.value = customValue;
+      value._value = customValue;
       getValue = false;
     }
 
@@ -629,7 +628,9 @@ class Sheet {
   /**
    * 
    * 
+   * 
    * Helps to find the interaction between the pre-existing span position and updates if with new span if there any interaction(Cross-Sectional Spanning) exists.
+   * 
    * 
    * 
    */
@@ -680,7 +681,13 @@ class Sheet {
     return [startColumn, startRow, endColumn, endRow];
   }
 
-  /// Append [row] iterables just post the last filled index in the [sheetName]
+  /**
+   * 
+   * 
+   * Append [row] iterables just post the last filled index on `this`
+   * 
+   * 
+   */
   appendRow(List<dynamic> row) {
     int targetRow = this.maxRows;
     insertRowIterables(row, targetRow);
@@ -705,8 +712,13 @@ class Sheet {
     return obtained;
   }
 
-  /// Checking if the columnIndex and the rowIndex passed is inside ?
-  /// the spanObjectList which is got from above function
+  /**
+   * 
+   * 
+   * Checking if the columnIndex and the rowIndex passed is inside the spanObjectList which is got from calling function.
+   * 
+   * 
+   */
   bool _isInsideSpanObject(
       List<_Span> spanObjectList, int columnIndex, int rowIndex) {
     for (int i = 0; i < spanObjectList.length; i++) {
@@ -727,14 +739,19 @@ class Sheet {
     return true;
   }
 
-  /// Helps to add the [row] iterables in the given row = [rowIndex] in [sheetName]
-  ///
-  /// [startingColumn] tells from where we should start puttin the [row] iterables
-  ///
-  /// [overwriteMergedCells] when set to [true] will overwriting mergedCell
-  ///
-  /// [overwriteMergedCells] when set to [false] puts the cell value to next unique cell.
-  ///
+  /**
+   * 
+   * 
+   * Helps to add the [row] iterables in the given row = [rowIndex] in [sheetName]
+   * 
+   * [startingColumn] tells from where we should start puttin the [row] iterables
+   * 
+   * [overwriteMergedCells] when set to [true] will overwriting mergedCell
+   * 
+   * [overwriteMergedCells] when set to [false] puts the cell value to next unique cell.
+   * 
+   * 
+   */
   insertRowIterables(List<dynamic> row, int rowIndex,
       {int startingColumn = 0, bool overwriteMergedCells = true}) {
     if (row == null || row.length == 0 || rowIndex == null || rowIndex < 0) {
@@ -793,19 +810,49 @@ class Sheet {
         columnIndex: Data.newData(this, rowIndex, columnIndex)
       };
     }
-    this._sheetData[rowIndex][columnIndex].value = value;
+    this._sheetData[rowIndex][columnIndex]._value = value;
+
+    /// Sets value of `isFormula` to true if this is `instance of Formula`.
+    this._sheetData[rowIndex][columnIndex]._isFormula =
+        value is Formula || value.runtimeType == Formula;
+
+    /// Sets type of the Data to `_cellType`
+    this._sheetData[rowIndex][columnIndex]._isFormula =
+        value is Formula || value.runtimeType == Formula;
+
+    if (value is String &&
+        value.runtimeType == String &&
+        !_excel._sharedStrings.contains('$value')) {
+          print(value+" is String");
+      _excel._sharedStrings.add(value.toString());
+    }
     _countRowAndCol();
   }
 
-  /// Returns the [count] of replaced [source] with [target]
-  ///
-  /// Yipee [source] is dynamic which allows you to pass your custom [RegExp]
-  ///
-  /// optional argument [first] is used to replace the number of [first] earlier occurrences
-  ///
-  /// Example: If [first] is set to [3] then it will replace only first 3 occurrences of the [source] with [target].
-  ///
-  /// Other [options] are used to narrow down the starting and ending ranges of cells.
+  /**
+   * 
+   * 
+   * Returns the `count` of replaced `source` with `target`
+   *
+   * `source` is dynamic which allows you to pass your custom `RegExp` providing more control over it.
+   *
+   * optional argument `first` is used to replace the number of first earlier occurrences
+   *
+   * If `first` is set to `3` then it will replace only first `3 occurrences` of the `source` with `target`.
+   * 
+   *        excel.findAndReplace('MySheetName', 'sad', 'happy', first: 3);
+   * 
+   *        or
+   * 
+   *        var mySheet = excel['mySheetName'];
+   *        mySheet.findAndReplace('sad', 'happy', first: 3);
+   * 
+   * In the above example it will replace all the occurences of `sad` with `happy` in the cells
+   *
+   * Other `options` are used to `narrow down` the `starting and ending ranges of cells`.
+   * 
+   * 
+   */
   int findAndReplace(dynamic source, dynamic target,
       {int first = -1,
       int startingRow = -1,
@@ -873,7 +920,13 @@ class Sheet {
     return replaceCount;
   }
 
-  /// returns true if the contents are successfully cleared else false
+  /**
+   * 
+   * 
+   * returns true if the contents are successfully cleared else false
+   * 
+   * 
+   */
   bool clearRow(int rowIndex) {
     if (rowIndex < 0) {
       return false;
@@ -912,6 +965,16 @@ class Sheet {
     return isNotInside;
   }
 
+  /**
+   * 
+   * 
+   * It is used to check if cell at rowIndex, columnIndex is inside any spanning cell or not ?
+   * 
+   * If it exist then the very first index of than spanned cells is returned in order to point to the starting cell 
+   * otherwise the parameters are returned back.
+   * 
+   * 
+   */
   List<int> _isInsideSpanning(int rowIndex, int columnIndex) {
     int newRowIndex = rowIndex, newColumnIndex = columnIndex;
 
@@ -933,14 +996,26 @@ class Sheet {
     return [newRowIndex, newColumnIndex];
   }
 
-  /// Check if columnIndex is not out of Excel Column limits.
+  /**
+   * 
+   * 
+   * Check if columnIndex is not out of `Excel Column limits`.
+   * 
+   * 
+   */
   _checkMaxCol(int colIndex) {
     if ((this._maxCols >= 16384) || colIndex >= 16384) {
       throw ArgumentError('Reached Max (16384) or (XFD) columns value.');
     }
   }
 
-  /// Check if rowIndex is not out of Excel Row limits.
+  /**
+   * 
+   * 
+   * Check if rowIndex is not out of `Excel Row limits`.
+   * 
+   * 
+   */
   _checkMaxRow(int rowIndex) {
     if ((this._maxRows >= 1048576) || rowIndex >= 1048576) {
       throw ArgumentError('Reached Max (1048576) rows value.');
@@ -955,6 +1030,7 @@ class Sheet {
    *      ["A1:A2", "A4:G6", "Y4:Y6", ....]
    * 
    * return type if String based cell-id
+   * 
    * 
    */
 
@@ -980,6 +1056,7 @@ class Sheet {
    * Cleans the `_SpanList` by removing the indexes where null value exists.
    * 
    * 
+   * 
    */
   _cleanUpSpanMap() {
     if (_spanList != null && _spanList.isNotEmpty) {
@@ -989,7 +1066,9 @@ class Sheet {
 
   /**
    * 
+   * 
    * return `SheetName`
+   * 
    * 
    */
   String get sheetName {
@@ -998,7 +1077,9 @@ class Sheet {
 
   /**
    * 
+   * 
    * returns row at index = `rowIndex`
+   * 
    * 
    */
   List<Data> row(int rowIndex) {
@@ -1018,14 +1099,18 @@ class Sheet {
 
   /**
    * 
+   * 
    * returns count of `rows` having data in `sheet`
+   * 
    * 
    */
   int get maxRows => this._maxRows;
 
   /**
    * 
+   * 
    * returns count of `cols` having data in `sheet`
+   * 
    * 
    */
   int get maxCols => this._maxCols;

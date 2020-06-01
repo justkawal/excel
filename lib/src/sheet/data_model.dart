@@ -90,15 +90,8 @@ class Data {
   }
 
   set value(dynamic _value) {
-    if (_value != null) {
-      if (_value is Formula || _value.runtimeType == Formula) {
-      } else {
-        this._value = _value;
-        this._cellType = _value.runtimeType == int
-            ? CellType.int
-            : _value.runtimeType == double ? CellType.double : CellType.String;
-      }
-    }
+    _sheet.updateCell(CellIndex.indexByString(cellId), value);
+    
   }
 
   /// returns the value stored in this cell;

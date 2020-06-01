@@ -324,8 +324,8 @@ class Save {
     });
 
     _innerCellStyle.forEach((cellStyle) {
-      String fontColor = cellStyle.getFontColorHex,
-          backgroundColor = cellStyle.getBackgroundColorHex;
+      String fontColor = cellStyle.fontColor,
+          backgroundColor = cellStyle.backgroundColor;
 
       if (!_excel._fontColorHex.contains(fontColor) &&
           !innerFontColor.contains(fontColor)) {
@@ -407,12 +407,12 @@ class Save {
     }
 
     _innerCellStyle.forEach((cellStyle) {
-      String backgroundColor = cellStyle.getBackgroundColorHex,
-          fontColor = cellStyle.getFontColorHex;
+      String backgroundColor = cellStyle.backgroundColor,
+          fontColor = cellStyle.fontColor;
 
-      HorizontalAlign horizontalALign = cellStyle.getHorizontalAlignment;
-      VerticalAlign verticalAlign = cellStyle.getVericalAlignment;
-      TextWrapping textWrapping = cellStyle.getTextWrapping;
+      HorizontalAlign horizontalALign = cellStyle.horizontalAlignment;
+      VerticalAlign verticalAlign = cellStyle.verticalAlignment;
+      TextWrapping textWrapping = cellStyle.wrap;
       int backgroundIndex = innerPatternFill.indexOf(backgroundColor),
           fontIndex = innerFontColor.indexOf(fontColor);
 
@@ -574,7 +574,8 @@ class Save {
 
     var attributes = <XmlAttribute>[
       XmlAttribute(XmlName('r'), rC),
-      XmlAttribute(XmlName('t'), 's'),
+      if (value.runtimeType == String || value is String)
+        XmlAttribute(XmlName('t'), 's'),
     ];
 
     if (_excel._colorChanges &&
@@ -610,9 +611,15 @@ class Save {
     var children = value == null
         ? <XmlElement>[]
         : <XmlElement>[
+            if (value.runtimeType is Formula)
+              XmlElement(XmlName('f'), [], [
+                XmlText(
+                    _excel._sharedStrings.indexOf(value.toString()).toString())
+              ]),
             XmlElement(XmlName('v'), [], [
-              XmlText(
-                  _excel._sharedStrings.indexOf(value.toString()).toString())
+              XmlText(value.runtimeType is String
+                  ? _excel._sharedStrings.indexOf(value.toString()).toString()
+                  : value.toString())
             ]),
           ];
     return XmlElement(XmlName('c'), attributes, children);
