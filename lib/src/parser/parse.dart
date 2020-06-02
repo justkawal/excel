@@ -1,10 +1,10 @@
 part of excel;
 
-class Parse {
+class Parser {
   Excel _excel;
   List<String> _rId;
   Map<String, String> _worksheetTargets;
-  Parse._(Excel excel) {
+  Parser._(Excel excel) {
     this._excel = excel;
     this._rId = List<String>();
     this._worksheetTargets = <String, String>{};
@@ -434,38 +434,43 @@ class Parse {
       case 'n':
       default:
         var valueNode = node.findElements('v');
+        var formulaNode = node.findElements('f');
         var content = valueNode.first;
-        if (s1 != null) {
-          var fmtId = _excel._numFormats[s];
-          // date
-          if (((fmtId >= 14) && (fmtId <= 17)) || (fmtId == 22)) {
-            var delta = num.parse(_parseValue(content)) * 24 * 3600 * 1000;
-            var date = DateTime(1899, 12, 30);
-            value = date
-                .add(Duration(milliseconds: delta.toInt()))
-                .toIso8601String();
-            // time
-          } else if (((fmtId >= 18) && (fmtId <= 21)) ||
-              ((fmtId >= 45) && (fmtId <= 47))) {
-            var delta = num.parse(_parseValue(content)) * 24 * 3600 * 1000;
-            var date = DateTime(0);
-            date = date.add(Duration(milliseconds: delta.toInt()));
-            value =
-                '${_twoDigits(date.hour)}:${_twoDigits(date.minute)}:${_twoDigits(date.second)}';
-            // number
+        if (formulaNode != null) {
+          
+
+        } else {
+          if (s1 != null) {
+            var fmtId = _excel._numFormats[s];
+            // date
+            if (((fmtId >= 14) && (fmtId <= 17)) || (fmtId == 22)) {
+              var delta = num.parse(_parseValue(content)) * 24 * 3600 * 1000;
+              var date = DateTime(1899, 12, 30);
+              value = date
+                  .add(Duration(milliseconds: delta.toInt()))
+                  .toIso8601String();
+              // time
+            } else if (((fmtId >= 18) && (fmtId <= 21)) ||
+                ((fmtId >= 45) && (fmtId <= 47))) {
+              var delta = num.parse(_parseValue(content)) * 24 * 3600 * 1000;
+              var date = DateTime(0);
+              date = date.add(Duration(milliseconds: delta.toInt()));
+              value =
+                  '${_twoDigits(date.hour)}:${_twoDigits(date.minute)}:${_twoDigits(date.second)}';
+              // number
+            } else {
+              value = num.parse(_parseValue(content));
+            }
           } else {
             value = num.parse(_parseValue(content));
           }
-        } else {
-          value = num.parse(_parseValue(content));
         }
     }
-   // print("$value :" + value.runtimeType.toString());
+    // print("$value :" + value.runtimeType.toString());
     sheetObject.updateCell(
         CellIndex.indexByColumnRow(columnIndex: colIndex, rowIndex: rowIndex),
         value);
-    if (
-        value.runtimeType == String &&
+    if (value.runtimeType == String &&
         !_excel._sharedStrings.contains('$value')) {
       print("parsing: " + value.toString());
       _excel._sharedStrings.add('$value');

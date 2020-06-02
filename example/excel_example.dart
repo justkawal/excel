@@ -7,7 +7,7 @@ void main(List<String> args) {
   var bytes = File(file).readAsBytesSync();
   // var excel = Excel.createExcel();
   // or
-  var excel = Excel.decodeBytes(bytes, update: true);
+  var excel = Excel.decodeBytes(bytes);
   for (var table in excel.tables.keys) {
     print(table);
     print(excel.tables[table].maxCols);
@@ -31,12 +31,12 @@ void main(List<String> args) {
 
   /// appending rows
   sheet.appendRow([8]);
-  excel.setDefaultSheet("mySheet").then((isSet) {
+  excel.setDefaultSheet(sheet.sheetName).then((isSet) {
     // isSet is bool which tells that whether the setting of default sheet is successful or not.
     if (isSet) {
-      print("$sheet is set to default sheet.");
+      print("${sheet.sheetName} is set to default sheet.");
     } else {
-      print("Unable to set $sheet to default sheet.");
+      print("Unable to set ${sheet.sheetName} to default sheet.");
     }
   });
 /* 

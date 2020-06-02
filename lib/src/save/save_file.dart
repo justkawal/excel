@@ -4,8 +4,10 @@ class Save {
   Excel _excel;
   Map<String, ArchiveFile> _archiveFiles;
   List<CellStyle> _innerCellStyle;
-  Save._(Excel excel) {
+  Parser parser;
+  Save._(Excel excel, Parser _parser) {
     this._excel = excel;
+    this.parser = _parser;
     this._archiveFiles = Map<String, ArchiveFile>();
     _innerCellStyle = List<CellStyle>();
   }
@@ -15,6 +17,9 @@ class Save {
       _processStylesFile();
     }
     _setSheetElements();
+    if (_excel._defaultSheet != null) {
+      _setDefaultSheet(_excel._defaultSheet);
+    }
     _setSharedStrings();
 
     if (_excel._mergeChanges) {
@@ -48,17 +53,55 @@ class Save {
     return clone;
   }
 
+  Future<bool> _setDefaultSheet(String sheetName) async {
+    int position = -1;
+    List<XmlElement> sheetList =
+        _excel._xmlFiles['xl/workbook.xml'].findAllElements('sheet').toList();
+    XmlElement elementFound;
+
+    for (int i = 0; i < sheetList.length; i++) {
+      var _sheetName = sheetList[i].getAttribute('name');
+      if (_sheetName != null && _sheetName.toString() == sheetName) {
+        elementFound = sheetList[i];
+        position = i;
+        break;
+      }
+    }
+
+    if (position == -1) {
+      return false;
+    }
+    if (position == 0) {
+      return true;
+    }
+
+    _excel._xmlFiles['xl/workbook.xml'].findAllElements('sheets').first.children
+      ..removeAt(position)
+      ..insert(0, elementFound);
+
+    String expectedSheet = await _excel._getDefaultSheet();
+
+    return expectedSheet == sheetName;
+  }
+
   /// Writing cell contained text into the excel sheet files.
   _setSheetElements() {
     _excel._sharedStrings = List<String>();
     _excel._sheetMap.forEach((sheet, value) {
-      // clear the previous contents of the sheet if it exists in order to reduce the time to find and compare with the sheet rows
-      // and hence just do the work of putting the data only i.e. creating new rows
+      ///
+      /// Create the sheet's xml file if it does not exist.
+      if (!_isContain(_excel._sheets['$sheet'])) {
+        parser._createSheet('$sheet');
+      }
+
+      /// Clear the previous contents of the sheet if it exists,
+      /// in order to reduce the time to find and compare with the sheet rows
+      /// and hence just do the work of putting the data only i.e. creating new rows
       if (_excel._sheets[sheet] != null &&
           _excel._sheets[sheet].children.isNotEmpty) {
         _excel._sheets[sheet].children.clear();
       }
-      /** Above function is important in order to wipe out the old contents of the sheet. */
+      /** `Above function is important in order to wipe out the old contents of the sheet.` */
 
       value._sheetData.forEach((rowIndex, map) {
         map.forEach((columnIndex, data) {
@@ -390,7 +433,9 @@ class Save {
           ]));
         }
       } else {
-        _damagedExcel(text: "Corrupted Styles Found");
+        _damagedExcel(
+            text:
+                "Corrupted Styles Found. Can't process further, Open up issue in github.");
       }
     });
 

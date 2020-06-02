@@ -68,6 +68,13 @@ class Sheet {
     }
   }
 
+  /**
+   * 
+   * 
+   * returns the `DataObject` at position of `cellIndex`
+   * 
+   * 
+   */
   Data cell(CellIndex cellIndex) {
     _checkMaxCol(cellIndex.columnIndex);
     _checkMaxRow(cellIndex.rowIndex);
@@ -109,6 +116,13 @@ class Sheet {
     return this._sheetData[cellIndex._rowIndex][cellIndex._columnIndex];
   }
 
+  /**
+   * 
+   * 
+   * returns `2-D dynamic List` of the sheet elements
+   * 
+   * 
+   */
   List<List<dynamic>> get rows {
     List<List<dynamic>> _data = List<List<dynamic>>();
 
@@ -131,6 +145,11 @@ class Sheet {
     return _data;
   }
 
+  /**
+   * 
+   * updates count of rows and cols
+   * 
+   */
   _countRowAndCol() {
     int maximumColIndex = -1, maximumRowIndex = -1;
     if (_isContain(this._sheetData)) {
@@ -154,8 +173,14 @@ class Sheet {
     this._maxRows = maximumRowIndex + 1;
   }
 
-  /// remove Column
-  removeColumn(int colIndex) {
+  /**
+   * 
+   * 
+   * If `sheet` exists and `columnIndex < maxColumns` then it removes column at index = `columnIndex`
+   * 
+   * 
+   */
+  void removeColumn(int colIndex) {
     _checkMaxCol(colIndex);
     if (colIndex < 0 || colIndex >= this.maxCols) {
       return;
@@ -237,8 +262,18 @@ class Sheet {
     _countRowAndCol();
   }
 
-  /// insert Column at index = [colIndex]
-  insertColumn(int colIndex) {
+  /**
+   * 
+   * 
+   * Inserts an empty `column` in sheet at position = `columnIndex`.
+   * 
+   * If `columnIndex == null` or `columnIndex < 0` if will not execute 
+   * 
+   * If the `sheet` does not exists then it will be created automatically.
+   * 
+   * 
+   */
+  void insertColumn(int colIndex) {
     if (colIndex == null || colIndex < 0) {
       return;
     }
@@ -322,8 +357,14 @@ class Sheet {
     _countRowAndCol();
   }
 
-  /// remove Row
-  removeRow(int rowIndex) {
+  /**
+   * 
+   * 
+   * If `sheet` exists and `rowIndex < maxRows` then it removes row at index = `rowIndex`
+   * 
+   * 
+   */
+  void removeRow(int rowIndex) {
     if (rowIndex < 0 || rowIndex >= this._maxRows) {
       return;
     }
@@ -411,7 +452,7 @@ class Sheet {
    * 
    * 
    */
-  insertRow(int rowIndex) {
+  void insertRow(int rowIndex) {
     if (rowIndex < 0) {
       return;
     }
@@ -473,7 +514,20 @@ class Sheet {
     _countRowAndCol();
   }
 
-  updateCell(CellIndex cellIndex, dynamic value, {CellStyle cellStyle}) {
+  /**
+   * 
+   * 
+   * Updates the contents of `sheet` of the `cellIndex: CellIndex.indexByColumnRow(0, 0);` where indexing starts from 0
+   * 
+   * ----or---- by `cellIndex: CellIndex.indexByString("A3");`.
+   * 
+   * Styling of cell can be done by passing the CellStyle object to `cellStyle`.
+   * 
+   * If `sheet` does not exist then it will be automatically created.
+   * 
+   * 
+   */
+  void updateCell(CellIndex cellIndex, dynamic value, {CellStyle cellStyle}) {
     int columnIndex = cellIndex._columnIndex;
     int rowIndex = cellIndex._rowIndex;
     if (columnIndex < 0 || rowIndex < 0 || value == null) {
@@ -505,7 +559,9 @@ class Sheet {
   /**
    * 
    * 
-   * Merge the Cells starting from the [start] to [end].
+   * Merges the cells starting from `start` to `end`.
+   * 
+   * If `custom value` is not defined then it will look for the very first available value in range `start` to `end` by searching row-wise from left to right.
    * 
    * 
    */
@@ -684,7 +740,7 @@ class Sheet {
   /**
    * 
    * 
-   * Append [row] iterables just post the last filled index on `this`
+   * Appends [row] iterables just post the last filled `rowIndex`.
    * 
    * 
    */
@@ -742,13 +798,13 @@ class Sheet {
   /**
    * 
    * 
-   * Helps to add the [row] iterables in the given row = [rowIndex] in [sheetName]
+   * Adds the [row] iterables in the given rowIndex = [rowIndex] in [sheet]
    * 
-   * [startingColumn] tells from where we should start puttin the [row] iterables
+   * [startingColumn] tells from where we should start putting the [row] iterables
    * 
-   * [overwriteMergedCells] when set to [true] will overwriting mergedCell
+   * [overwriteMergedCells] when set to [true] will over-write mergedCell and does not jumps to next unqiue cell.
    * 
-   * [overwriteMergedCells] when set to [false] puts the cell value to next unique cell.
+   * [overwriteMergedCells] when set to [false] puts the cell value in next unique cell available and putting the value in merged cells only once.
    * 
    * 
    */
@@ -799,6 +855,13 @@ class Sheet {
     }
   }
 
+  /**
+   * 
+   * 
+   * Internal function for putting the data in `_sheetData`.
+   * 
+   * 
+   */
   _putData(int rowIndex, int columnIndex, dynamic value) {
     if (_isContain(this._sheetData[rowIndex])) {
       if (!_isContain(this._sheetData[rowIndex][columnIndex])) {
@@ -823,7 +886,7 @@ class Sheet {
     if (value is String &&
         value.runtimeType == String &&
         !_excel._sharedStrings.contains('$value')) {
-          print(value+" is String");
+      print(value + " is String");
       _excel._sharedStrings.add(value.toString());
     }
     _countRowAndCol();
@@ -923,7 +986,9 @@ class Sheet {
   /**
    * 
    * 
-   * returns true if the contents are successfully cleared else false
+   * returns `true` if the contents are successfully `cleared` else `false`.
+   * 
+   * If the row is having any spanned-cells then it will not be cleared and hence returns `false`.
    * 
    * 
    */

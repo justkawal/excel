@@ -63,7 +63,7 @@ class Formula {
   }
 
   /// returns three mapped values
-  /// dirty is set to 1 if not able to evaluate
+  /// `evaluate` is set to `0` if not able to evaluate
   /// sum is the total sum got from the cells
   /// list is the cellIndexList in the format of CellId as A1 or B90 ...
   static Map<String, dynamic> _sumInternally(
