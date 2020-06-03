@@ -30,7 +30,7 @@ class Excel {
   Map<String, Map<String, int>> _cellStyleReferenced;
   Map<String, Sheet> _sheetMap;
   List<CellStyle> _cellStyleList;
-  List<String> _sharedStrings, _fontColorHex, _patternFill, _mergeChangeLook;
+  List<String> _sharedStrings, _fontColorex, _patternFill, _mergeChangeLook;
   List<int> _numFormats;
   String _stylesTarget, _sharedStringsTarget, _defaultSheet;
   Parser parser;

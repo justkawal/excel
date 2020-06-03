@@ -880,16 +880,30 @@ class Sheet {
         value is Formula || value.runtimeType == Formula;
 
     /// Sets type of the Data to `_cellType`
-    this._sheetData[rowIndex][columnIndex]._isFormula =
-        value is Formula || value.runtimeType == Formula;
+    this._sheetData[rowIndex][columnIndex]._cellType =
+        _getCellType(value.runtimeType);
 
-    if (value is String &&
-        value.runtimeType == String &&
+    if (value.runtimeType == String &&
         !_excel._sharedStrings.contains('$value')) {
       print(value + " is String");
       _excel._sharedStrings.add(value.toString());
     }
     _countRowAndCol();
+  }
+
+  CellType _getCellType(var type) {
+    switch (type) {
+      case int:
+        return CellType.int;
+      case double:
+        return CellType.double;
+      case bool:
+        return CellType.bool;
+      case Formula:
+        return CellType.Formula;
+      default:
+        return CellType.String;
+    }
   }
 
   /**

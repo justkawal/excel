@@ -1,11 +1,11 @@
 part of excel;
 
 class Formula {
-  dynamic _value;
+  dynamic _evaluatedValue;
   String _formula;
 
   Formula._(dynamic evaluatedValue, String formula) {
-    this._value = evaluatedValue;
+    this._evaluatedValue = evaluatedValue;
     this._formula = formula;
   }
 
@@ -152,7 +152,7 @@ class Formula {
 
   /// get evaluated String of Formula
   get value {
-    return this._value;
+    return this._evaluatedValue;
   }
 
   /// get Formula

@@ -43,3 +43,14 @@ enum CellType {
   double,
   bool,
 }
+
+/**
+ * 
+ * `Underline`
+ * 
+ */
+enum Underline {
+  None,
+  Single,
+  Double,
+}

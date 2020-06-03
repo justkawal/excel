@@ -90,8 +90,9 @@ class Save {
     _excel._sheetMap.forEach((sheet, value) {
       ///
       /// Create the sheet's xml file if it does not exist.
-      if (!_isContain(_excel._sheets['$sheet'])) {
-        parser._createSheet('$sheet');
+      if (!_isContain(_excel._sheets[sheet])) {
+        print("Creating sheet: " + sheet.toString());
+        parser._createSheet(sheet);
       }
 
       /// Clear the previous contents of the sheet if it exists,
@@ -611,7 +612,8 @@ class Save {
   // Manage value's type
   XmlElement _createCell(
       String sheet, int columnIndex, int rowIndex, dynamic value) {
-    if (!_excel._sharedStrings.contains(value.toString())) {
+    if (value.runtimeType == String &&
+        !_excel._sharedStrings.contains(value.toString())) {
       _excel._sharedStrings.add(value.toString());
     }
 
@@ -619,8 +621,7 @@ class Save {
 
     var attributes = <XmlAttribute>[
       XmlAttribute(XmlName('r'), rC),
-      if (value.runtimeType == String || value is String)
-        XmlAttribute(XmlName('t'), 's'),
+      if (value.runtimeType == String) XmlAttribute(XmlName('t'), 's'),
     ];
 
     if (_excel._colorChanges &&
@@ -653,18 +654,23 @@ class Save {
         XmlAttribute(XmlName('s'), '${_excel._cellStyleReferenced[sheet][rC]}'),
       );
     }
+
+    String formula = "";
+    if (value.runtimeType == Formula) {
+      formula = value.formula.toString();
+    }
+
     var children = value == null
         ? <XmlElement>[]
         : <XmlElement>[
-            if (value.runtimeType is Formula)
-              XmlElement(XmlName('f'), [], [
-                XmlText(
-                    _excel._sharedStrings.indexOf(value.toString()).toString())
-              ]),
+            if (value.runtimeType == Formula)
+              XmlElement(XmlName('f'), [], [XmlText(formula)]),
             XmlElement(XmlName('v'), [], [
-              XmlText(value.runtimeType is String
+              XmlText(value.runtimeType == String
                   ? _excel._sharedStrings.indexOf(value.toString()).toString()
-                  : value.toString())
+                  : value.runtimeType == Formula
+                      ? value._evaluatedValue.toString()
+                      : value.toString())
             ]),
           ];
     return XmlElement(XmlName('c'), attributes, children);

@@ -246,6 +246,7 @@ class Parser {
       _excel._patternFill = List<String>();
       _excel._cellStyleList = List<CellStyle>();
       int fontIndex = 0;
+      Iterable<XmlElement> fontList = document.findAllElements('font');
       document
           .findAllElements('font')
           .first
@@ -277,13 +278,59 @@ class Parser {
         node1.findAllElements('xf').forEach((node) {
           _excel._numFormats.add(_getFontIndex(node, 'numFmtId'));
 
-          String fontColor = "FF000000", backgroundColor = "none";
+          String fontColor = "FF000000", backgroundColor = "none", fontFamily;
+          int fontSize;
+          bool isBold, isItalic;
+          Underline underline = Underline.None;
           HorizontalAlign horizontalAlign = HorizontalAlign.Left;
           VerticalAlign verticalAlign = VerticalAlign.Bottom;
           TextWrapping textWrapping;
           int fontId = _getFontIndex(node, 'fontId');
+
+          /// getting font Color
           if (fontId < _excel._fontColorHex.length) {
             fontColor = _excel._fontColorHex[fontId];
+          }
+
+          /// checking for other font values
+          if (fontId < fontList.length) {
+            XmlElement font = fontList.elementAt(fontId);
+
+            /// Checking for font Size.
+            String size = _nodeChildren(font, 'sz', attribute: 'val');
+            if (size != null) {
+              fontSize = int.parse(size);
+            }
+
+            /// Checking for bold
+            var bold = _nodeChildren(font, 'b');
+            if (bold != null && bold == true) {
+              isBold = true;
+            }
+
+            /// Checking for italic
+            var italic = _nodeChildren(font, 'i');
+            if (italic != null && italic == true) {
+              isItalic = true;
+            }
+
+            /// Checking for double underline
+            var underline = _nodeChildren(font, 'u', attribute: 'val');
+            if (underline != null) {
+              underline = Underline.Double;
+            }
+
+            /// Checking for single underline
+            var single_underline = _nodeChildren(font, 'u');
+            if (single_underline != null) {
+              underline = Underline.Single;
+            }
+
+            /// Checking for font Family
+            var family = _nodeChildren(font, 'name', attribute: 'val');
+            if (family != null && family != true) {
+              fontFamily = family;
+            }
           }
 
           int fillId = _getFontIndex(node, 'fillId');
@@ -332,6 +379,21 @@ class Parser {
     } else {
       _damagedExcel(text: 'styles');
     }
+  }
+
+  dynamic _nodeChildren(XmlElement node, String child, {var attribute}) {
+    Iterable<XmlElement> ele = node.findElements(child);
+    if (ele.isNotEmpty) {
+      if (attribute != null) {
+        var attr = ele.first.getAttribute(attribute);
+        if (attr != null) {
+          return attr;
+        }
+        return null; // pretending that attribute is not found so sending null.
+      }
+      return true; // mocking to be found the children in case of bold and italic.
+    }
+    return null; // pretending that the node's children is not having specified child.
   }
 
   int _getFontIndex(var node, String text) {
@@ -436,9 +498,9 @@ class Parser {
         var valueNode = node.findElements('v');
         var formulaNode = node.findElements('f');
         var content = valueNode.first;
-        if (formulaNode != null) {
-          
-
+        if (formulaNode != null && formulaNode.isNotEmpty) {
+          value =
+              Formula._(_parseValue(content), _parseValue(formulaNode.first));
         } else {
           if (s1 != null) {
             var fmtId = _excel._numFormats[s];
