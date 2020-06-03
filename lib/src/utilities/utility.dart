@@ -265,3 +265,18 @@ String getColumnAlphabet(int collIndex) {
 int getColumnIndex(String columnAlphabet) {
   return _cellCoordsFromCellId('${columnAlphabet}2')[1];
 }
+
+/**
+ * 
+ * Checks if the fontStyle is already present in the list or not
+ * 
+ */
+
+bool _fontContains(List<_FontStyle> _fSList, _fs) {
+  for (_FontStyle _f in _fSList) {
+    if (_f == _fs) {
+      return true;
+    }
+  }
+  return false;
+}

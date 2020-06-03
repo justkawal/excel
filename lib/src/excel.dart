@@ -30,7 +30,8 @@ class Excel {
   Map<String, Map<String, int>> _cellStyleReferenced;
   Map<String, Sheet> _sheetMap;
   List<CellStyle> _cellStyleList;
-  List<String> _sharedStrings, _fontColorHex, _patternFill, _mergeChangeLook;
+  List<String> _sharedStrings, _patternFill, _mergeChangeLook;
+  List<_FontStyle> _fontStyleList;
   List<int> _numFormats;
   String _stylesTarget, _sharedStringsTarget, _defaultSheet;
   Parser parser;
@@ -44,7 +45,7 @@ class Excel {
     _xmlSheetId = <String, String>{};
     _sheetMap = Map<String, Sheet>();
     _cellStyleReferenced = <String, Map<String, int>>{};
-    _fontColorHex = List<String>();
+    _fontStyleList = List<_FontStyle>();
     _patternFill = List<String>();
     _sharedStrings = List<String>();
     _cellStyleList = List<CellStyle>();

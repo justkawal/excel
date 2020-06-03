@@ -242,12 +242,12 @@ class Parser {
       if (_excel._xmlFiles != null) {
         _excel._xmlFiles['xl/$_stylesTarget'] = document;
       }
-      _excel._fontColorHex = List<String>();
+      _excel._fontStyleList = List<_FontStyle>();
       _excel._patternFill = List<String>();
       _excel._cellStyleList = List<CellStyle>();
-      int fontIndex = 0;
+
       Iterable<XmlElement> fontList = document.findAllElements('font');
-      document
+      /* document
           .findAllElements('font')
           .first
           .findElements('color')
@@ -261,7 +261,7 @@ class Parser {
             !_excel._fontColorHex.contains("FF000000")) {
           _excel._fontColorHex.add("FF000000");
         }
-      });
+      }); */
       document.findAllElements('patternFill').forEach((node) {
         String patternType = node.getAttribute('patternType').toString(), rgb;
         if (node.children.isNotEmpty) {
@@ -279,58 +279,73 @@ class Parser {
           _excel._numFormats.add(_getFontIndex(node, 'numFmtId'));
 
           String fontColor = "FF000000", backgroundColor = "none", fontFamily;
-          int fontSize;
+          int fontSize = 12;
           bool isBold, isItalic;
           Underline underline = Underline.None;
           HorizontalAlign horizontalAlign = HorizontalAlign.Left;
           VerticalAlign verticalAlign = VerticalAlign.Bottom;
           TextWrapping textWrapping;
           int fontId = _getFontIndex(node, 'fontId');
+          _FontStyle _fontStyle = _FontStyle();
 
           /// getting font Color
-          if (fontId < _excel._fontColorHex.length) {
-            fontColor = _excel._fontColorHex[fontId];
-          }
+          if (fontId < fontList.length) {}
 
           /// checking for other font values
           if (fontId < fontList.length) {
             XmlElement font = fontList.elementAt(fontId);
 
             /// Checking for font Size.
-            String size = _nodeChildren(font, 'sz', attribute: 'val');
-            if (size != null) {
-              fontSize = int.parse(size);
+            var _clr = _nodeChildren(font, 'color', attribute: 'rgb');
+            if (_clr != null && _clr != true) {
+              fontColor = _clr.toString();
+            }
+
+            /// Checking for font Size.
+            String _size = _nodeChildren(font, 'sz', attribute: 'val');
+            if (_size != null) {
+              fontSize = int.parse(_size);
             }
 
             /// Checking for bold
-            var bold = _nodeChildren(font, 'b');
-            if (bold != null && bold == true) {
+            var _bold = _nodeChildren(font, 'b');
+            if (_bold != null && _bold == true) {
               isBold = true;
             }
 
             /// Checking for italic
-            var italic = _nodeChildren(font, 'i');
-            if (italic != null && italic == true) {
+            var _italic = _nodeChildren(font, 'i');
+            if (_italic != null && _italic == true) {
               isItalic = true;
             }
 
             /// Checking for double underline
-            var underline = _nodeChildren(font, 'u', attribute: 'val');
-            if (underline != null) {
+            var _underline = _nodeChildren(font, 'u', attribute: 'val');
+            if (_underline != null) {
               underline = Underline.Double;
             }
 
             /// Checking for single underline
-            var single_underline = _nodeChildren(font, 'u');
-            if (single_underline != null) {
+            var _single_underline = _nodeChildren(font, 'u');
+            if (_single_underline != null) {
               underline = Underline.Single;
             }
 
             /// Checking for font Family
-            var family = _nodeChildren(font, 'name', attribute: 'val');
-            if (family != null && family != true) {
-              fontFamily = family;
+            var _family = _nodeChildren(font, 'name', attribute: 'val');
+            if (_family != null && _family != true) {
+              fontFamily = _family;
             }
+
+            _fontStyle.isBold = isBold;
+            _fontStyle.isItalic = isItalic;
+            _fontStyle.fontSize = fontSize;
+            _fontStyle.fontFamily = fontFamily;
+            _fontStyle._fontColorHex = fontColor;
+          }
+
+          if (!_fontContains(_excel._fontStyleList, _fontStyle)) {
+            _excel._fontStyleList.add(_fontStyle);
           }
 
           int fillId = _getFontIndex(node, 'fillId');
@@ -368,6 +383,11 @@ class Parser {
 
           CellStyle cellStyle = CellStyle(
               fontColorHex: fontColor,
+              fontFamily: fontFamily,
+              fontSize: fontSize,
+              bold: isBold,
+              italic: isItalic,
+              underline: underline,
               backgroundColorHex: backgroundColor,
               horizontalAlign: horizontalAlign,
               verticalAlign: verticalAlign,

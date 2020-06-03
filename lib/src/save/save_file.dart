@@ -387,10 +387,10 @@ class Save {
     var fontAttribute = fonts.getAttributeNode('count');
     if (fontAttribute != null) {
       fontAttribute.value =
-          '${_excel._fontColorHex.length + innerFontColor.length}';
+          '${_excel._fontStyleList.length + innerFontColor.length}';
     } else {
       fonts.attributes.add(XmlAttribute(XmlName('count'),
-          '${_excel._fontColorHex.length + innerFontColor.length}'));
+          '${_excel._fontStyleList.length + innerFontColor.length}'));
     }
 
     innerFontColor.forEach((colorValue) =>

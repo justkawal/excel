@@ -8,10 +8,9 @@ import 'package:xml/xml.dart';
 
 /// main directory
 part 'src/excel.dart';
-part 'src/xlsx.dart';
-part 'src/span.dart';
 
 /// Utilities
+part 'src/utilities/span.dart';
 part 'src/utilities/utility.dart';
 part 'src/utilities/constants.dart';
 part 'src/utilities/enum.dart';
@@ -28,3 +27,4 @@ part 'src/sheet/data_model.dart';
 part 'src/sheet/formula.dart';
 part 'src/sheet/cell_index.dart';
 part 'src/sheet/cell_style.dart';
+part 'src/sheet/font_style.dart';
