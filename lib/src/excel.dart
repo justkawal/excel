@@ -248,8 +248,60 @@ class Excel {
     }
 
     ///
-    /// remove from `_xmlSheetId` and set the flag `_rIdCheck` to `true` in order to re-process the _rIds and serialize them.
+    /// remove from `_xmlSheetId`.
     if (_isContain(_xmlSheetId[sheet])) {
+      {
+        ///
+        /// Remove from `[Content_Types].xml`
+        String sheetId = "worksheets" +
+            _xmlSheetId[sheet].toString().split('worksheets')[1].toString();
+
+        int position = -1;
+        List<XmlElement> sheetList = _xmlFiles['xl/_rels/workbook.xml.rels']
+            .findAllElements('Relationship')
+            .toList();
+
+        for (int i = 0; i < sheetList.length; i++) {
+          var _sheetName = sheetList[i].getAttribute('Target');
+          if (_sheetName != null && _sheetName.toString() == sheetId) {
+            position = i;
+            break;
+          }
+        }
+        if (position != -1) {
+          _xmlFiles['xl/_rels/workbook.xml.rels']
+              .findAllElements('Relationship')
+              .first
+              .children
+            ..removeAt(position);
+        }
+      }
+      {
+        ///
+        /// Remove from `[Content_Types].xml`
+        String sheetId = _xmlSheetId[sheet];
+
+        int position = -1;
+        List<XmlElement> sheetList = _xmlFiles['[Content_Types].xml']
+            .findAllElements('Override')
+            .toList();
+
+        for (int i = 0; i < sheetList.length; i++) {
+          var _sheetName = sheetList[i].getAttribute('PartName');
+          if (_sheetName != null && _sheetName.toString() == sheetId) {
+            position = i;
+            break;
+          }
+        }
+        if (position != -1) {
+          _xmlFiles['[Content_Types].xml']
+              .findAllElements('Override')
+              .first
+              .children
+            ..removeAt(position);
+        }
+      }
+
       _xmlSheetId.remove(sheet);
       // _rIdCheck = true;
     }
@@ -257,6 +309,24 @@ class Excel {
     ///
     /// remove from key = `sheet` from `_sheets`
     if (_isContain(_sheets[sheet])) {
+      ///
+      /// Remove from `[Content_Types].xml`
+
+      int position = -1;
+      List<XmlElement> sheetList =
+          _xmlFiles['xl/workbook.xml'].findAllElements('sheet').toList();
+
+      for (int i = 0; i < sheetList.length; i++) {
+        var _sheetName = sheetList[i].getAttribute('name');
+        if (_sheetName != null && _sheetName.toString() == sheet) {
+          position = i;
+          break;
+        }
+      }
+      if (position != -1) {
+        _xmlFiles['xl/workbook.xml'].findAllElements('sheet').first.children
+          ..removeAt(position);
+      }
       _sheets.remove(sheet);
     }
 
