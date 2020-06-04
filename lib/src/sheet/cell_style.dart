@@ -13,8 +13,8 @@ class CellStyle {
   CellStyle(
       {String fontColorHex = "FF000000",
       String backgroundColorHex = "none",
-      int fontSize = 12,
-      String fontFamily = "Arial",
+      int fontSize,
+      String fontFamily,
       HorizontalAlign horizontalAlign = HorizontalAlign.Left,
       VerticalAlign verticalAlign = VerticalAlign.Bottom,
       TextWrapping textWrapping,
@@ -25,11 +25,11 @@ class CellStyle {
 
     this._bold = bold ?? false;
 
-    this.fontSize = fontSize ?? 12;
+    this.fontSize = fontSize;
 
     this._italic = italic ?? false;
 
-    this.fontFamily = fontFamily ?? FontFamily.Arial;
+    this.fontFamily = fontFamily;
 
     if (fontColorHex != null) {
       this._fontColorHex = _isColorAppropriate(fontColorHex);
@@ -133,7 +133,9 @@ class CellStyle {
    * `Get Wrapping`
    * 
    */
-  TextWrapping get wrap => this._textWrapping;
+  TextWrapping get wrap {
+    return this._textWrapping;
+  }
 
   /**
    * 
@@ -159,7 +161,7 @@ class CellStyle {
    * 
    */
   set fontFamily(String family) {
-    this._fontFamily = family ?? "Arial";
+    this._fontFamily = family;
   }
 
   /**
@@ -177,7 +179,7 @@ class CellStyle {
    * 
    */
   set fontSize(int _font_Size) {
-    this._fontSize = _font_Size ?? 12;
+    this._fontSize = _font_Size;
   }
 
   /**
@@ -194,8 +196,8 @@ class CellStyle {
    * set `Underline`
    * 
    */
-  set underline(Underline underline) {
-    this._underline = underline ?? Underline.None;
+  set underline(Underline underline_) {
+    this._underline = underline_ ?? Underline.None;
   }
 
   /**
@@ -204,7 +206,7 @@ class CellStyle {
    * 
    */
   get isBold {
-    this._bold;
+    return this._bold;
   }
 
   /**
@@ -222,7 +224,7 @@ class CellStyle {
    * 
    */
   get isItalic {
-    this._italic;
+    return this._italic;
   }
 
   /**
@@ -236,16 +238,16 @@ class CellStyle {
 
   @override
   bool operator ==(o) =>
-      o.bold == this._bold && // bold
-      o.italic == this._italic && // italic
-      o.fontSize == this._fontSize && // Font Size
-      o.fontFamily == this._fontFamily &&
+      o.isBold == this.isBold && // bold
+      o.isItalic == this.isItalic && // italic
+      o.fontSize == this.fontSize && // Font Size
+      o.fontFamily == this.fontFamily &&
       o.runtimeType == this.runtimeType && // runtimeType
-      o.textWrapping == this._textWrapping && // Font Wrapping
-      o.fontColorHex == this._fontColorHex && // Font Color
-      o.verticalAlign == this._verticalAlign && // Vertical Align
-      o.horizontalAlign == this._horizontalAlign && // Horizontal Align
-      o.backgroundColorHex == this._backgroundColorHex; // Background Color
+      o.wrap == this.wrap && // Font Wrapping
+      o.fontColor == this.fontColor && // Font Color
+      o.verticalAlignment == this.verticalAlignment && // Vertical Align
+      o.horizontalAlignment == this.horizontalAlignment && // Horizontal Align
+      o.backgroundColor == this.backgroundColor; // Background Color
 
   @override
   String toString() {

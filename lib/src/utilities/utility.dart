@@ -272,11 +272,11 @@ int getColumnIndex(String columnAlphabet) {
  * 
  */
 
-bool _fontContains(List<_FontStyle> _fSList, _fs) {
-  for (_FontStyle _f in _fSList) {
-    if (_f == _fs) {
-      return true;
+int _fontStyleIndex(List<_FontStyle> _fSList, _fs) {
+  for (int i = 0; i < _fSList.length; i++) {
+    if (_fSList[i] == _fs) {
+      return i;
     }
   }
-  return false;
+  return -1;
 }

@@ -26,8 +26,17 @@ void main(List<String> args) {
   var cell = sheet.cell(CellIndex.indexByString("A1"));
   cell.value = "Heya How are you I am fine ok goood night";
   CellStyle _cellStyle = CellStyle();
-  _cellStyle.fontColor = "#000000";
+  _cellStyle.isBold = true;
+  _cellStyle.isItalic = true;
   cell.cellStyle = _cellStyle;
+
+  /// putting value = 'k' at A1 index.
+  var cell2 = sheet.cell(CellIndex.indexByString("A5"));
+  cell2.value = "Heya How night";
+  CellStyle _cellStyle2 = CellStyle();
+  _cellStyle2.underline = Underline.Single;
+
+  cell2.cellStyle = _cellStyle2;
 
   /// appending rows
   sheet.appendRow([8]);

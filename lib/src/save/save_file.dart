@@ -186,173 +186,12 @@ class Save {
     });
   }
 
-  /* _processStylesFile() {
-    _innerCellStyle = List<CellStyle>();
-    List<String> innerPatternFill = List<String>(),
-        innerFontColor = List<String>();
-
-    _cellStyleOther.keys.toList().forEach((otherSheet) {
-      _cellStyleOther[otherSheet].forEach((String _, CellStyle cellStyleOther) {
-        int pos = _checkPosition(_innerCellStyle, cellStyleOther);
-        if (pos == -1) {
-          _innerCellStyle.add(cellStyleOther);
-        }
-      });
-    });
-
-    _innerCellStyle.forEach((cellStyle) {
-      String fontColor = cellStyle.getFontColorHex,
-          backgroundColor = cellStyle.getBackgroundColorHex;
-
-      if (!_fontColorHex.contains(fontColor) &&
-          !innerFontColor.contains(fontColor)) {
-        innerFontColor.add(fontColor);
-      }
-      if (!_patternFill.contains(backgroundColor) &&
-          !innerPatternFill.contains(backgroundColor)) {
-        innerPatternFill.add(backgroundColor);
-      }
-    });
-
-    XmlElement fonts =
-        _xmlFiles['xl/styles.xml'].findAllElements('fonts').first;
-
-    var fontAttribute = fonts.getAttributeNode('count');
-    if (fontAttribute != null) {
-      fontAttribute.value = '${_fontColorHex.length + innerFontColor.length}';
-    } else {
-      fonts.attributes.add(XmlAttribute(
-          XmlName('count'), '${_fontColorHex.length + innerFontColor.length}'));
-    }
-
-    innerFontColor.forEach((colorValue) =>
-        fonts.children.add(XmlElement(XmlName('font'), [], [
-          XmlElement(
-              XmlName('color'), [XmlAttribute(XmlName('rgb'), colorValue)], [])
-        ])));
-
-    XmlElement fills =
-        _xmlFiles['xl/styles.xml'].findAllElements('fills').first;
-
-    var fillAttribute = fills.getAttributeNode('count');
-
-    if (fillAttribute != null) {
-      fillAttribute.value = '${_patternFill.length + innerPatternFill.length}';
-    } else {
-      fills.attributes.add(XmlAttribute(XmlName('count'),
-          '${_patternFill.length + innerPatternFill.length}'));
-    }
-
-    innerPatternFill.forEach((color) {
-      if (color.length >= 2) {
-        if (color.substring(0, 2).toUpperCase() == 'FF') {
-          fills.children.add(XmlElement(XmlName('fill'), [], [
-            XmlElement(XmlName('patternFill'), [
-              XmlAttribute(XmlName('patternType'), 'solid')
-            ], [
-              XmlElement(XmlName('fgColor'),
-                  [XmlAttribute(XmlName('rgb'), color)], []),
-              XmlElement(
-                  XmlName('bgColor'), [XmlAttribute(XmlName('rgb'), color)], [])
-            ])
-          ]));
-        } else if (color == "none" ||
-            color == "gray125" ||
-            color == "lightGray") {
-          fills.children.add(XmlElement(XmlName('fill'), [], [
-            XmlElement(XmlName('patternFill'),
-                [XmlAttribute(XmlName('patternType'), color)], [])
-          ]));
-        }
-      } else {
-        _damagedExcel(text: "Corrupted Styles Found");
-      }
-    });
-
-    XmlElement celx =
-        _xmlFiles['xl/styles.xml'].findAllElements('cellXfs').first;
-    var cellAttribute = celx.getAttributeNode('count');
-
-    if (cellAttribute != null) {
-      cellAttribute.value = '${_cellStyleList.length + _innerCellStyle.length}';
-    } else {
-      celx.attributes.add(XmlAttribute(XmlName('count'),
-          '${_cellStyleList.length + _innerCellStyle.length}'));
-    }
-
-    _innerCellStyle.forEach((cellStyle) {
-      String backgroundColor = cellStyle.getBackgroundColorHex,
-          fontColor = cellStyle.getFontColorHex;
-
-      HorizontalAlign horizontalALign = cellStyle.getHorizontalAlignment;
-      VerticalAlign verticalAlign = cellStyle.getVericalAlignment;
-      TextWrapping textWrapping = cellStyle.getTextWrapping;
-      int backgroundIndex = innerPatternFill.indexOf(backgroundColor),
-          fontIndex = innerFontColor.indexOf(fontColor);
-
-      var attributes = <XmlAttribute>[
-        XmlAttribute(XmlName('borderId'), '0'),
-        XmlAttribute(XmlName('fillId'),
-            '${backgroundIndex == -1 ? 0 : backgroundIndex + _patternFill.length}'),
-        XmlAttribute(XmlName('fontId'),
-            '${fontIndex == -1 ? 0 : fontIndex + _fontColorHex.length}'),
-        XmlAttribute(XmlName('numFmtId'), '0'),
-        XmlAttribute(XmlName('xfId'), '0'),
-      ];
-
-      if ((_patternFill.contains(backgroundColor) ||
-              innerPatternFill.contains(backgroundColor)) &&
-          backgroundColor != "none" &&
-          backgroundColor != "gray125" &&
-          backgroundColor.toLowerCase() != "lightgray") {
-        attributes.add(XmlAttribute(XmlName('applyFill'), '1'));
-      }
-
-      if ((_fontColorHex.contains(fontColor) ||
-          innerFontColor.contains(fontColor))) {
-        attributes.add(XmlAttribute(XmlName('applyFont'), '1'));
-      }
-
-      var children = <XmlElement>[];
-
-      if (horizontalALign != HorizontalAlign.Left ||
-          textWrapping != null ||
-          verticalAlign != VerticalAlign.Bottom) {
-        attributes.add(XmlAttribute(XmlName('applyAlignment'), '1'));
-        var childAttributes = <XmlAttribute>[];
-
-        if (textWrapping != null) {
-          childAttributes.add(XmlAttribute(
-              XmlName(textWrapping == TextWrapping.Clip
-                  ? 'shrinkToFit'
-                  : 'wrapText'),
-              '1'));
-        }
-
-        if (verticalAlign != VerticalAlign.Bottom) {
-          String ver = verticalAlign == VerticalAlign.Top ? 'top' : 'center';
-          childAttributes.add(XmlAttribute(XmlName('vertical'), '$ver'));
-        }
-
-        if (horizontalALign != HorizontalAlign.Left) {
-          String hor =
-              horizontalALign == HorizontalAlign.Right ? 'right' : 'center';
-          childAttributes.add(XmlAttribute(XmlName('horizontal'), '$hor'));
-        }
-
-        children.add(XmlElement(XmlName('alignment'), childAttributes, []));
-      }
-
-      celx.children.add(XmlElement(XmlName('xf'), attributes, children));
-    });
-  } */
-
   /// Writing Font Color in [xl/styles.xml] from the Cells of the sheets.
 
   _processStylesFile() {
     _innerCellStyle = List<CellStyle>();
-    List<String> innerPatternFill = List<String>(),
-        innerFontColor = List<String>();
+    List<String> innerPatternFill = List<String>();
+    List<_FontStyle> innerFontStyle = List<_FontStyle>();
 
     _excel._sheetMap.forEach((sheetName, sheetObject) {
       sheetObject._sheetData.forEach((_, colMap) {
@@ -368,13 +207,22 @@ class Save {
     });
 
     _innerCellStyle.forEach((cellStyle) {
-      String fontColor = cellStyle.fontColor,
-          backgroundColor = cellStyle.backgroundColor;
+      _FontStyle _fs = _FontStyle(
+          bold: cellStyle.isBold,
+          italic: cellStyle.isItalic,
+          fontColorHex: cellStyle.fontColor,
+          underline: cellStyle.underline,
+          fontSize: cellStyle.fontSize,
+          fontFamily: cellStyle.fontFamily);
 
-      if (!_excel._fontColorHex.contains(fontColor) &&
-          !innerFontColor.contains(fontColor)) {
-        innerFontColor.add(fontColor);
+      /// If `-1` is returned then it indicates that `_fontStyle` is not present in the `_fs`
+      if (_fontStyleIndex(_excel._fontStyleList, _fs) == -1 &&
+          _fontStyleIndex(innerFontStyle, _fs) == -1) {
+        innerFontStyle.add(_fs);
       }
+
+      /// Filling the inner usable extra list of backgroung color
+      String backgroundColor = cellStyle.backgroundColor;
       if (!_excel._patternFill.contains(backgroundColor) &&
           !innerPatternFill.contains(backgroundColor)) {
         innerPatternFill.add(backgroundColor);
@@ -387,16 +235,66 @@ class Save {
     var fontAttribute = fonts.getAttributeNode('count');
     if (fontAttribute != null) {
       fontAttribute.value =
-          '${_excel._fontStyleList.length + innerFontColor.length}';
+          '${_excel._fontStyleList.length + innerFontStyle.length}';
     } else {
       fonts.attributes.add(XmlAttribute(XmlName('count'),
-          '${_excel._fontStyleList.length + innerFontColor.length}'));
+          '${_excel._fontStyleList.length + innerFontStyle.length}'));
     }
 
-    innerFontColor.forEach((colorValue) =>
+    /* innerFontColor.forEach((colorValue) =>
         fonts.children.add(XmlElement(XmlName('font'), [], [
           XmlElement(
               XmlName('color'), [XmlAttribute(XmlName('rgb'), colorValue)], [])
+        ]))); */
+
+    innerFontStyle.forEach((fontStyleElement) =>
+        fonts.children.add(XmlElement(XmlName('font'), [], [
+          /// putting color
+          if (fontStyleElement._fontColorHex != null &&
+              fontStyleElement._fontColorHex != "FF000000")
+            XmlElement(
+                XmlName('color'),
+                [XmlAttribute(XmlName('rgb'), fontStyleElement._fontColorHex)],
+                []),
+
+          /// putting bold
+          if (fontStyleElement.isBold != null && fontStyleElement.isBold)
+            XmlElement(XmlName('b'), [], []),
+
+          /// putting italic
+          if (fontStyleElement.isItalic != null && fontStyleElement.isItalic)
+            XmlElement(XmlName('i'), [], []),
+
+          /// putting single underline
+          if (fontStyleElement.underline != null &&
+              fontStyleElement.underline != Underline.None &&
+              fontStyleElement.underline == Underline.Single)
+            XmlElement(XmlName('u'), [], []),
+
+          /// putting double underline
+          if (fontStyleElement.underline != null &&
+              fontStyleElement.underline != Underline.None &&
+              fontStyleElement.underline != Underline.Single &&
+              fontStyleElement.underline == Underline.Double)
+            XmlElement(
+                XmlName('u'), [XmlAttribute(XmlName('val'), 'double')], []),
+
+          /// putting fontFamily
+          if (fontStyleElement.fontFamily != null &&
+              fontStyleElement.fontFamily.toLowerCase().toString() != "null" &&
+              fontStyleElement.fontFamily != "" &&
+              fontStyleElement.fontFamily.isNotEmpty)
+            XmlElement(XmlName('name'), [
+              XmlAttribute(
+                  XmlName('val'), fontStyleElement.fontFamily.toString())
+            ], []),
+
+          /// putting fontSize
+          if (fontStyleElement.fontSize != null &&
+              fontStyleElement.fontSize.toString().isNotEmpty)
+            XmlElement(XmlName('sz'), [
+              XmlAttribute(XmlName('val'), fontStyleElement.fontSize.toString())
+            ], []),
         ])));
 
     XmlElement fills =
@@ -453,21 +351,28 @@ class Save {
     }
 
     _innerCellStyle.forEach((cellStyle) {
-      String backgroundColor = cellStyle.backgroundColor,
-          fontColor = cellStyle.fontColor;
+      String backgroundColor = cellStyle.backgroundColor;
+
+      _FontStyle _fs = _FontStyle(
+          bold: cellStyle.isBold,
+          italic: cellStyle.isItalic,
+          fontColorHex: cellStyle.fontColor,
+          underline: cellStyle.underline,
+          fontSize: cellStyle.fontSize,
+          fontFamily: cellStyle.fontFamily);
 
       HorizontalAlign horizontalALign = cellStyle.horizontalAlignment;
       VerticalAlign verticalAlign = cellStyle.verticalAlignment;
       TextWrapping textWrapping = cellStyle.wrap;
       int backgroundIndex = innerPatternFill.indexOf(backgroundColor),
-          fontIndex = innerFontColor.indexOf(fontColor);
+          fontIndex = _fontStyleIndex(innerFontStyle, _fs);
 
       var attributes = <XmlAttribute>[
         XmlAttribute(XmlName('borderId'), '0'),
         XmlAttribute(XmlName('fillId'),
             '${backgroundIndex == -1 ? 0 : backgroundIndex + _excel._patternFill.length}'),
         XmlAttribute(XmlName('fontId'),
-            '${fontIndex == -1 ? 0 : fontIndex + _excel._fontColorHex.length}'),
+            '${fontIndex == -1 ? 0 : fontIndex + _excel._fontStyleList.length}'),
         XmlAttribute(XmlName('numFmtId'), '0'),
         XmlAttribute(XmlName('xfId'), '0'),
       ];
@@ -480,10 +385,15 @@ class Save {
         attributes.add(XmlAttribute(XmlName('applyFill'), '1'));
       }
 
-      if ((_excel._fontColorHex.contains(fontColor) ||
-          innerFontColor.contains(fontColor))) {
+      if (_fontStyleIndex(_excel._fontStyleList, _fs) != -1 &&
+          _fontStyleIndex(innerFontStyle, _fs) != -1) {
         attributes.add(XmlAttribute(XmlName('applyFont'), '1'));
       }
+
+      /*  if ((_excel._fontColorHex.contains(fontColor) ||
+          innerFontColor.contains(fontColor))) {
+        attributes.add(XmlAttribute(XmlName('applyFont'), '1'));
+      } */
 
       var children = <XmlElement>[];
 

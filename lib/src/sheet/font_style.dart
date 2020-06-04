@@ -9,18 +9,20 @@ class _FontStyle {
 
   _FontStyle(
       {String fontColorHex = "FF000000",
-      int fontSize = 12,
-      String fontFamily = "Arial",
+      int fontSize,
+      String fontFamily = null,
       bool bold = false,
       Underline underline = Underline.None,
       bool italic = false}) {
     this._bold = bold ?? false;
 
-    this.fontSize = fontSize ?? 12;
+    this.fontSize = fontSize;
 
     this._italic = italic ?? false;
 
-    this.fontFamily = fontFamily ?? FontFamily.Arial;
+    this.fontFamily = fontFamily;
+
+    this._underline = underline ?? Underline.None;
 
     if (fontColorHex != null) {
       this._fontColorHex = _isColorAppropriate(fontColorHex);
@@ -66,7 +68,7 @@ class _FontStyle {
    * 
    */
   set fontFamily(String family) {
-    this._fontFamily = family ?? "Arial";
+    this._fontFamily = family;
   }
 
   /**
@@ -84,7 +86,7 @@ class _FontStyle {
    * 
    */
   set fontSize(int _font_Size) {
-    this._fontSize = _font_Size ?? 12;
+    this._fontSize = _font_Size;
   }
 
   /**
@@ -111,7 +113,7 @@ class _FontStyle {
    * 
    */
   get isBold {
-    this._bold;
+    return this._bold;
   }
 
   /**
@@ -129,7 +131,7 @@ class _FontStyle {
    * 
    */
   get isItalic {
-    this._italic;
+    return this._italic;
   }
 
   /**
@@ -143,19 +145,21 @@ class _FontStyle {
 
   @override
   bool operator ==(o) =>
-      o.bold == this._bold && // bold
-      o.italic == this._italic && // italic
-      o.fontSize == this._fontSize && // Font Size
-      o.fontFamily == this._fontFamily &&
+      o.isBold == this.isBold && // bold
+      o.isItalic == this.isItalic && // italic
+      o.fontSize == this.fontSize && // Font Size
+      o.underline == this.underline && // Underline
+      o.fontFamily == this.fontFamily && // font Family
       o.runtimeType == this.runtimeType && // runtimeType
-      o.fontColorHex == this._fontColorHex; // Font Color
+      o.fontColor == this.fontColor; // Font Color
 
   @override
   String toString() {
-    String f = "Font Color :" + this._fontColorHex,
+    String f = "Font Color :" + this.fontColor,
         fs = "Font Size  :" + this.fontSize.toString(),
-        bold = "Bold       :" + this._bold.toString(),
-        italic = "Italic     :" + this._italic.toString(),
+        bold = "Bold       :" + this.isBold.toString(),
+        underline = "Underline  :" + this.underline.toString(),
+        italic = "Italic     :" + this.isItalic.toString(),
         fontFamily = "Font Family:" + this.fontFamily.toString();
 
     return f + "\n" + fs + "\n" + bold + "\n" + italic + "\n" + fontFamily;

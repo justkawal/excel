@@ -344,7 +344,8 @@ class Parser {
             _fontStyle._fontColorHex = fontColor;
           }
 
-          if (!_fontContains(_excel._fontStyleList, _fontStyle)) {
+          /// If `-1` is returned then it indicates that `_fontStyle` is not present in the `_fontStyleList`
+          if (_fontStyleIndex(_excel._fontStyleList, _fontStyle) == -1) {
             _excel._fontStyleList.add(_fontStyle);
           }
 
