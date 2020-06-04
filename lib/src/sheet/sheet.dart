@@ -885,7 +885,6 @@ class Sheet {
 
     if (value.runtimeType == String &&
         !_excel._sharedStrings.contains('$value')) {
-      print(value + " is String");
       _excel._sharedStrings.add(value.toString());
     }
     _countRowAndCol();

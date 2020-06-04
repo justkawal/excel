@@ -42,14 +42,6 @@ int lettersToNumeric(String letters) {
   }
   return sum;
 }
-/* 
-bool _isEmptyRow(List row) {
-  return row.fold(true, (value, element) => value && (element == null));
-}
-
-bool _isNotEmptyRow(List row) {
-  return !_isEmptyRow(row);
-} */
 
 Iterable<XmlElement> _findRows(XmlElement table) {
   return table.findElements('row');

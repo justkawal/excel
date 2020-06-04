@@ -24,19 +24,6 @@ class Parser {
       sheet._sheetData.clear();
     }
     sheet._countRowAndCol();
-/* 
-    for (var row = 0; row < table._rows.length; row++) {
-      if (table._maxCols == 0) {
-        table._rows[row].clear();
-      } else if (table._maxCols < table._rows[row].length) {
-        table._rows[row].removeRange(table._maxCols, table._rows[row].length);
-      } else if (table._maxCols > table._rows[row].length) {
-        var repeat = table._maxCols - table._rows[row].length;
-        for (var index = 0; index < repeat; index++) {
-          table._rows[row].add(null);
-        }
-      }
-    } */
   }
 
   _putContentXml() {
@@ -247,21 +234,7 @@ class Parser {
       _excel._cellStyleList = List<CellStyle>();
 
       Iterable<XmlElement> fontList = document.findAllElements('font');
-      /* document
-          .findAllElements('font')
-          .first
-          .findElements('color')
-          .forEach((child) {
-        var colorHex = child.getAttribute('rgb');
-        if (colorHex != null &&
-            !_excel._fontColorHex.contains(colorHex.toString())) {
-          _excel._fontColorHex.add(colorHex.toString());
-          fontIndex = 1;
-        } else if (fontIndex == 0 &&
-            !_excel._fontColorHex.contains("FF000000")) {
-          _excel._fontColorHex.add("FF000000");
-        }
-      }); */
+
       document.findAllElements('patternFill').forEach((node) {
         String patternType = node.getAttribute('patternType').toString(), rgb;
         if (node.children.isNotEmpty) {
@@ -549,13 +522,11 @@ class Parser {
           }
         }
     }
-    // print("$value :" + value.runtimeType.toString());
     sheetObject.updateCell(
         CellIndex.indexByColumnRow(columnIndex: colIndex, rowIndex: rowIndex),
         value);
     if (value.runtimeType == String &&
         !_excel._sharedStrings.contains('$value')) {
-      print("parsing: " + value.toString());
       _excel._sharedStrings.add('$value');
     }
   }

@@ -241,12 +241,6 @@ class Save {
           '${_excel._fontStyleList.length + innerFontStyle.length}'));
     }
 
-    /* innerFontColor.forEach((colorValue) =>
-        fonts.children.add(XmlElement(XmlName('font'), [], [
-          XmlElement(
-              XmlName('color'), [XmlAttribute(XmlName('rgb'), colorValue)], [])
-        ]))); */
-
     innerFontStyle.forEach((fontStyleElement) =>
         fonts.children.add(XmlElement(XmlName('font'), [], [
           /// putting color
@@ -389,11 +383,6 @@ class Save {
           _fontStyleIndex(innerFontStyle, _fs) != -1) {
         attributes.add(XmlAttribute(XmlName('applyFont'), '1'));
       }
-
-      /*  if ((_excel._fontColorHex.contains(fontColor) ||
-          innerFontColor.contains(fontColor))) {
-        attributes.add(XmlAttribute(XmlName('applyFont'), '1'));
-      } */
 
       var children = <XmlElement>[];
 

@@ -48,7 +48,7 @@ void main(List<String> args) {
       print("Unable to set ${sheet.sheetName} to default sheet.");
     }
   });
-/* 
+
   /// coutn of rows
   sheet.maxRows;
 
@@ -104,7 +104,6 @@ void main(List<String> args) {
   int replacedCount = excel.findAndReplace(sheet1, 'bustin', 'raman');
   print("Replaced Count:" + replacedCount.toString());
 
-
   excel.getDefaultSheet().then((value) {
     print("Default Sheet:" + value.toString());
   });
@@ -129,7 +128,7 @@ void main(List<String> args) {
   }
 
   /// copies the contents of
-  excel['copiedInto'] = excel['Sheet24']; */
+  excel['copiedInto'] = excel['Sheet24'];
 
   // Saving the file
 
