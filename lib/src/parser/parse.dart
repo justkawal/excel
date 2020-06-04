@@ -450,7 +450,7 @@ class Parser {
 
       String rC = node.getAttribute('r').toString();
 
-      if (_excel._cellStyleReferenced.containsKey(name)) {
+      if (_isContain(_excel._cellStyleReferenced[name])) {
         _excel._cellStyleReferenced[name][rC] = s;
       } else {
         _excel._cellStyleReferenced[name] = {rC: s};

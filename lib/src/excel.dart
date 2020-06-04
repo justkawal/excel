@@ -128,32 +128,73 @@ class Excel {
    * 
    * If `sheet` does not exist then it will be automatically created with contents of `sheetObject`
    * 
-   * It will clone `oldSHeetObject` to newSheet = `sheet` and both the `newSheetObject` and `oldSheetObject` will not be linked.
+   * Newly created sheet with name = `sheet` will have seperate reference and will not be linked to sheetObject.
    * 
    * 
    */
-  operator []=(String sheet, Sheet oldSheetObject) {
+  operator []=(String sheet, Sheet sheetObject) {
     _availSheet(sheet);
 
-    _sheetMap[sheet] = Sheet._clone(this, sheet, oldSheetObject);
+    _sheetMap[sheet] = Sheet._clone(this, sheet, sheetObject);
   }
 
   /**
    * 
    * 
-   * If `existingSheetName` exist then `sheetName` will be linked with `existingSheetName's` object.
+   * `sheet2Object` will be linked with `sheet1`.
    * 
-   * Important Note: After linkage the operations performed on `sheetName`, will also get performed on `existingSheetName` and `vica-versa`.
+   * If `sheet1` does not exist then it will be automatically created.
    * 
-   * If `existingSheetName` does not exist then no-linkage will be performed;
+   * Important Note: After linkage the operations performed on `sheet1`, will also get performed on `sheet2Object` and `vica-versa`.
    * 
    * 
    */
-  void link(String sheetName, Sheet existingSheetName) {
-    if (_isContain(_sheetMap[existingSheetName.sheetName])) {
-      _availSheet(sheetName);
+  void link(String sheet1, Sheet existingSheetObject) {
+    if (_isContain(_sheetMap[existingSheetObject.sheetName])) {
+      _availSheet(sheet1);
 
-      _sheetMap[sheetName] = _sheetMap[existingSheetName.sheetName];
+      _sheetMap[sheet1] = _sheetMap[existingSheetObject.sheetName];
+
+      if (_isContain(_cellStyleReferenced[existingSheetObject.sheetName])) {
+        _cellStyleReferenced[sheet1] = Map<String, int>.from(
+            _cellStyleReferenced[existingSheetObject.sheetName]);
+      }
+    }
+  }
+
+  /**
+   * 
+   * 
+   * If `sheet` is linked with any other sheet's object then it's link will be broke
+   * 
+   * 
+   */
+  void unLink(String sheet) {
+    if (_isContain(_sheetMap[sheet])) {
+      ///
+      /// copying the sheet into itself thus resulting in breaking the linkage as Sheet._clone() will provide new reference;
+      copy(sheet, sheet);
+    }
+  }
+
+  /**
+   * 
+   * 
+   * Copies the content of `fromSheet` into `toSheet`.
+   * 
+   * In order to successfully copy: `fromSheet` should exist in `excel.tables.keys`.
+   * 
+   * If `toSheet` does not exist then it will be automatically created.
+   * 
+   * 
+   */
+  void copy(String fromSheet, String toSheet) {
+    if (_isContain(_sheetMap[fromSheet])) {
+      this[toSheet] = this[fromSheet];
+    }
+    if (_isContain(_cellStyleReferenced[fromSheet])) {
+      _cellStyleReferenced[toSheet] =
+          Map<String, int>.from(_cellStyleReferenced[fromSheet]);
     }
   }
 
@@ -162,18 +203,17 @@ class Excel {
    * 
    * Changes the name from `oldSheetName` to `newSheetName`.
    * 
-   * In order to change name: `oldSheetName` should exist in `excel.tables.keys` and `newSheetName` must not exist.
+   * In order to rename : `oldSheetName` should exist in `excel.tables.keys` and `newSheetName` must not exist.
    * 
    * 
    */
   void rename(String oldSheetName, String newSheetName) {
     if (_isContain(_sheetMap[oldSheetName]) &&
         !_isContain(_sheetMap[newSheetName])) {
-      this[newSheetName] = this[oldSheetName];
+      copy(oldSheetName, newSheetName);
 
       ///
-      /// delete the oldSheetName as sheet with newSheetName is having cloned SheetObject of oldSheetName with new reference,
-      ///  so deleting oldSheetName's Sheet Object
+      /// delete the `oldSheetName` as sheet with `newSheetName` is having cloned `SheetObject of oldSheetName` with new reference,
       delete(oldSheetName);
     }
   }
@@ -218,6 +258,12 @@ class Excel {
     /// remove from key = `sheet` from `_sheets`
     if (_isContain(_sheets[sheet])) {
       _sheets.remove(sheet);
+    }
+
+    ///
+    /// remove the cellStlye Referencing as it would be useless to have cellStyleReferenced saved
+    if (_isContain(_cellStyleReferenced[sheet])) {
+      _cellStyleReferenced.remove(sheet);
     }
   }
 
