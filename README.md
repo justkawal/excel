@@ -137,15 +137,7 @@ Now in your `Dart` code, you can use:
 ### Create XLSX File
     
 ````dart
-    var excel = Excel.createExcel(); //automatically creates 3 empty sheets Sheet1, Sheet2 and Sheet3 
-     
-    //find desired sheet name in excel/file;
-    for (var tableName in excel.tables.keys) {
-      if( desiredSheetName.toString() == tableName.toString() ){
-        sheet = tableName.toString();
-        break;
-       }
-    }
+    var excel = Excel.createExcel(); // automatically creates 1 empty sheet - Sheet1 ...
     
 ````
  ### Update Cell values
@@ -158,36 +150,40 @@ Now in your `Dart` code, you can use:
       * Cell options are optional
       */
       
-      var sheet = 'SheetName';
+      var sheet = excel['SheetName'];
       
       //update cell with cellAddress
-      excel.updateCell(sheet, CellIndex.indexByString("A1"), "Here value of A1");
+      sheet.updateCell(CellIndex.indexByString("A1"), "Here value of A1");
         
       //update cell with row and column index
-      excel.updateCell(sheet, CellIndex.indexByColumnRow(columnIndex: 2, rowIndex: 0), "Here value of C1");
+      sheet.updateCell(CellIndex.indexByColumnRow(columnIndex: 2, rowIndex: 0), "Here value of C1");
         
       //update cell and it's background color
-      excel.updateCell(sheet, CellIndex.indexByString("A2"), "Here value of A2", backgroundColorHex: "#1AFF1A")
+      sheet.updateCell(CellIndex.indexByString("A2"), "Here value of A2", cellStyle : CellStyle(backgroundColorHex: "#1AFF1A"));
       
       //update alignment
-      excel.updateCell(sheet, CellIndex.indexByString("E5"), "Here value of E5", horizontalAlign: HorizontalAlign.Right);
+      sheet.updateCell(CellIndex.indexByString("E5"), "Here value of E5", cellStyle : CellStyle(horizontalAlign: HorizontalAlign.Right));
 
       // Insert column at index = 17;
-      excel.insertColumn(sheet, 17);
+      sheet.insertColumn(17);
     
       // Remove column at index = 2
-      excel.removeColumn(sheet, 2);
+      sheet.removeColumn(2);
     
       // Insert row at index = 2;
-      excel.insertRow(sheet, 2);
+      sheet.insertRow(2);
     
       // Remove row at index = 17
-      excel.removeRow(sheet, 2);
+      sheet.removeRow(2);
     
    ````
-### Cell Options
+### Cell Style Options
 key | description
 ------------ | -------------
+ fontFamily | eg. ````getFontFamily(FontFamily.Arial)```` or ````getFontFamily(FontFamily.Comic_Sans_MS)````
+ bold | makes text bold - when set to ````true````, by-default it is set to ````false````
+ italic | makes text italic - when set to ````true````, by-default it is set to ````false````
+ underline | Gives underline to text ````enum Underline { None, Single, Double }```` eg. Underline.Single, by-default it is set to Underline.None
  fontColorHex | Font Color eg. "#0000FF"
  backgroundColorHex | Background color of cell eg. "#faf487"
  wrap | Text wrapping ````enum TextWrapping { WrapText, Clip }```` eg. TextWrapping.Clip
