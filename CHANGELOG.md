@@ -3,11 +3,23 @@ All notable changes to this project will be documented in this file.
 
 ## [Future Updates coming soon]
 - Formulas
+- Password Protection
+- Conversion to PDF
+
+## [1.0.9] - 2020-06-06
+### Added
+- Copy
+- Rename
+- Delete
+- Link Sheets
+- Un-Link Sheets
 - Font Family
-- Text Size
+- Font Size
 - Italic
 - Underline
 - Bold
+### Improved
+- Faster Processing
 
 ## [1.0.8] - 2020-05-23
 ### Removed
