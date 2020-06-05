@@ -1,11 +1,10 @@
 ## Donate (Be the first one)
 
-I'm working fulltime on **excel**, a library for reading, processing and creating **excel files in flutter and dart server**. As an independent developer, I rely entirely on income generated via **excel** related work.
+I'm working fulltime on **excel**, a library for reading, processing and creating **excel files in flutter and dart server**. As an independent developer, **I rely entirely on income generated via excel related work.**
 
 If you use **Exce**l in your daily work and feel that it has made your life or work easier, please consider donating, So as to help me survive in this time of lockdown. once in a while! ☕
 
 If you run a business and is using Excel in a revenue-generating flutter product, it makes business sense to sponsor Excel (flutter) development: it ensures the project that your product relies on stays healthy and actively maintained. It can also help your exposure in the flutter community and makes it easier to attract other developers.
-
 
 
 [Paypal Me on paypal.me/kawal7415](https://www.paypal.me/kawal7415)
@@ -85,6 +84,22 @@ Now in your `Dart` code, you can use:
 
 # Usage
 
+### Breaking Changes for those moving from 1.0.8  -->  1.0.9
+
+The necessary changes to be made to updateCell function in order to prevent the code from breaking.
+
+````dart
+    
+    excel.updateCell('SheetName', CellIndex.indexByString("A2"), "Here value", backgroundColorHex: "#1AFF1A", horizontalAlign: HorizontalAlign.Right);
+    
+    // Now in the above code wrap the optional arguments with CellStyle() and pass it to optional cellStyle parameter.
+    // So the resulting code will look like
+    
+    excel.updateCell('SheetName', CellIndex.indexByString("A2"), "Here value", cellStyle: CellStyle( backgroundColorHex: "#1AFF1A", horizontalAlign: HorizontalAlign.Right ) );
+    
+
+````
+
 ### Imports
 
 ````dart
@@ -134,53 +149,59 @@ Now in your `Dart` code, you can use:
     
 ````
 
-### Create XLSX File
+### Create New XLSX File
     
 ````dart
-    var excel = Excel.createExcel(); // automatically creates 1 empty sheet - Sheet1 ...
+    var excel = Excel.createExcel(); // automatically creates 1 empty sheet: Sheet1
     
 ````
+
  ### Update Cell values
  
  ````dart
-      /* 
-      * excel.updateCell('sheetName', cell, value, options?);
-      * if sheet === 'sheetName' does not exist in excel, it will be created automatically after calling updateCell method
+     /* 
+      * sheetObject.updateCell(cell, value, { CellStyle (Optional)});
+      * sheetObject created by calling - // Sheet sheetObject = excel['SheetName'];
       * cell can be identified with Cell Address or by 2D array having row and column Index;
-      * Cell options are optional
+      * Cell Style options are optional
       */
       
-      var sheet = excel['SheetName'];
+      Sheet sheetObject = excel['SheetName'];
       
-      //update cell with cellAddress
-      sheet.updateCell(CellIndex.indexByString("A1"), "Here value of A1");
-        
-      //update cell with row and column index
-      sheet.updateCell(CellIndex.indexByColumnRow(columnIndex: 2, rowIndex: 0), "Here value of C1");
-        
-      //update cell and it's background color
-      sheet.updateCell(CellIndex.indexByString("A2"), "Here value of A2", cellStyle : CellStyle(backgroundColorHex: "#1AFF1A"));
+      CellStyle cellStyle = CellStyle(backgroundColorHex: "#1AFF1A", fontFamily : getFontFamily(FontFamily.Calibri));
       
-      //update alignment
-      sheet.updateCell(CellIndex.indexByString("E5"), "Here value of E5", cellStyle : CellStyle(horizontalAlign: HorizontalAlign.Right));
-
-      // Insert column at index = 17;
-      sheet.insertColumn(17);
-    
-      // Remove column at index = 2
-      sheet.removeColumn(2);
-    
-      // Insert row at index = 2;
-      sheet.insertRow(2);
-    
-      // Remove row at index = 17
-      sheet.removeRow(2);
-    
+      cellStyle.underline = Underline.Single; // or Underline.Double
+      
+      
+      var cell = sheetObject.cell(CellIndex.indexByString("A1"));
+      cell.value = 8; // dynamic values support provided;
+      cell.cellStyle = cellStyle;
+      
+      // printing cell-type
+      print("CellType: "+ cell.cellType.toString());
+      
+      ///
+      /// Inserting and removing column and rows
+      
+      // insert column at index = 8
+      sheetObject.insertColumn(8);
+      
+      // remove column at index = 18
+      sheetObject.removeColumn(18);
+      
+      // insert row at index = 82
+      sheetObject.removeRow(82);
+      
+      // remove row at index = 80
+      sheetObject.removeRow(80);
+      
+      
    ````
-### Cell Style Options
+### Cell-Style Options
 key | description
 ------------ | -------------
- fontFamily | eg. ````getFontFamily(FontFamily.Arial)```` or ````getFontFamily(FontFamily.Comic_Sans_MS)````
+ fontFamily | eg. getFontFamily(````FontFamily.Arial````) or getFontFamily(````FontFamily.Comic_Sans_MS````) ````There is total 182 Font Families available for now````
+ fontSize | specify the font-size as integer eg. fontSize = 15
  bold | makes text bold - when set to ````true````, by-default it is set to ````false````
  italic | makes text italic - when set to ````true````, by-default it is set to ````false````
  underline | Gives underline to text ````enum Underline { None, Single, Double }```` eg. Underline.Single, by-default it is set to Underline.None
@@ -194,23 +215,100 @@ key | description
  ### Merge Cells
  
  ````dart
-     /* 
-     * excel.merge('sheetName', starting_cell, ending_cell, 'customValue');
-     * sheet === 'sheetName' in which merging of rows and columns is to be done
+    /* 
+     * sheetObject.merge(CellIndex starting_cell, CellIndex ending_cell, dynamic 'customValue');
+     * sheetObject created by calling - // Sheet sheetObject = excel['SheetName'];
      * starting_cell and ending_cell can be identified with Cell Address or by 2D array having row and column Index;
      * customValue is optional
      */
  
-      excel.merge(sheet, CellIndex.indexByString("A1"), CellIndex.indexByString("E4"), customValue: "Put this text after merge");
-    
+      sheetObject.merge(CellIndex.indexByString("A1"), CellIndex.indexByString("E4"), customValue: "Put this text after merge");
+     
+   ````
+   
+### Copy sheet contents to another sheet
+ 
+ ````dart
+ 
+     /*
+      * excel.copy(String 'existingSheetName', String 'anotherSheetName');
+      * existingSheetName should exist in excel.tables.keys in order to successfully copy
+      * if anotherSheetName does not exist then it will be automatically created.
+      *
+      */
+      
+      excel.copy('existingSheetName', 'anotherSheetName');
+      
+   ````
+
+### Rename sheet
+ 
+ ````dart
+ 
+     /*
+      * excel.rename(String 'existingSheetName', String 'newSheetName');
+      * existingSheetName should exist in excel.tables.keys in order to successfully rename
+      *
+      */
+      
+      excel.rename('existingSheetName', 'newSheetName');
+      
+   ````
+   
+### Delete sheet
+ 
+ ````dart
+ 
+     /*
+      * excel.delete(String 'existingSheetName');
+      * (existingSheetName should exist in excel.tables.keys) and (excel.tables.keys.length >= 2), in order to successfully delete.
+      * 
+      */
+      
+      excel.delete('existingSheetName');
+      
+   ````
+   
+### Link sheet
+ 
+ ````dart
+ 
+     /*
+      * excel.link(String 'sheetName', Sheet sheetObject);
+      * 
+      * Any operations performed on (object of 'sheetName') or sheetObject then the operation is performed on both.
+      * if 'sheetName' does not exist then it will be automatically created and linked with the sheetObject's operation.
+      *
+      */
+      
+      excel.link('sheetName', sheetObject);
+      
+   ````
+   
+### Un-Link sheet
+ 
+ ````dart
+ 
+     /*
+      * excel.unLink(String 'sheetName');
+      * In order to successfully unLink the 'sheetName' then it must exist in excel.tables.keys
+      *
+      */
+      
+      excel.unLink('sheetName');
+      
+      // After calling the above function be sure to re-make a new reference of this.
+      
+      Sheet unlinked_sheetObject = excel['sheetName'];
+      
    ````
    
  ### Get Merged Cells List
  
  ````dart
       // Check which cells are merged
- 
-      excel.getMergedCells(sheet).forEach((cells) {
+      
+      sheetObject.spannedItems.forEach((cells) {
         print("Merged:" + cells.toString());
       });
     
@@ -219,45 +317,40 @@ key | description
  ### Un-Merge Cells
  
  ````dart
-     /* 
-     * excel.unMerge(sheet, cell);
-     * sheet === 'sheetName' in which un-merging of rows and columns is to be done
-     * cell should be identified with string only with an example as "A1:E4"
+    /* 
+     * sheetObject.unMerge(cell);
+     * sheetObject created by calling - // Sheet sheetObject = excel['SheetName'];
+     * cell should be identified with string only with an example as "A1:E4".
      * to check if "A1:E4" is un-merged or not
      * call the method excel.getMergedCells(sheet); and verify that it is not present in it.
      */
- 
-      excel.unMerge(sheet, "A1:E4");
+      
+      sheetObject.unMerge("A1:E4");
     
    ````
    
  ### Find and Replace
  
  ````dart
-     /* 
-     * int replacedCount = excel.findAndReplace(sheetName, source, target);
-     * sheet === 'sheetName' in which replacement is to be done
+    /* 
+     * int replacedCount = sheetObject.findAndReplace(source, target);
+     * sheetObject created by calling - // Sheet sheetObject = excel['SheetName'];
      * source is the string or ( User's Custom Pattern Matching RegExp )
      * target is the string which is put in cells in place of source
      * 
      * it returns the number of replacements made
      */
- 
-      int replacedCount = excel.findAndReplace(sheet, 'Flutter', 'Google');
       
-      or
+      int replacedCount = sheetObject.findAndReplace(Flutter', 'Google');
       
-      int replacedCount = excel.findAndReplace(sheet, RegExp('your blah blah important regexp pattern'), 'Google');
-      print("Replaced Count:" + replacedCount.toString());
-    
    ````
    
  ### Insert Row Iterables
  
  ````dart
-      /* 
-      * excel.insertRowIterables(sheet, list-iterables, rowIndex, iterable-options?);
-      * sheet === 'sheetName'
+     /* 
+      * sheetObject.insertRowIterables(list-iterables, rowIndex, iterable-options?);
+      * sheetObject created by calling - // Sheet sheetObject = excel['SheetName'];
       * list-iterables === list of iterables which has to be put in specific row
       * rowIndex === the row in which the iterables has to be put
       * Iterable options are optional
@@ -265,7 +358,8 @@ key | description
       
       /// It will put the list-iterables in the 8th index row
       List<String> dataList = ["Google", "loves", "Flutter", "and", "Flutter", "loves", "Google"];
-      excel.insertRowIterables(sheet, dataList, 8);
+      
+      sheetObject.insertRowIterables(dataList, 8);
     
    ````
 
@@ -278,21 +372,20 @@ key | description
  ### Append Row
  
  ````dart
-     /* 
-     * excel.appendRow(sheetName, list-iterables);
-     * sheet === 'sheetName' in which the list-iterables is to be put in the last available row.
+    /* 
+     * sheetObject.appendRow(list-iterables);
+     * sheetObject created by calling - // Sheet sheetObject = excel['SheetName'];
      * list-iterables === list of iterables
-     * 
      */
      
-      excel.appendRow(sheet, ["Flutter", "till", "Eternity"]);
+      sheetObject.appendRow(["Flutter", "till", "Eternity"]);
     
    ````
  
 ### Get Default Opening Sheet
  
  ````dart
-     /* 
+    /* 
      * Asynchronous method which returns the name of the default sheet
      * excel.getDefaultSheet();
      */
@@ -311,7 +404,7 @@ key | description
 ### Set Default Opening Sheet
  
  ````dart
-     /* 
+    /* 
      * Asynchronous method which sets the name of the default sheet
      * returns bool if successful then true else false
      * excel.setDefaultSheet(sheet);
@@ -353,11 +446,8 @@ key | description
 ## Features coming in next version
 On-going implementation for future:
 - Formulas
-- Font Family
-- Text Size
-- Italic
-- Underline
-- Bold
+- Password Protection
+- Conversion to PDF
 
 ## Help us to keep going.
 
