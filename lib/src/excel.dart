@@ -262,57 +262,43 @@ class Excel {
     ///
     /// remove from `_xmlSheetId`.
     if (_isContain(_xmlSheetId[sheet])) {
-      {
-        ///
-        /// Remove from `xl/_rels/workbook.xml.rels`
-        String sheetId = "worksheets" +
-            _xmlSheetId[sheet].toString().split('worksheets')[1].toString();
+      String sheetId1 = "worksheets" +
+          _xmlSheetId[sheet].toString().split('worksheets')[1].toString();
+      String sheetId2 = _xmlSheetId[sheet];
 
+      [
+        [
+          'xl/_rels/workbook.xml.rels',
+          'Relationship',
+          'Target',
+          sheetId1,
+        ],
+        [
+          '[Content_Types].xml',
+          'Override',
+          'PartName',
+          sheetId2,
+        ],
+      ].forEach((element) {
         int position = -1;
-        List<XmlElement> sheetList = _xmlFiles['xl/_rels/workbook.xml.rels']
-            .findAllElements('Relationship')
-            .toList();
+        Iterable<XmlElement> itr =
+            _xmlFiles[element[0]].findAllElements(element[1]);
+        if (itr != null && itr.isNotEmpty) {
+          List<XmlElement> sheetList = itr.toList();
 
-        for (int i = 0; i < sheetList.length; i++) {
-          var _sheetName = sheetList[i].getAttribute('Target');
-          if (_sheetName != null && _sheetName.toString() == sheetId) {
-            position = i;
-            break;
+          for (int i = 0; i < sheetList.length; i++) {
+            var _sheetName = sheetList[i].getAttribute(element[2]);
+            if (_sheetName != null && _sheetName.toString() == element[3]) {
+              position = i;
+              break;
+            }
+          }
+          if (position != -1) {
+            _xmlFiles[element[0]].findAllElements(element[1]).first.children
+              ..removeAt(position);
           }
         }
-        if (position != -1) {
-          _xmlFiles['xl/_rels/workbook.xml.rels']
-              .findAllElements('Relationship')
-              .first
-              .children
-            ..removeAt(position);
-        }
-      }
-      {
-        ///
-        /// Remove from `[Content_Types].xml`
-        String sheetId = _xmlSheetId[sheet];
-
-        int position = -1;
-        List<XmlElement> sheetList = _xmlFiles['[Content_Types].xml']
-            .findAllElements('Override')
-            .toList();
-
-        for (int i = 0; i < sheetList.length; i++) {
-          var _sheetName = sheetList[i].getAttribute('PartName');
-          if (_sheetName != null && _sheetName.toString() == sheetId) {
-            position = i;
-            break;
-          }
-        }
-        if (position != -1) {
-          _xmlFiles['[Content_Types].xml']
-              .findAllElements('Override')
-              .first
-              .children
-            ..removeAt(position);
-        }
-      }
+      });
 
       ///
       /// Remove from the `_archive` also
