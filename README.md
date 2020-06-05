@@ -46,6 +46,33 @@ If you run a business and is using Excel in a revenue-generating flutter product
 
 [Excel](https://www.pub.dev/packages/excel) is a flutter and dart library for creating and updating excel-sheets for XLSX files.
 
+# Table of Contents
+  - [Installing](#installing)
+  - [Usage](#installing)
+    * [Breaking Changes](#breaking-changes-for-those-moving-from-108------109)
+    * [Imports](#imports)
+    * [Read xlsx file](#read-xlsx-file)
+    * [Read xlsx file from Asset Folder](#read-xlsx-from-flutters-asset-folder)
+    * [Create xlsx file](#create-new-xlsx-file)
+    * [Update Cell](#update-cell-values)
+      + [Cell Style options](#cell-style-options)
+    * [Copy Sheet](#copy-sheet-contents-to-another-sheet)
+    * [Rename Sheet](#rename-sheet)
+    * [Delete Sheet](#delete-sheet)
+    * [Link Sheet](#link-sheet)
+    * [Un-Link Sheet](#un-link-sheet)
+    * [Merge Cells](#merge-cells)
+    * [Get Merged Cells](#get-merged-cells-list)
+    * [Un-Merge Cells](#un-merge-cells)
+    * [Find and Replace](#find-and-replace)
+    * [Insert Row Iterables](#insert-row-iterables)
+      + [Iterables Options](#iterable-options)
+    * [Append Row](#append-row)
+    * [Get default sheet](#get-default-opening-sheet)
+    * [Set default sheet](#set-default-opening-sheet)
+    * [Saving](#saving-xlsx-file)
+ - [Upcoming Features](#features-coming-in-next-version)
+ - [Donate (Be the First one)](#help-us-to-keep-going)
 
 # Installing
 
@@ -211,20 +238,6 @@ key | description
  verticalAlign | align text vertically ````enum VerticalAlign { Top, Center, Bottom }```` eg. VerticalAlign.Top
  horizontalAlign | align text horizontally ````enum HorizontalAlign { Left, Center, Right }```` eg. HorizontalAlign.Right
 
-
- ### Merge Cells
- 
- ````dart
-    /* 
-     * sheetObject.merge(CellIndex starting_cell, CellIndex ending_cell, dynamic 'customValue');
-     * sheetObject created by calling - // Sheet sheetObject = excel['SheetName'];
-     * starting_cell and ending_cell can be identified with Cell Address or by 2D array having row and column Index;
-     * customValue is optional
-     */
- 
-      sheetObject.merge(CellIndex.indexByString("A1"), CellIndex.indexByString("E4"), customValue: "Put this text after merge");
-     
-   ````
    
 ### Copy sheet contents to another sheet
  
@@ -301,6 +314,20 @@ key | description
       
       Sheet unlinked_sheetObject = excel['sheetName'];
       
+   ````
+
+ ### Merge Cells
+ 
+ ````dart
+    /* 
+     * sheetObject.merge(CellIndex starting_cell, CellIndex ending_cell, dynamic 'customValue');
+     * sheetObject created by calling - // Sheet sheetObject = excel['SheetName'];
+     * starting_cell and ending_cell can be identified with Cell Address or by 2D array having row and column Index;
+     * customValue is optional
+     */
+ 
+      sheetObject.merge(CellIndex.indexByString("A1"), CellIndex.indexByString("E4"), customValue: "Put this text after merge");
+     
    ````
    
  ### Get Merged Cells List
