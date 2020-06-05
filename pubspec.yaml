@@ -4,7 +4,7 @@ version: 1.0.8
 homepage: https://github.com/kawal7415/excel
 
 environment:
-  sdk: ">=2.1.0 <3.0.0"
+  sdk: ">=2.7.0 <3.0.0"
 
 dependencies:
   archive: ^2.0.0

@@ -19,4 +19,19 @@ class _Span {
   int get columnSpanStart => __start[1];
 
   int get columnSpanEnd => __end[1];
+
+  /**
+   * 
+   * 
+   * returns true if the two objects are same
+   * 
+   * 
+   */
+  @override
+  bool operator ==(o) {
+    return this.rowSpanStart == o.rowSpanStart &&
+        this.rowSpanEnd == o.rowSpanEnd &&
+        this.columnSpanStart == o.columnSpanStart &&
+        this.columnSpanEnd == o.columnSpanEnd;
+  }
 }
