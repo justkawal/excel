@@ -9,15 +9,13 @@ class Sheet {
   List<_Span> _spanList = List<_Span>();
   Map<int, Map<int, Data>> _sheetData = Map<int, Map<int, Data>>();
 
-  /**
-   * 
-   * 
-   * 
-   * It will clone the object by changing the `this` reference of previous oldSheetObject and putting `new this` reference, with copying the values too
-   * 
-   * 
-   * 
-   */
+  ///
+  ///
+  ///
+  /// It will clone the object by changing the `this` reference of previous oldSheetObject and putting `new this` reference, with copying the values too
+  ///
+  ///
+  ///
   Sheet._clone(Excel excel, String sheetName, Sheet oldSheetObject)
       : this._(
           excel,
@@ -68,13 +66,13 @@ class Sheet {
     }
   }
 
-  /**
-   * 
-   * 
-   * returns the `DataObject` at position of `cellIndex`
-   * 
-   * 
-   */
+  ///
+  ///
+  ///
+  /// returns the `DataObject` at position of `cellIndex`
+  ///
+  ///
+  ///
   Data cell(CellIndex cellIndex) {
     _checkMaxCol(cellIndex.columnIndex);
     _checkMaxRow(cellIndex.rowIndex);
@@ -116,13 +114,13 @@ class Sheet {
     return this._sheetData[cellIndex._rowIndex][cellIndex._columnIndex];
   }
 
-  /**
-   * 
-   * 
-   * returns `2-D dynamic List` of the sheet elements
-   * 
-   * 
-   */
+  ///
+  ///
+  ///
+  /// returns `2-D dynamic List` of the sheet elements
+  ///
+  ///
+  ///
   List<List<dynamic>> get rows {
     List<List<dynamic>> _data = List<List<dynamic>>();
 
@@ -145,11 +143,11 @@ class Sheet {
     return _data;
   }
 
-  /**
-   * 
-   * updates count of rows and cols
-   * 
-   */
+  ///
+  ///
+  /// updates count of rows and cols
+  ///
+  ///
   _countRowAndCol() {
     int maximumColIndex = -1, maximumRowIndex = -1;
     if (_isContain(this._sheetData)) {
@@ -173,13 +171,11 @@ class Sheet {
     this._maxRows = maximumRowIndex + 1;
   }
 
-  /**
-   * 
-   * 
-   * If `sheet` exists and `columnIndex < maxColumns` then it removes column at index = `columnIndex`
-   * 
-   * 
-   */
+  ///
+  ///
+  /// If `sheet` exists and `columnIndex < maxColumns` then it removes column at index = `columnIndex`
+  ///
+  ///
   void removeColumn(int colIndex) {
     _checkMaxCol(colIndex);
     if (colIndex < 0 || colIndex >= this.maxCols) {
@@ -262,17 +258,15 @@ class Sheet {
     _countRowAndCol();
   }
 
-  /**
-   * 
-   * 
-   * Inserts an empty `column` in sheet at position = `columnIndex`.
-   * 
-   * If `columnIndex == null` or `columnIndex < 0` if will not execute 
-   * 
-   * If the `sheet` does not exists then it will be created automatically.
-   * 
-   * 
-   */
+  ///
+  ///
+  /// Inserts an empty `column` in sheet at position = `columnIndex`.
+  ///
+  /// If `columnIndex == null` or `columnIndex < 0` if will not execute
+  ///
+  /// If the `sheet` does not exists then it will be created automatically.
+  ///
+  ///
   void insertColumn(int colIndex) {
     if (colIndex == null || colIndex < 0) {
       return;
@@ -357,13 +351,13 @@ class Sheet {
     _countRowAndCol();
   }
 
-  /**
-   * 
-   * 
-   * If `sheet` exists and `rowIndex < maxRows` then it removes row at index = `rowIndex`
-   * 
-   * 
-   */
+  ///
+  ///
+  ///
+  /// If `sheet` exists and `rowIndex < maxRows` then it removes row at index = `rowIndex`
+  ///
+  ///
+  ///
   void removeRow(int rowIndex) {
     if (rowIndex < 0 || rowIndex >= this._maxRows) {
       return;
@@ -439,19 +433,19 @@ class Sheet {
     }
   }
 
-  /**
-   * 
-   * 
-   * 
-   * Inserts an empty row in `sheet` at position = `rowIndex`.
-   * 
-   * If `rowIndex == null` or `rowIndex < 0` if will not execute 
-   * 
-   * If the `sheet` does not exists then it will be created automatically.
-   * 
-   * 
-   * 
-   */
+  ///
+  ///
+  ///
+  ///
+  /// Inserts an empty row in `sheet` at position = `rowIndex`.
+  ///
+  /// If `rowIndex == null` or `rowIndex < 0` if will not execute
+  ///
+  /// If the `sheet` does not exists then it will be created automatically.
+  ///
+  ///
+  ///
+  ///
   void insertRow(int rowIndex) {
     if (rowIndex < 0) {
       return;
@@ -514,19 +508,19 @@ class Sheet {
     _countRowAndCol();
   }
 
-  /**
-   * 
-   * 
-   * Updates the contents of `sheet` of the `cellIndex: CellIndex.indexByColumnRow(0, 0);` where indexing starts from 0
-   * 
-   * ----or---- by `cellIndex: CellIndex.indexByString("A3");`.
-   * 
-   * Styling of cell can be done by passing the CellStyle object to `cellStyle`.
-   * 
-   * If `sheet` does not exist then it will be automatically created.
-   * 
-   * 
-   */
+  ///
+  ///
+  ///
+  /// Updates the contents of `sheet` of the `cellIndex: CellIndex.indexByColumnRow(0, 0);` where indexing starts from 0
+  ///
+  /// ----or---- by `cellIndex: CellIndex.indexByString("A3");`.
+  ///
+  /// Styling of cell can be done by passing the CellStyle object to `cellStyle`.
+  ///
+  /// If `sheet` does not exist then it will be automatically created.
+  ///
+  ///
+  ///
   void updateCell(CellIndex cellIndex, dynamic value, {CellStyle cellStyle}) {
     int columnIndex = cellIndex._columnIndex;
     int rowIndex = cellIndex._rowIndex;
@@ -556,15 +550,15 @@ class Sheet {
     }
   }
 
-  /**
-   * 
-   * 
-   * Merges the cells starting from `start` to `end`.
-   * 
-   * If `custom value` is not defined then it will look for the very first available value in range `start` to `end` by searching row-wise from left to right.
-   * 
-   * 
-   */
+  ///
+  ///
+  ///
+  /// Merges the cells starting from `start` to `end`.
+  ///
+  /// If `custom value` is not defined then it will look for the very first available value in range `start` to `end` by searching row-wise from left to right.
+  ///
+  ///
+  ///
   merge(CellIndex start, CellIndex end, {dynamic customValue}) {
     int startColumn = start._columnIndex,
         startRow = start._rowIndex,
@@ -637,18 +631,18 @@ class Sheet {
     _excel._mergeChangeLookup = this.sheetName;
   }
 
-  /**
-   * 
-   * 
-   * unMerge the merged cells.
-   * 
-   *        var sheet = 'DesiredSheet';
-   *        List<String> spannedCells = excel.getMergedCells(sheet);
-   *        var cellToUnMerge = "A1:A2";
-   *        excel.unMerge(sheet, cellToUnMerge);
-   * 
-   * 
-   */
+  ///
+  ///
+  ///
+  /// unMerge the merged cells.
+  ///
+  ///        var sheet = 'DesiredSheet';
+  ///        List<String> spannedCells = excel.getMergedCells(sheet);
+  ///        var cellToUnMerge = "A1:A2";
+  ///        excel.unMerge(sheet, cellToUnMerge);
+  ///
+  ///
+  ///
   unMerge(String unmergeCells) {
     if (unmergeCells != null &&
         _spannedItems.isNotEmpty &&
@@ -681,15 +675,15 @@ class Sheet {
     }
   }
 
-  /**
-   * 
-   * 
-   * 
-   * Helps to find the interaction between the pre-existing span position and updates if with new span if there any interaction(Cross-Sectional Spanning) exists.
-   * 
-   * 
-   * 
-   */
+  ///
+  ///
+  ///
+  ///
+  /// Helps to find the interaction between the pre-existing span position and updates if with new span if there any interaction(Cross-Sectional Spanning) exists.
+  ///
+  ///
+  ///
+  ///
   List<int> _getSpanPosition(CellIndex start, CellIndex end) {
     int startColumn = start._columnIndex,
         startRow = start._rowIndex,
@@ -737,13 +731,13 @@ class Sheet {
     return [startColumn, startRow, endColumn, endRow];
   }
 
-  /**
-   * 
-   * 
-   * Appends [row] iterables just post the last filled `rowIndex`.
-   * 
-   * 
-   */
+  ///
+  ///
+  ///
+  /// Appends [row] iterables just post the last filled `rowIndex`.
+  ///
+  ///
+  ///
   appendRow(List<dynamic> row) {
     int targetRow = this.maxRows;
     insertRowIterables(row, targetRow);
@@ -768,13 +762,13 @@ class Sheet {
     return obtained;
   }
 
-  /**
-   * 
-   * 
-   * Checking if the columnIndex and the rowIndex passed is inside the spanObjectList which is got from calling function.
-   * 
-   * 
-   */
+  ///
+  ///
+  ///
+  /// Checking if the columnIndex and the rowIndex passed is inside the spanObjectList which is got from calling function.
+  ///
+  ///
+  ///
   bool _isInsideSpanObject(
       List<_Span> spanObjectList, int columnIndex, int rowIndex) {
     for (int i = 0; i < spanObjectList.length; i++) {
@@ -795,19 +789,19 @@ class Sheet {
     return true;
   }
 
-  /**
-   * 
-   * 
-   * Adds the [row] iterables in the given rowIndex = [rowIndex] in [sheet]
-   * 
-   * [startingColumn] tells from where we should start putting the [row] iterables
-   * 
-   * [overwriteMergedCells] when set to [true] will over-write mergedCell and does not jumps to next unqiue cell.
-   * 
-   * [overwriteMergedCells] when set to [false] puts the cell value in next unique cell available and putting the value in merged cells only once.
-   * 
-   * 
-   */
+  ///
+  ///
+  ///
+  /// Adds the [row] iterables in the given rowIndex = [rowIndex] in [sheet]
+  ///
+  /// [startingColumn] tells from where we should start putting the [row] iterables
+  ///
+  /// [overwriteMergedCells] when set to [true] will over-write mergedCell and does not jumps to next unqiue cell.
+  ///
+  /// [overwriteMergedCells] when set to [false] puts the cell value in next unique cell available and putting the value in merged cells only once.
+  ///
+  ///
+  ///
   insertRowIterables(List<dynamic> row, int rowIndex,
       {int startingColumn = 0, bool overwriteMergedCells = true}) {
     if (row == null || row.length == 0 || rowIndex == null || rowIndex < 0) {
@@ -855,13 +849,13 @@ class Sheet {
     }
   }
 
-  /**
-   * 
-   * 
-   * Internal function for putting the data in `_sheetData`.
-   * 
-   * 
-   */
+  ///
+  ///
+  ///
+  /// Internal function for putting the data in `_sheetData`.
+  ///
+  ///
+  ///
   _putData(int rowIndex, int columnIndex, dynamic value) {
     if (_isContain(this._sheetData[rowIndex])) {
       if (!_isContain(this._sheetData[rowIndex][columnIndex])) {
@@ -996,15 +990,15 @@ class Sheet {
     return replaceCount;
   }
 
-  /**
-   * 
-   * 
-   * returns `true` if the contents are successfully `cleared` else `false`.
-   * 
-   * If the row is having any spanned-cells then it will not be cleared and hence returns `false`.
-   * 
-   * 
-   */
+  ///
+  ///
+  ///
+  ///returns `true` if the contents are successfully `cleared` else `false`.
+  ///
+  ///If the row is having any spanned-cells then it will not be cleared and hence returns `false`.
+  ///
+  ///
+  ///
   bool clearRow(int rowIndex) {
     if (rowIndex < 0) {
       return false;
@@ -1043,16 +1037,16 @@ class Sheet {
     return isNotInside;
   }
 
-  /**
-   * 
-   * 
-   * It is used to check if cell at rowIndex, columnIndex is inside any spanning cell or not ?
-   * 
-   * If it exist then the very first index of than spanned cells is returned in order to point to the starting cell 
-   * otherwise the parameters are returned back.
-   * 
-   * 
-   */
+  ///
+  ///
+  ///
+  ///It is used to check if cell at rowIndex, columnIndex is inside any spanning cell or not ?
+  ///
+  ///If it exist then the very first index of than spanned cells is returned in order to point to the starting cell
+  ///otherwise the parameters are returned back.
+  ///
+  ///
+  ///
   List<int> _isInsideSpanning(int rowIndex, int columnIndex) {
     int newRowIndex = rowIndex, newColumnIndex = columnIndex;
 
@@ -1074,26 +1068,24 @@ class Sheet {
     return [newRowIndex, newColumnIndex];
   }
 
-  /**
-   * 
-   * 
-   * Check if columnIndex is not out of `Excel Column limits`.
-   * 
-   * 
-   */
+  ///
+  ///
+  ///
+  ///Check if columnIndex is not out of `Excel Column limits`.
+  ///
+  ///
+  ///
   _checkMaxCol(int colIndex) {
     if ((this._maxCols >= 16384) || colIndex >= 16384) {
       throw ArgumentError('Reached Max (16384) or (XFD) columns value.');
     }
   }
 
-  /**
-   * 
-   * 
-   * Check if rowIndex is not out of `Excel Row limits`.
-   * 
-   * 
-   */
+  ///
+  ///
+  ///Check if rowIndex is not out of `Excel Row limits`.
+  ///
+  ///
   _checkMaxRow(int rowIndex) {
     if ((this._maxRows >= 1048576) || rowIndex >= 1048576) {
       throw ArgumentError('Reached Max (1048576) rows value.');
@@ -1111,7 +1103,6 @@ class Sheet {
    * 
    * 
    */
-
   List<String> get spannedItems {
     this._spannedItems = List<String>();
 
@@ -1128,38 +1119,33 @@ class Sheet {
     return this._spannedItems;
   }
 
-  /**
-   * 
-   * 
-   * Cleans the `_SpanList` by removing the indexes where null value exists.
-   * 
-   * 
-   * 
-   */
+  ///
+  ///
+  ///
+  ///Cleans the `_SpanList` by removing the indexes where null value exists.
+  ///
+  ///
+  ///
   _cleanUpSpanMap() {
     if (_spanList != null && _spanList.isNotEmpty) {
       this._spanList.removeWhere((value) => value == null);
     }
   }
 
-  /**
-   * 
-   * 
-   * return `SheetName`
-   * 
-   * 
-   */
+  ///
+  ///
+  ///return `SheetName`
+  ///
+  ///
   String get sheetName {
     return this._sheet;
   }
 
-  /**
-   * 
-   * 
-   * returns row at index = `rowIndex`
-   * 
-   * 
-   */
+  ///
+  ///
+  ///returns row at index = `rowIndex`
+  ///
+  ///
   List<Data> row(int rowIndex) {
     if (rowIndex == null || rowIndex < 0) {
       return [];
@@ -1175,21 +1161,17 @@ class Sheet {
     return [];
   }
 
-  /**
-   * 
-   * 
-   * returns count of `rows` having data in `sheet`
-   * 
-   * 
-   */
+  ///
+  ///
+  ///returns count of `rows` having data in `sheet`
+  ///
+  ///
   int get maxRows => this._maxRows;
 
-  /**
-   * 
-   * 
-   * returns count of `cols` having data in `sheet`
-   * 
-   * 
-   */
+  ///
+  ///
+  ///returns count of `cols` having data in `sheet`
+  ///
+  ///
   int get maxCols => this._maxCols;
 }
