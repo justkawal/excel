@@ -36,6 +36,7 @@ class Save {
 
   Archive _cloneArchive(Archive archive) {
     var clone = Archive();
+    print("Files List: " + archive.files.toString());
     archive.files.forEach((file) {
       if (file.isFile) {
         ArchiveFile copy;

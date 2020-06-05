@@ -646,6 +646,8 @@ class Parser {
     var document = parse(utf8.decode(_newSheet.content));
     if (_excel._xmlFiles != null) {
       _excel._xmlFiles['xl/worksheets/sheet${sheetNumber + 1}.xml'] = document;
+      _excel._xmlSheetId[newSheet] =
+          'xl/worksheets/sheet${sheetNumber + 1}.xml';
     }
 
     _excel._xmlFiles['[Content_Types].xml']

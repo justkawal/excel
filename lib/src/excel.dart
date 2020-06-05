@@ -252,7 +252,7 @@ class Excel {
     if (_isContain(_xmlSheetId[sheet])) {
       {
         ///
-        /// Remove from `[Content_Types].xml`
+        /// Remove from `xl/_rels/workbook.xml.rels`
         String sheetId = "worksheets" +
             _xmlSheetId[sheet].toString().split('worksheets')[1].toString();
 
@@ -302,30 +302,42 @@ class Excel {
         }
       }
 
+      ///
+      /// Remove from the `_archive` also
+      if (_archive.files.contains(_xmlSheetId[sheet].toString())) {
+        _archive.files.remove(_xmlSheetId[sheet].toString());
+      }
+
+      ///
+      /// Also remove from the _xmlFiles list as we might want to create this sheet again from new starting.
+      if (_isContain(_xmlFiles[_xmlSheetId[sheet]])) {
+        _xmlFiles.remove(_xmlSheetId[sheet]);
+      }
+
       _xmlSheetId.remove(sheet);
-      // _rIdCheck = true;
     }
 
     ///
     /// remove from key = `sheet` from `_sheets`
     if (_isContain(_sheets[sheet])) {
       ///
-      /// Remove from `[Content_Types].xml`
+      /// Remove from `xl/workbook.xml`
+      {
+        int position = -1;
+        List<XmlElement> sheetList =
+            _xmlFiles['xl/workbook.xml'].findAllElements('sheet').toList();
 
-      int position = -1;
-      List<XmlElement> sheetList =
-          _xmlFiles['xl/workbook.xml'].findAllElements('sheet').toList();
-
-      for (int i = 0; i < sheetList.length; i++) {
-        var _sheetName = sheetList[i].getAttribute('name');
-        if (_sheetName != null && _sheetName.toString() == sheet) {
-          position = i;
-          break;
+        for (int i = 0; i < sheetList.length; i++) {
+          var _sheetName = sheetList[i].getAttribute('name');
+          if (_sheetName != null && _sheetName.toString() == sheet) {
+            position = i;
+            break;
+          }
         }
-      }
-      if (position != -1) {
-        _xmlFiles['xl/workbook.xml'].findAllElements('sheet').first.children
-          ..removeAt(position);
+        if (position != -1) {
+          _xmlFiles['xl/workbook.xml'].findAllElements('sheet').first.children
+            ..removeAt(position);
+        }
       }
       _sheets.remove(sheet);
     }
