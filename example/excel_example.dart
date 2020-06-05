@@ -5,9 +5,9 @@ import 'package:excel/excel.dart';
 void main(List<String> args) {
   var file = "/Users/kawal/Desktop/form.xlsx";
   var bytes = File(file).readAsBytesSync();
-  // var excel = Excel.createExcel();
+  var excel = Excel.createExcel();
   // or
-  var excel = Excel.decodeBytes(bytes);
+  //var excel = Excel.decodeBytes(bytes);
   for (var table in excel.tables.keys) {
     print(table);
     print(excel.tables[table].maxCols);
@@ -16,6 +16,7 @@ void main(List<String> args) {
       print("$row");
     }
   }
+
   CellStyle cellStyle = CellStyle(
     bold: true,
     italic: true,
@@ -32,7 +33,21 @@ void main(List<String> args) {
   cell2.value = "Heya How night";
   cell2.cellStyle = cellStyle;
 
+  /// printing cell-type
+  print("CellType: " + cell.cellType.toString());
+
   excel.rename("mySheet", "myRenamedNewSheet");
+
+  // fromSheet should exist in order to sucessfully copy the contents
+  excel.copy('myRenamedNewSheet', 'toSheet');
+
+  excel.rename('oldSheetName', 'newSheetName');
+
+  excel.delete('sheet');
+
+  excel.unLink('sheet1');
+
+  sheet = excel['sheet'];
 
   /// appending rows
   sheet.appendRow([8]);
