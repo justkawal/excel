@@ -277,7 +277,7 @@ class Parser {
             /// Checking for font Size.
             String _size = _nodeChildren(font, 'sz', attribute: 'val');
             if (_size != null) {
-              fontSize = int.parse(_size);
+              fontSize = double.parse(_size).round();
             }
 
             /// Checking for bold
