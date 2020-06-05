@@ -71,8 +71,8 @@ If you run a business and is using Excel in a revenue-generating flutter product
     * [Get default sheet](#get-default-opening-sheet)
     * [Set default sheet](#set-default-opening-sheet)
     * [Saving](#saving-xlsx-file)
- - [Upcoming Features](#features-coming-in-next-version)
- - [Donate (Be the First one)](#help-us-to-keep-going)
+  - [Upcoming Features](#features-coming-in-next-version)
+  - [Donate (Be the First one)](#help-us-to-keep-going)
 
 # Installing
 
