@@ -1,6 +1,12 @@
 ## Donate (Be the first one)
 
-I can code faster but my laptop is **lazy**. Help me upgrade it. Please consider donating if you think excel is helpful. 
+I'm working fulltime on **excel**, a library for reading, processing and creating **excel files in flutter and dart server**. As an independent developer, I rely entirely on income generated via **excel** related work.
+
+If you use **Exce**l in your daily work and feel that it has made your life or work easier, please consider donating, So as to help me survive in this time of lockdown. once in a while! ☕
+
+If you run a business and is using Excel in a revenue-generating flutter product, it makes business sense to sponsor Excel (flutter) development: it ensures the project that your product relies on stays healthy and actively maintained. It can also help your exposure in the flutter community and makes it easier to attract other developers.
+
+
 
 [Paypal Me on paypal.me/kawal7415](https://www.paypal.me/kawal7415)
 
