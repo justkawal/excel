@@ -36,7 +36,6 @@ class Save {
 
   Archive _cloneArchive(Archive archive) {
     var clone = Archive();
-    print("Files List: " + archive.files.toString());
     archive.files.forEach((file) {
       if (file.isFile) {
         ArchiveFile copy;
@@ -92,7 +91,6 @@ class Save {
       ///
       /// Create the sheet's xml file if it does not exist.
       if (!_isContain(_excel._sheets[sheet])) {
-        print("Creating sheet: " + sheet.toString());
         parser._createSheet(sheet);
       }
 

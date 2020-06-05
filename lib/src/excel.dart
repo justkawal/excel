@@ -210,6 +210,12 @@ class Excel {
   void rename(String oldSheetName, String newSheetName) {
     if (_isContain(_sheetMap[oldSheetName]) &&
         !_isContain(_sheetMap[newSheetName])) {
+      ///
+      /// rename from _defaultSheet var also
+      if (_defaultSheet == oldSheetName) {
+        _defaultSheet = newSheetName;
+      }
+
       copy(oldSheetName, newSheetName);
 
       ///
@@ -228,6 +234,12 @@ class Excel {
   void delete(String sheet) {
     ///
     /// remove the sheet `name` or `key` from the below locations if they exist.
+
+    ///
+    ///remove from _defaultSheet var also
+    if (_defaultSheet == sheet) {
+      _defaultSheet = null;
+    }
 
     ///
     /// If it is not the last sheet then `delete` otherwise `return`;
