@@ -61,25 +61,12 @@ class Excel {
     return Excel.decodeBytes(Base64Decoder().convert(newSheet));
   }
 
-  factory Excel.decodeBytes(List<int> data,
-      {bool verify = false, String password}) {
-    if (verify) {
-      assert(password != null,
-          "Password can't be null.\nEither try setting verify = false or provide password.");
-    }
-
-    return _newExcel(
-        ZipDecoder().decodeBytes(data, verify: verify, password: password));
+  factory Excel.decodeBytes(List<int> data) {
+    return _newExcel(ZipDecoder().decodeBytes(data));
   }
 
-  factory Excel.decodeBuffer(InputStream input,
-      {bool verify = false, String password}) {
-    if (verify) {
-      assert(password != null,
-          "Password can't be null.\nEither try setting verify = false or provide password.");
-    }
-    return _newExcel(
-        ZipDecoder().decodeBuffer(input, verify: verify, password: password));
+  factory Excel.decodeBuffer(InputStream input) {
+    return _newExcel(ZipDecoder().decodeBuffer(input));
   }
 
   /**
@@ -354,7 +341,7 @@ class Excel {
    * 
    * 
    */
-  Future<List> encode() async {
+  Future<List<int>> encode() async {
     Save s = Save._(this, parser);
     return s._save();
   }

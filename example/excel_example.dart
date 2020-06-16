@@ -64,6 +64,8 @@ void main(List<String> args) {
 
   String outputFile = "/Users/kawal/Desktop/error/form.xlsx";
   excel.encode().then((onValue) {
+    print("Saving:\n" + onValue.toList().toString());
+
     File(join(outputFile))
       ..createSync(recursive: true)
       ..writeAsBytesSync(onValue);

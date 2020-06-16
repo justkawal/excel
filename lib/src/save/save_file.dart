@@ -12,7 +12,7 @@ class Save {
     _innerCellStyle = List<CellStyle>();
   }
 
-  Future<List> _save() async {
+  List<int> _save() {
     if (_excel._colorChanges) {
       _processStylesFile();
     }
@@ -544,8 +544,7 @@ class Save {
         1,
         XmlAttribute(XmlName('s'), '$upperLevelPos'),
       );
-    } else if (_excel._colorChanges &&
-        _excel._cellStyleReferenced.containsKey(sheet) &&
+    } else if (_excel._cellStyleReferenced.containsKey(sheet) &&
         _excel._cellStyleReferenced[sheet].containsKey(rC)) {
       attributes.insert(
         1,
