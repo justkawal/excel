@@ -100,8 +100,11 @@ class Sheet {
 
     /// if the sheetData contains the row then start putting the column
     if (_isContain(this._sheetData[cellIndex._rowIndex])) {
-      this._sheetData[cellIndex._rowIndex][cellIndex._columnIndex] =
-          Data.newData(this, cellIndex.rowIndex, cellIndex.columnIndex);
+      if (!_isContain(
+          this._sheetData[cellIndex._rowIndex][cellIndex._columnIndex])) {
+        this._sheetData[cellIndex._rowIndex][cellIndex._columnIndex] =
+            Data.newData(this, cellIndex.rowIndex, cellIndex.columnIndex);
+      }
     } else {
       /// else put the column with map showing.
       this._sheetData[cellIndex._rowIndex] = {
