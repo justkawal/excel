@@ -219,19 +219,20 @@ class Excel {
    * 
    */
   void delete(String sheet) {
-    ///
-    /// remove the sheet `name` or `key` from the below locations if they exist.
 
     ///
-    ///remove from _defaultSheet var also
-    if (_defaultSheet == sheet) {
-      _defaultSheet = null;
-    }
+    /// remove the sheet `name` or `key` from the below locations if they exist.
 
     ///
     /// If it is not the last sheet then `delete` otherwise `return`;
     if (_sheetMap == null || _sheetMap.length <= 1) {
       return;
+    }
+
+    ///
+    ///remove from _defaultSheet var also
+    if (_defaultSheet == sheet) {
+      _defaultSheet = null;
     }
 
     ///
@@ -250,48 +251,24 @@ class Excel {
     /// remove from `_xmlSheetId`.
     if (_isContain(_xmlSheetId[sheet])) {
       String sheetId1 = "worksheets" +
-          _xmlSheetId[sheet].toString().split('worksheets')[1].toString();
-      String sheetId2 = _xmlSheetId[sheet];
+              _xmlSheetId[sheet].toString().split('worksheets')[1].toString(),
+          sheetId2 = _xmlSheetId[sheet];
 
-      [
-        [
-          'xl/_rels/workbook.xml.rels',
-          'Relationship',
-          'Target',
-          sheetId1,
-        ],
-        [
-          '[Content_Types].xml',
-          'Override',
-          'PartName',
-          sheetId2,
-        ],
-      ].forEach((element) {
-        int position = -1;
-        Iterable<XmlElement> itr =
-            _xmlFiles[element[0]].findAllElements(element[1]);
-        if (itr != null && itr.isNotEmpty) {
-          List<XmlElement> sheetList = itr.toList();
+      _xmlFiles['xl/_rels/workbook.xml.rels'].rootElement.children.removeWhere(
+          (_sheetName) =>
+              _sheetName.getAttribute('Target') != null &&
+              _sheetName.getAttribute('Target').toString() == sheetId1);
 
-          for (int i = 0; i < sheetList.length; i++) {
-            var _sheetName = sheetList[i].getAttribute(element[2]);
-            if (_sheetName != null && _sheetName.toString() == element[3]) {
-              position = i;
-              break;
-            }
-          }
-          if (position != -1) {
-            _xmlFiles[element[0]].findAllElements(element[1]).first.children
-              ..removeAt(position);
-          }
-        }
-      });
+      _xmlFiles['[Content_Types].xml'].rootElement.children.removeWhere(
+          (_sheetName) =>
+              _sheetName.getAttribute('PartName') != null &&
+              _sheetName.getAttribute('PartName').toString() == '/' + sheetId2);
 
       ///
       /// Remove from the `_archive` also
-      if (_archive.files.contains(_xmlSheetId[sheet].toString())) {
-        _archive.files.remove(_xmlSheetId[sheet].toString());
-      }
+      _archive.files.removeWhere((file) =>
+          file.name.toLowerCase() ==
+          _xmlSheetId[sheet].toString().toLowerCase());
 
       ///
       /// Also remove from the _xmlFiles list as we might want to create this sheet again from new starting.
@@ -307,23 +284,15 @@ class Excel {
     if (_isContain(_sheets[sheet])) {
       ///
       /// Remove from `xl/workbook.xml`
-      {
-        int position = -1;
-        List<XmlElement> sheetList =
-            _xmlFiles['xl/workbook.xml'].findAllElements('sheet').toList();
+      ///
+      _xmlFiles['xl/workbook.xml']
+          .findAllElements('sheets')
+          .first
+          .children
+          .removeWhere((element) =>
+              element.getAttribute('name') != null &&
+              element.getAttribute('name').toString() == sheet);
 
-        for (int i = 0; i < sheetList.length; i++) {
-          var _sheetName = sheetList[i].getAttribute('name');
-          if (_sheetName != null && _sheetName.toString() == sheet) {
-            position = i;
-            break;
-          }
-        }
-        if (position != -1) {
-          _xmlFiles['xl/workbook.xml'].findAllElements('sheet').first.children
-            ..removeAt(position);
-        }
-      }
       _sheets.remove(sheet);
     }
 

@@ -43,7 +43,7 @@ void main(List<String> args) {
 
   excel.rename('oldSheetName', 'newSheetName');
 
-  excel.delete('sheet');
+  excel.delete('Sheet1');
 
   excel.unLink('sheet1');
 
@@ -62,9 +62,9 @@ void main(List<String> args) {
 
   // Saving the file
 
-  String outputFile = "/Users/kawal/Desktop/error/form.xlsx";
+  String outputFile = "/Users/kawal/Desktop/form1.xlsx";
   excel.encode().then((onValue) {
-    print("Saving:\n" + onValue.toList().toString());
+    //print("Saving:\n" + onValue.toList().toString());
 
     File(join(outputFile))
       ..createSync(recursive: true)

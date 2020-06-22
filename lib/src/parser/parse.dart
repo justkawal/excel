@@ -560,13 +560,14 @@ class Parser {
    * 
    */
   _createSheet(String newSheet) {
-    List<XmlNode> list = _excel._xmlFiles['xl/workbook.xml']
+    /* List<XmlNode> list = _excel._xmlFiles['xl/workbook.xml']
         .findAllElements('sheets')
         .first
         .children;
     if (list.isEmpty) {
       throw ArgumentError('');
-    }
+    } */
+
     int _sheetId = -1;
     List<int> sheetIdList = List<int>();
 
@@ -593,7 +594,7 @@ class Parser {
     }
     if (_sheetId == -1) {
       if (sheetIdList.isEmpty) {
-        _sheetId = 1;
+        _sheetId = 0;
       } else {
         _sheetId = sheetIdList.length;
       }
