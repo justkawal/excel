@@ -10,13 +10,13 @@ class Data {
   int _rowIndex;
   int _colIndex;
 
-  /**
-   * 
-   * 
-   * It will clone the object by changing the `this` reference of previous DataObject and putting `new this` reference, with copying the values too
-   * 
-   * 
-   */
+  ///
+  ///
+  ///
+  ///It will clone the object by changing the `this` reference of previous DataObject and putting `new this` reference, with copying the values too
+  ///
+  ///
+  ///
   Data._clone(Sheet sheet, Data dataObject)
       : this._(
           sheet,
@@ -28,13 +28,13 @@ class Data {
           cellType_: dataObject._cellType,
         );
 
-  /**
-   * 
-   * 
-   * Initializes the new `Data Object`
-   * 
-   * 
-   */
+  ///
+  ///
+  ///
+  ///Initializes the new `Data Object`
+  ///
+  ///
+  ///
   Data._(
     Sheet sheet,
     int row,

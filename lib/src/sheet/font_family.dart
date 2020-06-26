@@ -185,11 +185,11 @@ enum FontFamily {
   Myanmar_Text,
 }
 
-/**
- * 
- * returns the `Font Family Name`
- * 
- */
+///
+///
+///returns the `Font Family Name`
+///
+///
 String getFontFamily(FontFamily fontFamily) {
   return (fontFamily.toString().replaceAll("FontFamily.", ""))
       .toString()

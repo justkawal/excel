@@ -64,7 +64,6 @@ void main(List<String> args) {
 
   String outputFile = "/Users/kawal/Desktop/form1.xlsx";
   excel.encode().then((onValue) {
-
     File(join(outputFile))
       ..createSync(recursive: true)
       ..writeAsBytesSync(onValue);

@@ -544,21 +544,24 @@ class Parser {
   }
 
   int _getAvailableRid() {
-    _rId.sort((a, b) =>
-        int.parse(a.substring(3)).compareTo(int.parse(b.substring(3))));
+    _rId.sort((a, b) {
+      return int.parse(a.substring(3)).compareTo(int.parse(b.substring(3)));
+    });
 
     List<String> got = List<String>.from(_rId.last.split(''));
-    got.removeWhere((item) => !'0123456789'.split('').contains(item));
+    got.removeWhere((item) {
+      return !'0123456789'.split('').contains(item);
+    });
     return int.parse(got.join().toString()) + 1;
   }
 
-  /**
-   *
-   * Uses the [newSheet] as the name of the sheet and also adds it to the [ xl/worksheets/ ] directory
-   * 
-   * Creates the sheet with name `newSheet` as file output and then adds it to the archive directory.
-   * 
-   */
+  ///
+  ///
+  ///Uses the [newSheet] as the name of the sheet and also adds it to the [ xl/worksheets/ ] directory
+  ///
+  ///Creates the sheet with name `newSheet` as file output and then adds it to the archive directory.
+  ///
+  ///
   _createSheet(String newSheet) {
     /* List<XmlNode> list = _excel._xmlFiles['xl/workbook.xml']
         .findAllElements('sheets')

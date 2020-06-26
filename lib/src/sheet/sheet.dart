@@ -320,7 +320,9 @@ class Sheet {
 
           /// getting the cols keys in descending order so as to shifting becomes easy
           List<int> sortedColKeys = this._sheetData[rowKey].keys.toList()
-            ..sort((a, b) => b.compareTo(a));
+            ..sort((a, b) {
+              return b.compareTo(a);
+            });
           sortedColKeys.forEach((colKey) {
             if (_isContain(this._sheetData[rowKey]) &&
                 _isContain(this._sheetData[rowKey][colKey])) {
@@ -493,7 +495,9 @@ class Sheet {
     Map<int, Map<int, Data>> _data = Map<int, Map<int, Data>>();
     if (_isContain(this._sheetData) && this._sheetData.isNotEmpty) {
       List<int> sortedKeys = this._sheetData.keys.toList()
-        ..sort((a, b) => b.compareTo(a));
+        ..sort((a, b) {
+          return b.compareTo(a);
+        });
       if (rowIndex <= this.maxRows - 1) {
         /// do the shifting task
         sortedKeys.forEach((rowKey) {
@@ -902,30 +906,30 @@ class Sheet {
     }
   }
 
-  /**
-   * 
-   * 
-   * Returns the `count` of replaced `source` with `target`
-   *
-   * `source` is dynamic which allows you to pass your custom `RegExp` providing more control over it.
-   *
-   * optional argument `first` is used to replace the number of first earlier occurrences
-   *
-   * If `first` is set to `3` then it will replace only first `3 occurrences` of the `source` with `target`.
-   * 
-   *        excel.findAndReplace('MySheetName', 'sad', 'happy', first: 3);
-   * 
-   *        or
-   * 
-   *        var mySheet = excel['mySheetName'];
-   *        mySheet.findAndReplace('sad', 'happy', first: 3);
-   * 
-   * In the above example it will replace all the occurences of `sad` with `happy` in the cells
-   *
-   * Other `options` are used to `narrow down` the `starting and ending ranges of cells`.
-   * 
-   * 
-   */
+  ///
+  ///
+  ///
+  ///Returns the `count` of replaced `source` with `target`
+  ///
+  ///`source` is dynamic which allows you to pass your custom `RegExp` providing more control over it.
+  ///
+  ///optional argument `first` is used to replace the number of first earlier occurrences
+  ///
+  ///If `first` is set to `3` then it will replace only first `3 occurrences` of the `source` with `target`.
+  ///
+  ///       excel.findAndReplace('MySheetName', 'sad', 'happy', first: 3);
+  ///
+  ///       or
+  ///
+  ///       var mySheet = excel['mySheetName'];
+  ///       mySheet.findAndReplace('sad', 'happy', first: 3);
+  ///
+  ///In the above example it will replace all the occurences of `sad` with `happy` in the cells
+  ///
+  ///Other `options` are used to `narrow down` the `starting and ending ranges of cells`.
+  ///
+  ///
+  ///
   int findAndReplace(dynamic source, dynamic target,
       {int first = -1,
       int startingRow = -1,
@@ -1095,17 +1099,17 @@ class Sheet {
     }
   }
 
-  /**
-   * 
-   * 
-   * returns List of Spanned Cells as 
-   *      
-   *      ["A1:A2", "A4:G6", "Y4:Y6", ....]
-   * 
-   * return type if String based cell-id
-   * 
-   * 
-   */
+  ///
+  ///
+  ///
+  ///returns List of Spanned Cells as
+  ///
+  ///     ["A1:A2", "A4:G6", "Y4:Y6", ....]
+  ///
+  ///return type if String based cell-id
+  ///
+  ///
+  ///
   List<String> get spannedItems {
     this._spannedItems = List<String>();
 
@@ -1131,7 +1135,9 @@ class Sheet {
   ///
   _cleanUpSpanMap() {
     if (_spanList != null && _spanList.isNotEmpty) {
-      this._spanList.removeWhere((value) => value == null);
+      this._spanList.removeWhere((value) {
+        return value == null;
+      });
     }
   }
 
@@ -1169,12 +1175,16 @@ class Sheet {
   ///returns count of `rows` having data in `sheet`
   ///
   ///
-  int get maxRows => this._maxRows;
+  int get maxRows {
+    return this._maxRows;
+  }
 
   ///
   ///
   ///returns count of `cols` having data in `sheet`
   ///
   ///
-  int get maxCols => this._maxCols;
+  int get maxCols {
+    return this._maxCols;
+  }
 }

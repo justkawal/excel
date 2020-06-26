@@ -101,7 +101,8 @@ class Save {
           _excel._sheets[sheet].children.isNotEmpty) {
         _excel._sheets[sheet].children.clear();
       }
-      /** `Above function is important in order to wipe out the old contents of the sheet.` */
+
+      /// `Above function is important in order to wipe out the old contents of the sheet.`
 
       value._sheetData.forEach((rowIndex, map) {
         map.forEach((columnIndex, data) {
@@ -240,55 +241,55 @@ class Save {
           '${_excel._fontStyleList.length + innerFontStyle.length}'));
     }
 
-    innerFontStyle.forEach((fontStyleElement) =>
-        fonts.children.add(XmlElement(XmlName('font'), [], [
-          /// putting color
-          if (fontStyleElement._fontColorHex != null &&
-              fontStyleElement._fontColorHex != "FF000000")
-            XmlElement(
-                XmlName('color'),
-                [XmlAttribute(XmlName('rgb'), fontStyleElement._fontColorHex)],
-                []),
+    innerFontStyle.forEach((fontStyleElement) {
+      fonts.children.add(XmlElement(XmlName('font'), [], [
+        /// putting color
+        if (fontStyleElement._fontColorHex != null &&
+            fontStyleElement._fontColorHex != "FF000000")
+          XmlElement(
+              XmlName('color'),
+              [XmlAttribute(XmlName('rgb'), fontStyleElement._fontColorHex)],
+              []),
 
-          /// putting bold
-          if (fontStyleElement.isBold != null && fontStyleElement.isBold)
-            XmlElement(XmlName('b'), [], []),
+        /// putting bold
+        if (fontStyleElement.isBold != null && fontStyleElement.isBold)
+          XmlElement(XmlName('b'), [], []),
 
-          /// putting italic
-          if (fontStyleElement.isItalic != null && fontStyleElement.isItalic)
-            XmlElement(XmlName('i'), [], []),
+        /// putting italic
+        if (fontStyleElement.isItalic != null && fontStyleElement.isItalic)
+          XmlElement(XmlName('i'), [], []),
 
-          /// putting single underline
-          if (fontStyleElement.underline != null &&
-              fontStyleElement.underline != Underline.None &&
-              fontStyleElement.underline == Underline.Single)
-            XmlElement(XmlName('u'), [], []),
+        /// putting single underline
+        if (fontStyleElement.underline != null &&
+            fontStyleElement.underline != Underline.None &&
+            fontStyleElement.underline == Underline.Single)
+          XmlElement(XmlName('u'), [], []),
 
-          /// putting double underline
-          if (fontStyleElement.underline != null &&
-              fontStyleElement.underline != Underline.None &&
-              fontStyleElement.underline != Underline.Single &&
-              fontStyleElement.underline == Underline.Double)
-            XmlElement(
-                XmlName('u'), [XmlAttribute(XmlName('val'), 'double')], []),
+        /// putting double underline
+        if (fontStyleElement.underline != null &&
+            fontStyleElement.underline != Underline.None &&
+            fontStyleElement.underline != Underline.Single &&
+            fontStyleElement.underline == Underline.Double)
+          XmlElement(
+              XmlName('u'), [XmlAttribute(XmlName('val'), 'double')], []),
 
-          /// putting fontFamily
-          if (fontStyleElement.fontFamily != null &&
-              fontStyleElement.fontFamily.toLowerCase().toString() != "null" &&
-              fontStyleElement.fontFamily != "" &&
-              fontStyleElement.fontFamily.isNotEmpty)
-            XmlElement(XmlName('name'), [
-              XmlAttribute(
-                  XmlName('val'), fontStyleElement.fontFamily.toString())
-            ], []),
+        /// putting fontFamily
+        if (fontStyleElement.fontFamily != null &&
+            fontStyleElement.fontFamily.toLowerCase().toString() != "null" &&
+            fontStyleElement.fontFamily != "" &&
+            fontStyleElement.fontFamily.isNotEmpty)
+          XmlElement(XmlName('name'), [
+            XmlAttribute(XmlName('val'), fontStyleElement.fontFamily.toString())
+          ], []),
 
-          /// putting fontSize
-          if (fontStyleElement.fontSize != null &&
-              fontStyleElement.fontSize.toString().isNotEmpty)
-            XmlElement(XmlName('sz'), [
-              XmlAttribute(XmlName('val'), fontStyleElement.fontSize.toString())
-            ], []),
-        ])));
+        /// putting fontSize
+        if (fontStyleElement.fontSize != null &&
+            fontStyleElement.fontSize.toString().isNotEmpty)
+          XmlElement(XmlName('sz'), [
+            XmlAttribute(XmlName('val'), fontStyleElement.fontSize.toString())
+          ], []),
+      ]));
+    });
 
     XmlElement fills =
         _excel._xmlFiles['xl/styles.xml'].findAllElements('fills').first;
@@ -471,8 +472,10 @@ class Save {
     return row;
   }
 
-  XmlElement _createRow(int rowIndex) => XmlElement(XmlName('row'),
-      [XmlAttribute(XmlName('r'), (rowIndex + 1).toString())], []);
+  XmlElement _createRow(int rowIndex) {
+    return XmlElement(XmlName('row'),
+        [XmlAttribute(XmlName('r'), (rowIndex + 1).toString())], []);
+  }
 
   XmlElement __insertRow(XmlElement table, XmlElement lastRow, int rowIndex) {
     var row = _createRow(rowIndex);
