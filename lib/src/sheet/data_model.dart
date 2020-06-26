@@ -91,7 +91,6 @@ class Data {
 
   set value(dynamic _value) {
     _sheet.updateCell(CellIndex.indexByString(cellId), _value);
-    
   }
 
   /// returns the value stored in this cell;

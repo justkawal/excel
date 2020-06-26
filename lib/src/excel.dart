@@ -219,7 +219,6 @@ class Excel {
    * 
    */
   void delete(String sheet) {
-
     ///
     /// remove the sheet `name` or `key` from the below locations if they exist.
 
