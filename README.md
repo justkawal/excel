@@ -82,7 +82,7 @@ Add this to your package's `pubspec.yaml` file:
 
 ```yaml
 dependencies:
-  excel: ^1.0.9
+  excel: ^1.1.0
 ```
 
 ### 2. Install it
@@ -118,7 +118,7 @@ Now in your `Dart` code, you can use:
 
 # Usage
 
-### Breaking Changes for those moving from 1.0.8  -->  1.0.9
+### Breaking Changes for those moving from 1.0.8  -->  1.0.9 and above versions
 
 The necessary changes to be made to updateCell function in order to prevent the code from breaking.
 
