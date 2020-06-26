@@ -48,6 +48,7 @@ If you run a business and is using Excel in a revenue-generating flutter product
 
 # Table of Contents
   - [Installing](#installing)
+  - [Frequent Issues](#frequent-issues)
   - [Usage](#installing)
     * [Breaking Changes](#breaking-changes-for-those-moving-from-108------109)
     * [Imports](#imports)
@@ -107,6 +108,12 @@ Now in your `Dart` code, you can use:
 ````dart
     import 'package:excel/excel.dart';
 ````
+
+# Frequent Issues
+
+### Having Trouble using excel i.e: ````every version of flutter_test from sdk depends.... blah blah blah````
+
+````Similar issues have been solved in the past : [#26](https://github.com/kawal7415/excel/issues/26), [#25](https://github.com/kawal7415/excel/issues/25), [#11](https://github.com/kawal7415/excel/issues/11)````
 
 
 # Usage
