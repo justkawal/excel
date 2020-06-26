@@ -113,7 +113,7 @@ Now in your `Dart` code, you can use:
 
 ### Having Trouble using excel i.e: ````every version of flutter_test from sdk depends.... blah blah blah````
 
-````Similar issues have been solved in the past : [#26](https://github.com/kawal7415/excel/issues/26), [#25](https://github.com/kawal7415/excel/issues/25), [#11](https://github.com/kawal7415/excel/issues/11)````
+```Similar issues have been solved in the past :``` [#26](https://github.com/kawal7415/excel/issues/26), [#25](https://github.com/kawal7415/excel/issues/25), [#11](https://github.com/kawal7415/excel/issues/11)
 
 
 # Usage
