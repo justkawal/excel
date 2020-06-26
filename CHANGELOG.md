@@ -6,6 +6,10 @@ All notable changes to this project will be documented in this file.
 - Password Protection
 - Conversion to PDF
 
+## [1.1.0] - 2020-06-26
+### Improved
+- Bugs on deleting sheet
+
 ## [1.0.9] - 2020-06-06
 ### Added
 - Copy
