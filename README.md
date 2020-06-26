@@ -148,7 +148,7 @@ The necessary changes to be made to updateCell function in order to prevent the 
 ````dart
     var file = "Path_to_pre_existing_Excel_File/excel_file.xlsx";
     var bytes = File(file).readAsBytesSync();
-    var excel = Excel.decodeBytes(bytes, update: true);
+    var excel = Excel.decodeBytes(bytes);
     
     for (var table in excel.tables.keys) {
       print(table); //sheet Name
