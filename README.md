@@ -28,9 +28,10 @@
     <img src="https://img.shields.io/github/stars/kawal7415/excel"  
       alt="Stars" />  
   </a>
-
-
-[Excel](https://www.pub.dev/packages/excel) is a flutter and dart library for creating and updating excel-sheets for XLSX files.
+  <br>
+  <br>
+ 
+ [Excel](https://www.pub.dev/packages/excel) is a flutter and dart library for creating and updating excel-sheets for XLSX files.
 
 
 #### Also checkout our new animations library: [AnimatedText](https://www.pub.dev/packages/animated_text)
@@ -63,7 +64,7 @@
     * [Set default sheet](#set-default-opening-sheet)
     * [Saving](#saving-xlsx-file)
   - [Upcoming Features](#features-coming-in-next-version)
-  - [Donate (Be the First one)](#donate-(be-the-first-one))
+  - [Donate (Be the First one)](#donate-be-the-first-one)
 
 # Installing
 
