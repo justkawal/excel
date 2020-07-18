@@ -1,14 +1,5 @@
-## Donate (Be the first one)
-
-I'm working fulltime on **excel**, a library for reading, processing and creating **excel files in flutter and dart server**. As an independent developer, **I rely entirely on income generated via excel related work.**
-
-If you use **Exce**l in your daily work and feel that it has made your life or work easier, please consider donating, So as to help me survive in this time of lockdown. once in a while! ☕
-
-If you run a business and is using Excel in a revenue-generating flutter product, it makes business sense to sponsor Excel (flutter) development: it ensures the project that your product relies on stays healthy and actively maintained. It can also help your exposure in the flutter community and makes it easier to attract other developers.
-
-
-[Paypal Me on paypal.me/kawal7415](https://www.paypal.me/kawal7415)
-
+# Excel
+  
   <a href="https://flutter.io">  
     <img src="https://img.shields.io/badge/Platform-Flutter-yellow.svg"  
       alt="Platform" />  
@@ -37,20 +28,20 @@ If you run a business and is using Excel in a revenue-generating flutter product
     <img src="https://img.shields.io/github/stars/kawal7415/excel"  
       alt="Stars" />  
   </a>
-  
+  <br>
+  <br>
+ 
+ [Excel](https://www.pub.dev/packages/excel) is a flutter and dart library for creating and updating excel-sheets for XLSX files.
 
 
 #### Also checkout our new animations library: [AnimatedText](https://www.pub.dev/packages/animated_text)
 
-# Excel
-
-[Excel](https://www.pub.dev/packages/excel) is a flutter and dart library for creating and updating excel-sheets for XLSX files.
 
 # Table of Contents
   - [Installing](#installing)
   - [Frequent Issues](#frequent-issues)
   - [Usage](#installing)
-    * [Breaking Changes](#breaking-changes-for-those-moving-from-108------109)
+    * [Breaking Changes](#breaking-changes-for-those-moving-from-108------109-and-above-versions)
     * [Imports](#imports)
     * [Read xlsx file](#read-xlsx-file)
     * [Read xlsx file from Asset Folder](#read-xlsx-from-flutters-asset-folder)
@@ -73,7 +64,7 @@ If you run a business and is using Excel in a revenue-generating flutter product
     * [Set default sheet](#set-default-opening-sheet)
     * [Saving](#saving-xlsx-file)
   - [Upcoming Features](#features-coming-in-next-version)
-  - [Donate (Be the First one)](#help-us-to-keep-going)
+  - [Donate (Be the First one)](#donate-be-the-first-one)
 
 # Installing
 
@@ -483,6 +474,12 @@ On-going implementation for future:
 - Password Protection
 - Conversion to PDF
 
-## Help us to keep going.
+## Donate (Be the first one)
+
+I'm working fulltime on **excel**, a library for reading, processing and creating **excel files in flutter and dart server**. As an independent developer, **I rely entirely on income generated via excel related work.**
+
+If you use **Exce**l in your daily work and feel that it has made your life or work easier, please consider donating, So as to help me survive in this time of lockdown. once in a while! ☕
+
+If you run a business and is using Excel in a revenue-generating flutter product, it makes business sense to sponsor Excel (flutter) development: it ensures the project that your product relies on stays healthy and actively maintained. It can also help your exposure in the flutter community and makes it easier to attract other developers.
 
 [![Donate with PayPal](https://github.com/kawal7415/excel/blob/master/paypal_png.png)](https://www.paypal.me/kawal7415)
