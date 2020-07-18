@@ -39,7 +39,6 @@
 
 # Table of Contents
   - [Installing](#installing)
-  - [Frequent Issues](#frequent-issues)
   - [Usage](#installing)
     * [Breaking Changes](#breaking-changes-for-those-moving-from-108------109-and-above-versions)
     * [Imports](#imports)
@@ -63,6 +62,7 @@
     * [Get default sheet](#get-default-opening-sheet)
     * [Set default sheet](#set-default-opening-sheet)
     * [Saving](#saving-xlsx-file)
+  - [Frequent Issues](#frequent-issues)
   - [Upcoming Features](#features-coming-in-next-version)
   - [Donate (Be the First one)](#donate-be-the-first-one)
 
@@ -99,13 +99,6 @@ Now in your `Dart` code, you can use:
 ````dart
     import 'package:excel/excel.dart';
 ````
-
-# Frequent Issues
-
-### Having Trouble using excel i.e: ````every version of flutter_test from sdk depends.... blah blah blah````
-
-```Similar issues have been solved in the past :``` [#26](https://github.com/kawal7415/excel/issues/26), [#25](https://github.com/kawal7415/excel/issues/25), [#11](https://github.com/kawal7415/excel/issues/11)
-
 
 # Usage
 
@@ -467,6 +460,13 @@ key | description
     });
     
    ````
+ 
+# Frequent Issues
+
+### Having Trouble using excel i.e: ````every version of some_other_library depends on version..... blah blah blah````
+
+```Similar issues have been solved in the past :``` [#26](https://github.com/kawal7415/excel/issues/26), [#25](https://github.com/kawal7415/excel/issues/25), [#11](https://github.com/kawal7415/excel/issues/11)
+
 
 ## Features coming in next version
 On-going implementation for future:
