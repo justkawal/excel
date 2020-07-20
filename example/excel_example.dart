@@ -43,18 +43,18 @@ void main(List<String> args) {
 
       cell.value = ' My custom Value ';
     });
-
-    excel.rename("mySheet", "myRenamedNewSheet");
-
-    // fromSheet should exist in order to sucessfully copy the contents
-    excel.copy('myRenamedNewSheet', 'toSheet');
-
-    excel.rename('oldSheetName', 'newSheetName');
-
-    excel.delete('Sheet1');
-
-    excel.unLink('sheet1');
   }
+
+  excel.rename("mySheet", "myRenamedNewSheet");
+
+  // fromSheet should exist in order to sucessfully copy the contents
+  excel.copy('myRenamedNewSheet', 'toSheet');
+
+  excel.rename('oldSheetName', 'newSheetName');
+
+  excel.delete('Sheet1');
+
+  excel.unLink('sheet1');
 
   sheet = excel['sheet'];
 
