@@ -29,23 +29,32 @@ void main(List<String> args) {
   cell.value = "Heya How are you I am fine ok goood night";
   cell.cellStyle = cellStyle;
 
-  var cell2 = sheet.cell(CellIndex.indexByString("A5"));
+  var cell2 = sheet.cell(CellIndex.indexByString("E5"));
   cell2.value = "Heya How night";
   cell2.cellStyle = cellStyle;
 
   /// printing cell-type
   print("CellType: " + cell.cellType.toString());
 
-  excel.rename("mySheet", "myRenamedNewSheet");
+  /// Iterating and changing values to desired type
+  for (int row = 0; row < sheet.maxRows; row++) {
+    sheet.row(row).forEach((cell) {
+      var val = cell.value; //  Value stored in the particular cell
 
-  // fromSheet should exist in order to sucessfully copy the contents
-  excel.copy('myRenamedNewSheet', 'toSheet');
+      cell.value = ' My custom Value ';
+    });
 
-  excel.rename('oldSheetName', 'newSheetName');
+    excel.rename("mySheet", "myRenamedNewSheet");
 
-  excel.delete('Sheet1');
+    // fromSheet should exist in order to sucessfully copy the contents
+    excel.copy('myRenamedNewSheet', 'toSheet');
 
-  excel.unLink('sheet1');
+    excel.rename('oldSheetName', 'newSheetName');
+
+    excel.delete('Sheet1');
+
+    excel.unLink('sheet1');
+  }
 
   sheet = excel['sheet'];
 

@@ -6,6 +6,10 @@ All notable changes to this project will be documented in this file.
 - Password Protection
 - Conversion to PDF
 
+## [1.1.2] - 2020-08-18
+### Improved
+- Iterating Sheet's Data Object to operate on particular cells
+
 ## [1.1.1] - 2020-08-18
 ### Improved
 - Health Improvement

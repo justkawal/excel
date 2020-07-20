@@ -1159,13 +1159,19 @@ class Sheet {
     if (rowIndex == null || rowIndex < 0) {
       return [];
     }
-    if (_isContain(this._sheetData[rowIndex])) {
-      return List.generate(this.maxCols, (colIndex) {
-        if (_isContain(this._sheetData[rowIndex][colIndex])) {
-          return this._sheetData[rowIndex][colIndex];
-        }
-        return Data.newData(this, rowIndex, colIndex);
-      });
+    if (rowIndex < this._maxRows) {
+      if (_isContain(this._sheetData[rowIndex])) {
+        return List.generate(this.maxCols, (colIndex) {
+          if (_isContain(this._sheetData[rowIndex][colIndex])) {
+            return this._sheetData[rowIndex][colIndex];
+          }
+          return Data.newData(this, rowIndex, colIndex);
+        });
+      } else {
+        return List.generate(this.maxCols, (colIndex) {
+          return Data.newData(this, rowIndex, colIndex);
+        });
+      }
     }
     return [];
   }
