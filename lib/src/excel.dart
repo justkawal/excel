@@ -37,13 +37,13 @@ class Excel {
   Parser parser;
 
   Excel._(Archive archive) {
-    this._archive = archive;
+    _archive = archive;
     _colorChanges = false;
     _mergeChanges = false;
     _sheets = <String, XmlNode>{};
     _xmlFiles = <String, XmlDocument>{};
     _xmlSheetId = <String, String>{};
-    _sheetMap = Map<String, Sheet>();
+    _sheetMap = <String, Sheet>{};
     _cellStyleReferenced = <String, Map<String, int>>{};
     _fontStyleList = List<_FontStyle>();
     _patternFill = List<String>();
