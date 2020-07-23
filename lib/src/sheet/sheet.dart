@@ -64,6 +64,7 @@ class Sheet {
         });
       });
     }
+    _countRowAndCol();
   }
 
   ///
@@ -112,7 +113,6 @@ class Sheet {
             Data.newData(this, cellIndex.rowIndex, cellIndex.columnIndex)
       };
     }
-    _countRowAndCol();
 
     return this._sheetData[cellIndex._rowIndex][cellIndex._columnIndex];
   }
@@ -258,7 +258,12 @@ class Sheet {
       });
       this._sheetData = Map<int, Map<int, Data>>.from(_data);
     }
-    _countRowAndCol();
+
+    if (this._maxCols - 1 <= colIndex) {
+      this._maxCols -= 1;
+    }
+
+    //_countRowAndCol();
   }
 
   ///
@@ -352,8 +357,13 @@ class Sheet {
       this._sheetData = Map<int, Map<int, Data>>();
       this._sheetData[0] = {colIndex: Data.newData(this, 0, colIndex)};
     }
+    if (this._maxCols - 1 <= colIndex) {
+      this._maxCols += 1;
+    } else {
+      this._maxCols = colIndex + 1;
+    }
 
-    _countRowAndCol();
+    //_countRowAndCol();
   }
 
   ///
@@ -431,10 +441,14 @@ class Sheet {
         });
         this._sheetData = Map<int, Map<int, Data>>.from(_data);
       }
-      _countRowAndCol();
+      //_countRowAndCol();
     } else {
       this._maxRows = 0;
       this._maxCols = 0;
+    }
+
+    if (this._maxRows - 1 <= rowIndex) {
+      this._maxRows -= 1;
     }
   }
 
@@ -512,7 +526,14 @@ class Sheet {
     }
     _data[rowIndex] = {0: Data.newData(this, rowIndex, 0)};
     this._sheetData = Map<int, Map<int, Data>>.from(_data);
-    _countRowAndCol();
+
+    if (this._maxRows - 1 <= rowIndex) {
+      this._maxRows += 1;
+    } else {
+      this._maxRows = rowIndex + 1;
+    }
+
+    //_countRowAndCol();
   }
 
   ///
@@ -888,7 +909,16 @@ class Sheet {
         !_excel._sharedStrings.contains('$value')) {
       _excel._sharedStrings.add(value.toString());
     }
-    _countRowAndCol();
+
+    if (this._maxCols - 1 < columnIndex) {
+      this._maxCols = columnIndex + 1;
+    }
+
+    if (this._maxRows - 1 < rowIndex) {
+      this._maxRows = rowIndex + 1;
+    }
+
+    //_countRowAndCol();
   }
 
   CellType _getCellType(var type) {
@@ -1000,9 +1030,9 @@ class Sheet {
   ///
   ///
   ///
-  ///returns `true` if the contents are successfully `cleared` else `false`.
+  /// returns `true` if the contents are successfully `cleared` else `false`.
   ///
-  ///If the row is having any spanned-cells then it will not be cleared and hence returns `false`.
+  /// If the row is having any spanned-cells then it will not be cleared and hence returns `false`.
   ///
   ///
   ///
@@ -1035,12 +1065,12 @@ class Sheet {
       /// As the row is not inside any SpanList so we can easily clear its content.
       if (isNotInside) {
         this._sheetData[rowIndex].keys.toList().forEach((key) {
-          /// Main concern here is to [clear] and [not delete] the contents inside the cell
+          /// Main concern here is to [clear the contents] and [not remove] the entire row or the cell block
           this._sheetData[rowIndex][key] = Data.newData(this, rowIndex, key);
         });
       }
     }
-    _countRowAndCol();
+    //_countRowAndCol();
     return isNotInside;
   }
 
