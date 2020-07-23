@@ -769,6 +769,7 @@ class Sheet {
   appendRow(List<dynamic> row) {
     int targetRow = this.maxRows;
     insertRowIterables(row, targetRow);
+    this._maxRows += 1;
   }
 
   /// getting the List of _Span Objects which have the rowIndex containing and
@@ -842,7 +843,7 @@ class Sheet {
       columnIndex = startingColumn;
     }
     _checkMaxCol(columnIndex + row.length);
-    int rowsLength = this.maxRows,
+    int rowsLength = this._maxRows,
         maxIterationIndex = row.length - 1,
         currentRowPosition = 0; // position in [row] iterables
 
@@ -874,6 +875,11 @@ class Sheet {
           columnIndex++;
         }
       }
+    }
+    int tempo_max_col = columnIndex + row.length - 1;
+
+    if (this._maxCols - 1 < tempo_max_col) {
+      this._maxRows = tempo_max_col + 1;
     }
   }
 
