@@ -59,6 +59,16 @@ void main(List<String> args) {
   sheet = excel['sheet'];
 
   /// appending rows
+  List<List<String>> list = List.generate(
+      6000, (index) => List.generate(20, (index1) => '$index $index1'));
+
+  Stopwatch stopwatch = new Stopwatch()..start();
+  list.forEach((row) {
+    sheet.appendRow(row);
+  });
+
+  print('doSomething() executed in ${stopwatch.elapsed}');
+
   sheet.appendRow([8]);
   excel.setDefaultSheet(sheet.sheetName).then((isSet) {
     // isSet is bool which tells that whether the setting of default sheet is successful or not.

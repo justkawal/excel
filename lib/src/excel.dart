@@ -45,12 +45,12 @@ class Excel {
     _xmlSheetId = <String, String>{};
     _sheetMap = <String, Sheet>{};
     _cellStyleReferenced = <String, Map<String, int>>{};
-    _fontStyleList = List<_FontStyle>();
-    _patternFill = List<String>();
-    _sharedStrings = List<String>();
-    _cellStyleList = List<CellStyle>();
-    _mergeChangeLook = List<String>();
-    _numFormats = List<int>();
+    _fontStyleList = <_FontStyle>[];
+    _patternFill = <String>[];
+    _sharedStrings = <String>[];
+    _cellStyleList = <CellStyle>[];
+    _mergeChangeLook = <String>[];
+    _numFormats = <int>[];
     parser = Parser._(this);
     parser._startParsing();
   }
@@ -595,7 +595,7 @@ class Excel {
   List<String> getMergedCells(String sheet) {
     return _isContain(_sheetMap[sheet])
         ? List<String>.of(_sheetMap[sheet].spannedItems)
-        : List<String>();
+        : <String>[];
   }
 
   ///
