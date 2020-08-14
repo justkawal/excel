@@ -31,7 +31,7 @@
   <br>
   <br>
  
- [Excel](https://www.pub.dev/packages/excel) is a flutter and dart library for creating and updating excel-sheets for XLSX files.
+ [Excel](https://www.pub.dev/packages/excel) is a flutter and dart library for reading, creating and updating excel-sheets for XLSX files.
 
 
 #### Also checkout our new animations library: [AnimatedText](https://www.pub.dev/packages/animated_text)
