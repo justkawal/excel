@@ -6,6 +6,10 @@ All notable changes to this project will be documented in this file.
 - Password Protection
 - Conversion to PDF
 
+## [1.1.5] - 2020-08-17
+### Improved
+- Fixes
+
 ## [1.1.4] - 2020-07-23
 ### Improved
 - Improvement in speed of apeending the rows
