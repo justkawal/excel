@@ -31,15 +31,15 @@
   <br>
   <br>
  
- [Excel](https://www.pub.dev/packages/excel) is a flutter and dart library for creating and updating excel-sheets for XLSX files.
+ [Excel](https://www.pub.dev/packages/excel) is a flutter and dart library for reading, creating and updating excel-sheets for XLSX files.
 
 
 #### Also checkout our new animations library: [AnimatedText](https://www.pub.dev/packages/animated_text)
 
 
 # Table of Contents
-  - [Installing](#installing)
-  - [Usage](#installing)
+  - [Installing](#lets-get-started)
+  - [Usage](#usage)
     * [Breaking Changes](#breaking-changes-for-those-moving-from-108------109-and-above-versions)
     * [Imports](#imports)
     * [Read xlsx file](#read-xlsx-file)
@@ -66,7 +66,7 @@
   - [Upcoming Features](#features-coming-in-next-version)
   - [Donate (Be the First one)](#donate-be-the-first-one)
 
-# Installing
+# Lets Get Started
 
 ### 1. Depend on it
 Add this to your package's `pubspec.yaml` file:
@@ -102,7 +102,7 @@ Now in your `Dart` code, you can use:
 
 # Usage
 
-### Breaking Changes for those moving from 1.0.8  -->  1.0.9 and above versions
+### Breaking Changes for those moving from 1.0.8 and below ---->  1.0.9 and above versions
 
 The necessary changes to be made to updateCell function in order to prevent the code from breaking.
 
@@ -476,10 +476,6 @@ On-going implementation for future:
 
 ## Donate (Be the first one)
 
-I'm working fulltime on **excel**, a library for reading, processing and creating **excel files in flutter and dart server**. As an independent developer, **I rely entirely on income generated via excel related work.**
-
-If you use **Exce**l in your daily work and feel that it has made your life or work easier, please consider donating, So as to help me survive in this time of lockdown. once in a while! ☕
-
-If you run a business and is using Excel in a revenue-generating flutter product, it makes business sense to sponsor Excel (flutter) development: it ensures the project that your product relies on stays healthy and actively maintained. It can also help your exposure in the flutter community and makes it easier to attract other developers.
+Buy me some food to **survive**, I will add more features, If I remain **alive**.
 
 [![Donate with PayPal](https://github.com/kawal7415/excel/blob/master/paypal_png.png)](https://www.paypal.me/kawal7415)
