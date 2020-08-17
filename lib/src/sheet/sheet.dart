@@ -5,9 +5,9 @@ class Sheet {
   String _sheet;
   int _maxRows = 0;
   int _maxCols = 0;
-  List<String> _spannedItems = List<String>();
-  List<_Span> _spanList = List<_Span>();
-  Map<int, Map<int, Data>> _sheetData = Map<int, Map<int, Data>>();
+  List<String> _spannedItems = <String>[];
+  List<_Span> _spanList = <_Span>[];
+  Map<int, Map<int, Data>> _sheetData = <int, Map<int, Data>>{};
 
   ///
   ///
@@ -38,11 +38,11 @@ class Sheet {
   }) {
     this._excel = excel;
     this._sheet = sheetName;
-    this._spanList = spanL_ ?? List<_Span>();
-    this._spannedItems = spanI_ ?? List<String>();
+    this._spanList = spanL_ ?? <_Span>[];
+    this._spannedItems = spanI_ ?? <String>[];
     this._maxCols = maxC_ ?? 0;
     this._maxRows = maxR_ ?? 0;
-    this._sheetData = Map<int, Map<int, Data>>();
+    this._sheetData = <int, Map<int, Data>>{};
 
     if (spanL_ != null) {
       _excel._mergeChangeLookup = sheetName;
