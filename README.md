@@ -12,7 +12,7 @@
     <img src="https://img.shields.io/badge/License-MIT-red.svg"  
       alt="License: MIT" />  
   </a>  
-   <a href="https://www.paypal.me/justkawal">  
+   <a href="https://www.paypal.me/kawal7415">  
     <img src="https://img.shields.io/badge/Donate-PayPal-green.svg"  
       alt="Donate" />  
   </a>
