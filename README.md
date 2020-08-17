@@ -12,20 +12,20 @@
     <img src="https://img.shields.io/badge/License-MIT-red.svg"  
       alt="License: MIT" />  
   </a>  
-   <a href="https://www.paypal.me/kawal7415">  
+   <a href="https://www.paypal.me/justkawal">  
     <img src="https://img.shields.io/badge/Donate-PayPal-green.svg"  
       alt="Donate" />  
   </a>
-   <a href="https://github.com/kawal7415/excel/issues">  
-    <img src="https://img.shields.io/github/issues/kawal7415/excel"  
+   <a href="https://github.com/justkawal/excel/issues">  
+    <img src="https://img.shields.io/github/issues/justkawal/excel"  
       alt="Issue" />  
   </a> 
-   <a href="https://github.com/kawal7415/excel/network">  
-    <img src="https://img.shields.io/github/forks/kawal7415/excel"  
+   <a href="https://github.com/justkawal/excel/network">  
+    <img src="https://img.shields.io/github/forks/justkawal/excel"  
       alt="Forks" />  
   </a> 
-   <a href="https://github.com/kawal7415/excel/stargazers">  
-    <img src="https://img.shields.io/github/stars/kawal7415/excel"  
+   <a href="https://github.com/justkawal/excel/stargazers">  
+    <img src="https://img.shields.io/github/stars/justkawal/excel"  
       alt="Stars" />  
   </a>
   <br>
@@ -465,7 +465,7 @@ key | description
 
 ### Having Trouble using excel i.e: ````every version of some_other_library depends on version..... blah blah blah````
 
-```Similar issues have been solved in the past :``` [#26](https://github.com/kawal7415/excel/issues/26), [#25](https://github.com/kawal7415/excel/issues/25), [#11](https://github.com/kawal7415/excel/issues/11)
+```Similar issues have been solved in the past :``` [#26](https://github.com/justkawal/excel/issues/26), [#25](https://github.com/justkawal/excel/issues/25), [#11](https://github.com/justkawal/excel/issues/11)
 
 
 ## Features coming in next version
@@ -478,4 +478,4 @@ On-going implementation for future:
 
 Buy me some food to **survive**, I will add more features, If I remain **alive**.
 
-[![Donate with PayPal](https://github.com/kawal7415/excel/blob/master/paypal_png.png)](https://www.paypal.me/kawal7415)
+[![Donate with PayPal](https://github.com/justkawal/excel/blob/master/paypal_png.png)](https://www.paypal.me/kawal7415)
