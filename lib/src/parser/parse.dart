@@ -499,7 +499,7 @@ class Parser {
           if (s1 != null) {
             var fmtId = _excel._numFormats[s];
             // date
-            if (((fmtId >= 14) && (fmtId <= 17)) || (fmtId == 22)) {
+            if (((fmtId >= 14) && (fmtId <= 17)) || (fmtId == 22) || (fmtId == 164)) {
               var delta = num.parse(_parseValue(content)) * 24 * 3600 * 1000;
               var date = DateTime(1899, 12, 30);
               value = date
