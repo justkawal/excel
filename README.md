@@ -474,7 +474,7 @@ On-going implementation for future:
 
 
 #### Also checkout our other libraries: 
-  - Text Aniamtions -> [AnimatedText](https://www.github.com/justkawal/animated_text)
+  - Text Animations -> [AnimatedText](https://www.github.com/justkawal/animated_text)
   - Translations -> [Arb Translator](https://www.github.com/justkawal/arb_translator)
 
 
