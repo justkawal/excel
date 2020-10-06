@@ -34,8 +34,6 @@
  [Excel](https://www.pub.dev/packages/excel) is a flutter and dart library for reading, creating and updating excel-sheets for XLSX files.
 
 
-#### Also checkout our new animations library: [AnimatedText](https://www.pub.dev/packages/animated_text)
-
 
 # Table of Contents
   - [Installing](#lets-get-started)
@@ -474,8 +472,11 @@ On-going implementation for future:
 - Password Protection
 - Conversion to PDF
 
-## Donate (Be the first one)
 
-Buy me some food to **survive**, I will add more features, If I remain **alive**.
+#### Also checkout our other libraries: 
+  - Text Aniamtions -> [AnimatedText](https://www.github.com/justkawal/animated_text)
+  - Translations -> [Arb Translator](https://www.github.com/justkawal/arb_translator)
 
-[![Donate with PayPal](https://github.com/justkawal/excel/blob/master/paypal_png.png)](https://www.paypal.me/kawal7415)
+
+### Donate
+  - [Paypal](https://www.paypal.me/kawal7415)
