@@ -68,18 +68,18 @@ class Sheet {
   }
 
   ///
-  /// returns `true` is this sheet is `right-to-left` other-wise false
+  /// returns `true` is this sheet is `right-to-left` other-wise `false`
   ///
   bool get isRTL {
-    return this._isRTL;
+    return _isRTL;
   }
 
   ///
   /// set sheet-object to `true` for making it `right-to-left` otherwise `false`
   ///
-  set isRTL(bool _) {
-    _excel._rtlChanges = _ != this._isRTL;
-    this._isRTL = _;
+  set isRTL(bool _u) {
+    _isRTL = _u;
+    _excel._rtlChangeLookup = sheetName;
   }
 
   ///

@@ -8,10 +8,7 @@ void main(List<String> args) {
   //var excel = Excel.createExcel();
   // or
   var excel = Excel.decodeBytes(bytes);
-  print(excel['Sheet1'].isRTL);
-  excel['Sheet2'].isRTL = false;
-  print(excel['Sheet2'].isRTL);
-  /* for (var table in excel.tables.keys) {
+  for (var table in excel.tables.keys) {
     print(table);
     print(excel.tables[table].maxCols);
     print(excel.tables[table].maxRows);
@@ -19,6 +16,21 @@ void main(List<String> args) {
       print("$row");
     }
   }
+
+  //
+  // Change sheet from rtl to ltr and vice-versa
+  //
+  var sheet1rtl = excel['Sheet1'].isRTL;
+
+  excel['Sheet1'].isRTL = false;
+
+  print('Sheet1: ((previous) isRTL: $sheet1rtl) ---> ((current) isRTL: ${excel['Sheet1'].isRTL})');
+
+  var sheet2rtl = excel['Sheet2'].isRTL;
+
+  excel['Sheet2'].isRTL = true;
+
+  print('Sheet2: ((previous) isRTL: $sheet2rtl) ---> ((current) isRTL: ${excel['Sheet1'].isRTL})');
 
   CellStyle cellStyle = CellStyle(
     bold: true,
@@ -79,11 +91,11 @@ void main(List<String> args) {
     } else {
       print("Unable to set ${sheet.sheetName} to default sheet.");
     }
-  }); */
+  });
 
   // Saving the file
 
-  String outputFile = "/Users/kawal/Desktop/output_form_file.xlsx";
+  String outputFile = "/Users/kawal/Desktop/rtl.xlsx";
   excel.encode().then((onValue) {
     File(join(outputFile))
       ..createSync(recursive: true)

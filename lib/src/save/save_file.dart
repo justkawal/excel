@@ -6,9 +6,9 @@ class Save {
   List<CellStyle> _innerCellStyle;
   Parser parser;
   Save._(Excel excel, Parser _parser) {
-    this._excel = excel;
-    this.parser = _parser;
-    this._archiveFiles = Map<String, ArchiveFile>();
+    _excel = excel;
+    parser = _parser;
+    _archiveFiles = Map<String, ArchiveFile>();
     _innerCellStyle = List<CellStyle>();
   }
 
@@ -106,17 +106,6 @@ class Save {
         _excel._sheets[sheet].children.clear();
       }
 
-      ///
-      /// this is right to left sheet lets write the contents into the archive file
-      if (value.isRTL) {
-        _excel._sheets[sheet].children
-            .add(XmlElement(XmlName('sheetViews'), [], [
-          XmlElement(
-              XmlName('sheetView'), [XmlAttribute(XmlName('rightToLeft'), '1')])
-        ]));
-        print(_excel._sheets[sheet].toString());
-      }
-
       /// `Above function is important in order to wipe out the old contents of the sheet.`
 
       value._sheetData.forEach((rowIndex, map) {
@@ -130,8 +119,67 @@ class Save {
     });
   }
 
-  _setRTL(){
-    
+  _setRTL() {
+    this._excel._rtlChangeLook.forEach((s) {
+      var sheetObject = this._excel._sheetMap['$s'];
+      if (_isContain(sheetObject) &&
+          this._excel._xmlSheetId.containsKey(s) &&
+          this._excel._xmlFiles.containsKey(this._excel._xmlSheetId[s])) {
+        var itrSheetViewsRTLElement = this
+            ._excel
+            ._xmlFiles[_excel._xmlSheetId[s]]
+            .findAllElements('sheetViews');
+
+        if (itrSheetViewsRTLElement.isNotEmpty) {
+          var itrSheetViewRTLElement = this
+              ._excel
+              ._xmlFiles[_excel._xmlSheetId[s]]
+              .findAllElements('sheetView');
+
+          if (itrSheetViewRTLElement.isNotEmpty) {
+            /// clear all the children of the sheetViews here
+            this
+                ._excel
+                ._xmlFiles[_excel._xmlSheetId[s]]
+                .findAllElements('sheetViews')
+                ?.first
+                ?.children
+                ?.clear();
+          }
+          this
+              ._excel
+              ._xmlFiles[_excel._xmlSheetId[s]]
+              .findAllElements('sheetViews')
+              .first
+              .children
+              .add(XmlElement(
+                XmlName('sheetView'),
+                [
+                  if (sheetObject.isRTL)
+                    XmlAttribute(XmlName('rightToLeft'), '1'),
+                  XmlAttribute(XmlName('workbookViewId'), '0'),
+                ],
+              ));
+        } else {
+          this
+              ._excel
+              ._xmlFiles[_excel._xmlSheetId[s]]
+              .findAllElements('worksheet')
+              .first
+              .children
+              .add(XmlElement(XmlName('sheetViews'), [], [
+                XmlElement(
+                  XmlName('sheetView'),
+                  [
+                    if (sheetObject.isRTL)
+                      XmlAttribute(XmlName('rightToLeft'), '1'),
+                    XmlAttribute(XmlName('workbookViewId'), '0'),
+                  ],
+                )
+              ]));
+        }
+      }
+    });
   }
 
   /// Writing the merged cells information into the excel properties files.
