@@ -10,7 +10,7 @@ class Sheet {
   List<_Span> _spanList = <_Span>[];
   Map<int, Map<int, Data>> _sheetData = <int, Map<int, Data>>{};
 
-  ///
+  /// 
   /// It will clone the object by changing the `this` reference of previous oldSheetObject and putting `new this` reference, with copying the values too
   ///
   Sheet._clone(Excel excel, String sheetName, Sheet oldSheetObject)
