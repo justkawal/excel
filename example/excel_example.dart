@@ -24,13 +24,15 @@ void main(List<String> args) {
 
   excel['Sheet1'].isRTL = false;
 
-  print('Sheet1: ((previous) isRTL: $sheet1rtl) ---> ((current) isRTL: ${excel['Sheet1'].isRTL})');
+  print(
+      'Sheet1: ((previous) isRTL: $sheet1rtl) ---> ((current) isRTL: ${excel['Sheet1'].isRTL})');
 
   var sheet2rtl = excel['Sheet2'].isRTL;
 
   excel['Sheet2'].isRTL = true;
 
-  print('Sheet2: ((previous) isRTL: $sheet2rtl) ---> ((current) isRTL: ${excel['Sheet1'].isRTL})');
+  print(
+      'Sheet2: ((previous) isRTL: $sheet2rtl) ---> ((current) isRTL: ${excel['Sheet2'].isRTL})');
 
   CellStyle cellStyle = CellStyle(
     bold: true,
@@ -95,7 +97,7 @@ void main(List<String> args) {
 
   // Saving the file
 
-  String outputFile = "/Users/kawal/Desktop/rtl.xlsx";
+  String outputFile = "/Users/kawal/Desktop/f/rtl.xlsx";
   excel.encode().then((onValue) {
     File(join(outputFile))
       ..createSync(recursive: true)
