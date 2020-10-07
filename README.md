@@ -480,6 +480,6 @@ On-going implementation for future:
 
 
 ### Donate
-  - My laptop is **slow**, but I'm not.
+Ooooops, My laptop is **slow**, but I'm not.
   - [Paypal](https://www.paypal.me/kawal7415)
   - Not having Paypal account ?? [Join Now](https://www.paypal.com/in/flref?refBy=Pzpaa7qp041602067472432) and both of us could earn **`$10`**
