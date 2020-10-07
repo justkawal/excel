@@ -416,6 +416,16 @@ class Parser {
 
     var content = parse(utf8.decode(file.content));
     var worksheet = content.findElements('worksheet').first;
+
+    ///
+    /// check for right to left view
+    ///
+    var sheetView = worksheet.findAllElements('sheetView').toList();
+    if (sheetView.isNotEmpty) {
+      var sheetViewNode = sheetView.first;
+      var rtl = sheetViewNode.getAttribute('rightToLeft');
+      sheetObject.isRTL = rtl != null && rtl == '1';
+    }
     var sheet = worksheet.findElements('sheetData').first;
 
     _findRows(sheet).forEach((child) {
@@ -499,7 +509,9 @@ class Parser {
           if (s1 != null) {
             var fmtId = _excel._numFormats[s];
             // date
-            if (((fmtId >= 14) && (fmtId <= 17)) || (fmtId == 22) || (fmtId == 164)) {
+            if (((fmtId >= 14) && (fmtId <= 17)) ||
+                (fmtId == 22) ||
+                (fmtId == 164)) {
               var delta = num.parse(_parseValue(content)) * 24 * 3600 * 1000;
               var date = DateTime(1899, 12, 30);
               value = date
@@ -639,7 +651,7 @@ class Parser {
         'worksheets/sheet${sheetNumber + 1}.xml';
 
     var content = utf8.encode(
-        "<worksheet xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\" xmlns:mc=\"http://schemas.openxmlformats.org/markup-compatibility/2006\" mc:Ignorable=\"x14ac xr xr2 xr3\" xmlns:x14ac=\"http://schemas.microsoft.com/office/spreadsheetml/2009/9/ac\" xmlns:xr=\"http://schemas.microsoft.com/office/spreadsheetml/2014/revision\" xmlns:xr2=\"http://schemas.microsoft.com/office/spreadsheetml/2015/revision2\" xmlns:xr3=\"http://schemas.microsoft.com/office/spreadsheetml/2016/revision3\"> <dimension ref=\"A1\"/> <sheetViews> <sheetView tabSelected=\"1\" workbookViewId=\"0\"/> </sheetViews> <sheetData/> <pageMargins left=\"0.7\" right=\"0.7\" top=\"0.75\" bottom=\"0.75\" header=\"0.3\" footer=\"0.3\"/> </worksheet>");
+        "<worksheet xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\" xmlns:mc=\"http://schemas.openxmlformats.org/markup-compatibility/2006\" mc:Ignorable=\"x14ac xr xr2 xr3\" xmlns:x14ac=\"http://schemas.microsoft.com/office/spreadsheetml/2009/9/ac\" xmlns:xr=\"http://schemas.microsoft.com/office/spreadsheetml/2014/revision\" xmlns:xr2=\"http://schemas.microsoft.com/office/spreadsheetml/2015/revision2\" xmlns:xr3=\"http://schemas.microsoft.com/office/spreadsheetml/2016/revision3\"> <dimension ref=\"A1\"/> <sheetData/> <pageMargins left=\"0.7\" right=\"0.7\" top=\"0.75\" bottom=\"0.75\" header=\"0.3\" footer=\"0.3\"/> </worksheet>");
 
     _excel._archive.addFile(ArchiveFile(
         'xl/worksheets/sheet${sheetNumber + 1}.xml', content.length, content));

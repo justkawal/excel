@@ -3,6 +3,7 @@ part of excel;
 class Sheet {
   Excel _excel;
   String _sheet;
+  bool _isRTL;
   int _maxRows = 0;
   int _maxCols = 0;
   List<String> _spannedItems = <String>[];
@@ -17,15 +18,13 @@ class Sheet {
   ///
   ///
   Sheet._clone(Excel excel, String sheetName, Sheet oldSheetObject)
-      : this._(
-          excel,
-          sheetName,
-          sh: oldSheetObject._sheetData,
-          spanL_: oldSheetObject._spanList,
-          spanI_: oldSheetObject._spannedItems,
-          maxR_: oldSheetObject._maxRows,
-          maxC_: oldSheetObject._maxCols,
-        );
+      : this._(excel, sheetName,
+            sh: oldSheetObject._sheetData,
+            spanL_: oldSheetObject._spanList,
+            spanI_: oldSheetObject._spannedItems,
+            maxR_: oldSheetObject._maxRows,
+            maxC_: oldSheetObject._maxCols,
+            isRTL_: oldSheetObject._isRTL);
 
   Sheet._(
     Excel excel,
@@ -35,22 +34,23 @@ class Sheet {
     List<String> spanI_,
     int maxR_,
     int maxC_,
+    bool isRTL_,
   }) {
     this._excel = excel;
     this._sheet = sheetName;
-    this._spanList = spanL_ ?? <_Span>[];
-    this._spannedItems = spanI_ ?? <String>[];
+    this._spanList = List<_Span>.from(spanL_ ?? []);
+    this._spannedItems = List<String>.from(spanI_ ?? []);
     this._maxCols = maxC_ ?? 0;
     this._maxRows = maxR_ ?? 0;
     this._sheetData = <int, Map<int, Data>>{};
+    this._isRTL = isRTL_ ?? false;
+
+    if (isRTL_ != null) {
+      _excel._rtlChangeLookup = sheetName;
+    }
 
     if (spanL_ != null) {
       _excel._mergeChangeLookup = sheetName;
-      this._spanList = List<_Span>.from(spanL_);
-    }
-
-    if (spanI_ != null) {
-      this._spannedItems = List<String>.from(spanI_);
     }
 
     /// copy the data objects into a temp folder and then while putting it into `this._sheetData` change the data objects references.
@@ -68,11 +68,22 @@ class Sheet {
   }
 
   ///
+  /// returns `true` is this sheet is `right-to-left` other-wise false
   ///
+  bool get isRTL {
+    return this._isRTL;
+  }
+
+  ///
+  /// set sheet-object to `true` for making it `right-to-left` otherwise `false`
+  ///
+  set isRTL(bool _) {
+    _excel._rtlChanges = _ != this._isRTL;
+    this._isRTL = _;
+  }
+
   ///
   /// returns the `DataObject` at position of `cellIndex`
-  ///
-  ///
   ///
   Data cell(CellIndex cellIndex) {
     _checkMaxCol(cellIndex.columnIndex);
@@ -118,11 +129,7 @@ class Sheet {
   }
 
   ///
-  ///
-  ///
   /// returns `2-D dynamic List` of the sheet elements
-  ///
-  ///
   ///
   List<List<dynamic>> get rows {
     List<List<dynamic>> _data = List<List<dynamic>>();
@@ -147,9 +154,7 @@ class Sheet {
   }
 
   ///
-  ///
   /// updates count of rows and cols
-  ///
   ///
   _countRowAndCol() {
     int maximumColIndex = -1, maximumRowIndex = -1;
@@ -175,9 +180,7 @@ class Sheet {
   }
 
   ///
-  ///
   /// If `sheet` exists and `columnIndex < maxColumns` then it removes column at index = `columnIndex`
-  ///
   ///
   void removeColumn(int colIndex) {
     _checkMaxCol(colIndex);
@@ -875,11 +878,11 @@ class Sheet {
         }
       }
     }
-    int tempo_max_col = columnIndex + row.length - 1;
+    //int tempo_max_col = columnIndex + row.length - 1;
 
-    if (this._maxCols - 1 < tempo_max_col) {
-      this._maxCols = tempo_max_col + 1;
-    }
+    //if (this._maxCols - 1 < tempo_max_col) {
+    //  this._maxCols = tempo_max_col + 1;
+    //}
   }
 
   ///

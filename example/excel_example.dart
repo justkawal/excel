@@ -3,12 +3,15 @@ import 'package:path/path.dart';
 import 'package:excel/excel.dart';
 
 void main(List<String> args) {
-  var file = "/Users/kawal/Desktop/form.xlsx";
+  var file = "/Users/kawal/Desktop/rtl.xlsx";
   var bytes = File(file).readAsBytesSync();
-  var excel = Excel.createExcel();
+  //var excel = Excel.createExcel();
   // or
-  //var excel = Excel.decodeBytes(bytes);
-  for (var table in excel.tables.keys) {
+  var excel = Excel.decodeBytes(bytes);
+  print(excel['Sheet1'].isRTL);
+  excel['Sheet2'].isRTL = false;
+  print(excel['Sheet2'].isRTL);
+  /* for (var table in excel.tables.keys) {
     print(table);
     print(excel.tables[table].maxCols);
     print(excel.tables[table].maxRows);
@@ -59,15 +62,14 @@ void main(List<String> args) {
   sheet = excel['sheet'];
 
   /// appending rows
-  List<List<String>> list = List.generate(
-      6000, (index) => List.generate(20, (index1) => '$index $index1'));
+  //List<List<String>> list = List.generate(6000, (index) => List.generate(20, (index1) => '$index $index1'));
 
-  Stopwatch stopwatch = new Stopwatch()..start();
-  list.forEach((row) {
-    sheet.appendRow(row);
-  });
+  //Stopwatch stopwatch = new Stopwatch()..start();
+  //list.forEach((row) {
+  //  sheet.appendRow(row);
+  //});
 
-  print('doSomething() executed in ${stopwatch.elapsed}');
+  //print('doSomething() executed in ${stopwatch.elapsed}');
 
   sheet.appendRow([8]);
   excel.setDefaultSheet(sheet.sheetName).then((isSet) {
@@ -77,11 +79,11 @@ void main(List<String> args) {
     } else {
       print("Unable to set ${sheet.sheetName} to default sheet.");
     }
-  });
+  }); */
 
   // Saving the file
 
-  String outputFile = "/Users/kawal/Desktop/form1.xlsx";
+  String outputFile = "/Users/kawal/Desktop/output_form_file.xlsx";
   excel.encode().then((onValue) {
     File(join(outputFile))
       ..createSync(recursive: true)

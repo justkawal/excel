@@ -26,6 +26,10 @@ class Save {
       _setMerge();
     }
 
+    if (_excel._rtlChanges) {
+      _setRTL();
+    }
+
     for (var xmlFile in _excel._xmlFiles.keys) {
       var xml = _excel._xmlFiles[xmlFile].toString();
       var content = utf8.encode(xml);
@@ -102,6 +106,17 @@ class Save {
         _excel._sheets[sheet].children.clear();
       }
 
+      ///
+      /// this is right to left sheet lets write the contents into the archive file
+      if (value.isRTL) {
+        _excel._sheets[sheet].children
+            .add(XmlElement(XmlName('sheetViews'), [], [
+          XmlElement(
+              XmlName('sheetView'), [XmlAttribute(XmlName('rightToLeft'), '1')])
+        ]));
+        print(_excel._sheets[sheet].toString());
+      }
+
       /// `Above function is important in order to wipe out the old contents of the sheet.`
 
       value._sheetData.forEach((rowIndex, map) {
@@ -113,6 +128,10 @@ class Save {
         });
       });
     });
+  }
+
+  _setRTL(){
+    
   }
 
   /// Writing the merged cells information into the excel properties files.

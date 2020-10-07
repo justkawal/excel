@@ -22,7 +22,7 @@ Excel _newExcel(Archive archive) {
 
 /// Decode a excel file.
 class Excel {
-  bool _colorChanges, _mergeChanges;
+  bool _colorChanges, _mergeChanges, _rtlChanges;
   Archive _archive;
   Map<String, XmlNode> _sheets;
   Map<String, XmlDocument> _xmlFiles;
@@ -30,7 +30,7 @@ class Excel {
   Map<String, Map<String, int>> _cellStyleReferenced;
   Map<String, Sheet> _sheetMap;
   List<CellStyle> _cellStyleList;
-  List<String> _sharedStrings, _patternFill, _mergeChangeLook;
+  List<String> _sharedStrings, _patternFill, _mergeChangeLook, _rtlChangeLook;
   List<_FontStyle> _fontStyleList;
   List<int> _numFormats;
   String _stylesTarget, _sharedStringsTarget, _defaultSheet;
@@ -40,6 +40,7 @@ class Excel {
     _archive = archive;
     _colorChanges = false;
     _mergeChanges = false;
+    _rtlChanges = false;
     _sheets = <String, XmlNode>{};
     _xmlFiles = <String, XmlDocument>{};
     _xmlSheetId = <String, String>{};
@@ -627,6 +628,12 @@ class Excel {
   set _mergeChangeLookup(String value) {
     if (!_mergeChangeLook.contains(value)) {
       _mergeChangeLook.add(value);
+    }
+  }
+
+  set _rtlChangeLookup(String value) {
+    if (!_rtlChangeLook.contains(value)) {
+      _rtlChangeLook.add(value);
     }
   }
 }
