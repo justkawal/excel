@@ -469,15 +469,12 @@ key | description
 ## Features coming in next version
 On-going implementation for future:
 - Formulas
-- Password Protection
 - Conversion to PDF
-
 
 #### Also checkout our other libraries: 
   - Protect **···············**> [Protect](https://www.github.com/justkawal/protect)
   - Text Animations **··**> [AnimatedText](https://www.github.com/justkawal/animated_text)
   - Translations **·······**> [Arb Translator](https://www.github.com/justkawal/arb_translator)
-
 
 ### Donate
 Ooooops, My laptop is **slow**, but I'm not.
