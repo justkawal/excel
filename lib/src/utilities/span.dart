@@ -33,11 +33,7 @@ class _Span {
   }
 
   ///
-  ///
-  ///
   ///returns true if the two objects are same
-  ///
-  ///
   ///
   @override
   bool operator ==(o) {

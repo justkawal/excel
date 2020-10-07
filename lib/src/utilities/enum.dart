@@ -1,9 +1,6 @@
 part of excel;
 
-///
-///
 ///enum for `wrapping` up the text
-///
 ///
 enum TextWrapping {
   WrapText,
@@ -11,9 +8,7 @@ enum TextWrapping {
 }
 
 ///
-///
 ///enum for setting `vertical alignment`
-///
 ///
 enum VerticalAlign {
   Top,
@@ -22,9 +17,7 @@ enum VerticalAlign {
 }
 
 ///
-///
 ///enum for setting `horizontal alignment`
-///
 ///
 enum HorizontalAlign {
   Left,
@@ -33,9 +26,7 @@ enum HorizontalAlign {
 }
 
 ///
-///
 ///`Cell Type`
-///
 ///
 enum CellType {
   String,
@@ -46,9 +37,7 @@ enum CellType {
 }
 
 ///
-///
 ///`Underline`
-///
 ///
 enum Underline {
   None,
