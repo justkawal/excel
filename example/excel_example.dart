@@ -76,16 +76,16 @@ void main(List<String> args) {
   excel.unLink('sheet1');
 
   sheet = excel['sheet'];
+  
+  /// appending rows and checking the time complexity of it
+  /* List<List<String>> list = List.generate(6000, (index) => List.generate(20, (index1) => '$index $index1'));
 
-  /// appending rows
-  //List<List<String>> list = List.generate(6000, (index) => List.generate(20, (index1) => '$index $index1'));
+  Stopwatch stopwatch = new Stopwatch()..start();
+  list.forEach((row) {
+    sheet.appendRow(row);
+  });
 
-  //Stopwatch stopwatch = new Stopwatch()..start();
-  //list.forEach((row) {
-  //  sheet.appendRow(row);
-  //});
-
-  //print('doSomething() executed in ${stopwatch.elapsed}');
+  print('doSomething() executed in ${stopwatch.elapsed}'); */
 
   sheet.appendRow([8]);
   excel.setDefaultSheet(sheet.sheetName).then((isSet) {
