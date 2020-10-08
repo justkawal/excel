@@ -258,6 +258,7 @@ class Parser {
           HorizontalAlign horizontalAlign = HorizontalAlign.Left;
           VerticalAlign verticalAlign = VerticalAlign.Bottom;
           TextWrapping textWrapping;
+          int rotation;
           int fontId = _getFontIndex(node, 'fontId');
           _FontStyle _fontStyle = _FontStyle();
 
@@ -352,20 +353,27 @@ class Parser {
                   horizontalAlign = HorizontalAlign.Right;
                 }
               }
+
+              var rotationString = node.getAttribute('textRotation');
+              if (rotationString != null) {
+                rotation = (double.tryParse(rotationString) ?? 0.0).floor();
+              }
             });
           }
 
           CellStyle cellStyle = CellStyle(
-              fontColorHex: fontColor,
-              fontFamily: fontFamily,
-              fontSize: fontSize,
-              bold: isBold,
-              italic: isItalic,
-              underline: underline,
-              backgroundColorHex: backgroundColor,
-              horizontalAlign: horizontalAlign,
-              verticalAlign: verticalAlign,
-              textWrapping: textWrapping);
+            fontColorHex: fontColor,
+            fontFamily: fontFamily,
+            fontSize: fontSize,
+            bold: isBold,
+            italic: isItalic,
+            underline: underline,
+            backgroundColorHex: backgroundColor,
+            horizontalAlign: horizontalAlign,
+            verticalAlign: verticalAlign,
+            textWrapping: textWrapping,
+            rotation: rotation,
+          );
 
           _excel._cellStyleList.add(cellStyle);
         });

@@ -424,6 +424,7 @@ class Save {
 
       HorizontalAlign horizontalALign = cellStyle.horizontalAlignment;
       VerticalAlign verticalAlign = cellStyle.verticalAlignment;
+      int rotation = cellStyle.rotation;
       TextWrapping textWrapping = cellStyle.wrap;
       int backgroundIndex = innerPatternFill.indexOf(backgroundColor),
           fontIndex = _fontStyleIndex(innerFontStyle, _fs);
@@ -455,7 +456,9 @@ class Save {
 
       if (horizontalALign != HorizontalAlign.Left ||
           textWrapping != null ||
-          verticalAlign != VerticalAlign.Bottom) {
+          verticalAlign != VerticalAlign.Bottom ||
+          rotation != null ||
+          rotation != 0) {
         attributes.add(XmlAttribute(XmlName('applyAlignment'), '1'));
         var childAttributes = <XmlAttribute>[];
 
@@ -476,6 +479,9 @@ class Save {
           String hor =
               horizontalALign == HorizontalAlign.Right ? 'right' : 'center';
           childAttributes.add(XmlAttribute(XmlName('horizontal'), '$hor'));
+        }
+        if (rotation != null && rotation != 0) {
+          childAttributes.add(XmlAttribute(XmlName('textRotation'), '$rotation'));
         }
 
         children.add(XmlElement(XmlName('alignment'), childAttributes, []));

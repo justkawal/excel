@@ -38,7 +38,9 @@ void main(List<String> args) {
     bold: true,
     italic: true,
     fontFamily: getFontFamily(FontFamily.Comic_Sans_MS),
+    rotation: 50,
   );
+  cellStyle.rotation = -50;
 
   var sheet = excel['mySheet'];
 
@@ -97,7 +99,7 @@ void main(List<String> args) {
 
   // Saving the file
 
-  String outputFile = "/Users/kawal/Desktop/f/rtl.xlsx";
+  String outputFile = "/Users/kawal/Desktop/rotate_/r.xlsx";
   excel.encode().then((onValue) {
     File(join(outputFile))
       ..createSync(recursive: true)
