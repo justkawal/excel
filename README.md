@@ -236,7 +236,7 @@ key | description
  
      /*
       * set rtl to true for making sheet to right-to-left
-      * default value of rtl = false
+      * default value of rtl = false ( which means the fresh or default sheet is ltr )
       * 
       */
       
