@@ -6,6 +6,7 @@ class Sheet {
   bool _isRTL;
   int _maxRows = 0;
   int _maxCols = 0;
+  List<double> _rowHeight = <double>[], _colWidth =<double>[];
   List<String> _spannedItems = <String>[];
   List<_Span> _spanList = <_Span>[];
   Map<int, Map<int, Data>> _sheetData = <int, Map<int, Data>>{};
@@ -20,6 +21,8 @@ class Sheet {
             spanI_: oldSheetObject._spannedItems,
             maxR_: oldSheetObject._maxRows,
             maxC_: oldSheetObject._maxCols,
+            rowHeight_: oldSheetObject._rowHeight,
+            colWidth_: oldSheetObject._colWidth,
             isRTL_: oldSheetObject._isRTL);
 
   Sheet._(
@@ -31,6 +34,8 @@ class Sheet {
     int maxR_,
     int maxC_,
     bool isRTL_,
+    List<double> rowHeight_,
+    List<double> colWidth_,
   }) {
     this._excel = excel;
     this._sheet = sheetName;
@@ -40,6 +45,8 @@ class Sheet {
     this._maxRows = maxR_ ?? 0;
     this._sheetData = <int, Map<int, Data>>{};
     this._isRTL = isRTL_ ?? false;
+    this._rowHeight = List< double>.from(rowHeight_ ?? []);
+    this._colWidth = List< double>.from(colWidth_ ?? []);
 
     if (isRTL_ != null) {
       _excel._rtlChangeLookup = sheetName;
@@ -879,6 +886,54 @@ class Sheet {
     //_countRowAndCol();
   }
 
+  ///
+  /// Get Row Height
+  /// 
+  /// Row Indexing starts from 0
+  ///
+  double _getRowHeight(int rowIndex) {
+    _checkMaxRow(rowIndex);
+    if(rowIndex < _rowHeight.length)
+    return _rowHeight[rowIndex];
+
+    return 15.75;
+  }
+
+  ///
+  /// Set Row Height
+  ///
+  void _setRowHeight(int rowIndex, double rowHeight) {
+    _checkMaxRow(rowIndex);
+    if (rowHeight < 0) return;
+    
+    while(rowIndex >= _rowHeight.length){
+      _rowHeight.add(15.75);
+    }
+    _rowHeight[rowIndex] = rowHeight;
+
+  }
+
+  ///
+  /// Get Col Width
+  ///
+  double _getColWidth(int colIndex) {
+    _checkMaxCol(colIndex);
+    return _colWidth[colIndex] ?? 14.43;
+  }
+
+  ///
+  /// Get Col Width
+  ///
+  void _setColWidth(int colIndex, double colWidth) {
+    _checkMaxCol(colIndex);
+    if (colWidth < 0) return;
+    
+    while(colIndex >= _colWidth.length){
+      _colWidth.add(15.75);
+    }
+    _colWidth[colIndex] = colWidth;
+  }
+
   CellType _getCellType(var type) {
     switch (type) {
       case int:
@@ -1055,8 +1110,11 @@ class Sheet {
   ///Check if columnIndex is not out of `Excel Column limits`.
   ///
   _checkMaxCol(int colIndex) {
-    if ((this._maxCols >= 16384) || colIndex >= 16384) {
+    if (this._maxCols >= 16384 || colIndex >= 16384) {
       throw ArgumentError('Reached Max (16384) or (XFD) columns value.');
+    }
+    if (colIndex < 0) {
+      throw ArgumentError('Negative colIndex found: $colIndex');
     }
   }
 
@@ -1064,8 +1122,11 @@ class Sheet {
   ///Check if rowIndex is not out of `Excel Row limits`.
   ///
   _checkMaxRow(int rowIndex) {
-    if ((this._maxRows >= 1048576) || rowIndex >= 1048576) {
+    if (this._maxRows >= 1048576 || rowIndex >= 1048576) {
       throw ArgumentError('Reached Max (1048576) rows value.');
+    }
+    if (rowIndex < 0) {
+      throw ArgumentError('Negative rowIndex found: $rowIndex');
     }
   }
 
