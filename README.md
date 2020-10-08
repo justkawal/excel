@@ -212,21 +212,38 @@ The necessary changes to be made to updateCell function in order to prevent the 
       sheetObject.removeRow(80);
       
       
-   ````
+````
+
 ### Cell-Style Options
 key | description
 ------------ | -------------
- fontFamily | eg. getFontFamily(````FontFamily.Arial````) or getFontFamily(````FontFamily.Comic_Sans_MS````) ````There is total 182 Font Families available for now````
+ fontFamily | eg. getFontFamily(``FontFamily.Arial``) or getFontFamily(``FontFamily.Comic_Sans_MS``) ``There is total 182 Font Families available for now``
  fontSize | specify the font-size as integer eg. fontSize = 15
- bold | makes text bold - when set to ````true````, by-default it is set to ````false````
- italic | makes text italic - when set to ````true````, by-default it is set to ````false````
- underline | Gives underline to text ````enum Underline { None, Single, Double }```` eg. Underline.Single, by-default it is set to Underline.None
+ bold | makes text bold - when set to ``true``, by-default it is set to ``false``
+ italic | makes text italic - when set to ``true``, by-default it is set to ``false``
+ underline | Gives underline to text ``enum Underline { None, Single, Double }`` eg. Underline.Single, by-default it is set to Underline.None
  fontColorHex | Font Color eg. "#0000FF"
+ rotation | rotation of text eg. 50, rotation varies from ``-90 to 90``, with including ``90`` and ``-90``
  backgroundColorHex | Background color of cell eg. "#faf487"
- wrap | Text wrapping ````enum TextWrapping { WrapText, Clip }```` eg. TextWrapping.Clip
- verticalAlign | align text vertically ````enum VerticalAlign { Top, Center, Bottom }```` eg. VerticalAlign.Top
- horizontalAlign | align text horizontally ````enum HorizontalAlign { Left, Center, Right }```` eg. HorizontalAlign.Right
+ wrap | Text wrapping ``enum TextWrapping { WrapText, Clip }`` eg. TextWrapping.Clip
+ verticalAlign | align text vertically ``enum VerticalAlign { Top, Center, Bottom }`` eg. VerticalAlign.Top
+ horizontalAlign | align text horizontally ``enum HorizontalAlign { Left, Center, Right }`` eg. HorizontalAlign.Right
 
+
+### Make sheet RTL
+ 
+````dart
+ 
+     /*
+      * set rtl to true for making sheet to right-to-left
+      * default value of rtl = false ( which means the fresh or default sheet is ltr )
+      * 
+      */
+      
+      var sheetObject = excel['SheetName'];
+      sheetObject.rtl = true;
+      
+````
    
 ### Copy sheet contents to another sheet
  
@@ -241,7 +258,7 @@ key | description
       
       excel.copy('existingSheetName', 'anotherSheetName');
       
-   ````
+````
 
 ### Rename sheet
  
@@ -255,7 +272,7 @@ key | description
       
       excel.rename('existingSheetName', 'newSheetName');
       
-   ````
+````
    
 ### Delete sheet
  
@@ -269,7 +286,7 @@ key | description
       
       excel.delete('existingSheetName');
       
-   ````
+````
    
 ### Link sheet
  
@@ -303,7 +320,7 @@ key | description
       
       Sheet unlinked_sheetObject = excel['sheetName'];
       
-   ````
+````
 
  ### Merge Cells
  
@@ -317,7 +334,7 @@ key | description
  
       sheetObject.merge(CellIndex.indexByString("A1"), CellIndex.indexByString("E4"), customValue: "Put this text after merge");
      
-   ````
+````
    
  ### Get Merged Cells List
  
@@ -328,7 +345,7 @@ key | description
         print("Merged:" + cells.toString());
       });
     
-   ````
+````
    
  ### Un-Merge Cells
  
@@ -343,7 +360,7 @@ key | description
       
       sheetObject.unMerge("A1:E4");
     
-   ````
+````
    
  ### Find and Replace
  
@@ -359,7 +376,7 @@ key | description
       
       int replacedCount = sheetObject.findAndReplace(Flutter', 'Google');
       
-   ````
+````
    
  ### Insert Row Iterables
  
@@ -377,7 +394,7 @@ key | description
       
       sheetObject.insertRowIterables(dataList, 8);
     
-   ````
+````
 
 ### Iterable Options
 key | description
