@@ -143,6 +143,10 @@ The necessary changes to be made to updateCell function in order to prevent the 
     
 ````
 
+### Is your excel file password protected ? ( We got u covered )
+
+``Protect helps you to apply and remove password protection on your excel file.``  [protect](https://github.com/justkawal/protect.git)
+
 ### Read XLSX from Flutter's Asset Folder
 
 ````dart
@@ -172,9 +176,9 @@ The necessary changes to be made to updateCell function in order to prevent the 
     
 ````
 
- ### Update Cell values
+### Update Cell values
  
- ````dart
+````dart
      /* 
       * sheetObject.updateCell(cell, value, { CellStyle (Optional)});
       * sheetObject created by calling - // Sheet sheetObject = excel['SheetName'];
@@ -247,7 +251,7 @@ key | description
    
 ### Copy sheet contents to another sheet
  
- ````dart
+````dart
  
      /*
       * excel.copy(String 'existingSheetName', String 'anotherSheetName');
@@ -262,7 +266,7 @@ key | description
 
 ### Rename sheet
  
- ````dart
+````dart
  
      /*
       * excel.rename(String 'existingSheetName', String 'newSheetName');
@@ -276,7 +280,7 @@ key | description
    
 ### Delete sheet
  
- ````dart
+````dart
  
      /*
       * excel.delete(String 'existingSheetName');
@@ -290,7 +294,7 @@ key | description
    
 ### Link sheet
  
- ````dart
+````dart
  
      /*
       * excel.link(String 'sheetName', Sheet sheetObject);
@@ -302,11 +306,11 @@ key | description
       
       excel.link('sheetName', sheetObject);
       
-   ````
+````
    
 ### Un-Link sheet
  
- ````dart
+````dart
  
      /*
       * excel.unLink(String 'sheetName');
@@ -322,9 +326,9 @@ key | description
       
 ````
 
- ### Merge Cells
+### Merge Cells
  
- ````dart
+````dart
     /* 
      * sheetObject.merge(CellIndex starting_cell, CellIndex ending_cell, dynamic 'customValue');
      * sheetObject created by calling - // Sheet sheetObject = excel['SheetName'];
@@ -336,9 +340,9 @@ key | description
      
 ````
    
- ### Get Merged Cells List
+### Get Merged Cells List
  
- ````dart
+````dart
       // Check which cells are merged
       
       sheetObject.spannedItems.forEach((cells) {
@@ -347,9 +351,9 @@ key | description
     
 ````
    
- ### Un-Merge Cells
+### Un-Merge Cells
  
- ````dart
+````dart
     /* 
      * sheetObject.unMerge(cell);
      * sheetObject created by calling - // Sheet sheetObject = excel['SheetName'];
@@ -362,9 +366,9 @@ key | description
     
 ````
    
- ### Find and Replace
+### Find and Replace
  
- ````dart
+````dart
     /* 
      * int replacedCount = sheetObject.findAndReplace(source, target);
      * sheetObject created by calling - // Sheet sheetObject = excel['SheetName'];
@@ -378,9 +382,9 @@ key | description
       
 ````
    
- ### Insert Row Iterables
+### Insert Row Iterables
  
- ````dart
+````dart
      /* 
       * sheetObject.insertRowIterables(list-iterables, rowIndex, iterable-options?);
       * sheetObject created by calling - // Sheet sheetObject = excel['SheetName'];
@@ -402,7 +406,7 @@ key | description
  startingColumn | starting column index from which list-iterables should be started
  overwriteMergedCells | overwriteMergedCells is by-defalut set to ```true```, when set to ```false``` it will stop over-write and will write only in unique cells
    
- ### Append Row
+### Append Row
  
  ````dart
     /* 
@@ -413,7 +417,7 @@ key | description
      
       sheetObject.appendRow(["Flutter", "till", "Eternity"]);
     
-   ````
+````
  
 ### Get Default Opening Sheet
  
@@ -432,7 +436,7 @@ key | description
       var defaultSheet = await excel.getDefaultSheet();
       print("Default Sheet:" + defaultSheet.toString());
     
-   ````
+````
    
 ### Set Default Opening Sheet
  
@@ -461,9 +465,15 @@ key | description
         print("Unable to set $sheet to default sheet.");
       }
     
-   ````
+````
+
+
+### Wanna save password protected excel file ? ( We got u covered )
+
+``Protect helps you to apply and remove password protection on your excel file.``  [protect](https://github.com/justkawal/protect.git)
+
    
- ### Saving XLSX File
+### Saving XLSX File
  
  ````dart
       // Save the Changes in file
@@ -474,7 +484,7 @@ key | description
         ..writeAsBytesSync(onValue);
     });
     
-   ````
+````
  
 # Frequent Issues
 
@@ -494,6 +504,6 @@ On-going implementation for future:
   - Translations **·······**> [Arb Translator](https://www.github.com/justkawal/arb_translator)
 
 ### Donate
-Ooooops, My laptop is **slow**, but I'm not.
+
   - [Paypal](https://www.paypal.me/kawal7415)
   - Not having Paypal account ?? [Join Now](https://www.paypal.com/in/flref?refBy=Pzpaa7qp041602067472432) and both of us could earn **`$10`**
