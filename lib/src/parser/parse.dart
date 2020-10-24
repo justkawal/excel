@@ -511,8 +511,7 @@ class Parser {
         var formulaNode = node.findElements('f');
         var content = valueNode.first;
         if (formulaNode != null && formulaNode.isNotEmpty) {
-          value =
-              Formula._(_parseValue(content), _parseValue(formulaNode.first));
+          value = Formula.custom(_parseValue(formulaNode.first).toString());
         } else {
           if (s1 != null) {
             var fmtId = _excel._numFormats[s];

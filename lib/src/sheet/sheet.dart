@@ -6,7 +6,7 @@ class Sheet {
   bool _isRTL;
   int _maxRows = 0;
   int _maxCols = 0;
-  List<double> _rowHeight = <double>[], _colWidth =<double>[];
+  List<double> _rowHeight = <double>[], _colWidth = <double>[];
   List<String> _spannedItems = <String>[];
   List<_Span> _spanList = <_Span>[];
   Map<int, Map<int, Data>> _sheetData = <int, Map<int, Data>>{};
@@ -45,8 +45,8 @@ class Sheet {
     this._maxRows = maxR_ ?? 0;
     this._sheetData = <int, Map<int, Data>>{};
     this._isRTL = isRTL_ ?? false;
-    this._rowHeight = List< double>.from(rowHeight_ ?? []);
-    this._colWidth = List< double>.from(colWidth_ ?? []);
+    this._rowHeight = List<double>.from(rowHeight_ ?? []);
+    this._colWidth = List<double>.from(colWidth_ ?? []);
 
     if (isRTL_ != null) {
       _excel._rtlChangeLookup = sheetName;
@@ -685,6 +685,33 @@ class Sheet {
     }
   }
 
+  List<List<Data>> getSelection(CellIndex start, {CellIndex end = null}) {
+    if (start == null) {
+      return [[]];
+    }
+    int startColumn = start._columnIndex,
+        startRow = start._rowIndex,
+        endColumn = end?._columnIndex,
+        endRow = end?._rowIndex;
+
+    if (endColumn != null && endRow != null) {
+      if (startRow > endRow) {
+        startRow = end._rowIndex;
+        endRow = start._rowIndex;
+      }
+      if (endColumn < startColumn) {
+        endColumn = start._columnIndex;
+        startColumn = end._columnIndex;
+      }
+    }
+
+    if(startColumn >= _maxCols){
+
+    }
+
+    return [[]];
+  }
+
   ///
   /// Helps to find the interaction between the pre-existing span position and updates if with new span if there any interaction(Cross-Sectional Spanning) exists.
   ///
@@ -888,13 +915,12 @@ class Sheet {
 
   ///
   /// Get Row Height
-  /// 
+  ///
   /// Row Indexing starts from 0
   ///
   double _getRowHeight(int rowIndex) {
     _checkMaxRow(rowIndex);
-    if(rowIndex < _rowHeight.length)
-    return _rowHeight[rowIndex];
+    if (rowIndex < _rowHeight.length) return _rowHeight[rowIndex];
 
     return 15.75;
   }
@@ -905,12 +931,11 @@ class Sheet {
   void _setRowHeight(int rowIndex, double rowHeight) {
     _checkMaxRow(rowIndex);
     if (rowHeight < 0) return;
-    
-    while(rowIndex >= _rowHeight.length){
+
+    while (rowIndex >= _rowHeight.length) {
       _rowHeight.add(15.75);
     }
     _rowHeight[rowIndex] = rowHeight;
-
   }
 
   ///
@@ -927,8 +952,8 @@ class Sheet {
   void _setColWidth(int colIndex, double colWidth) {
     _checkMaxCol(colIndex);
     if (colWidth < 0) return;
-    
-    while(colIndex >= _colWidth.length){
+
+    while (colIndex >= _colWidth.length) {
       _colWidth.add(15.75);
     }
     _colWidth[colIndex] = colWidth;

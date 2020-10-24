@@ -481,7 +481,8 @@ class Save {
           childAttributes.add(XmlAttribute(XmlName('horizontal'), '$hor'));
         }
         if (rotation != null && rotation != 0) {
-          childAttributes.add(XmlAttribute(XmlName('textRotation'), '$rotation'));
+          childAttributes
+              .add(XmlAttribute(XmlName('textRotation'), '$rotation'));
         }
 
         children.add(XmlElement(XmlName('alignment'), childAttributes, []));
@@ -628,21 +629,16 @@ class Save {
       );
     }
 
-    String formula = "";
-    if (value.runtimeType == Formula) {
-      formula = value.formula.toString();
-    }
-
     var children = value == null
         ? <XmlElement>[]
         : <XmlElement>[
-            if (value.runtimeType == Formula)
-              XmlElement(XmlName('f'), [], [XmlText(formula)]),
+            if (value is Formula)
+              XmlElement(XmlName('f'), [], [XmlText(value.formula.toString())]),
             XmlElement(XmlName('v'), [], [
-              XmlText(value.runtimeType == String
+              XmlText(value is String
                   ? _excel._sharedStrings.indexOf(value.toString()).toString()
-                  : value.runtimeType == Formula
-                      ? value._evaluatedValue.toString()
+                  : value is Formula
+                      ? ''
                       : value.toString())
             ]),
           ];
