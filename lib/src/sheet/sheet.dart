@@ -1029,7 +1029,7 @@ class Sheet {
     int rowsLength = this.maxRows, columnLength = this.maxCols;
     RegExp sourceRegx;
     if (source.runtimeType == RegExp) {
-      sourceRegx == source;
+      sourceRegx = source;
     } else {
       sourceRegx = RegExp(source.toString());
     }
@@ -1045,7 +1045,7 @@ class Sheet {
         if (this._sheetData.isNotEmpty &&
             _isContain(this._sheetData[i]) &&
             _isContain(this._sheetData[i][j]) &&
-            sourceRegx.hasMatch(this._sheetData[i][j].toString()) &&
+            sourceRegx.hasMatch(this._sheetData[i][j].value.toString()) &&
             (first == -1 || first != replaceCount)) {
           this
               ._sheetData[i][j]
