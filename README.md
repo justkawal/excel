@@ -125,6 +125,10 @@ The necessary changes to be made to updateCell function in order to prevent the 
     
 ````
 
+## Password protected ? [protect](https://github.com/justkawal/protect.git)
+
+``Protect helps you to apply and remove password protection on your excel file.``
+
 ### Read XLSX File
 
 ````dart
@@ -466,11 +470,6 @@ key | description
       }
     
 ````
-
-
-### Wanna save password protected excel file ? ( We got u covered )
-
-``Protect helps you to apply and remove password protection on your excel file.``  [protect](https://github.com/justkawal/protect.git)
 
    
 ### Saving XLSX File
