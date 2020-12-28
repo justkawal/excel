@@ -250,7 +250,7 @@ class Sheet {
   ///
   List<List<dynamic>> selectRangeValues(CellIndex start, {CellIndex end}) {
     var _list = (end == null ? selectRange(start) : selectRange(start, end: end));
-    return _list.map((e) => e.map((e) => e.value).toList()).toList();
+    return _list.map((e) => e.map((e) => e!=null?e.value:null).toList()).toList();
   }
 
   ///
