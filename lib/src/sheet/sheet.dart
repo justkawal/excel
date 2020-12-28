@@ -207,17 +207,19 @@ class Sheet {
       return _selectedRange;
     }
 
-    var _dataRows = this._sheetData.values.toList();
-
-    if (end == null) {
-      for (var row in _dataRows.sublist(_startRow)) {
-        var selectedColumn = row.values.toList().sublist(_startColumn);
-        _selectedRange.add(selectedColumn);
+    for (var i = _startRow; i <= (_endRow ?? _sheetData.length); i++) {
+      if (_isContain(_sheetData[i])) {
+        List<Data> row = List<Data>();
+        for (var j = _startColumn; j <= (_endColumn ?? _sheetData[i].length); j++) {
+          if (_isContain(_sheetData[i][j])) {
+            row.add(_sheetData[i][j]);
+          } else {
+            row.add(null);
       }
+        }
+        _selectedRange.add(row);
     } else {
-      for (var row in _dataRows.sublist(_startRow, _endRow + 1)) {
-        var selectedColumn = row.values.toList().sublist(_startColumn, _endColumn + 1);
-        _selectedRange.add(selectedColumn);
+        _selectedRange.add(null);
       }
     }
 
