@@ -207,10 +207,10 @@ class Sheet {
       return _selectedRange;
     }
 
-    for (var i = _startRow; i <= (_endRow ?? _sheetData.length); i++) {
+    for (var i = _startRow; i <= (_endRow ?? maxRows); i++) {
       if (_isContain(_sheetData[i])) {
         List<Data> row = List<Data>();
-        for (var j = _startColumn; j <= (_endColumn ?? _sheetData[i].length); j++) {
+        for (var j = _startColumn; j <= (_endColumn ?? maxCols); j++) {
           if (_isContain(_sheetData[i][j])) {
             row.add(_sheetData[i][j]);
           } else {
