@@ -16,8 +16,7 @@ void main() {
   });
 
   test('Read XLSX File', () {
-    var file = "test_resources/example.xlsx";
-    print("filePath:: " + file);
+    var file = "./test_resources/example.xlsx";
     var bytes = File(file).readAsBytesSync();
     var excel = Excel.decodeBytes(bytes);
     expect(excel.tables['Sheet1'].maxCols, equals(3));
@@ -26,8 +25,7 @@ void main() {
 
   group('Sheet Operations', () {
 
-    var file = "test_resources/example.xlsx";
-    print("filePath:: " + file);
+    var file = "./test_resources/example.xlsx";
     var bytes = File(file).readAsBytesSync();
     Excel excel = Excel.decodeBytes(bytes);
     test('create Sheet', () {
@@ -72,7 +70,7 @@ void main() {
   });
 
   test('Saving XLSX File', () {
-    var file ="test_resources/example.xlsx";
+    var file ="./test_resources/example.xlsx";
     var bytes = File(file).readAsBytesSync();
     var excel = Excel.decodeBytes(bytes);
     Sheet sheetObject = excel.tables['Sheet1'];
@@ -82,11 +80,11 @@ void main() {
         ..createSync(recursive: true)
         ..writeAsBytesSync(onValue);
     }).whenComplete(() {
-      var file = "tmp/exampleOut.xlsx";
+      var file = "./tmp/exampleOut.xlsx";
       var bytes = File(file).readAsBytesSync();
       var excel = Excel.decodeBytes(bytes);
       // delete tmp folder
-      new Directory("tmp").delete(recursive: true);
+      new Directory("./tmp").delete(recursive: true);
       expect(excel.sheets.entries.length, equals(1));
       expect(
           excel.tables["Sheet1"].rows[1][1].toString(), equals('Washington'));
