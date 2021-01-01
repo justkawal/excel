@@ -20,9 +20,10 @@ void main() {
   });
 
   group('Sheet Operations', () {
+    Map<String, String> env = Platform.environment;
+    env.forEach((k, v) => print("Key=$k Value=$v"));
     print("absolute:: " + Directory.current.absolute.path);
-    print("current:: "+Directory.current.path.toString());
-
+    print("current:: " + Directory.current.path.toString());
 
     var file = Directory.current.path + "/test_resources/example.xlsx";
     print("filePath:: " + file);
