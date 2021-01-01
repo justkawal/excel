@@ -12,7 +12,7 @@ void main() {
 
   test('Read XLSX File', () {
     var file = Directory.current.path + "/test_resources/example.xlsx";
-    print("filePath:: "+file);
+    print("filePath:: " + file);
     var bytes = File(file).readAsBytesSync();
     var excel = Excel.decodeBytes(bytes);
     expect(excel.tables['Sheet1'].maxCols, equals(3));
@@ -20,8 +20,12 @@ void main() {
   });
 
   group('Sheet Operations', () {
+    print("absolute:: " + Directory.current.absolute.path);
+    print("current:: "+Directory.current.path.toString());
+
+
     var file = Directory.current.path + "/test_resources/example.xlsx";
-    print("filePath:: "+file);
+    print("filePath:: " + file);
     var bytes = File(file).readAsBytesSync();
     Excel excel = Excel.decodeBytes(bytes);
     test('create Sheet', () {
@@ -87,6 +91,5 @@ void main() {
       expect(excel.tables['Sheet1'].maxCols, equals(3));
       expect(excel.tables["Sheet1"].rows[4][1].toString(), equals('Moscow'));
     });
-
   });
 }
