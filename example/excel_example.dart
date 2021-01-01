@@ -5,9 +5,9 @@ import 'package:excel/excel.dart';
 void main(List<String> args) {
   var file = "/home/raman/opensource/excel/example/example.xlsx";
   var bytes = File(file).readAsBytesSync();
-  var excel = Excel.createExcel();
+  //var excel = Excel.createExcel();
   // or
-  //var excel = Excel.decodeBytes(bytes);
+  var excel = Excel.decodeBytes(bytes);
   for (var table in excel.tables.keys) {
     print(table);
     print(excel.tables[table].maxCols);
@@ -17,11 +17,30 @@ void main(List<String> args) {
     }
   }
 
+  //
+  // Change sheet from rtl to ltr and vice-versa
+  //
+  var sheet1rtl = excel['Sheet1'].isRTL;
+
+  excel['Sheet1'].isRTL = false;
+
+  print(
+      'Sheet1: ((previous) isRTL: $sheet1rtl) ---> ((current) isRTL: ${excel['Sheet1'].isRTL})');
+
+  var sheet2rtl = excel['Sheet2'].isRTL;
+
+  excel['Sheet2'].isRTL = true;
+
+  print(
+      'Sheet2: ((previous) isRTL: $sheet2rtl) ---> ((current) isRTL: ${excel['Sheet2'].isRTL})');
+
   CellStyle cellStyle = CellStyle(
     bold: true,
     italic: true,
     fontFamily: getFontFamily(FontFamily.Comic_Sans_MS),
+    rotation: 50,
   );
+  cellStyle.rotation = -50;
 
   var sheet = excel['mySheet'];
 
@@ -57,17 +76,16 @@ void main(List<String> args) {
   excel.unLink('sheet1');
 
   sheet = excel['sheet'];
-
-  /// appending rows
-  List<List<String>> list = List.generate(
-      60, (index) => List.generate(20, (index1) => '$index $index1'));
+  
+  /// appending rows and checking the time complexity of it
+  /* List<List<String>> list = List.generate(6000, (index) => List.generate(20, (index1) => '$index $index1'));
 
   Stopwatch stopwatch = new Stopwatch()..start();
   list.forEach((row) {
     sheet.appendRow(row);
   });
 
-  print('doSomething() executed in ${stopwatch.elapsed}');
+  print('doSomething() executed in ${stopwatch.elapsed}'); */
 
   sheet.appendRow([8]);
   excel.setDefaultSheet(sheet.sheetName).then((isSet) {
@@ -81,7 +99,7 @@ void main(List<String> args) {
 
   // Saving the file
 
-  String outputFile = "/home/raman/opensource/excel/example/exampleOut.xlsx";
+  String outputFile = "/Users/kawal/Desktop/rotate_/r.xlsx";
   excel.encode().then((onValue) {
     File(join(outputFile))
       ..createSync(recursive: true)

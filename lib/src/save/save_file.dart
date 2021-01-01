@@ -6,9 +6,9 @@ class Save {
   List<CellStyle> _innerCellStyle;
   Parser parser;
   Save._(Excel excel, Parser _parser) {
-    this._excel = excel;
-    this.parser = _parser;
-    this._archiveFiles = Map<String, ArchiveFile>();
+    _excel = excel;
+    parser = _parser;
+    _archiveFiles = Map<String, ArchiveFile>();
     _innerCellStyle = List<CellStyle>();
   }
 
@@ -24,6 +24,10 @@ class Save {
 
     if (_excel._mergeChanges) {
       _setMerge();
+    }
+
+    if (_excel._rtlChanges) {
+      _setRTL();
     }
 
     for (var xmlFile in _excel._xmlFiles.keys) {
@@ -112,6 +116,69 @@ class Save {
           }
         });
       });
+    });
+  }
+
+  _setRTL() {
+    this._excel._rtlChangeLook.forEach((s) {
+      var sheetObject = this._excel._sheetMap['$s'];
+      if (_isContain(sheetObject) &&
+          this._excel._xmlSheetId.containsKey(s) &&
+          this._excel._xmlFiles.containsKey(this._excel._xmlSheetId[s])) {
+        var itrSheetViewsRTLElement = this
+            ._excel
+            ._xmlFiles[_excel._xmlSheetId[s]]
+            .findAllElements('sheetViews');
+
+        if (itrSheetViewsRTLElement.isNotEmpty) {
+          var itrSheetViewRTLElement = this
+              ._excel
+              ._xmlFiles[_excel._xmlSheetId[s]]
+              .findAllElements('sheetView');
+
+          if (itrSheetViewRTLElement.isNotEmpty) {
+            /// clear all the children of the sheetViews here
+            this
+                ._excel
+                ._xmlFiles[_excel._xmlSheetId[s]]
+                .findAllElements('sheetViews')
+                ?.first
+                ?.children
+                ?.clear();
+          }
+          this
+              ._excel
+              ._xmlFiles[_excel._xmlSheetId[s]]
+              .findAllElements('sheetViews')
+              .first
+              .children
+              .add(XmlElement(
+                XmlName('sheetView'),
+                [
+                  if (sheetObject.isRTL)
+                    XmlAttribute(XmlName('rightToLeft'), '1'),
+                  XmlAttribute(XmlName('workbookViewId'), '0'),
+                ],
+              ));
+        } else {
+          this
+              ._excel
+              ._xmlFiles[_excel._xmlSheetId[s]]
+              .findAllElements('worksheet')
+              .first
+              .children
+              .add(XmlElement(XmlName('sheetViews'), [], [
+                XmlElement(
+                  XmlName('sheetView'),
+                  [
+                    if (sheetObject.isRTL)
+                      XmlAttribute(XmlName('rightToLeft'), '1'),
+                    XmlAttribute(XmlName('workbookViewId'), '0'),
+                  ],
+                )
+              ]));
+        }
+      }
     });
   }
 
@@ -357,6 +424,7 @@ class Save {
 
       HorizontalAlign horizontalALign = cellStyle.horizontalAlignment;
       VerticalAlign verticalAlign = cellStyle.verticalAlignment;
+      int rotation = cellStyle.rotation;
       TextWrapping textWrapping = cellStyle.wrap;
       int backgroundIndex = innerPatternFill.indexOf(backgroundColor),
           fontIndex = _fontStyleIndex(innerFontStyle, _fs);
@@ -388,7 +456,9 @@ class Save {
 
       if (horizontalALign != HorizontalAlign.Left ||
           textWrapping != null ||
-          verticalAlign != VerticalAlign.Bottom) {
+          verticalAlign != VerticalAlign.Bottom ||
+          rotation != null ||
+          rotation != 0) {
         attributes.add(XmlAttribute(XmlName('applyAlignment'), '1'));
         var childAttributes = <XmlAttribute>[];
 
@@ -409,6 +479,10 @@ class Save {
           String hor =
               horizontalALign == HorizontalAlign.Right ? 'right' : 'center';
           childAttributes.add(XmlAttribute(XmlName('horizontal'), '$hor'));
+        }
+        if (rotation != null && rotation != 0) {
+          childAttributes
+              .add(XmlAttribute(XmlName('textRotation'), '$rotation'));
         }
 
         children.add(XmlElement(XmlName('alignment'), childAttributes, []));
@@ -555,21 +629,16 @@ class Save {
       );
     }
 
-    String formula = "";
-    if (value.runtimeType == Formula) {
-      formula = value.formula.toString();
-    }
-
     var children = value == null
         ? <XmlElement>[]
         : <XmlElement>[
-            if (value.runtimeType == Formula)
-              XmlElement(XmlName('f'), [], [XmlText(formula)]),
+            if (value is Formula)
+              XmlElement(XmlName('f'), [], [XmlText(value.formula.toString())]),
             XmlElement(XmlName('v'), [], [
-              XmlText(value.runtimeType == String
+              XmlText(value is String
                   ? _excel._sharedStrings.indexOf(value.toString()).toString()
-                  : value.runtimeType == Formula
-                      ? value._evaluatedValue.toString()
+                  : value is Formula
+                      ? ''
                       : value.toString())
             ]),
           ];

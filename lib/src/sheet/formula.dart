@@ -1,158 +1,117 @@
 part of excel;
 
 class Formula {
-  dynamic _evaluatedValue;
   String _formula;
 
-  Formula._(dynamic evaluatedValue, String formula) {
-    this._evaluatedValue = evaluatedValue;
+  Formula._(String formula) {
     this._formula = formula;
   }
+  
+  ///
+  ///```
+  ///var abs = Formula.abs(-3));
+  ///````
+  static Formula abs(Sheet sheet, dynamic val) {
+    dynamic formulaValue = _getParsedVal(val);
+    return Formula._('ABS($formulaValue)');
+  }
 
-  static Formula abs(Sheet sheet, CellIndex cellIndex) {
-    dynamic value = "0";
-    String formulae = cellIndex.cellId;
-    if (_checkCellIndex(sheet, cellIndex, checkForward: true)) {
-      Data data = _data(sheet, cellIndex);
-      dynamic val = _tryParse(data.value.toString());
-
-      /// if the obtained value is number the do the processing
-      value = val ?? "Error";
-    }
-
-    return Formula._(value, '=ABS($formulae)');
+  /// Helps to initiate a custom formula
+  ///```
+  ///var my_custom_formula = Formula.custom('SUM(1,2)');
+  ///````
+  static Formula custom(String formula) {
+    if (formula == null) return null;
+    return Formula._(formula);
   }
 
   /// returns the average.
-  static Formula average(Sheet sheet, List<CellIndex> cellIndexList) {
-    List<String> cellIdList = List<String>();
-    dynamic value = "#DIV/0!";
-    Map<String, dynamic> map = _sumInternally(sheet, cellIndexList);
-    bool evaluate = map["evaluate"] == 1;
-    cellIdList = List<String>.from(map["list"]);
-    int sum = map["sum"];
-    if (evaluate) {
-      if (cellIndexList.length > 0) {
-        value = sum / cellIndexList.length;
-      }
-    } else {
-      value = "#VALUE!";
-    }
-
-    return Formula._(value, '=AVERAGE(${cellIdList.join(',')})');
+  ///
+  /// pass the cellIndexList as ["A1","B3:B6","D4:G6", CellIndex.indexByString("A2")]
+  ///```
+  ///var cells = ["A1","B3:B6","D4:G6", CellIndex.indexByString("A2")];
+  ///var average_formula = Formula.average(sheetObject, cells);
+  ///````
+  static Formula average(Sheet sheet, List<dynamic> values) {
+    List<dynamic> cellIdList = _getParsedList(sheet, values);
+    return Formula._('AVERAGE(${cellIdList.join(',')})');
   }
 
   /// returns the sum.
   ///
-  /// pass the cellIndexList as ["A1","B3:B6","D4:G6"]
-  static Formula sum(Sheet sheet, List<CellIndex> cellIndexList) {
-    List<String> cellIdList = List<String>();
-    dynamic value = "#DIV/0!";
-    Map<String, dynamic> map = _sumInternally(sheet, cellIndexList);
-    bool evaluate = map["evaluate"] == 1;
-    int sum = map["sum"];
-    if (evaluate) {
-      if (cellIndexList.length > 0) {
-        value = sum / cellIndexList.length;
-      }
-    } else {
-      value = "#VALUE!";
-    }
+  /// pass the cellIndexList as ["A1","B3:B6","D4:G6", CellIndex.indexByString("A2")]
+  ///```
+  ///var cells = ["A1","B3:B6","D4:G6", CellIndex.indexByString("A2")];
+  ///var sum_formula = Formula.sum(sheetObject, cells);
+  ///````
+  static Formula sum(Sheet sheet, List<dynamic> values) {
+    List<dynamic> cellIdList = _getParsedList(sheet, values);
+    return Formula._('SUM(${cellIdList.join(',')})');
+  }
 
-    return Formula._(value, '=AVERAGE(${cellIdList.join(',')})');
+  /***************************** Fomula Utilities *****************************/
+
+  static dynamic _getParsedVal(dynamic val) {
+    if (val is CellIndex) {
+      return val.cellId;
+    } else if (val is Formula) {
+      return val._formula;
+    }
+    return val;
   }
 
   /// returns three mapped values
-  /// `evaluate` is set to `0` if not able to evaluate
   /// sum is the total sum got from the cells
-  /// list is the cellIndexList in the format of CellId as A1 or B90 ...
-  static Map<String, dynamic> _sumInternally(
-      Sheet sheet, List<CellIndex> cellIndexList) {
-    List<String> cellIdList = List<String>();
-    int sum = 0;
-    bool evaluate = true;
-    for (int i = 0; i < cellIndexList.length; i++) {
-      CellIndex cellIndex = cellIndexList[i];
-      cellIdList.add(cellIndex.cellId);
-      if (evaluate) {
-        if (_checkCellIndex(sheet, cellIndex, checkForward: true)) {
-          Data data = _data(sheet, cellIndex);
-          dynamic val = num.tryParse(data.value.toString());
-
-          /// if the obtained value is number then do the processing
-          if (val == null) {
-            evaluate = false;
+  /// list is the cellIndexList in the format of CellId as A1 or B90 ... or it can be values of formulas
+  static List<dynamic> _getParsedList(
+      Sheet sheet, List<dynamic> cellIndexList) {
+    List<dynamic> list = List<String>();
+    for (var val in cellIndexList) {
+      if (val is CellIndex) {
+        list.add(val.cellId);
+      } else if (val is String) {
+        if (val.contains(':')) {
+          var cells = val.split(':');
+          if (cells.length == 2) {
+            var l = _expandCellIndexList(
+                    sheet,
+                    CellIndex.indexByString('${cells[0]}'),
+                    CellIndex.indexByString('${cells[1]}'))
+                .map((e) => e.cellId)
+                .toList();
+            list.addAll(l);
           } else {
-            sum += val;
+            list.addAll(
+                cells.map((e) => CellIndex.indexByString(e.toString())));
           }
         } else {
-          sum += 0;
+          list.add(val);
+        }
+      } else if (val is Formula) {
+        list.add(val._formula);
+      } else {
+        list.add(val);
+      }
+    }
+    return list;
+  }
+
+  static List<CellIndex> _expandCellIndexList(
+      Sheet sheet, CellIndex start, CellIndex end) {
+    List<CellIndex> indexList = <CellIndex>[];
+    if (start != null && end != null) {
+      sheet._checkMaxCol(start.columnIndex);
+      sheet._checkMaxRow(start.rowIndex);
+      sheet._checkMaxCol(end.columnIndex);
+      sheet._checkMaxRow(end.rowIndex);
+      for (var i = start.rowIndex; i <= end.rowIndex; i++) {
+        for (var j = start.columnIndex; j <= end.columnIndex; j++) {
+          indexList
+              .add(CellIndex.indexByColumnRow(columnIndex: j, rowIndex: i));
         }
       }
     }
-    return {"evaluate": evaluate ? 1 : 0, "sum": sum, "list": cellIdList};
-  }
-/* 
-  static List<CellIndex> _expandCellIndexList(List<String> cellIndexList) {
-    List<CellIndex> cellList = List<CellIndex>();
-    if (cellIndexList != null) {
-      cellIndexList.forEach((cells) {
-        if (cells != null) {
-          if (cells.contains(":")) {
-            List<String> cList = cells.split(':');
-            if (cList.length == 2) {
-              cList.forEach((element) {
-                if (element != null) {
-                  cellList.add(CellIndex.indexByString(element));
-                }
-              });
-            }
-          } else {
-            cellList.add(CellIndex.indexByString(cells));
-          }
-        }
-      });
-    }
-    return cellList;
-  } */
-
-  /// try to parse the integer or double and return null if it is not integer or double
-  static num _tryParse(String input) {
-    String source = input.trim();
-    return int.tryParse(source) ?? double.tryParse(source);
-  }
-
-  /// return the Data object so as to extract out the value
-  static Data _data(Sheet sheet, CellIndex cellIndex) {
-    return sheet._sheetData[cellIndex.rowIndex][cellIndex.columnIndex];
-  }
-
-  /// check various important things
-  static bool _checkCellIndex(Sheet sheet, CellIndex cellIndex,
-      {bool checkForward = false}) {
-    if (sheet == null) {
-      _damagedExcel(text: 'null sheet reference found.');
-    }
-    if (cellIndex == null ||
-        cellIndex.columnIndex < 0 ||
-        cellIndex.rowIndex < 0) {
-      _damagedExcel(text: 'dirty or null CellIndex found.');
-    }
-    sheet._checkMaxCol(cellIndex.columnIndex);
-    sheet._checkMaxRow(cellIndex.rowIndex);
-    if (checkForward) {
-      return sheet._sheetData.isNotEmpty &&
-          _isContain(sheet._sheetData) &&
-          _isContain(sheet._sheetData[cellIndex.rowIndex]) &&
-          _isContain(
-              sheet._sheetData[cellIndex.rowIndex][cellIndex.columnIndex]);
-    }
-    return true;
-  }
-
-  /// get evaluated String of Formula
-  get value {
-    return this._evaluatedValue;
+    return indexList;
   }
 
   /// get Formula

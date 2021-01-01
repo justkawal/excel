@@ -22,7 +22,7 @@ Excel _newExcel(Archive archive) {
 
 /// Decode a excel file.
 class Excel {
-  bool _colorChanges, _mergeChanges;
+  bool _colorChanges, _mergeChanges, _rtlChanges;
   Archive _archive;
   Map<String, XmlNode> _sheets;
   Map<String, XmlDocument> _xmlFiles;
@@ -30,7 +30,7 @@ class Excel {
   Map<String, Map<String, int>> _cellStyleReferenced;
   Map<String, Sheet> _sheetMap;
   List<CellStyle> _cellStyleList;
-  List<String> _sharedStrings, _patternFill, _mergeChangeLook;
+  List<String> _sharedStrings, _patternFill, _mergeChangeLook, _rtlChangeLook;
   List<_FontStyle> _fontStyleList;
   List<int> _numFormats;
   String _stylesTarget, _sharedStringsTarget, _defaultSheet;
@@ -40,6 +40,7 @@ class Excel {
     _archive = archive;
     _colorChanges = false;
     _mergeChanges = false;
+    _rtlChanges = false;
     _sheets = <String, XmlNode>{};
     _xmlFiles = <String, XmlDocument>{};
     _xmlSheetId = <String, String>{};
@@ -50,6 +51,7 @@ class Excel {
     _sharedStrings = <String>[];
     _cellStyleList = <CellStyle>[];
     _mergeChangeLook = <String>[];
+    _rtlChangeLook = <String>[];
     _numFormats = <int>[];
     parser = Parser._(this);
     parser._startParsing();
@@ -244,6 +246,12 @@ class Excel {
     /// remove from `_mergeChangeLook`.
     if (_mergeChangeLook.contains(sheet)) {
       _mergeChangeLook.remove(sheet);
+    }
+
+    ///
+    /// remove from `_rtlChangeLook`.
+    if (_rtlChangeLook.contains(sheet)) {
+      _rtlChangeLook.remove(sheet);
     }
 
     ///
@@ -517,6 +525,17 @@ class Excel {
       int startingColumn = -1,
       int endingColumn = -1}) {
     int replaceCount = 0;
+    if (!_isContain(_sheetMap[sheet])) return replaceCount;
+
+    _sheetMap['$sheet'].findAndReplace(
+      source,
+      target,
+      first: first,
+      startingRow: startingRow,
+      endingRow: endingRow,
+      startingColumn: startingColumn,
+      endingColumn: endingColumn,
+    );
 
     return replaceCount;
   }
@@ -593,9 +612,8 @@ class Excel {
   ///
   ///
   List<String> getMergedCells(String sheet) {
-    return _isContain(_sheetMap[sheet])
-        ? List<String>.of(_sheetMap[sheet].spannedItems)
-        : <String>[];
+    return List<String>.from(
+        _isContain(_sheetMap[sheet]) ? _sheetMap[sheet].spannedItems : []);
   }
 
   ///
@@ -627,6 +645,14 @@ class Excel {
   set _mergeChangeLookup(String value) {
     if (!_mergeChangeLook.contains(value)) {
       _mergeChangeLook.add(value);
+      //_mergeChanges = true;
+    }
+  }
+
+  set _rtlChangeLookup(String value) {
+    if (!_rtlChangeLook.contains(value)) {
+      _rtlChangeLook.add(value);
+      _rtlChanges = true;
     }
   }
 }

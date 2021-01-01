@@ -125,6 +125,10 @@ The necessary changes to be made to updateCell function in order to prevent the 
     
 ````
 
+## Password protected ? [protect](https://github.com/justkawal/protect.git)
+
+``Protect helps you to apply and remove password protection on your excel file.``
+
 ### Read XLSX File
 
 ````dart
@@ -142,6 +146,10 @@ The necessary changes to be made to updateCell function in order to prevent the 
     }
     
 ````
+
+### Is your excel file password protected ? ( We got u covered )
+
+``Protect helps you to apply and remove password protection on your excel file.``  [protect](https://github.com/justkawal/protect.git)
 
 ### Read XLSX from Flutter's Asset Folder
 
@@ -172,9 +180,9 @@ The necessary changes to be made to updateCell function in order to prevent the 
     
 ````
 
- ### Update Cell values
+### Update Cell values
  
- ````dart
+````dart
      /* 
       * sheetObject.updateCell(cell, value, { CellStyle (Optional)});
       * sheetObject created by calling - // Sheet sheetObject = excel['SheetName'];
@@ -212,25 +220,42 @@ The necessary changes to be made to updateCell function in order to prevent the 
       sheetObject.removeRow(80);
       
       
-   ````
+````
+
 ### Cell-Style Options
 key | description
 ------------ | -------------
- fontFamily | eg. getFontFamily(````FontFamily.Arial````) or getFontFamily(````FontFamily.Comic_Sans_MS````) ````There is total 182 Font Families available for now````
+ fontFamily | eg. getFontFamily(``FontFamily.Arial``) or getFontFamily(``FontFamily.Comic_Sans_MS``) ``There is total 182 Font Families available for now``
  fontSize | specify the font-size as integer eg. fontSize = 15
- bold | makes text bold - when set to ````true````, by-default it is set to ````false````
- italic | makes text italic - when set to ````true````, by-default it is set to ````false````
- underline | Gives underline to text ````enum Underline { None, Single, Double }```` eg. Underline.Single, by-default it is set to Underline.None
+ bold | makes text bold - when set to ``true``, by-default it is set to ``false``
+ italic | makes text italic - when set to ``true``, by-default it is set to ``false``
+ underline | Gives underline to text ``enum Underline { None, Single, Double }`` eg. Underline.Single, by-default it is set to Underline.None
  fontColorHex | Font Color eg. "#0000FF"
+ rotation (degree) | rotation of text eg. 50, rotation varies from ``-90 to 90``, with including ``90`` and ``-90``
  backgroundColorHex | Background color of cell eg. "#faf487"
- wrap | Text wrapping ````enum TextWrapping { WrapText, Clip }```` eg. TextWrapping.Clip
- verticalAlign | align text vertically ````enum VerticalAlign { Top, Center, Bottom }```` eg. VerticalAlign.Top
- horizontalAlign | align text horizontally ````enum HorizontalAlign { Left, Center, Right }```` eg. HorizontalAlign.Right
+ wrap | Text wrapping ``enum TextWrapping { WrapText, Clip }`` eg. TextWrapping.Clip
+ verticalAlign | align text vertically ``enum VerticalAlign { Top, Center, Bottom }`` eg. VerticalAlign.Top
+ horizontalAlign | align text horizontally ``enum HorizontalAlign { Left, Center, Right }`` eg. HorizontalAlign.Right
 
+
+### Make sheet RTL
+ 
+````dart
+ 
+     /*
+      * set rtl to true for making sheet to right-to-left
+      * default value of rtl = false ( which means the fresh or default sheet is ltr )
+      * 
+      */
+      
+      var sheetObject = excel['SheetName'];
+      sheetObject.rtl = true;
+      
+````
    
 ### Copy sheet contents to another sheet
  
- ````dart
+````dart
  
      /*
       * excel.copy(String 'existingSheetName', String 'anotherSheetName');
@@ -241,11 +266,11 @@ key | description
       
       excel.copy('existingSheetName', 'anotherSheetName');
       
-   ````
+````
 
 ### Rename sheet
  
- ````dart
+````dart
  
      /*
       * excel.rename(String 'existingSheetName', String 'newSheetName');
@@ -255,11 +280,11 @@ key | description
       
       excel.rename('existingSheetName', 'newSheetName');
       
-   ````
+````
    
 ### Delete sheet
  
- ````dart
+````dart
  
      /*
       * excel.delete(String 'existingSheetName');
@@ -269,11 +294,11 @@ key | description
       
       excel.delete('existingSheetName');
       
-   ````
+````
    
 ### Link sheet
  
- ````dart
+````dart
  
      /*
       * excel.link(String 'sheetName', Sheet sheetObject);
@@ -285,11 +310,11 @@ key | description
       
       excel.link('sheetName', sheetObject);
       
-   ````
+````
    
 ### Un-Link sheet
  
- ````dart
+````dart
  
      /*
       * excel.unLink(String 'sheetName');
@@ -303,11 +328,11 @@ key | description
       
       Sheet unlinked_sheetObject = excel['sheetName'];
       
-   ````
+````
 
- ### Merge Cells
+### Merge Cells
  
- ````dart
+````dart
     /* 
      * sheetObject.merge(CellIndex starting_cell, CellIndex ending_cell, dynamic 'customValue');
      * sheetObject created by calling - // Sheet sheetObject = excel['SheetName'];
@@ -317,22 +342,22 @@ key | description
  
       sheetObject.merge(CellIndex.indexByString("A1"), CellIndex.indexByString("E4"), customValue: "Put this text after merge");
      
-   ````
+````
    
- ### Get Merged Cells List
+### Get Merged Cells List
  
- ````dart
+````dart
       // Check which cells are merged
       
       sheetObject.spannedItems.forEach((cells) {
         print("Merged:" + cells.toString());
       });
     
-   ````
+````
    
- ### Un-Merge Cells
+### Un-Merge Cells
  
- ````dart
+````dart
     /* 
      * sheetObject.unMerge(cell);
      * sheetObject created by calling - // Sheet sheetObject = excel['SheetName'];
@@ -343,11 +368,11 @@ key | description
       
       sheetObject.unMerge("A1:E4");
     
-   ````
+````
    
- ### Find and Replace
+### Find and Replace
  
- ````dart
+````dart
     /* 
      * int replacedCount = sheetObject.findAndReplace(source, target);
      * sheetObject created by calling - // Sheet sheetObject = excel['SheetName'];
@@ -359,11 +384,11 @@ key | description
       
       int replacedCount = sheetObject.findAndReplace(Flutter', 'Google');
       
-   ````
+````
    
- ### Insert Row Iterables
+### Insert Row Iterables
  
- ````dart
+````dart
      /* 
       * sheetObject.insertRowIterables(list-iterables, rowIndex, iterable-options?);
       * sheetObject created by calling - // Sheet sheetObject = excel['SheetName'];
@@ -377,7 +402,7 @@ key | description
       
       sheetObject.insertRowIterables(dataList, 8);
     
-   ````
+````
 
 ### Iterable Options
 key | description
@@ -385,7 +410,7 @@ key | description
  startingColumn | starting column index from which list-iterables should be started
  overwriteMergedCells | overwriteMergedCells is by-defalut set to ```true```, when set to ```false``` it will stop over-write and will write only in unique cells
    
- ### Append Row
+### Append Row
  
  ````dart
     /* 
@@ -396,7 +421,7 @@ key | description
      
       sheetObject.appendRow(["Flutter", "till", "Eternity"]);
     
-   ````
+````
  
 ### Get Default Opening Sheet
  
@@ -415,7 +440,7 @@ key | description
       var defaultSheet = await excel.getDefaultSheet();
       print("Default Sheet:" + defaultSheet.toString());
     
-   ````
+````
    
 ### Set Default Opening Sheet
  
@@ -444,9 +469,10 @@ key | description
         print("Unable to set $sheet to default sheet.");
       }
     
-   ````
+````
+
    
- ### Saving XLSX File
+### Saving XLSX File
  
  ````dart
       // Save the Changes in file
@@ -457,7 +483,7 @@ key | description
         ..writeAsBytesSync(onValue);
     });
     
-   ````
+````
  
 # Frequent Issues
 
@@ -469,14 +495,14 @@ key | description
 ## Features coming in next version
 On-going implementation for future:
 - Formulas
-- Password Protection
 - Conversion to PDF
 
-
 #### Also checkout our other libraries: 
-  - Text Animations -> [AnimatedText](https://www.github.com/justkawal/animated_text)
-  - Translations -> [Arb Translator](https://www.github.com/justkawal/arb_translator)
-
+  - Protect **···············**> [Protect](https://www.github.com/justkawal/protect)
+  - Text Animations **··**> [AnimatedText](https://www.github.com/justkawal/animated_text)
+  - Translations **·······**> [Arb Translator](https://www.github.com/justkawal/arb_translator)
 
 ### Donate
+
   - [Paypal](https://www.paypal.me/kawal7415)
+  - Not having Paypal account ?? [Join Now](https://www.paypal.com/in/flref?refBy=Pzpaa7qp041602067472432) and both of us could earn **`$10`**
