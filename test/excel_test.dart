@@ -55,6 +55,15 @@ void main() {
     });
 
 
+    test('delete Sheet', () {
+      excel.delete("SheetTmp3");
+      excel.delete("SheetTmp");
+      expect(excel.sheets.entries.length,equals(1));
+      expect(
+          excel.tables["Sheet1"].rows[1][1].toString(), equals('Washington'));
+    });
+
+
   
   
   });
