@@ -3,7 +3,7 @@ import 'package:path/path.dart';
 import 'package:excel/excel.dart';
 
 void main(List<String> args) {
-  var file = "/Users/kawal/Desktop/form.xlsx";
+  var file = "/home/raman/opensource/excel/example/example.xlsx";
   var bytes = File(file).readAsBytesSync();
   var excel = Excel.createExcel();
   // or
@@ -60,7 +60,7 @@ void main(List<String> args) {
 
   /// appending rows
   List<List<String>> list = List.generate(
-      6000, (index) => List.generate(20, (index1) => '$index $index1'));
+      60, (index) => List.generate(20, (index1) => '$index $index1'));
 
   Stopwatch stopwatch = new Stopwatch()..start();
   list.forEach((row) {
@@ -81,7 +81,7 @@ void main(List<String> args) {
 
   // Saving the file
 
-  String outputFile = "/Users/kawal/Desktop/form1.xlsx";
+  String outputFile = "/home/raman/opensource/excel/example/exampleOut.xlsx";
   excel.encode().then((onValue) {
     File(join(outputFile))
       ..createSync(recursive: true)
