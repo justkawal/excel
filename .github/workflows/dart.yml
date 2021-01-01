@@ -1,4 +1,4 @@
-name: Test
+name: Test & Publish
 
 on:
   push:
@@ -31,3 +31,15 @@ jobs:
         
       - name: Run tests
         run: dart test 
+
+  publishing:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 'Checkout'
+        uses: actions/checkout@v2
+        
+      - name: 'excel'
+        uses: k-paxian/dart-package-publisher@master
+        with:
+          accessToken: ${{ secrets.OAUTH_ACCESS_TOKEN }}
+          refreshToken: ${{ secrets.OAUTH_REFRESH_TOKEN }}
