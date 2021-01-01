@@ -5,7 +5,7 @@ import 'package:test/test.dart';
 
 
 get MainDirectory{
- if(Platform.environment['CI Value'] == 'true'){
+ if(Platform.environment['CI'] == 'true'){
    return Platform.environment['RUNNER_WORKSPACE'];
  };
  return Directory.current.path;
