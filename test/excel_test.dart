@@ -3,6 +3,14 @@ import 'dart:io';
 import 'package:excel/excel.dart';
 import 'package:test/test.dart';
 
+
+get MainDirectory{
+ if(Platform.environment['CI Value'] == 'true'){
+   return Platform.environment['RUNNER_WORKSPACE'];
+ };
+ return Directory.current.path;
+}
+
 void main() {
   test('Create New XLSX File', () {
     var excel = Excel.createExcel();
@@ -11,7 +19,7 @@ void main() {
   });
 
   test('Read XLSX File', () {
-    var file = Directory.current.path + "/test_resources/example.xlsx";
+    var file = MainDirectory + "/test_resources/example.xlsx";
     print("filePath:: " + file);
     var bytes = File(file).readAsBytesSync();
     var excel = Excel.decodeBytes(bytes);
@@ -20,12 +28,8 @@ void main() {
   });
 
   group('Sheet Operations', () {
-    Map<String, String> env = Platform.environment;
-    env.forEach((k, v) => print("Key=$k Value=$v"));
-    print("absolute:: " + Directory.current.absolute.path);
-    print("current:: " + Directory.current.path.toString());
 
-    var file = Directory.current.path + "/test_resources/example.xlsx";
+    var file = MainDirectory + "/test_resources/example.xlsx";
     print("filePath:: " + file);
     var bytes = File(file).readAsBytesSync();
     Excel excel = Excel.decodeBytes(bytes);
