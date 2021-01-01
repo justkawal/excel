@@ -5,9 +5,6 @@ import 'package:test/test.dart';
 
 
 get MainDirectory{
- if(Platform.environment['CI'] == 'true'){
-   return Platform.environment['RUNNER_WORKSPACE'];
- };
  return Directory.current.path;
 }
 
@@ -19,7 +16,7 @@ void main() {
   });
 
   test('Read XLSX File', () {
-    var file = MainDirectory + "/test_resources/example.xlsx";
+    var file = "test_resources/example.xlsx";
     print("filePath:: " + file);
     var bytes = File(file).readAsBytesSync();
     var excel = Excel.decodeBytes(bytes);
@@ -29,7 +26,7 @@ void main() {
 
   group('Sheet Operations', () {
 
-    var file = MainDirectory + "/test_resources/example.xlsx";
+    var file = "test_resources/example.xlsx";
     print("filePath:: " + file);
     var bytes = File(file).readAsBytesSync();
     Excel excel = Excel.decodeBytes(bytes);
@@ -75,7 +72,7 @@ void main() {
   });
 
   test('Saving XLSX File', () {
-    var file = Directory.current.path + "/test_resources/example.xlsx";
+    var file ="test_resources/example.xlsx";
     var bytes = File(file).readAsBytesSync();
     var excel = Excel.decodeBytes(bytes);
     Sheet sheetObject = excel.tables['Sheet1'];
@@ -85,11 +82,11 @@ void main() {
         ..createSync(recursive: true)
         ..writeAsBytesSync(onValue);
     }).whenComplete(() {
-      var file = Directory.current.path + "/tmp/exampleOut.xlsx";
+      var file = "tmp/exampleOut.xlsx";
       var bytes = File(file).readAsBytesSync();
       var excel = Excel.decodeBytes(bytes);
       // delete tmp folder
-      new Directory(Directory.current.path + "/tmp").delete(recursive: true);
+      new Directory("tmp").delete(recursive: true);
       expect(excel.sheets.entries.length, equals(1));
       expect(
           excel.tables["Sheet1"].rows[1][1].toString(), equals('Washington'));

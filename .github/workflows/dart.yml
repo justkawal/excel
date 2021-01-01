@@ -30,4 +30,4 @@ jobs:
         run: dart analyze
         
       - name: Run tests
-        run: dart test
+        run: dart test ./test
