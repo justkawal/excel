@@ -4,6 +4,10 @@
     <img src="https://img.shields.io/badge/Platform-Flutter-yellow.svg"  
       alt="Platform" />  
   </a> 
+  <a href="https://github.com/justkawal/excel">  
+    <img src="https://github.com/justkawal/excel/workflows/Test/badge.svg"  
+      alt="Test" />  
+  </a> 
    <a href="https://pub.dartlang.org/packages/excel">  
     <img src="https://img.shields.io/pub/v/excel.svg"  
       alt="Pub Package" />  
