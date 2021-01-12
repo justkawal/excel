@@ -8,20 +8,20 @@ class CellIndex {
   }
 
   ///
-  ///````
+  ///```
   ///CellIndex.indexByColumnRow(columnIndex: 0, rowIndex: 0 ); // A1
   ///CellIndex.indexByColumnRow(columnIndex: 0, rowIndex: 1 ); // A2
-  ///````
+  ///```
   static CellIndex indexByColumnRow({int columnIndex, int rowIndex}) {
     return CellIndex._(
         _stringIndex(columnIndex, rowIndex), columnIndex, rowIndex);
   }
 
   ///
-  ///````
+  ///```
   /// CellIndex.indexByColumnRow('A1'); // columnIndex: 0, rowIndex: 0
   /// CellIndex.indexByColumnRow('A2'); // columnIndex: 0, rowIndex: 1
-  ///````
+  ///```
   static CellIndex indexByString(String cellIndex) {
     List<int> li = _cellCoordsFromCellId(cellIndex);
 

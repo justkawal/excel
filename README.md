@@ -98,9 +98,9 @@ $  flutter packages get
 
 Now in your `Dart` code, you can use: 
 
-````dart
+```dart
     import 'package:excel/excel.dart';
-````
+```
 
 # Usage
 
@@ -108,7 +108,7 @@ Now in your `Dart` code, you can use:
 
 The necessary changes to be made to updateCell function in order to prevent the code from breaking.
 
-````dart
+```dart
     
     excel.updateCell('SheetName', CellIndex.indexByString("A2"), "Here value", backgroundColorHex: "#1AFF1A", horizontalAlign: HorizontalAlign.Right);
     
@@ -118,16 +118,16 @@ The necessary changes to be made to updateCell function in order to prevent the 
     excel.updateCell('SheetName', CellIndex.indexByString("A2"), "Here value", cellStyle: CellStyle( backgroundColorHex: "#1AFF1A", horizontalAlign: HorizontalAlign.Right ) );
     
 
-````
+```
 
 ### Imports
 
-````dart
+```dart
     import 'dart:io';
     import 'package:path/path.dart';
     import 'package:excel/excel.dart';
     
-````
+```
 
 ## Password protected ? [protect](https://github.com/justkawal/protect.git)
 
@@ -135,7 +135,7 @@ The necessary changes to be made to updateCell function in order to prevent the 
 
 ### Read XLSX File
 
-````dart
+```dart
     var file = "Path_to_pre_existing_Excel_File/excel_file.xlsx";
     var bytes = File(file).readAsBytesSync();
     var excel = Excel.decodeBytes(bytes);
@@ -149,7 +149,7 @@ The necessary changes to be made to updateCell function in order to prevent the 
       }
     }
     
-````
+```
 
 ### Is your excel file password protected ? ( We got u covered )
 
@@ -157,7 +157,7 @@ The necessary changes to be made to updateCell function in order to prevent the 
 
 ### Read XLSX from Flutter's Asset Folder
 
-````dart
+```dart
     import 'package:flutter/services.dart' show ByteData, rootBundle;
     
     /* Your blah blah code here */
@@ -175,18 +175,18 @@ The necessary changes to be made to updateCell function in order to prevent the 
       }
     }
     
-````
+```
 
 ### Create New XLSX File
     
-````dart
+```dart
     var excel = Excel.createExcel(); // automatically creates 1 empty sheet: Sheet1
     
-````
+```
 
 ### Update Cell values
  
-````dart
+```dart
      /* 
       * sheetObject.updateCell(cell, value, { CellStyle (Optional)});
       * sheetObject created by calling - // Sheet sheetObject = excel['SheetName'];
@@ -224,7 +224,7 @@ The necessary changes to be made to updateCell function in order to prevent the 
       sheetObject.removeRow(80);
       
       
-````
+```
 
 ### Cell-Style Options
 key | description
@@ -244,7 +244,7 @@ key | description
 
 ### Make sheet RTL
  
-````dart
+```dart
  
      /*
       * set rtl to true for making sheet to right-to-left
@@ -255,11 +255,11 @@ key | description
       var sheetObject = excel['SheetName'];
       sheetObject.rtl = true;
       
-````
+```
    
 ### Copy sheet contents to another sheet
  
-````dart
+```dart
  
      /*
       * excel.copy(String 'existingSheetName', String 'anotherSheetName');
@@ -270,11 +270,11 @@ key | description
       
       excel.copy('existingSheetName', 'anotherSheetName');
       
-````
+```
 
 ### Rename sheet
  
-````dart
+```dart
  
      /*
       * excel.rename(String 'existingSheetName', String 'newSheetName');
@@ -284,11 +284,11 @@ key | description
       
       excel.rename('existingSheetName', 'newSheetName');
       
-````
+```
    
 ### Delete sheet
  
-````dart
+```dart
  
      /*
       * excel.delete(String 'existingSheetName');
@@ -298,11 +298,11 @@ key | description
       
       excel.delete('existingSheetName');
       
-````
+```
    
 ### Link sheet
  
-````dart
+```dart
  
      /*
       * excel.link(String 'sheetName', Sheet sheetObject);
@@ -314,11 +314,11 @@ key | description
       
       excel.link('sheetName', sheetObject);
       
-````
+```
    
 ### Un-Link sheet
  
-````dart
+```dart
  
      /*
       * excel.unLink(String 'sheetName');
@@ -332,11 +332,11 @@ key | description
       
       Sheet unlinked_sheetObject = excel['sheetName'];
       
-````
+```
 
 ### Merge Cells
  
-````dart
+```dart
     /* 
      * sheetObject.merge(CellIndex starting_cell, CellIndex ending_cell, dynamic 'customValue');
      * sheetObject created by calling - // Sheet sheetObject = excel['SheetName'];
@@ -346,22 +346,22 @@ key | description
  
       sheetObject.merge(CellIndex.indexByString("A1"), CellIndex.indexByString("E4"), customValue: "Put this text after merge");
      
-````
+```
    
 ### Get Merged Cells List
  
-````dart
+```dart
       // Check which cells are merged
       
       sheetObject.spannedItems.forEach((cells) {
         print("Merged:" + cells.toString());
       });
     
-````
+```
    
 ### Un-Merge Cells
  
-````dart
+```dart
     /* 
      * sheetObject.unMerge(cell);
      * sheetObject created by calling - // Sheet sheetObject = excel['SheetName'];
@@ -372,11 +372,11 @@ key | description
       
       sheetObject.unMerge("A1:E4");
     
-````
+```
    
 ### Find and Replace
  
-````dart
+```dart
     /* 
      * int replacedCount = sheetObject.findAndReplace(source, target);
      * sheetObject created by calling - // Sheet sheetObject = excel['SheetName'];
@@ -388,11 +388,11 @@ key | description
       
       int replacedCount = sheetObject.findAndReplace(Flutter', 'Google');
       
-````
+```
    
 ### Insert Row Iterables
  
-````dart
+```dart
      /* 
       * sheetObject.insertRowIterables(list-iterables, rowIndex, iterable-options?);
       * sheetObject created by calling - // Sheet sheetObject = excel['SheetName'];
@@ -406,7 +406,7 @@ key | description
       
       sheetObject.insertRowIterables(dataList, 8);
     
-````
+```
 
 ### Iterable Options
 key | description
@@ -416,7 +416,7 @@ key | description
    
 ### Append Row
  
- ````dart
+ ```dart
     /* 
      * sheetObject.appendRow(list-iterables);
      * sheetObject created by calling - // Sheet sheetObject = excel['SheetName'];
@@ -425,11 +425,11 @@ key | description
      
       sheetObject.appendRow(["Flutter", "till", "Eternity"]);
     
-````
+```
  
 ### Get Default Opening Sheet
  
- ````dart
+ ```dart
     /* 
      * Asynchronous method which returns the name of the default sheet
      * excel.getDefaultSheet();
@@ -444,11 +444,11 @@ key | description
       var defaultSheet = await excel.getDefaultSheet();
       print("Default Sheet:" + defaultSheet.toString());
     
-````
+```
    
 ### Set Default Opening Sheet
  
- ````dart
+ ```dart
     /* 
      * Asynchronous method which sets the name of the default sheet
      * returns bool if successful then true else false
@@ -473,12 +473,12 @@ key | description
         print("Unable to set $sheet to default sheet.");
       }
     
-````
+```
 
    
 ### Saving XLSX File
  
- ````dart
+ ```dart
       // Save the Changes in file
 
       excel.encode().then((onValue) {
@@ -487,11 +487,11 @@ key | description
         ..writeAsBytesSync(onValue);
     });
     
-````
+```
  
 # Frequent Issues
 
-### Having Trouble using excel i.e: ````every version of some_other_library depends on version..... blah blah blah````
+### Having Trouble using excel i.e: ```every version of some_other_library depends on version..... blah blah blah```
 
 ```Similar issues have been solved in the past :``` [#26](https://github.com/justkawal/excel/issues/26), [#25](https://github.com/justkawal/excel/issues/25), [#11](https://github.com/justkawal/excel/issues/11)
 

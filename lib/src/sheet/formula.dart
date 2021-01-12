@@ -10,7 +10,7 @@ class Formula {
   ///
   ///```
   ///var abs = Formula.abs(-3));
-  ///````
+  ///```
   static Formula abs(Sheet sheet, dynamic val) {
     dynamic formulaValue = _getParsedVal(val);
     return Formula._('ABS($formulaValue)');
@@ -19,7 +19,7 @@ class Formula {
   /// Helps to initiate a custom formula
   ///```
   ///var my_custom_formula = Formula.custom('SUM(1,2)');
-  ///````
+  ///```
   static Formula custom(String formula) {
     if (formula == null) return null;
     return Formula._(formula);
@@ -31,7 +31,7 @@ class Formula {
   ///```
   ///var cells = ["A1","B3:B6","D4:G6", CellIndex.indexByString("A2")];
   ///var average_formula = Formula.average(sheetObject, cells);
-  ///````
+  ///```
   static Formula average(Sheet sheet, List<dynamic> values) {
     List<dynamic> cellIdList = _getParsedList(sheet, values);
     return Formula._('AVERAGE(${cellIdList.join(',')})');
@@ -43,7 +43,7 @@ class Formula {
   ///```
   ///var cells = ["A1","B3:B6","D4:G6", CellIndex.indexByString("A2")];
   ///var sum_formula = Formula.sum(sheetObject, cells);
-  ///````
+  ///```
   static Formula sum(Sheet sheet, List<dynamic> values) {
     List<dynamic> cellIdList = _getParsedList(sheet, values);
     return Formula._('SUM(${cellIdList.join(',')})');
