@@ -333,6 +333,38 @@ class Excel {
   ///
   ///
   ///
+  ///It will start setting the edited values of `sheets` into the `files` and then `exports the file for flutter web`.
+  ///
+  ///
+  ///
+  Future<List<int>> saveFileInFlutterWeb({
+    String fileName = 'FlutterWebExcel.xlsx',
+  }) async {
+    var onValue = await encode();
+
+    lib1.
+    
+     /*  final blob = html.Blob([onValue]);
+      final url = html.Url.createObjectUrlFromBlob(blob);
+      final anchor = html.document.createElement('a') as html.AnchorElement
+        ..href = url
+        ..style.display = 'none'
+        ..download = 'excel_file_name.xlsx';
+      html.document.body.children.add(anchor);
+
+      // download the file
+      anchor.click(); */
+
+      // cleanup
+      // html.document.body.children.remove(anchor);
+      // html.Url.revokeObjectUrl(url);
+    
+    return onValue;
+  }
+
+  ///
+  ///
+  ///
   ///returns the name of the `defaultSheet` (the sheet which opens firstly when xlsx file is opened in `excel based software`).
   ///
   ///

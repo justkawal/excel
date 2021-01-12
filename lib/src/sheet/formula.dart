@@ -6,7 +6,7 @@ class Formula {
   Formula._(String formula) {
     this._formula = formula;
   }
-  
+
   ///
   ///```
   ///var abs = Formula.abs(-3));

@@ -215,10 +215,10 @@ class Sheet {
             row.add(_sheetData[i][j]);
           } else {
             row.add(null);
-      }
+          }
         }
         _selectedRange.add(row);
-    } else {
+      } else {
         _selectedRange.add(null);
       }
     }
@@ -249,8 +249,11 @@ class Sheet {
   /// returns `2-D dynamic List` of the sheet elements in that range.
   ///
   List<List<dynamic>> selectRangeValues(CellIndex start, {CellIndex end}) {
-    var _list = (end == null ? selectRange(start) : selectRange(start, end: end));
-    return _list.map((e) => e.map((e) => e!=null?e.value:null).toList()).toList();
+    var _list =
+        (end == null ? selectRange(start) : selectRange(start, end: end));
+    return _list
+        .map((e) => e.map((e) => e != null ? e.value : null).toList())
+        .toList();
   }
 
   ///

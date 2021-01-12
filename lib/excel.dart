@@ -4,6 +4,7 @@ import 'dart:convert';
 import 'dart:typed_data';
 import 'package:archive/archive.dart';
 import 'package:xml/xml.dart';
+import 'dart:html' if (dart.library.io) 'dart:io' as lib1;
 
 /// main directory
 part 'src/excel.dart';

@@ -76,7 +76,7 @@ void main(List<String> args) {
   excel.unLink('sheet1');
 
   sheet = excel['sheet'];
-  
+
   /// appending rows and checking the time complexity of it
   /* List<List<String>> list = List.generate(6000, (index) => List.generate(20, (index1) => '$index $index1'));
 
@@ -99,10 +99,10 @@ void main(List<String> args) {
 
   // Saving the file
 
-  String outputFile = "/Users/kawal/Desktop/rotate_/r.xlsx";
-  excel.encode().then((onValue) {
-    File(join(outputFile))
+  String outputFile = "/Users/kawal/Desktop/r.xlsx";
+  excel.saveFileInFlutterWeb(fileName: outputFile).then((onValue) {
+    /* File(join(outputFile))
       ..createSync(recursive: true)
-      ..writeAsBytesSync(onValue);
+      ..writeAsBytesSync(onValue); */
   });
 }

@@ -3,9 +3,8 @@ import 'dart:io';
 import 'package:excel/excel.dart';
 import 'package:test/test.dart';
 
-
-get MainDirectory{
- return Directory.current.path;
+get MainDirectory {
+  return Directory.current.path;
 }
 
 void main() {
@@ -24,7 +23,6 @@ void main() {
   });
 
   group('Sheet Operations', () {
-
     var file = "./test/test_resources/example.xlsx";
     var bytes = File(file).readAsBytesSync();
     Excel excel = Excel.decodeBytes(bytes);
@@ -70,7 +68,7 @@ void main() {
   });
 
   test('Saving XLSX File', () {
-    var file ="./test/test_resources/example.xlsx";
+    var file = "./test/test_resources/example.xlsx";
     var bytes = File(file).readAsBytesSync();
     var excel = Excel.decodeBytes(bytes);
     Sheet sheetObject = excel.tables['Sheet1'];
