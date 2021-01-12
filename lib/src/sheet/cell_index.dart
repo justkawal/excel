@@ -25,7 +25,7 @@ class CellIndex {
   static CellIndex indexByString(String cellIndex) {
     List<int> li = _cellCoordsFromCellId(cellIndex);
 
-    return CellIndex._(cellIndex, li[1], li[0]);
+    return CellIndex._(cellIndex, li[0], li[1]);
   }
 
   static String _stringIndex(int colIndex, int rowIndex) {
