@@ -3,7 +3,7 @@ import 'package:path/path.dart';
 import 'package:excel/excel.dart';
 
 void main(List<String> args) {
-  var file = "/Users/kawal/Desktop/rtl.xlsx";
+  var file = "/home/raman/opensource/excel/example/example.xlsx";
   var bytes = File(file).readAsBytesSync();
   //var excel = Excel.createExcel();
   // or

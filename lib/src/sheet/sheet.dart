@@ -157,6 +157,103 @@ class Sheet {
   }
 
   ///
+  /// returns `2-D dynamic List` of the sheet cell data in that range.
+  ///
+  /// Ex. selectRange('D8:H12'); or selectRange('D8');
+  ///
+  List<List<Data>> selectRangeWithString(String range) {
+    List<List<Data>> _selectedRange = List<List<Data>>();
+    if (!range.contains(':')) {
+      var start = CellIndex.indexByString(range);
+      _selectedRange = selectRange(start);
+    } else {
+      var rangeVars = range.split(':');
+      var start = CellIndex.indexByString(rangeVars[0]);
+      var end = CellIndex.indexByString(rangeVars[1]);
+      _selectedRange = selectRange(start, end: end);
+    }
+    return _selectedRange;
+  }
+
+  ///
+  /// returns `2-D dynamic List` of the sheet cell data in that range.
+  ///
+  List<List<Data>> selectRange(CellIndex start, {CellIndex end}) {
+    _checkMaxCol(start.columnIndex);
+    _checkMaxRow(start.rowIndex);
+    if (end != null) {
+      _checkMaxCol(end.columnIndex);
+      _checkMaxRow(end.rowIndex);
+    }
+
+    int _startColumn = start.columnIndex,
+        _startRow = start.rowIndex,
+        _endColumn = end?.columnIndex,
+        _endRow = end?.rowIndex;
+
+    if (_endColumn != null && _endRow != null) {
+      if (_startRow > _endRow) {
+        _startRow = end.rowIndex;
+        _endRow = start.rowIndex;
+      }
+      if (_endColumn < _startColumn) {
+        _endColumn = start.columnIndex;
+        _startColumn = end.columnIndex;
+      }
+    }
+
+    List<List<Data>> _selectedRange = List<List<Data>>();
+    if (!_isContain(this._sheetData) || this._sheetData.isEmpty) {
+      return _selectedRange;
+    }
+
+    for (var i = _startRow; i <= (_endRow ?? maxRows); i++) {
+      if (_isContain(_sheetData[i])) {
+        List<Data> row = List<Data>();
+        for (var j = _startColumn; j <= (_endColumn ?? maxCols); j++) {
+          if (_isContain(_sheetData[i][j])) {
+            row.add(_sheetData[i][j]);
+          } else {
+            row.add(null);
+      }
+        }
+        _selectedRange.add(row);
+    } else {
+        _selectedRange.add(null);
+      }
+    }
+
+    return _selectedRange;
+  }
+
+  ///
+  /// returns `2-D dynamic List` of the sheet elements in that range.
+  ///
+  /// Ex. selectRange('D8:H12'); or selectRange('D8');
+  ///
+  List<List<dynamic>> selectRangeValuesWithString(String range) {
+    List<List<dynamic>> _selectedRange = List<List<dynamic>>();
+    if (!range.contains(':')) {
+      var start = CellIndex.indexByString(range);
+      _selectedRange = selectRangeValues(start);
+    } else {
+      var rangeVars = range.split(':');
+      var start = CellIndex.indexByString(rangeVars[0]);
+      var end = CellIndex.indexByString(rangeVars[1]);
+      _selectedRange = selectRangeValues(start, end: end);
+    }
+    return _selectedRange;
+  }
+
+  ///
+  /// returns `2-D dynamic List` of the sheet elements in that range.
+  ///
+  List<List<dynamic>> selectRangeValues(CellIndex start, {CellIndex end}) {
+    var _list = (end == null ? selectRange(start) : selectRange(start, end: end));
+    return _list.map((e) => e.map((e) => e!=null?e.value:null).toList()).toList();
+  }
+
+  ///
   /// updates count of rows and cols
   ///
   _countRowAndCol() {
@@ -683,33 +780,6 @@ class Sheet {
       _spannedItems.remove(unmergeCells);
       _excel._mergeChangeLookup = this.sheetName;
     }
-  }
-
-  List<List<Data>> getSelection(CellIndex start, {CellIndex end = null}) {
-    if (start == null) {
-      return [[]];
-    }
-    int startColumn = start._columnIndex,
-        startRow = start._rowIndex,
-        endColumn = end?._columnIndex,
-        endRow = end?._rowIndex;
-
-    if (endColumn != null && endRow != null) {
-      if (startRow > endRow) {
-        startRow = end._rowIndex;
-        endRow = start._rowIndex;
-      }
-      if (endColumn < startColumn) {
-        endColumn = start._columnIndex;
-        startColumn = end._columnIndex;
-      }
-    }
-
-    if(startColumn >= _maxCols){
-
-    }
-
-    return [[]];
   }
 
   ///

@@ -30,7 +30,7 @@
 .pub-cache/
 .pub/
 build/
-*.xlsx
+
 
 # Android related
 **/android/**/gradle-wrapper.jar
