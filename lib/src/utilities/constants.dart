@@ -1,15 +1,15 @@
 part of excel;
 
-const String _relationshipsStyles =
+const _relationshipsStyles =
     "http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles";
 
-const String _relationshipsWorksheet =
+const _relationshipsWorksheet =
     "http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet";
 
-const String _relationshipsSharedStrings =
+const _relationshipsSharedStrings =
     "http://schemas.openxmlformats.org/officeDocument/2006/relationships/sharedStrings";
 
-const String _relationships =
+const _relationships =
     'http://schemas.openxmlformats.org/officeDocument/2006/relationships';
 
-const String _spreasheetXlsx = 'xlsx';
+const _spreasheetXlsx = 'xlsx';

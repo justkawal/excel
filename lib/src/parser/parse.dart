@@ -35,7 +35,7 @@ class Parser {
       }
       file.decompress();
       _excel._xmlFiles["[Content_Types].xml"] =
-          parse(utf8.decode(file.content));
+          XmlDocument.parse(utf8.decode(file.content));
     }
   }
 
@@ -43,7 +43,7 @@ class Parser {
     var relations = _excel._archive.findFile('xl/_rels/workbook.xml.rels');
     if (relations != null) {
       relations.decompress();
-      var document = parse(utf8.decode(relations.content));
+      var document = XmlDocument.parse(utf8.decode(relations.content));
       if (_excel._xmlFiles != null) {
         _excel._xmlFiles["xl/_rels/workbook.xml.rels"] = document;
       }
@@ -133,7 +133,7 @@ class Parser {
           _excel._archive.findFile('xl/${_excel._sharedStringsTarget}');
     }
     sharedStrings.decompress();
-    var document = parse(utf8.decode(sharedStrings.content));
+    var document = XmlDocument.parse(utf8.decode(sharedStrings.content));
     if (_excel._xmlFiles != null) {
       _excel._xmlFiles["xl/${_excel._sharedStringsTarget}"] = document;
     }
@@ -156,7 +156,7 @@ class Parser {
       _damagedExcel();
     }
     workbook.decompress();
-    var document = parse(utf8.decode(workbook.content));
+    var document = XmlDocument.parse(utf8.decode(workbook.content));
     if (_excel._xmlFiles != null) {
       _excel._xmlFiles["xl/workbook.xml"] = document;
     }
@@ -225,7 +225,7 @@ class Parser {
     var styles = _excel._archive.findFile('xl/$_stylesTarget');
     if (styles != null) {
       styles.decompress();
-      var document = parse(utf8.decode(styles.content));
+      var document = XmlDocument.parse(utf8.decode(styles.content));
       if (_excel._xmlFiles != null) {
         _excel._xmlFiles['xl/$_stylesTarget'] = document;
       }
@@ -422,7 +422,7 @@ class Parser {
     var file = _excel._archive.findFile('xl/$target');
     file.decompress();
 
-    var content = parse(utf8.decode(file.content));
+    var content = XmlDocument.parse(utf8.decode(file.content));
     var worksheet = content.findElements('worksheet').first;
 
     ///
@@ -574,8 +574,6 @@ class Parser {
     return int.parse(got.join().toString()) + 1;
   }
 
-  ///
-  ///
   ///Uses the [newSheet] as the name of the sheet and also adds it to the [ xl/worksheets/ ] directory
   ///
   ///Creates the sheet with name `newSheet` as file output and then adds it to the archive directory.
@@ -666,7 +664,7 @@ class Parser {
         _excel._archive.findFile('xl/${_excel._sharedStringsTarget}');
 
     _newSheet.decompress();
-    var document = parse(utf8.decode(_newSheet.content));
+    var document = XmlDocument.parse(utf8.decode(_newSheet.content));
     if (_excel._xmlFiles != null) {
       _excel._xmlFiles['xl/worksheets/sheet${sheetNumber}.xml'] = document;
       _excel._xmlSheetId[newSheet] = 'xl/worksheets/sheet${sheetNumber}.xml';

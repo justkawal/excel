@@ -3,7 +3,7 @@ import 'package:path/path.dart';
 import 'package:excel/excel.dart';
 
 void main(List<String> args) {
-  var file = "/home/raman/opensource/excel/example/example.xlsx";
+  var file = "/Users/kawal/Desktop/excel/test/test_resources/example.xlsx";
   var bytes = File(file).readAsBytesSync();
   //var excel = Excel.createExcel();
   // or
@@ -59,7 +59,7 @@ void main(List<String> args) {
   for (int row = 0; row < sheet.maxRows; row++) {
     sheet.row(row).forEach((cell) {
       var val = cell.value; //  Value stored in the particular cell
-
+      print('$val');
       cell.value = ' My custom Value ';
     });
   }
@@ -101,8 +101,8 @@ void main(List<String> args) {
 
   String outputFile = "/Users/kawal/Desktop/r.xlsx";
   excel.saveFileInFlutterWeb(fileName: outputFile).then((onValue) {
-    /* File(join(outputFile))
+    File(join(outputFile))
       ..createSync(recursive: true)
-      ..writeAsBytesSync(onValue); */
+      ..writeAsBytesSync(onValue);
   });
 }

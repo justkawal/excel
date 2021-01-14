@@ -1252,11 +1252,7 @@ class Sheet {
   }
 
   ///
-  ///
-  ///
   ///Cleans the `_SpanList` by removing the indexes where null value exists.
-  ///
-  ///
   ///
   _cleanUpSpanMap() {
     if (_spanList != null && _spanList.isNotEmpty) {
@@ -1266,8 +1262,6 @@ class Sheet {
     }
   }
 
-  ///
-  ///
   ///return `SheetName`
   ///
   ///
@@ -1275,8 +1269,6 @@ class Sheet {
     return _sheet;
   }
 
-  ///
-  ///
   ///returns row at index = `rowIndex`
   ///
   ///

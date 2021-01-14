@@ -11,11 +11,7 @@ class Data {
   int _colIndex;
 
   ///
-  ///
-  ///
   ///It will clone the object by changing the `this` reference of previous DataObject and putting `new this` reference, with copying the values too
-  ///
-  ///
   ///
   Data._clone(Sheet sheet, Data dataObject)
       : this._(
@@ -29,11 +25,7 @@ class Data {
         );
 
   ///
-  ///
-  ///
   ///Initializes the new `Data Object`
-  ///
-  ///
   ///
   Data._(
     Sheet sheet,
@@ -95,7 +87,7 @@ class Data {
 
   /// returns the value stored in this cell;
   ///
-  /// It will return null if no value is stored in this cell.
+  /// It will return `null` if no value is stored in this cell.
   get value {
     return _value;
   }
@@ -107,7 +99,7 @@ class Data {
 
   /// returns the user-defined CellStyle
   ///
-  /// if no cellStyle is set then it returns null
+  /// if `no` cellStyle is set then it returns `null`
   get cellStyle {
     return this._cellStyle;
   }

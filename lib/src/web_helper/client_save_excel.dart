@@ -1,7 +1,5 @@
-
-class _SavingHelper {
-  static Future<List<int>> savingHelper(List<int> val){
-
+class SavingHelper {
+  static Future<List<int>> saveFile(List<int> val, String fileName) async {
+    return val;
   }
-
 }

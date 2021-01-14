@@ -31,8 +31,6 @@ class _FontStyle {
     }
   }
 
-  ///
-  ///
   /// Get Font Color
   ///
   ///
@@ -40,8 +38,6 @@ class _FontStyle {
     return this._fontColorHex;
   }
 
-  ///
-  ///
   /// Set Font Color
   ///
   ///
@@ -53,8 +49,6 @@ class _FontStyle {
     }
   }
 
-  ///
-  ///
   /// `Get FontFamily`
   ///
   ///
@@ -62,8 +56,6 @@ class _FontStyle {
     return this._fontFamily;
   }
 
-  ///
-  ///
   /// `Set FontFamily`
   ///
   ///
@@ -71,8 +63,6 @@ class _FontStyle {
     this._fontFamily = family;
   }
 
-  ///
-  ///
   /// Get Font Size
   ///
   ///
@@ -80,8 +70,6 @@ class _FontStyle {
     return this._fontSize;
   }
 
-  ///
-  ///
   /// Set Font Size
   ///
   ///
@@ -89,8 +77,6 @@ class _FontStyle {
     this._fontSize = _font_Size;
   }
 
-  ///
-  ///
   /// Get `Underline`
   ///
   ///
@@ -98,8 +84,6 @@ class _FontStyle {
     return this._underline;
   }
 
-  ///
-  ///
   /// set `Underline`
   ///
   ///
@@ -107,8 +91,6 @@ class _FontStyle {
     this._underline = underline ?? Underline.None;
   }
 
-  ///
-  ///
   /// Get `Bold`
   ///
   ///
@@ -116,8 +98,6 @@ class _FontStyle {
     return this._bold;
   }
 
-  ///
-  ///
   /// Set `Bold`
   ///
   ///
@@ -125,8 +105,6 @@ class _FontStyle {
     this._bold = bold ?? false;
   }
 
-  ///
-  ///
   /// Get `Italic`
   ///
   ///
@@ -134,8 +112,6 @@ class _FontStyle {
     return this._italic;
   }
 
-  ///
-  ///
   /// Set `Italic`
   ///
   ///
