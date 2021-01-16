@@ -15,10 +15,6 @@
    <a href="https://opensource.org/licenses/MIT">  
     <img src="https://img.shields.io/badge/License-MIT-red.svg"  
       alt="License: MIT" />  
-  </a>  
-   <a href="https://www.paypal.me/kawal7415">  
-    <img src="https://img.shields.io/badge/Donate-PayPal-green.svg"  
-      alt="Donate" />  
   </a>
    <a href="https://github.com/justkawal/excel/issues">  
     <img src="https://img.shields.io/github/issues/justkawal/excel"  
@@ -35,7 +31,13 @@
   <br>
   <br>
  
- [Excel](https://www.pub.dev/packages/excel) is a flutter and dart library for reading, creating and updating excel-sheets for XLSX files.
+# Donate [![ ](https://img.shields.io/endpoint.svg?url=https%3A%2F%2Fshieldsio-patreon.vercel.app%2Fapi%3Fusername%3Djustkawal%26type%3Dpatrons&style=for-the-badge)](https://patreon.com/justkawal)
+<a href="https://patreon.com/justkawal">  
+    <img src="https://tenor.com/view/pass-the-hat-dollar-bills-money-cash-collect-gif-13703355.gif"  width="70%" height="45%"  
+      alt="Donate" />  
+  </a>
+ 
+### [Excel](https://www.pub.dev/packages/excel) is a flutter and dart library for reading, creating and updating excel-sheets for XLSX files.
 
 
 
@@ -45,6 +47,7 @@
     * [Breaking Changes](#breaking-changes-for-those-moving-from-108-and-below-------109-and-above-versions)
     * [Imports](#imports)
     * [Read xlsx file](#read-xlsx-file)
+    * [Read XLSX in Flutter Web](#read-xlsx-in-flutter-web)
     * [Read xlsx file from Asset Folder](#read-xlsx-from-flutters-asset-folder)
     * [Create xlsx file](#create-new-xlsx-file)
     * [Update Cell](#update-cell-values)
@@ -63,10 +66,10 @@
     * [Append Row](#append-row)
     * [Get default sheet](#get-default-opening-sheet)
     * [Set default sheet](#set-default-opening-sheet)
+    * [Saving File in Flutter Web](#saving-file-in-flutter-web)
     * [Saving](#saving-xlsx-file)
   - [Frequent Issues](#frequent-issues)
   - [Upcoming Features](#features-coming-in-next-version)
-  - [Donate (Be the First one)](#donate-be-the-first-one)
 
 # Lets Get Started
 
@@ -117,7 +120,6 @@ The necessary changes to be made to updateCell function in order to prevent the 
     
     excel.updateCell('SheetName', CellIndex.indexByString("A2"), "Here value", cellStyle: CellStyle( backgroundColorHex: "#1AFF1A", horizontalAlign: HorizontalAlign.Right ) );
     
-
 ```
 
 ### Imports
@@ -154,6 +156,36 @@ The necessary changes to be made to updateCell function in order to prevent the 
 ### Is your excel file password protected ? ( We got u covered )
 
 ``Protect helps you to apply and remove password protection on your excel file.``  [protect](https://github.com/justkawal/protect.git)
+
+### Read XLSX in Flutter Web
+
+Use `FilePicker` to pick files in Flutter Web. [FilePicker](https://pub.dev/packages/file_picker.git)
+
+```dart
+  
+  /// Use FilePicker to pick files in Flutter Web
+  
+  FilePickerResult pickedFile = await FilePicker.platform.pickFiles(
+    type: FileType.custom,
+    allowedExtensions: ['xlsx'],
+    allowMultiple: false,
+  );
+  
+  /// file might be picked
+  
+  if (pickedFile != null) {
+    var bytes = pickedFile.files.single.bytes;
+    var excel = Excel.decodeBytes(bytes);
+    for (var table in excel.tables.keys) {
+      print(table); //sheet Name
+      print(excel.tables[table].maxCols);
+      print(excel.tables[table].maxRows);
+      for (var row in excel.tables[table].rows) {
+        print("$row");
+      }
+    }
+  }
+```
 
 ### Read XLSX from Flutter's Asset Folder
 
@@ -475,6 +507,26 @@ key | description
     
 ```
 
+### Saving File in Flutter Web
+
+```dart
+      
+     // Future<List<int>> saveFileInFlutterWeb({String fileName = 'FlutterWebExcel.xlsx'});
+     
+     // when you are in web then this function automatically starts downloading the excel file.
+     
+     excel.saveFileInFlutterWeb(fileName: outputFileName_with_path);
+     
+     // 🤔 But why it returns fileBytes
+     // when you are on android or ios or any desktop platform then it gives benefit.
+     
+     var finalFileBytes = excel.saveFileInFlutterWeb(fileName: outputFileName_with_path);
+     
+     ....
+     .... handle the android and ios part of saving the file.
+     ....
+     ....
+```
    
 ### Saving XLSX File
  
@@ -500,13 +552,3 @@ key | description
 On-going implementation for future:
 - Formulas
 - Conversion to PDF
-
-#### Also checkout our other libraries: 
-  - Protect **···············**> [Protect](https://www.github.com/justkawal/protect)
-  - Text Animations **··**> [AnimatedText](https://www.github.com/justkawal/animated_text)
-  - Translations **·······**> [Arb Translator](https://www.github.com/justkawal/arb_translator)
-
-### Donate
-
-  - [Paypal](https://www.paypal.me/kawal7415)
-  - Not having Paypal account ?? [Join Now](https://www.paypal.com/in/flref?refBy=Pzpaa7qp041602067472432) and both of us could earn **`$10`**
