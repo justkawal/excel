@@ -3,10 +3,6 @@ import 'dart:io';
 import 'package:excel/excel.dart';
 import 'package:test/test.dart';
 
-get MainDirectory {
-  return Directory.current.path;
-}
-
 void main() {
   test('Create New XLSX File', () {
     var excel = Excel.createExcel();
