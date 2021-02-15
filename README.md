@@ -60,8 +60,7 @@
     * [Append Row](#append-row)
     * [Get default sheet](#get-default-opening-sheet)
     * [Set default sheet](#set-default-opening-sheet)
-    * [Saving File in Flutter Web](#saving-file-in-flutter-web)
-    * [Saving](#saving-xlsx-file)
+    * [Saving](#saving)
   - [Frequent Issues](#frequent-issues)
   - [Upcoming Features](#features-coming-in-next-version)
 
@@ -500,23 +499,21 @@ key | description
       }
     
 ```
+## Saving
 
-### Saving File in Flutter Web
-
+### On Flutter Web
 ```dart
-     // Future<List<int>> save({String fileName = 'FlutterWebExcel.xlsx'});
-     
-     // when you are in web then this function automatically starts downloading the excel file.
+     // when you are in flutter web then save() downloads the excel file.
      
      // Call function save() to download the file
      await excel.save(fileName: "My_Excel_File_Name.xlsx");
      
 ```
    
-### Saving XLSX File on Android / iOS
+### On Android / iOS
 For getting saving directory on Android or iOS, Use: [path_provider](https://pub.dev/packages/path_provider)
  ```dart
-     excel.encode().then((fileBytes) async {
+     excel.save().then((fileBytes) async {
       var directory = await getApplicationDocumentsDirectory();
       
       File(join("$directory/output_file_name.xlsx"))
