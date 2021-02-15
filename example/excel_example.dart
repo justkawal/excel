@@ -98,9 +98,10 @@ void main(List<String> args) {
   // Saving the file
 
   String outputFile = "/Users/kawal/Desktop/r.xlsx";
-  excel.saveFileInFlutterWeb(fileName: outputFile).then((onValue) {
+
+  excel.save().then((fileBytes) {
     File(join(outputFile))
       ..createSync(recursive: true)
-      ..writeAsBytesSync(onValue);
+      ..writeAsBytesSync(fileBytes);
   });
 }

@@ -292,14 +292,33 @@ class Excel {
     return s._save();
   }
 
+  /// Starts Saving the file.
+  /// `On Web`
+  /// ```
+  /// // Call function save() to download the file
+  /// await excel.save(fileName: "My_Excel_File_Name.xlsx");
   ///
-  ///It process the bytes and then `saves the file for flutter web`.
-  ///I
   ///
-  Future<List<int>> saveFileInFlutterWeb({
-    String fileName = 'FlutterWebExcel.xlsx',
+  /// ```
+  /// `On Android / iOS`
+  /// 
+  /// For getting directory on Android or iOS, Use: [path_provider](https://pub.dev/packages/path_provider)
+  /// ```
+  /// // Call function save() to download the file
+  /// excel.save().then((fileBytes) async {
+  ///   var directory = await getApplicationDocumentsDirectory();
+  /// 
+  ///   File(join("$directory/output_file_name.xlsx"))
+  ///     ..createSync(recursive: true)
+  ///     ..writeAsBytesSync(fileBytes);
+  /// 
+  /// });
+  ///```
+  Future<List<int>> save({
+    String fileName = 'FlutterExcel.xlsx',
   }) async {
-    var onValue = await encode();
+    Save s = Save._(this, parser);
+    var onValue = s._save();
     return await helper.SavingHelper.saveFile(onValue, fileName);
   }
 
