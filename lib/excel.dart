@@ -10,6 +10,9 @@ import 'src/web_helper/client_save_excel.dart'
 /// main directory
 part 'src/excel.dart';
 
+/// sharedStrigns
+part 'src/sharedStrings/shared_strings.dart';
+
 /// Utilities
 part 'src/utilities/span.dart';
 part 'src/utilities/utility.dart';

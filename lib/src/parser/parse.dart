@@ -484,8 +484,8 @@ class Parser {
     switch (type) {
       // sharedString
       case 's':
-        value = _excel._sharedStrings[
-            int.parse(_parseValue(node.findElements('v').first))];
+        value = _excel._sharedStrings
+            .value(int.parse(_parseValue(node.findElements('v').first)));
         break;
       // boolean
       case 'b':
@@ -544,9 +544,8 @@ class Parser {
     sheetObject.updateCell(
         CellIndex.indexByColumnRow(columnIndex: colIndex, rowIndex: rowIndex),
         value);
-    if (value.runtimeType == String &&
-        !_excel._sharedStrings.contains('$value')) {
-      _excel._sharedStrings.add('$value');
+    if (value.runtimeType == String) {
+      _excel._sharedStrings.add(value);
     }
   }
 

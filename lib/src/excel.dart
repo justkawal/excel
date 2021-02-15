@@ -30,7 +30,8 @@ class Excel {
   Map<String, Map<String, int>> _cellStyleReferenced;
   Map<String, Sheet> _sheetMap;
   List<CellStyle> _cellStyleList;
-  List<String> _sharedStrings, _patternFill, _mergeChangeLook, _rtlChangeLook;
+  List<String> _patternFill, _mergeChangeLook, _rtlChangeLook;
+  _SharedStringsMaintainer _sharedStrings;
   List<_FontStyle> _fontStyleList;
   List<int> _numFormats;
   String _stylesTarget, _sharedStringsTarget, _defaultSheet;
@@ -48,7 +49,8 @@ class Excel {
     _cellStyleReferenced = <String, Map<String, int>>{};
     _fontStyleList = <_FontStyle>[];
     _patternFill = <String>[];
-    _sharedStrings = <String>[];
+    _sharedStrings = _SharedStringsMaintainer.instance;
+    _sharedStrings.clear();
     _cellStyleList = <CellStyle>[];
     _mergeChangeLook = <String>[];
     _rtlChangeLook = <String>[];

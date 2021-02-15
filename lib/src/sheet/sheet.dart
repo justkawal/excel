@@ -970,9 +970,8 @@ class Sheet {
     this._sheetData[rowIndex][columnIndex]._cellType =
         _getCellType(value.runtimeType);
 
-    if (value.runtimeType == String &&
-        !_excel._sharedStrings.contains('$value')) {
-      _excel._sharedStrings.add(value.toString());
+    if (value.runtimeType == String) {
+      _excel._sharedStrings.add(value);
     }
 
     if (this._maxCols - 1 < columnIndex) {

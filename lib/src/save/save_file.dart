@@ -90,7 +90,9 @@ class Save {
 
   /// Writing cell contained text into the excel sheet files.
   _setSheetElements() {
-    _excel._sharedStrings = List<String>();
+    _excel._sharedStrings = _SharedStringsMaintainer.instance;
+    _excel._sharedStrings.clear();
+
     _excel._sheetMap.forEach((sheet, value) {
       ///
       /// Create the sheet's xml file if it does not exist.
@@ -101,17 +103,16 @@ class Save {
       /// Clear the previous contents of the sheet if it exists,
       /// in order to reduce the time to find and compare with the sheet rows
       /// and hence just do the work of putting the data only i.e. creating new rows
-      if (_excel._sheets[sheet] != null &&
-          _excel._sheets[sheet].children.isNotEmpty) {
+      if (_excel._sheets[sheet]?.children?.isNotEmpty ?? false) {
         _excel._sheets[sheet].children.clear();
       }
 
       /// `Above function is important in order to wipe out the old contents of the sheet.`
 
       value._sheetData.forEach((rowIndex, map) {
+        var foundRow = _createNewRow(_excel._sheets[sheet], rowIndex);
         map.forEach((columnIndex, data) {
           if (data.value != null) {
-            var foundRow = _findRowByIndex(_excel._sheets[sheet], rowIndex);
             _updateCell(sheet, foundRow, columnIndex, rowIndex, data.value);
           }
         });
@@ -495,18 +496,28 @@ class Save {
   /// Writing the value of excel cells into the separate
   /// sharedStrings file so as to minimize the size of excel files.
   _setSharedStrings() {
-    String count = _excel._sharedStrings.length.toString();
-    List uniqueList = _excel._sharedStrings.toSet().toList();
-    String uniqueCount = uniqueList.length.toString();
+    var uniqueCount = 0;
+    var count = 0;
 
     XmlElement shareString = _excel
         ._xmlFiles['xl/${_excel._sharedStringsTarget}']
         .findAllElements('sst')
         .first;
 
+    shareString.children.clear();
+
+    _excel._sharedStrings._map.forEach((string, ss) {
+      uniqueCount += 1;
+      count += ss.count;
+
+      shareString.children.add(XmlElement(XmlName('si'), [], [
+        XmlElement(XmlName('t'), [], [XmlText(string)])
+      ]));
+    });
+
     [
-      ['count', count],
-      ['uniqueCount', uniqueCount]
+      ['count', '$count'],
+      ['uniqueCount', '$uniqueCount']
     ].forEach((value) {
       if (shareString.getAttributeNode(value[0]) == null) {
         shareString.attributes.add(XmlAttribute(XmlName(value[0]), value[1]));
@@ -514,18 +525,10 @@ class Save {
         shareString.getAttributeNode(value[0]).value = value[1];
       }
     });
-
-    shareString.children.clear();
-
-    _excel._sharedStrings.forEach((string) {
-      shareString.children.add(XmlElement(XmlName('si'), [], [
-        XmlElement(XmlName('t'), [], [XmlText(string)])
-      ]));
-    });
   }
 
-  ///
-  XmlElement _findRowByIndex(XmlElement table, int rowIndex) {
+  // slow implementation
+  /*XmlElement _findRowByIndex(XmlElement table, int rowIndex) {
     XmlElement row;
     var rows = _findRows(table);
 
@@ -545,12 +548,12 @@ class Save {
 
     return row;
   }
-
+  
   XmlElement _createRow(int rowIndex) {
     return XmlElement(XmlName('row'),
         [XmlAttribute(XmlName('r'), (rowIndex + 1).toString())], []);
-  }
-
+  } 
+  
   XmlElement __insertRow(XmlElement table, XmlElement lastRow, int rowIndex) {
     var row = _createRow(rowIndex);
     if (lastRow == null) {
@@ -560,21 +563,17 @@ class Save {
       table.children.insert(index, row);
     }
     return row;
+  }*/
+
+  ///
+  XmlElement _createNewRow(XmlElement table, int rowIndex) {
+    var row = XmlElement(XmlName('row'),
+        [XmlAttribute(XmlName('r'), (rowIndex + 1).toString())], []);
+    table.children.add(row);
+    return row;
   }
 
-  XmlElement _insertCell(String sheet, XmlElement row, XmlElement lastCell,
-      int columnIndex, int rowIndex, dynamic value) {
-    var cell = _createCell(sheet, columnIndex, rowIndex, value);
-    if (lastCell == null) {
-      row.children.add(cell);
-    } else {
-      var index = row.children.indexOf(lastCell);
-      row.children.insert(index, cell);
-    }
-    return cell;
-  }
-
-  XmlElement _replaceCell(String sheet, XmlElement row, XmlElement lastCell,
+/*   XmlElement _replaceCell(String sheet, XmlElement row, XmlElement lastCell,
       int columnIndex, int rowIndex, dynamic value) {
     var index = lastCell == null ? 0 : row.children.indexOf(lastCell);
     var cell = _createCell(sheet, columnIndex, rowIndex, value);
@@ -582,14 +581,13 @@ class Save {
       ..removeAt(index)
       ..insert(index, cell);
     return cell;
-  }
+  } */
 
   // Manage value's type
   XmlElement _createCell(
       String sheet, int columnIndex, int rowIndex, dynamic value) {
-    if (value.runtimeType == String &&
-        !_excel._sharedStrings.contains(value.toString())) {
-      _excel._sharedStrings.add(value.toString());
+    if (value.runtimeType == String) {
+      _excel._sharedStrings.add(value);
     }
 
     String rC = getCellId(columnIndex, rowIndex);
@@ -600,11 +598,9 @@ class Save {
     ];
 
     if (_excel._colorChanges &&
-        _isContain(_excel._sheetMap[sheet]) &&
-        _isContain(_excel._sheetMap[sheet]._sheetData) &&
-        _isContain(_excel._sheetMap[sheet]._sheetData[rowIndex]) &&
-        _isContain(_excel._sheetMap[sheet]._sheetData[rowIndex][columnIndex]) &&
-        _excel._sheetMap[sheet]._sheetData[rowIndex][columnIndex].cellStyle !=
+        (_excel._sheetMap[sheet]?._sheetData != null) &&
+        _excel._sheetMap[sheet]._sheetData[rowIndex] != null &&
+        _excel._sheetMap[sheet]._sheetData[rowIndex][columnIndex]?.cellStyle !=
             null) {
       CellStyle cellStyle =
           _excel._sheetMap[sheet]._sheetData[rowIndex][columnIndex].cellStyle;
@@ -636,7 +632,7 @@ class Save {
               XmlElement(XmlName('f'), [], [XmlText(value.formula.toString())]),
             XmlElement(XmlName('v'), [], [
               XmlText(value is String
-                  ? _excel._sharedStrings.indexOf(value.toString()).toString()
+                  ? _excel._sharedStrings.indexOf(value).toString()
                   : value is Formula
                       ? ''
                       : value.toString())
@@ -645,7 +641,8 @@ class Save {
     return XmlElement(XmlName('c'), attributes, children);
   }
 
-  XmlElement _updateCell(String sheet, XmlElement node, int columnIndex,
+// slow implementation
+/*   XmlElement _updateCell(String sheet, XmlElement node, int columnIndex,
       int rowIndex, dynamic value) {
     XmlElement cell;
     var cells = _findCells(node);
@@ -665,6 +662,12 @@ class Save {
       cell = _replaceCell(sheet, node, cell, columnIndex, rowIndex, value);
     }
 
+    return cell;
+  } */
+  XmlElement _updateCell(String sheet, XmlElement row, int columnIndex,
+      int rowIndex, dynamic value) {
+    var cell = _createCell(sheet, columnIndex, rowIndex, value);
+    row.children.add(cell);
     return cell;
   }
 }
