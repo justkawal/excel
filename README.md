@@ -30,13 +30,7 @@
   </a>
   <br>
   <br>
- 
-# Donate [![ ](https://img.shields.io/endpoint.svg?url=https%3A%2F%2Fshieldsio-patreon.vercel.app%2Fapi%3Fusername%3Djustkawal%26type%3Dpatrons&style=for-the-badge)](https://patreon.com/justkawal)
-<a href="https://patreon.com/justkawal">  
-    <img src="https://tenor.com/view/poor-kristen-wiig-help-no-broke-gif-4670237.gif"  width="70%" height="45%"  
-      alt="Donate" />  
-  </a>
- 
+
 ### [Excel](https://www.pub.dev/packages/excel) is a flutter and dart library for reading, creating and updating excel-sheets for XLSX files.
 
 
@@ -543,3 +537,11 @@ For getting saving directory on Android or iOS, Use: [path_provider](https://pub
 On-going implementation for future:
 - Formulas
 - Conversion to PDF
+
+
+# Donate [![ ](https://img.shields.io/endpoint.svg?url=https%3A%2F%2Fshieldsio-patreon.vercel.app%2Fapi%3Fusername%3Djustkawal%26type%3Dpatrons&style=for-the-badge)](https://patreon.com/justkawal)
+<a href="https://patreon.com/justkawal">  
+    <img src="https://tenor.com/view/poor-kristen-wiig-help-no-broke-gif-4670237.gif"  width="70%" height="45%"  
+      alt="Donate" />  
+  </a>
+ 
