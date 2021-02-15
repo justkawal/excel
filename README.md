@@ -30,13 +30,7 @@
   </a>
   <br>
   <br>
- 
-# Donate [![ ](https://img.shields.io/endpoint.svg?url=https%3A%2F%2Fshieldsio-patreon.vercel.app%2Fapi%3Fusername%3Djustkawal%26type%3Dpatrons&style=for-the-badge)](https://patreon.com/justkawal)
-<a href="https://patreon.com/justkawal">  
-    <img src="https://tenor.com/view/pass-the-hat-dollar-bills-money-cash-collect-gif-13703355.gif"  width="70%" height="45%"  
-      alt="Donate" />  
-  </a>
- 
+
 ### [Excel](https://www.pub.dev/packages/excel) is a flutter and dart library for reading, creating and updating excel-sheets for XLSX files.
 
 
@@ -510,35 +504,26 @@ key | description
 ### Saving File in Flutter Web
 
 ```dart
-      
-     // Future<List<int>> saveFileInFlutterWeb({String fileName = 'FlutterWebExcel.xlsx'});
+     // Future<List<int>> save({String fileName = 'FlutterWebExcel.xlsx'});
      
      // when you are in web then this function automatically starts downloading the excel file.
      
-     excel.saveFileInFlutterWeb(fileName: outputFileName_with_path);
+     // Call function save() to download the file
+     await excel.save(fileName: "My_Excel_File_Name.xlsx");
      
-     // 🤔 But why it returns fileBytes
-     // when you are on android or ios or any desktop platform then it gives benefit.
-     
-     var finalFileBytes = excel.saveFileInFlutterWeb(fileName: outputFileName_with_path);
-     
-     ....
-     .... handle the android and ios part of saving the file.
-     ....
-     ....
 ```
    
-### Saving XLSX File
- 
+### Saving XLSX File on Android / iOS
+For getting saving directory on Android or iOS, Use: [path_provider](https://pub.dev/packages/path_provider)
  ```dart
-      // Save the Changes in file
-
-      excel.encode().then((onValue) {
-        File(join("Path_to_destination/excel.xlsx"))
+     excel.encode().then((fileBytes) async {
+      var directory = await getApplicationDocumentsDirectory();
+      
+      File(join("$directory/output_file_name.xlsx"))
         ..createSync(recursive: true)
-        ..writeAsBytesSync(onValue);
-    });
-    
+        ..writeAsBytesSync(fileBytes);
+     });
+     
 ```
  
 # Frequent Issues
@@ -552,3 +537,11 @@ key | description
 On-going implementation for future:
 - Formulas
 - Conversion to PDF
+
+
+# Donate [![ ](https://img.shields.io/endpoint.svg?url=https%3A%2F%2Fshieldsio-patreon.vercel.app%2Fapi%3Fusername%3Djustkawal%26type%3Dpatrons&style=for-the-badge)](https://patreon.com/justkawal)
+<a href="https://patreon.com/justkawal">  
+    <img src="https://tenor.com/view/poor-kristen-wiig-help-no-broke-gif-4670237.gif"  width="70%" height="45%"  
+      alt="Donate" />  
+  </a>
+ 
