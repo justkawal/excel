@@ -33,7 +33,7 @@
  
 # Donate [![ ](https://img.shields.io/endpoint.svg?url=https%3A%2F%2Fshieldsio-patreon.vercel.app%2Fapi%3Fusername%3Djustkawal%26type%3Dpatrons&style=for-the-badge)](https://patreon.com/justkawal)
 <a href="https://patreon.com/justkawal">  
-    <img src="https://tenor.com/view/pass-the-hat-dollar-bills-money-cash-collect-gif-13703355.gif"  width="70%" height="45%"  
+    <img src="https://tenor.com/view/poor-kristen-wiig-help-no-broke-gif-4670237.gif"  width="70%" height="45%"  
       alt="Donate" />  
   </a>
  
