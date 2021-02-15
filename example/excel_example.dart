@@ -3,41 +3,6 @@ import 'package:path/path.dart';
 import 'package:excel/excel.dart';
 
 void main(List<String> args) {
-  Stopwatch stopwatch = new Stopwatch()..start();
-
-  Excel excel = Excel.createExcel();
-  Sheet sh = excel['Sheet1'];
-  for (int i = 0; i < 8; i++) {
-    sh.cell(CellIndex.indexByColumnRow(rowIndex: 0, columnIndex: i)).value =
-        'Col $i';
-    sh.cell(CellIndex.indexByColumnRow(rowIndex: 0, columnIndex: i)).cellStyle =
-        CellStyle(bold: true);
-  }
-  for (int row = 0; row < 9000; row++) {
-    for (int col = 0; col < 8; col++) {
-      sh
-          .cell(CellIndex.indexByColumnRow(columnIndex: col, rowIndex: row))
-          .value = 'value ${row}_$col';
-    }
-  }
-  print('Generating executed in ${stopwatch.elapsed}');
-  stopwatch.reset();
-  excel.encode().then((onValue) {
-    print('Encoding executed in ${stopwatch.elapsed}');
-    stopwatch.reset();
-    File(join("/Users/kawal/Desktop/r1.xlsx"))
-      ..createSync(recursive: true)
-      ..writeAsBytesSync(onValue);
-    print('Downloaded executed in ${stopwatch.elapsed}');
-  });
-}
-
-/**
- import 'dart:io';
-import 'package:path/path.dart';
-import 'package:excel/excel.dart';
-
-void main(List<String> args) {
   var file = "/Users/kawal/Desktop/excel/test/test_resources/example.xlsx";
   var bytes = File(file).readAsBytesSync();
   //var excel = Excel.createExcel();
@@ -114,12 +79,10 @@ void main(List<String> args) {
 
   /// appending rows and checking the time complexity of it
   /* List<List<String>> list = List.generate(6000, (index) => List.generate(20, (index1) => '$index $index1'));
-
   Stopwatch stopwatch = new Stopwatch()..start();
   list.forEach((row) {
     sheet.appendRow(row);
   });
-
   print('doSomething() executed in ${stopwatch.elapsed}'); */
 
   sheet.appendRow([8]);
@@ -141,5 +104,3 @@ void main(List<String> args) {
       ..writeAsBytesSync(onValue);
   });
 }
-
- */
