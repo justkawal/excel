@@ -257,7 +257,7 @@ String getColumnAlphabet(int collIndex) {
 ///
 ///
 int getColumnIndex(String columnAlphabet) {
-  return _cellCoordsFromCellId('${columnAlphabet}2')[1];
+  return _cellCoordsFromCellId('${columnAlphabet}')[1];
 }
 
 ///

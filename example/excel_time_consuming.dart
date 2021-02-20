@@ -10,13 +10,12 @@ void main(List<String> args) {
   for (int i = 0; i < 8; i++) {
     sh.cell(CellIndex.indexByColumnRow(rowIndex: 0, columnIndex: i)).value =
         'Col $i';
-    sh.cell(CellIndex.indexByColumnRow(rowIndex: 0, columnIndex: i)).cellStyle =
-        CellStyle(bold: true);
+    //sh.cell(CellIndex.indexByColumnRow(rowIndex: 0, columnIndex: i)).cellStyle =CellStyle(bold: true);
   }
   for (int row = 1; row < 9000; row++) {
     for (int col = 0; col < 8; col++) {
       sh
-          .cell(CellIndex.indexByColumnRow(columnIndex: col, rowIndex: row))
+          .cell(CellIndex.indexByColumnRow(rowIndex: row, columnIndex: col))
           .value = 'value ${row}_$col';
     }
   }

@@ -1,7 +1,7 @@
 part of excel;
 
 class CellIndex {
-  CellIndex._(int col, int row) {
+  CellIndex._({int col, int row}) {
     this._columnIndex = col;
     this._rowIndex = row;
   }
@@ -12,7 +12,7 @@ class CellIndex {
   ///CellIndex.indexByColumnRow(columnIndex: 0, rowIndex: 1 ); // A2
   ///```
   static CellIndex indexByColumnRow({int columnIndex, int rowIndex}) {
-    return CellIndex._(columnIndex, rowIndex);
+    return CellIndex._(col: columnIndex, row: rowIndex);
   }
 
   ///
@@ -22,7 +22,7 @@ class CellIndex {
   ///```
   static CellIndex indexByString(String cellIndex) {
     List<int> li = _cellCoordsFromCellId(cellIndex);
-    return CellIndex._(li[0], li[1]);
+    return CellIndex._(row: li[0], col: li[1]);
   }
 
   String get cellId {
