@@ -1,13 +1,13 @@
 name: excel
 description: A flutter and dart library for reading, creating, editing and updating excel sheets with compatible both on client and server side.
-version: 1.1.5
+version: 1.1.6
 homepage: https://github.com/justkawal/excel
 
 environment:
   sdk: ">=2.7.0 <3.0.0"
 
 dependencies:
-  archive: ^2.0.0
+  archive: ^3.0.0
   xml: ^4.1.0
 
 dev_dependencies:
