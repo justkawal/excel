@@ -244,7 +244,7 @@ Use `FilePicker` to pick files in Flutter Web. [FilePicker](https://pub.dev/pack
       sheetObject.removeColumn(18);
       
       // insert row at index = 82
-      sheetObject.removeRow(82);
+      sheetObject.insertRow(82);
       
       // remove row at index = 80
       sheetObject.removeRow(80);
