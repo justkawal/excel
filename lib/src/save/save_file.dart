@@ -8,8 +8,8 @@ class Save {
   Save._(Excel excel, Parser _parser) {
     _excel = excel;
     parser = _parser;
-    _archiveFiles = Map<String, ArchiveFile>();
-    _innerCellStyle = List<CellStyle>();
+    _archiveFiles = <String, ArchiveFile>{};
+    _innerCellStyle = <CellStyle>[];
   }
 
   List<int> _save() {
@@ -258,7 +258,7 @@ class Save {
 
   _processStylesFile() {
     _innerCellStyle = List<CellStyle>();
-    List<String> innerPatternFill = List<String>();
+    List<String> innerPatternFill = <String>[];
     List<_FontStyle> innerFontStyle = List<_FontStyle>();
 
     _excel._sheetMap.forEach((sheetName, sheetObject) {

@@ -388,7 +388,7 @@ class Sheet {
     bool updateSpanCell = false;
 
     if (this._spanList != null) {
-      this._spannedItems = List<String>();
+      this._spannedItems = <String>[];
       for (int i = 0; i < _spanList.length; i++) {
         _Span spanObj = _spanList[i];
         int startColumn = spanObj.columnSpanStart,
@@ -569,7 +569,7 @@ class Sheet {
     bool updateSpanCell = false;
 
     if (_isContain(this._sheetData)) {
-      this._spannedItems = List<String>();
+      this._spannedItems = <String>[];
       for (int i = 0; i < _spanList.length; i++) {
         _Span spanObj = _spanList[i];
         int startColumn = spanObj.columnSpanStart,
@@ -1235,7 +1235,7 @@ class Sheet {
   ///return type if String based cell-id
   ///
   List<String> get spannedItems {
-    this._spannedItems = List<String>();
+    this._spannedItems = <String>[];
 
     if (this._spanList != null && this._spanList.isNotEmpty) {
       this._spanList.forEach((spanObj) {

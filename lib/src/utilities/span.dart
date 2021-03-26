@@ -4,9 +4,9 @@ part of excel;
 class _Span {
   _Span();
 
-  List<int> __start = List<int>();
+  List<int> __start = <int>[];
 
-  List<int> __end = List<int>();
+  List<int> __end = <int>[];
 
   set _start(List<int> val) {
     __start = val;
