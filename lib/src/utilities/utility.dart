@@ -143,7 +143,7 @@ List<int> _cellCoordsFromCellId(String cellId) {
 ///Throw error at situation where further processing is not possible
 ///It is also called when important parts of excel files are missing as corrupted excel file is used
 ///
-_damagedExcel({String text}) {
+_damagedExcel({String? text}) {
   String t = '\nDamaged Excel file:';
   if (text != null) {
     t += ' $text';
