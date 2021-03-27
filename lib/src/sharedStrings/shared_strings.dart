@@ -12,7 +12,7 @@ class _TempDataHolder {
   }
 }
 
-class KawalList<T> {
+class _OptimizedList<T> {
   var _map = Map<T, _TempDataHolder>();
   var _list = <T>[];
   var _index = 0;
@@ -25,14 +25,6 @@ class KawalList<T> {
     } else {
       _map[val]!.increaseCount();
     }
-  }
-
-  bool contains(T? val) {
-    return _map[val] != null;
-  }
-
-  T? get last {
-    return _list.last;
   }
 
   int indexOf(T val) {
@@ -53,11 +45,13 @@ class KawalList<T> {
 class _SharedStringsMaintainer {
   static final instance = _SharedStringsMaintainer._();
 
-  var list = KawalList<String>();
+  var list;
+
+  _SharedStringsMaintainer() {
+    list = _OptimizedList<String>();
+  }
 
   factory _SharedStringsMaintainer._() {
     return _SharedStringsMaintainer();
   }
-
-  _SharedStringsMaintainer();
 }

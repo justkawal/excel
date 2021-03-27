@@ -1,144 +1,109 @@
 part of excel;
 
 /// Styling class for cells
-class _FontStyle {
-  String _fontColorHex, _fontFamily;
-  bool _bold, _italic;
-  Underline _underline;
-  int _fontSize;
+// ignore: must_be_immutable
+class _FontStyle extends Equatable {
+  String? _fontColorHex = 'FF000000';
+  String? _fontFamily;
+  bool _bold = false, _italic = false;
+  Underline _underline = Underline.None;
+  int? _fontSize;
 
   _FontStyle(
-      {String fontColorHex = "FF000000",
-      int fontSize,
-      String fontFamily,
+      {String? fontColorHex = 'FF000000',
+      int? fontSize,
+      String? fontFamily,
       bool bold = false,
       Underline underline = Underline.None,
       bool italic = false}) {
-    this._bold = bold ?? false;
+    _bold = bold;
 
-    this.fontSize = fontSize;
+    _fontSize = fontSize;
 
-    this._italic = italic ?? false;
+    _italic = italic;
 
-    this.fontFamily = fontFamily;
+    _fontFamily = fontFamily;
 
-    this._underline = underline ?? Underline.None;
+    _underline = underline;
 
     if (fontColorHex != null) {
-      this._fontColorHex = _isColorAppropriate(fontColorHex);
+      _fontColorHex = _isColorAppropriate(fontColorHex);
     } else {
-      this._fontColorHex = "FF000000";
+      _fontColorHex = 'FF000000';
     }
   }
 
   /// Get Font Color
-  ///
-  ///
   String get fontColor {
-    return this._fontColorHex;
+    return _fontColorHex ?? 'FF000000';
   }
 
   /// Set Font Color
-  ///
-  ///
-  set fontColor(String fontColorHex) {
+  set fontColor(String? fontColorHex) {
     if (fontColorHex != null) {
-      this._fontColorHex = _isColorAppropriate(fontColorHex);
+      _fontColorHex = _isColorAppropriate(fontColorHex);
     } else {
-      this._fontColorHex = "FF000000";
+      _fontColorHex = 'FF000000';
     }
   }
 
   /// `Get FontFamily`
-  ///
-  ///
-  String get fontFamily {
-    return this._fontFamily;
+  String? get fontFamily {
+    return _fontFamily;
   }
 
   /// `Set FontFamily`
-  ///
-  ///
-  set fontFamily(String family) {
-    this._fontFamily = family;
+  set fontFamily(String? family) {
+    _fontFamily = family;
   }
 
   /// Get Font Size
-  ///
-  ///
-  int get fontSize {
-    return this._fontSize;
+  int? get fontSize {
+    return _fontSize;
   }
 
   /// Set Font Size
-  ///
-  ///
-  set fontSize(int _font_Size) {
-    this._fontSize = _font_Size;
+  set fontSize(int? _fs) {
+    _fontSize = _fs;
   }
 
   /// Get `Underline`
-  ///
-  ///
-  get underline {
-    return this._underline;
+  Underline get underline {
+    return _underline;
   }
 
   /// set `Underline`
-  ///
-  ///
   set underline(Underline underline) {
-    this._underline = underline ?? Underline.None;
+    _underline = underline;
   }
 
   /// Get `Bold`
-  ///
-  ///
-  get isBold {
-    return this._bold;
+  bool get isBold {
+    return _bold;
   }
 
   /// Set `Bold`
-  ///
-  ///
   set isBold(bool bold) {
-    this._bold = bold ?? false;
+    _bold = bold;
   }
 
   /// Get `Italic`
-  ///
-  ///
-  get isItalic {
-    return this._italic;
+  bool get isItalic {
+    return _italic;
   }
 
   /// Set `Italic`
-  ///
-  ///
   set isItalic(bool italic) {
-    this._italic = italic ?? false;
+    _italic = italic;
   }
 
   @override
-  bool operator ==(o) {
-    return o.isBold == this.isBold && // bold
-        o.isItalic == this.isItalic && // italic
-        o.fontSize == this.fontSize && // Font Size
-        o.underline == this.underline && // Underline
-        o.fontFamily == this.fontFamily && // font Family
-        o.runtimeType == this.runtimeType && // runtimeType
-        o.fontColor == this.fontColor; // Font Color
-  }
-
-  /* @override
-  String toString() {
-    String f = "Font Color :" + this.fontColor,
-        fs = "Font Size  :" + this.fontSize.toString(),
-        bold = "Bold       :" + this.isBold.toString(),
-        underline = "Underline  :" + this.underline.toString(),
-        italic = "Italic     :" + this.isItalic.toString(),
-        fontFamily = "Font Family:" + this.fontFamily.toString();
-
-    return f + "\n" + fs + "\n" + bold + "\n" + italic + "\n" + fontFamily;
-  } */
+  List<Object?> get props => [
+        _bold,
+        _italic,
+        _fontSize,
+        _underline,
+        _fontFamily,
+        _fontColorHex,
+      ];
 }

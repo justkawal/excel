@@ -1,69 +1,79 @@
 part of excel;
 
 class Sheet {
-  Excel _excel;
-  String _sheet;
-  bool _isRTL;
+  late Excel _excel;
+  late String _sheet;
+  late bool _isRTL;
   int _maxRows = 0;
   int _maxCols = 0;
-  List<double> _rowHeight = <double>[], _colWidth = <double>[];
+  //List<double> _rowHeight = <double>[], _colWidth = <double>[];
   List<String> _spannedItems = <String>[];
-  List<_Span> _spanList = <_Span>[];
+  List<_Span?> _spanList = <_Span?>[];
   Map<int, Map<int, Data>> _sheetData = <int, Map<int, Data>>{};
 
   ///
   /// It will clone the object by changing the `this` reference of previous oldSheetObject and putting `new this` reference, with copying the values too
   ///
   Sheet._clone(Excel excel, String sheetName, Sheet oldSheetObject)
-      : this._(excel, sheetName,
-            sh: oldSheetObject._sheetData,
-            spanL_: oldSheetObject._spanList,
-            spanI_: oldSheetObject._spannedItems,
-            maxR_: oldSheetObject._maxRows,
-            maxC_: oldSheetObject._maxCols,
-            rowHeight_: oldSheetObject._rowHeight,
-            colWidth_: oldSheetObject._colWidth,
-            isRTL_: oldSheetObject._isRTL);
+      : this._(
+          excel,
+          sheetName,
+          sh: oldSheetObject._sheetData,
+          spanL_: oldSheetObject._spanList,
+          spanI_: oldSheetObject._spannedItems,
+          maxRowsVal: oldSheetObject._maxRows,
+          maxColsVal: oldSheetObject._maxCols,
+          //rowHeightVal: oldSheetObject._rowHeight,
+          //colWidthVal: oldSheetObject._colWidth,
+          isRTLVal: oldSheetObject._isRTL,
+        );
 
   Sheet._(
     Excel excel,
     String sheetName, {
-    Map<int, Map<int, Data>> sh,
-    List<_Span> spanL_,
-    List<String> spanI_,
-    int maxR_,
-    int maxC_,
-    bool isRTL_,
-    List<double> rowHeight_,
-    List<double> colWidth_,
+    Map<int, Map<int, Data>>? sh,
+    List<_Span?>? spanL_,
+    List<String>? spanI_,
+    int? maxRowsVal,
+    int? maxColsVal,
+    bool? isRTLVal,
+    List<double>? rowHeightVal,
+    List<double>? colWidthVal,
   }) {
-    this._excel = excel;
-    this._sheet = sheetName;
-    this._spanList = List<_Span>.from(spanL_ ?? []);
-    this._spannedItems = List<String>.from(spanI_ ?? []);
-    this._maxCols = maxC_ ?? 0;
-    this._maxRows = maxR_ ?? 0;
-    this._sheetData = <int, Map<int, Data>>{};
-    this._isRTL = isRTL_ ?? false;
-    this._rowHeight = List<double>.from(rowHeight_ ?? []);
-    this._colWidth = List<double>.from(colWidth_ ?? []);
-
-    if (isRTL_ != null) {
-      _excel._rtlChangeLookup = sheetName;
-    }
-
+    _excel = excel;
+    _sheet = sheetName;
     if (spanL_ != null) {
+      _spanList = List<_Span?>.from(spanL_);
       _excel._mergeChangeLookup = sheetName;
     }
+    if (spanI_ != null) {
+      _spannedItems = List<String>.from(spanI_);
+    }
+    if (maxColsVal != null) {
+      _maxCols = maxColsVal;
+    }
+    if (maxRowsVal != null) {
+      _maxRows = maxRowsVal;
+    }
+    if (isRTLVal != null) {
+      _isRTL = isRTLVal;
+      _excel._rtlChangeLookup = sheetName;
+    }
+    // if (rowHeightVal != null) {
+    //   _rowHeight = List<double>.from(rowHeightVal);
+    // }
+    // if (colWidthVal != null) {
+    //   _rowHeight = List<double>.from(colWidthVal);
+    // }
 
-    /// copy the data objects into a temp folder and then while putting it into `this._sheetData` change the data objects references.
+    /// copy the data objects into a temp folder and then while putting it into `_sheetData` change the data objects references.
     if (sh != null) {
-      this._sheetData = Map<int, Map<int, Data>>.from(sh);
+      _sheetData = Map<int, Map<int, Data>>.from(sh);
       Map<int, Map<int, Data>> temp = Map<int, Map<int, Data>>.from(sh);
       temp.forEach((key, value) {
-        this._sheetData[key].forEach((key1, oldDataObject) {
+        _sheetData[key]!.forEach((key1, oldDataObject) {
           Data newDataObject = Data._clone(this, oldDataObject);
-          this._sheetData[key][key1] = newDataObject;
+          _sheetData[key]![key1] = newDataObject;
         });
       });
     }
@@ -98,55 +108,54 @@ class Sheet {
     }
 
     /// increasing the rowCount
-    if (this._maxRows < (cellIndex._rowIndex + 1)) {
-      this._maxRows = cellIndex._rowIndex + 1;
+    if (_maxRows < (cellIndex._rowIndex + 1)) {
+      _maxRows = cellIndex._rowIndex + 1;
     }
 
     /// increasing the colCount
-    if (this._maxCols < (cellIndex._columnIndex + 1)) {
-      this._maxCols = cellIndex._columnIndex + 1;
+    if (_maxCols < (cellIndex._columnIndex + 1)) {
+      _maxCols = cellIndex._columnIndex + 1;
     }
 
     /// checking if the map has been already initialized or not?
     /// if the user has called this class by its own
-    if (!_isContain(this._sheetData)) {
-      this._sheetData = Map<int, Map<int, Data>>();
-    }
+    /* if (_sheetData == null) {
+      _sheetData = Map<int, Map<int, Data>>();
+    } */
 
     /// if the sheetData contains the row then start putting the column
-    if (_isContain(this._sheetData[cellIndex._rowIndex])) {
-      if (!_isContain(
-          this._sheetData[cellIndex._rowIndex][cellIndex._columnIndex])) {
-        this._sheetData[cellIndex._rowIndex][cellIndex._columnIndex] =
+    if (_sheetData[cellIndex._rowIndex] != null) {
+      if (_sheetData[cellIndex._rowIndex]![cellIndex._columnIndex] == null) {
+        _sheetData[cellIndex._rowIndex]![cellIndex._columnIndex] =
             Data.newData(this, cellIndex.rowIndex, cellIndex.columnIndex);
       }
     } else {
       /// else put the column with map showing.
-      this._sheetData[cellIndex._rowIndex] = {
+      _sheetData[cellIndex._rowIndex] = {
         cellIndex._columnIndex:
             Data.newData(this, cellIndex.rowIndex, cellIndex.columnIndex)
       };
     }
 
-    return this._sheetData[cellIndex._rowIndex][cellIndex._columnIndex];
+    return _sheetData[cellIndex._rowIndex]![cellIndex._columnIndex]!;
   }
 
   ///
   /// returns `2-D dynamic List` of the sheet elements
   ///
   List<List<dynamic>> get rows {
-    List<List<dynamic>> _data = List<List<dynamic>>();
+    List<List<dynamic>> _data = <List<dynamic>>[];
 
-    if (!_isContain(this._sheetData) || this._sheetData.isEmpty) {
+    if (_sheetData.isEmpty) {
       return _data;
     }
 
-    if (this._maxRows > 0 && this.maxCols > 0) {
-      _data = List.generate(this._maxRows, (rowIndex) {
-        return List.generate(this._maxCols, (colIndex) {
-          if (_isContain(this._sheetData[rowIndex]) &&
-              _isContain(this._sheetData[rowIndex][colIndex])) {
-            return this._sheetData[rowIndex][colIndex].value;
+    if (_maxRows > 0 && maxCols > 0) {
+      _data = List.generate(_maxRows, (rowIndex) {
+        return List.generate(_maxCols, (colIndex) {
+          if (_sheetData[rowIndex] != null &&
+              _sheetData[rowIndex]![colIndex] != null) {
+            return _sheetData[rowIndex]![colIndex]!.value;
           }
           return null;
         });
@@ -161,8 +170,8 @@ class Sheet {
   ///
   /// Ex. selectRange('D8:H12'); or selectRange('D8');
   ///
-  List<List<Data>> selectRangeWithString(String range) {
-    List<List<Data>> _selectedRange = List<List<Data>>();
+  List<List<Data?>?> selectRangeWithString(String range) {
+    List<List<Data?>?> _selectedRange = <List<Data?>?>[];
     if (!range.contains(':')) {
       var start = CellIndex.indexByString(range);
       _selectedRange = selectRange(start);
@@ -178,7 +187,7 @@ class Sheet {
   ///
   /// returns `2-D dynamic List` of the sheet cell data in that range.
   ///
-  List<List<Data>> selectRange(CellIndex start, {CellIndex end}) {
+  List<List<Data?>?> selectRange(CellIndex start, {CellIndex? end}) {
     _checkMaxCol(start.columnIndex);
     _checkMaxRow(start.rowIndex);
     if (end != null) {
@@ -186,33 +195,31 @@ class Sheet {
       _checkMaxRow(end.rowIndex);
     }
 
-    int _startColumn = start.columnIndex,
-        _startRow = start.rowIndex,
-        _endColumn = end?.columnIndex,
-        _endRow = end?.rowIndex;
+    int _startColumn = start.columnIndex, _startRow = start.rowIndex;
+    int? _endColumn = end?.columnIndex, _endRow = end?.rowIndex;
 
     if (_endColumn != null && _endRow != null) {
       if (_startRow > _endRow) {
-        _startRow = end.rowIndex;
+        _startRow = end!.rowIndex;
         _endRow = start.rowIndex;
       }
       if (_endColumn < _startColumn) {
         _endColumn = start.columnIndex;
-        _startColumn = end.columnIndex;
+        _startColumn = end!.columnIndex;
       }
     }
 
-    List<List<Data>> _selectedRange = List<List<Data>>();
-    if (!_isContain(this._sheetData) || this._sheetData.isEmpty) {
+    List<List<Data?>?> _selectedRange = <List<Data?>?>[];
+    if (_sheetData.isEmpty) {
       return _selectedRange;
     }
 
     for (var i = _startRow; i <= (_endRow ?? maxRows); i++) {
-      if (_isContain(_sheetData[i])) {
-        List<Data> row = List<Data>();
+      if (_sheetData[i] != null) {
+        List<Data?> row = <Data>[];
         for (var j = _startColumn; j <= (_endColumn ?? maxCols); j++) {
-          if (_isContain(_sheetData[i][j])) {
-            row.add(_sheetData[i][j]);
+          if (_sheetData[i]![j] != null) {
+            row.add(_sheetData[i]![j]!);
           } else {
             row.add(null);
           }
@@ -231,8 +238,8 @@ class Sheet {
   ///
   /// Ex. selectRange('D8:H12'); or selectRange('D8');
   ///
-  List<List<dynamic>> selectRangeValuesWithString(String range) {
-    List<List<dynamic>> _selectedRange = List<List<dynamic>>();
+  List<List<dynamic>?> selectRangeValuesWithString(String range) {
+    List<List<dynamic>?> _selectedRange = <List<dynamic>?>[];
     if (!range.contains(':')) {
       var start = CellIndex.indexByString(range);
       _selectedRange = selectRangeValues(start);
@@ -248,11 +255,12 @@ class Sheet {
   ///
   /// returns `2-D dynamic List` of the sheet elements in that range.
   ///
-  List<List<dynamic>> selectRangeValues(CellIndex start, {CellIndex end}) {
+  List<List<dynamic>?> selectRangeValues(CellIndex start, {CellIndex? end}) {
     var _list =
         (end == null ? selectRange(start) : selectRange(start, end: end));
     return _list
-        .map((e) => e.map((e) => e != null ? e.value : null).toList())
+        .map((List<Data?>? e) =>
+            e?.map((e1) => e1 != null ? e1.value : null).toList())
         .toList();
   }
 
@@ -261,25 +269,22 @@ class Sheet {
   ///
   _countRowAndCol() {
     int maximumColIndex = -1, maximumRowIndex = -1;
-    if (_isContain(this._sheetData)) {
-      List<int> sortedKeys = this._sheetData.keys.toList()..sort();
-      sortedKeys.forEach((rowKey) {
-        if (_isContain(this._sheetData[rowKey]) &&
-            this._sheetData[rowKey].isNotEmpty) {
-          List<int> keys = this._sheetData[rowKey].keys.toList()..sort();
-          if (keys != null && keys.isNotEmpty && keys.last > maximumColIndex) {
-            maximumColIndex = keys.last;
-          }
+    List<int> sortedKeys = _sheetData.keys.toList()..sort();
+    sortedKeys.forEach((rowKey) {
+      if (_sheetData[rowKey] != null && _sheetData[rowKey]!.isNotEmpty) {
+        List<int> keys = _sheetData[rowKey]!.keys.toList()..sort();
+        if (keys.isNotEmpty && keys.last > maximumColIndex) {
+          maximumColIndex = keys.last;
         }
-      });
-
-      if (sortedKeys != null && sortedKeys.isNotEmpty) {
-        maximumRowIndex = sortedKeys.last;
       }
+    });
+
+    if (sortedKeys.isNotEmpty) {
+      maximumRowIndex = sortedKeys.last;
     }
 
-    this._maxCols = maximumColIndex + 1;
-    this._maxRows = maximumRowIndex + 1;
+    _maxCols = maximumColIndex + 1;
+    _maxRows = maximumRowIndex + 1;
   }
 
   ///
@@ -287,86 +292,86 @@ class Sheet {
   ///
   void removeColumn(int colIndex) {
     _checkMaxCol(colIndex);
-    if (colIndex < 0 || colIndex >= this.maxCols) {
+    if (colIndex < 0 || colIndex >= maxCols) {
       return;
     }
 
     bool updateSpanCell = false;
 
     /// Do the shifting of the cell Id of span Object
-    if (_spanList != null) {
-      for (int i = 0; i < _spanList.length; i++) {
-        _Span spanObj = _spanList[i];
-        int startColumn = spanObj.columnSpanStart,
-            startRow = spanObj.rowSpanStart,
-            endColumn = spanObj.columnSpanEnd,
-            endRow = spanObj.rowSpanEnd;
 
-        if (colIndex <= endColumn) {
-          _Span newSpanObj = _Span();
-          if (colIndex < startColumn) {
-            startColumn -= 1;
-          }
-          endColumn -= 1;
-          if (/* startColumn >= endColumn */
-              (colIndex == (endColumn + 1)) &&
-                  (colIndex ==
-                      (colIndex < startColumn
-                          ? startColumn + 1
-                          : startColumn))) {
-            this._spanList[i] = null;
-          } else {
-            newSpanObj._start = [startRow, startColumn];
-            newSpanObj._end = [endRow, endColumn];
-            this._spanList[i] = newSpanObj;
-          }
-          updateSpanCell = true;
-          _excel._mergeChanges = true;
+    for (int i = 0; i < _spanList.length; i++) {
+      _Span? spanObj = _spanList[i];
+      if (spanObj == null) {
+        continue;
+      }
+      int startColumn = spanObj.columnSpanStart,
+          startRow = spanObj.rowSpanStart,
+          endColumn = spanObj.columnSpanEnd,
+          endRow = spanObj.rowSpanEnd;
+
+      if (colIndex <= endColumn) {
+        _Span newSpanObj = _Span();
+        if (colIndex < startColumn) {
+          startColumn -= 1;
         }
+        endColumn -= 1;
+        if (/* startColumn >= endColumn */
+            (colIndex == (endColumn + 1)) &&
+                (colIndex ==
+                    (colIndex < startColumn ? startColumn + 1 : startColumn))) {
+          _spanList[i] = null;
+        } else {
+          newSpanObj._start = [startRow, startColumn];
+          newSpanObj._end = [endRow, endColumn];
+          _spanList[i] = newSpanObj;
+        }
+        updateSpanCell = true;
+        _excel._mergeChanges = true;
+      }
 
-        if (_spanList[i] != null) {
-          String rc = getSpanCellId(startColumn, startRow, endColumn, endRow);
-          if (!this._spannedItems.contains(rc)) {
-            this._spannedItems.add(rc);
-          }
+      if (_spanList[i] != null) {
+        String rc = getSpanCellId(startColumn, startRow, endColumn, endRow);
+        if (!_spannedItems.contains(rc)) {
+          _spannedItems.add(rc);
         }
       }
-      _cleanUpSpanMap();
     }
+    _cleanUpSpanMap();
 
     if (updateSpanCell) {
-      _excel._mergeChangeLookup = this.sheetName;
+      _excel._mergeChangeLookup = sheetName;
     }
 
     Map<int, Map<int, Data>> _data = Map<int, Map<int, Data>>();
-    if (colIndex <= this.maxCols - 1) {
+    if (colIndex <= maxCols - 1) {
       /// do the shifting task
-      List<int> sortedKeys = this._sheetData.keys.toList()..sort();
+      List<int> sortedKeys = _sheetData.keys.toList()..sort();
       sortedKeys.forEach((rowKey) {
         Map<int, Data> colMap = Map<int, Data>();
-        List<int> sortedColKeys = this._sheetData[rowKey].keys.toList()..sort();
+        List<int> sortedColKeys = _sheetData[rowKey]!.keys.toList()..sort();
         sortedColKeys.forEach((colKey) {
-          if (_isContain(this._sheetData[rowKey]) &&
-              _isContain(this._sheetData[rowKey][colKey])) {
+          if (_sheetData[rowKey] != null &&
+              _sheetData[rowKey]![colKey] != null) {
             if (colKey < colIndex) {
-              colMap[colKey] = this._sheetData[rowKey][colKey];
+              colMap[colKey] = _sheetData[rowKey]![colKey]!;
             }
             if (colIndex == colKey) {
-              this._sheetData[rowKey].remove(colKey);
+              _sheetData[rowKey]!.remove(colKey);
             }
             if (colIndex < colKey) {
-              colMap[colKey - 1] = this._sheetData[rowKey][colKey];
-              this._sheetData[rowKey].remove(colKey);
+              colMap[colKey - 1] = _sheetData[rowKey]![colKey]!;
+              _sheetData[rowKey]!.remove(colKey);
             }
           }
         });
         _data[rowKey] = Map<int, Data>.from(colMap);
       });
-      this._sheetData = Map<int, Map<int, Data>>.from(_data);
+      _sheetData = Map<int, Map<int, Data>>.from(_data);
     }
 
-    if (this._maxCols - 1 <= colIndex) {
-      this._maxCols -= 1;
+    if (_maxCols - 1 <= colIndex) {
+      _maxCols -= 1;
     }
 
     //_countRowAndCol();
@@ -380,91 +385,92 @@ class Sheet {
   /// If the `sheet` does not exists then it will be created automatically.
   ///
   void insertColumn(int colIndex) {
-    if (colIndex == null || colIndex < 0) {
+    if (colIndex < 0) {
       return;
     }
     _checkMaxCol(colIndex);
 
     bool updateSpanCell = false;
 
-    if (this._spanList != null) {
-      this._spannedItems = <String>[];
-      for (int i = 0; i < _spanList.length; i++) {
-        _Span spanObj = _spanList[i];
-        int startColumn = spanObj.columnSpanStart,
-            startRow = spanObj.rowSpanStart,
-            endColumn = spanObj.columnSpanEnd,
-            endRow = spanObj.rowSpanEnd;
+    _spannedItems = <String>[];
+    for (int i = 0; i < _spanList.length; i++) {
+      _Span? spanObj = _spanList[i];
+      if (spanObj == null) {
+        continue;
+      }
+      int startColumn = spanObj.columnSpanStart,
+          startRow = spanObj.rowSpanStart,
+          endColumn = spanObj.columnSpanEnd,
+          endRow = spanObj.rowSpanEnd;
 
-        if (colIndex <= endColumn) {
-          _Span newSpanObj = _Span();
-          if (colIndex <= startColumn) {
-            startColumn += 1;
-          }
-          endColumn += 1;
-          newSpanObj._start = [startRow, startColumn];
-          newSpanObj._end = [endRow, endColumn];
-          this._spanList[i] = newSpanObj;
-          updateSpanCell = true;
-          _excel._mergeChanges = true;
+      if (colIndex <= endColumn) {
+        _Span newSpanObj = _Span();
+        if (colIndex <= startColumn) {
+          startColumn += 1;
         }
-        String rc = getSpanCellId(startColumn, startRow, endColumn, endRow);
-        if (!_spannedItems.contains(rc)) {
-          this._spannedItems.add(rc);
-        }
+        endColumn += 1;
+        newSpanObj._start = [startRow, startColumn];
+        newSpanObj._end = [endRow, endColumn];
+        _spanList[i] = newSpanObj;
+        updateSpanCell = true;
+        _excel._mergeChanges = true;
+      }
+      String rc = getSpanCellId(startColumn, startRow, endColumn, endRow);
+      if (!_spannedItems.contains(rc)) {
+        _spannedItems.add(rc);
       }
     }
 
     if (updateSpanCell) {
-      _excel._mergeChangeLookup = this.sheetName;
+      _excel._mergeChangeLookup = sheetName;
     }
 
-    if (_isContain(this._sheetData) && this._sheetData.isNotEmpty) {
+    if (_sheetData.isNotEmpty) {
       Map<int, Map<int, Data>> _data = Map<int, Map<int, Data>>();
-      List<int> sortedKeys = this._sheetData.keys.toList()..sort();
-      if (colIndex <= this.maxCols - 1) {
+      List<int> sortedKeys = _sheetData.keys.toList()..sort();
+      if (colIndex <= maxCols - 1) {
         /// do the shifting task
         sortedKeys.forEach((rowKey) {
           Map<int, Data> colMap = Map<int, Data>();
 
           /// getting the cols keys in descending order so as to shifting becomes easy
-          List<int> sortedColKeys = this._sheetData[rowKey].keys.toList()
+          List<int> sortedColKeys = _sheetData[rowKey]!.keys.toList()
             ..sort((a, b) {
               return b.compareTo(a);
             });
           sortedColKeys.forEach((colKey) {
-            if (_isContain(this._sheetData[rowKey]) &&
-                _isContain(this._sheetData[rowKey][colKey])) {
+            if (_sheetData[rowKey] != null &&
+                _sheetData[rowKey]![colKey] != null) {
               if (colKey < colIndex) {
-                colMap[colKey] = this._sheetData[rowKey][colKey];
+                colMap[colKey] = _sheetData[rowKey]![colKey]!;
               }
               if (colIndex <= colKey) {
-                colMap[colKey + 1] = this._sheetData[rowKey][colKey];
+                colMap[colKey + 1] = _sheetData[rowKey]![colKey]!;
               }
             }
           });
           colMap[colIndex] = Data.newData(this, rowKey, colIndex);
           _data[rowKey] = Map<int, Data>.from(colMap);
         });
-        this._sheetData = Map<int, Map<int, Data>>.from(_data);
+        _sheetData = Map<int, Map<int, Data>>.from(_data);
       } else {
         /// just put the data in the very first available row and
         /// in the desired Column index only one time as we will be using less space on internal implementatoin
         /// and mock the user as if the 2-D list is being saved
         ///
         /// As when user calls DataObject.cells then we will output 2-D list - pretending.
-        this._sheetData[sortedKeys.first][colIndex] =
+        _sheetData[sortedKeys.first]![colIndex] =
             Data.newData(this, sortedKeys.first, colIndex);
       }
     } else {
       /// here simply just take the first row and put the columnIndex as the _sheetData was previously null
-      this._sheetData = Map<int, Map<int, Data>>();
-      this._sheetData[0] = {colIndex: Data.newData(this, 0, colIndex)};
+      _sheetData = Map<int, Map<int, Data>>();
+      _sheetData[0] = {colIndex: Data.newData(this, 0, colIndex)};
     }
-    if (this._maxCols - 1 <= colIndex) {
-      this._maxCols += 1;
+    if (_maxCols - 1 <= colIndex) {
+      _maxCols += 1;
     } else {
-      this._maxCols = colIndex + 1;
+      _maxCols = colIndex + 1;
     }
 
     //_countRowAndCol();
@@ -474,81 +480,81 @@ class Sheet {
   /// If `sheet` exists and `rowIndex < maxRows` then it removes row at index = `rowIndex`
   ///
   void removeRow(int rowIndex) {
-    if (rowIndex < 0 || rowIndex >= this._maxRows) {
+    if (rowIndex < 0 || rowIndex >= _maxRows) {
       return;
     }
     _checkMaxRow(rowIndex);
 
     bool updateSpanCell = false;
 
-    if (_spanList != null) {
-      for (int i = 0; i < _spanList.length; i++) {
-        _Span spanObj = _spanList[i];
-        int startColumn = spanObj.columnSpanStart,
-            startRow = spanObj.rowSpanStart,
-            endColumn = spanObj.columnSpanEnd,
-            endRow = spanObj.rowSpanEnd;
+    for (int i = 0; i < _spanList.length; i++) {
+      _Span? spanObj = _spanList[i];
+      if (spanObj == null) {
+        continue;
+      }
+      int startColumn = spanObj.columnSpanStart,
+          startRow = spanObj.rowSpanStart,
+          endColumn = spanObj.columnSpanEnd,
+          endRow = spanObj.rowSpanEnd;
 
-        if (rowIndex <= endRow) {
-          _Span newSpanObj = _Span();
-          if (rowIndex < startRow) {
-            startRow -= 1;
-          }
-          endRow -= 1;
-          if (/* startRow >= endRow */
-              (rowIndex == (endRow + 1)) &&
-                  (rowIndex ==
-                      (rowIndex < startRow ? startRow + 1 : startRow))) {
-            _spanList[i] = null;
-          } else {
-            newSpanObj._start = [startRow, startColumn];
-            newSpanObj._end = [endRow, endColumn];
-            _spanList[i] = newSpanObj;
-          }
-          updateSpanCell = true;
-          _excel._mergeChanges = true;
+      if (rowIndex <= endRow) {
+        _Span newSpanObj = _Span();
+        if (rowIndex < startRow) {
+          startRow -= 1;
         }
-        if (this._spanList[i] != null) {
-          String rc = getSpanCellId(startColumn, startRow, endColumn, endRow);
-          if (!this._spannedItems.contains(rc)) {
-            this._spannedItems.add(rc);
-          }
+        endRow -= 1;
+        if (/* startRow >= endRow */
+            (rowIndex == (endRow + 1)) &&
+                (rowIndex == (rowIndex < startRow ? startRow + 1 : startRow))) {
+          _spanList[i] = null;
+        } else {
+          newSpanObj._start = [startRow, startColumn];
+          newSpanObj._end = [endRow, endColumn];
+          _spanList[i] = newSpanObj;
+        }
+        updateSpanCell = true;
+        _excel._mergeChanges = true;
+      }
+      if (_spanList[i] != null) {
+        String rc = getSpanCellId(startColumn, startRow, endColumn, endRow);
+        if (!_spannedItems.contains(rc)) {
+          _spannedItems.add(rc);
         }
       }
-      _cleanUpSpanMap();
     }
+    _cleanUpSpanMap();
 
     if (updateSpanCell) {
-      _excel._mergeChangeLookup = this.sheetName;
+      _excel._mergeChangeLookup = sheetName;
     }
 
-    if (this._sheetData.isNotEmpty) {
+    if (_sheetData.isNotEmpty) {
       Map<int, Map<int, Data>> _data = Map<int, Map<int, Data>>();
-      if (rowIndex <= this.maxRows - 1) {
+      if (rowIndex <= maxRows - 1) {
         /// do the shifting task
-        List<int> sortedKeys = this._sheetData.keys.toList()..sort();
+        List<int> sortedKeys = _sheetData.keys.toList()..sort();
         sortedKeys.forEach((rowKey) {
-          if (rowKey < rowIndex && _isContain(this._sheetData[rowKey])) {
-            _data[rowKey] = Map<int, Data>.from(this._sheetData[rowKey]);
+          if (rowKey < rowIndex && _sheetData[rowKey] != null) {
+            _data[rowKey] = Map<int, Data>.from(_sheetData[rowKey]!);
           }
-          if (rowIndex == rowKey && _isContain(this._sheetData[rowKey])) {
-            this._sheetData.remove(rowKey);
+          if (rowIndex == rowKey && _sheetData[rowKey] != null) {
+            _sheetData.remove(rowKey);
           }
-          if (rowIndex < rowKey && _isContain(this._sheetData[rowKey])) {
-            _data[rowKey - 1] = Map<int, Data>.from(this._sheetData[rowKey]);
-            this._sheetData.remove(rowKey);
+          if (rowIndex < rowKey && _sheetData[rowKey] != null) {
+            _data[rowKey - 1] = Map<int, Data>.from(_sheetData[rowKey]!);
+            _sheetData.remove(rowKey);
           }
         });
-        this._sheetData = Map<int, Map<int, Data>>.from(_data);
+        _sheetData = Map<int, Map<int, Data>>.from(_data);
       }
       //_countRowAndCol();
     } else {
-      this._maxRows = 0;
-      this._maxCols = 0;
+      _maxRows = 0;
+      _maxCols = 0;
     }
 
-    if (this._maxRows - 1 <= rowIndex) {
-      this._maxRows -= 1;
+    if (_maxRows - 1 <= rowIndex) {
+      _maxRows -= 1;
     }
   }
 
@@ -568,63 +574,64 @@ class Sheet {
 
     bool updateSpanCell = false;
 
-    if (_isContain(this._sheetData)) {
-      this._spannedItems = <String>[];
-      for (int i = 0; i < _spanList.length; i++) {
-        _Span spanObj = _spanList[i];
-        int startColumn = spanObj.columnSpanStart,
-            startRow = spanObj.rowSpanStart,
-            endColumn = spanObj.columnSpanEnd,
-            endRow = spanObj.rowSpanEnd;
+    _spannedItems = <String>[];
+    for (int i = 0; i < _spanList.length; i++) {
+      _Span? spanObj = _spanList[i];
+      if (spanObj == null) {
+        continue;
+      }
+      int startColumn = spanObj.columnSpanStart,
+          startRow = spanObj.rowSpanStart,
+          endColumn = spanObj.columnSpanEnd,
+          endRow = spanObj.rowSpanEnd;
 
-        if (rowIndex <= endRow) {
-          _Span newSpanObj = _Span();
-          if (rowIndex <= startRow) {
-            startRow += 1;
-          }
-          endRow += 1;
-          newSpanObj._start = [startRow, startColumn];
-          newSpanObj._end = [endRow, endColumn];
-          this._spanList[i] = newSpanObj;
-          updateSpanCell = true;
-          _excel._mergeChanges = true;
+      if (rowIndex <= endRow) {
+        _Span newSpanObj = _Span();
+        if (rowIndex <= startRow) {
+          startRow += 1;
         }
-        String rc = getSpanCellId(startColumn, startRow, endColumn, endRow);
-        if (!this._spannedItems.contains(rc)) {
-          this._spannedItems.add(rc);
-        }
+        endRow += 1;
+        newSpanObj._start = [startRow, startColumn];
+        newSpanObj._end = [endRow, endColumn];
+        _spanList[i] = newSpanObj;
+        updateSpanCell = true;
+        _excel._mergeChanges = true;
+      }
+      String rc = getSpanCellId(startColumn, startRow, endColumn, endRow);
+      if (!_spannedItems.contains(rc)) {
+        _spannedItems.add(rc);
       }
     }
 
     if (updateSpanCell) {
-      _excel._mergeChangeLookup = this.sheetName;
+      _excel._mergeChangeLookup = sheetName;
     }
 
     Map<int, Map<int, Data>> _data = Map<int, Map<int, Data>>();
-    if (_isContain(this._sheetData) && this._sheetData.isNotEmpty) {
-      List<int> sortedKeys = this._sheetData.keys.toList()
+    if (_sheetData.isNotEmpty) {
+      List<int> sortedKeys = _sheetData.keys.toList()
         ..sort((a, b) {
           return b.compareTo(a);
         });
-      if (rowIndex <= this.maxRows - 1) {
+      if (rowIndex <= maxRows - 1) {
         /// do the shifting task
         sortedKeys.forEach((rowKey) {
           if (rowKey < rowIndex) {
-            _data[rowKey] = this._sheetData[rowKey];
+            _data[rowKey] = _sheetData[rowKey]!;
           }
           if (rowIndex <= rowKey) {
-            _data[rowKey + 1] = this._sheetData[rowKey];
+            _data[rowKey + 1] = _sheetData[rowKey]!;
           }
         });
       }
     }
     _data[rowIndex] = {0: Data.newData(this, rowIndex, 0)};
-    this._sheetData = Map<int, Map<int, Data>>.from(_data);
+    _sheetData = Map<int, Map<int, Data>>.from(_data);
 
-    if (this._maxRows - 1 <= rowIndex) {
-      this._maxRows += 1;
+    if (_maxRows - 1 <= rowIndex) {
+      _maxRows += 1;
     } else {
-      this._maxRows = rowIndex + 1;
+      _maxRows = rowIndex + 1;
     }
 
     //_countRowAndCol();
@@ -639,7 +646,7 @@ class Sheet {
   ///
   /// If `sheet` does not exist then it will be automatically created.
   ///
-  void updateCell(CellIndex cellIndex, dynamic value, {CellStyle cellStyle}) {
+  void updateCell(CellIndex cellIndex, dynamic value, {CellStyle? cellStyle}) {
     int columnIndex = cellIndex._columnIndex;
     int rowIndex = cellIndex._rowIndex;
     if (columnIndex < 0 || rowIndex < 0 || value == null) {
@@ -652,7 +659,7 @@ class Sheet {
 
     /// Check if this is lying in merged-cell cross-section
     /// If yes then get the starting position of merged cells
-    if (this._spanList.isNotEmpty) {
+    if (_spanList.isNotEmpty) {
       List updatedPosition = _isInsideSpanning(rowIndex, columnIndex);
       newRowIndex = updatedPosition[0];
       newColumnIndex = updatedPosition[1];
@@ -663,7 +670,7 @@ class Sheet {
 
     /// Puts the cellStyle
     if (cellStyle != null) {
-      this._sheetData[newRowIndex][newColumnIndex]._cellStyle = cellStyle;
+      _sheetData[newRowIndex]![newColumnIndex]!._cellStyle = cellStyle;
       _excel._colorChanges = true;
     }
   }
@@ -686,9 +693,8 @@ class Sheet {
 
     if ((startColumn == endColumn && startRow == endRow) ||
         (startColumn < 0 || startRow < 0 || endColumn < 0 || endRow < 0) ||
-        (_spannedItems != null &&
-            _spannedItems.contains(
-                getSpanCellId(startColumn, startRow, endColumn, endRow)))) {
+        (_spannedItems.contains(
+            getSpanCellId(startColumn, startRow, endColumn, endRow)))) {
       return;
     }
 
@@ -711,24 +717,22 @@ class Sheet {
 
     for (int j = startRow; j <= endRow; j++) {
       for (int k = startColumn; k <= endColumn; k++) {
-        if (_isContain(this._sheetData) &&
-            _isContain(this._sheetData[j]) &&
-            _isContain(this._sheetData[j][k])) {
+        if (_sheetData[j] != null && _sheetData[j]![k] != null) {
           if (getValue &&
-              this._sheetData[j][k].value != null &&
-              this._sheetData[j][k].cellStyle != null) {
-            value = this._sheetData[j][k];
+              _sheetData[j]![k]!.value != null &&
+              _sheetData[j]![k]!.cellStyle != null) {
+            value = _sheetData[j]![k]!;
             getValue = false;
           }
-          this._sheetData[j].remove(k);
+          _sheetData[j]!.remove(k);
         }
       }
     }
 
-    if (_isContain(this._sheetData[startRow])) {
-      this._sheetData[startRow][startColumn] = value;
+    if (_sheetData[startRow] != null) {
+      _sheetData[startRow]![startColumn] = value;
     } else {
-      this._sheetData[startRow] = {startColumn: value};
+      _sheetData[startRow] = {startColumn: value};
     }
 
     String sp = getSpanCellId(startColumn, startRow, endColumn, endRow);
@@ -742,7 +746,7 @@ class Sheet {
     s._end = [endRow, endColumn];
 
     _spanList.add(s);
-    _excel._mergeChangeLookup = this.sheetName;
+    _excel._mergeChangeLookup = sheetName;
   }
 
   ///
@@ -754,8 +758,7 @@ class Sheet {
   ///        excel.unMerge(sheet, cellToUnMerge);
   ///
   unMerge(String unmergeCells) {
-    if (unmergeCells != null &&
-        _spannedItems.isNotEmpty &&
+    if (_spannedItems.isNotEmpty &&
         _spanList.isNotEmpty &&
         _spannedItems.contains(unmergeCells)) {
       List<String> lis = unmergeCells.split(RegExp(r":"));
@@ -766,7 +769,10 @@ class Sheet {
             _cellCoordsFromCellId(lis[0]); // [x,y] => [startRow, startColumn]
         end = _cellCoordsFromCellId(lis[1]); // [x,y] => [endRow, endColumn]
         for (int i = 0; i < _spanList.length; i++) {
-          _Span spanObject = _spanList[i];
+          _Span? spanObject = _spanList[i];
+          if (spanObject == null) {
+            continue;
+          }
 
           if (spanObject.columnSpanStart == start[1] &&
               spanObject.rowSpanStart == start[0] &&
@@ -781,7 +787,7 @@ class Sheet {
         }
       }
       _spannedItems.remove(unmergeCells);
-      _excel._mergeChangeLookup = this.sheetName;
+      _excel._mergeChangeLookup = sheetName;
     }
   }
 
@@ -805,33 +811,40 @@ class Sheet {
       startColumn = end._columnIndex;
     }
 
-    if (_spanList != null) {
-      for (int i = 0; i < _spanList.length; i++) {
-        _Span spanObj = _spanList[i];
-
-        Map<String, List<int>> gotMap = _isLocationChangeRequired(
-            startColumn, startRow, endColumn, endRow, spanObj);
-        List<int> gotPosition = gotMap['gotPosition'];
-        int changeValue = gotMap['changeValue'][0];
-
-        if (changeValue == 1) {
-          startColumn = gotPosition[0];
-          startRow = gotPosition[1];
-          endColumn = gotPosition[2];
-          endRow = gotPosition[3];
-          String sp = getSpanCellId(spanObj.columnSpanStart,
-              spanObj.rowSpanStart, spanObj.columnSpanEnd, spanObj.rowSpanEnd);
-          if (_spannedItems != null && _spannedItems.contains(sp)) {
-            _spannedItems.remove(sp);
-          }
-          remove = true;
-          _spanList[i] = null;
-        }
+    for (int i = 0; i < _spanList.length; i++) {
+      _Span? spanObj = _spanList[i];
+      if (spanObj == null) {
+        continue;
       }
-      if (remove) {
-        _cleanUpSpanMap();
+
+      /* Map<String, List<int>> gotMap = _isLocationChangeRequired(
+          startColumn, startRow, endColumn, endRow, spanObj);
+      List<int> gotPosition = gotMap['gotPosition'];
+      int changeValue = gotMap['changeValue'][0]; */
+
+      List gotMap = _isLocationChangeRequired(
+          startColumn, startRow, endColumn, endRow, spanObj);
+      List<int> gotPosition = gotMap[1];
+      bool changeValue = gotMap[0];
+
+      if (changeValue) {
+        startColumn = gotPosition[0];
+        startRow = gotPosition[1];
+        endColumn = gotPosition[2];
+        endRow = gotPosition[3];
+        String sp = getSpanCellId(spanObj.columnSpanStart, spanObj.rowSpanStart,
+            spanObj.columnSpanEnd, spanObj.rowSpanEnd);
+        if (_spannedItems.contains(sp)) {
+          _spannedItems.remove(sp);
+        }
+        remove = true;
+        _spanList[i] = null;
       }
     }
+    if (remove) {
+      _cleanUpSpanMap();
+    }
+
     return [startColumn, startRow, endColumn, endRow];
   }
 
@@ -839,18 +852,18 @@ class Sheet {
   /// Appends [row] iterables just post the last filled `rowIndex`.
   ///
   appendRow(List<dynamic> row) {
-    int targetRow = this.maxRows;
+    int targetRow = maxRows;
     insertRowIterables(row, targetRow);
   }
 
   /// getting the List of _Span Objects which have the rowIndex containing and
   /// also lower the range by giving the starting columnIndex
   List<_Span> _getSpannedObjects(int rowIndex, int startingColumnIndex) {
-    List<_Span> obtained;
+    List<_Span> obtained = <_Span>[];
 
-    if (this._spanList.isNotEmpty) {
-      obtained = List<_Span>();
-      this._spanList.forEach((spanObject) {
+    if (_spanList.isNotEmpty) {
+      obtained = <_Span>[];
+      _spanList.forEach((spanObject) {
         if (spanObject != null &&
             spanObject.rowSpanStart <= rowIndex &&
             rowIndex <= spanObject.rowSpanEnd &&
@@ -870,8 +883,7 @@ class Sheet {
     for (int i = 0; i < spanObjectList.length; i++) {
       _Span spanObject = spanObjectList[i];
 
-      if (spanObject != null &&
-          spanObject.columnSpanStart <= columnIndex &&
+      if (spanObject.columnSpanStart <= columnIndex &&
           columnIndex <= spanObject.columnSpanEnd &&
           spanObject.rowSpanStart <= rowIndex &&
           rowIndex <= spanObject.rowSpanEnd) {
@@ -896,7 +908,7 @@ class Sheet {
   ///
   insertRowIterables(List<dynamic> row, int rowIndex,
       {int startingColumn = 0, bool overwriteMergedCells = true}) {
-    if (row == null || row.length == 0 || rowIndex == null || rowIndex < 0) {
+    if (row.length == 0 || rowIndex < 0) {
       return;
     }
 
@@ -906,7 +918,7 @@ class Sheet {
       columnIndex = startingColumn;
     }
     _checkMaxCol(columnIndex + row.length);
-    int rowsLength = this._maxRows,
+    int rowsLength = _maxRows,
         maxIterationIndex = row.length - 1,
         currentRowPosition = 0; // position in [row] iterables
 
@@ -923,7 +935,7 @@ class Sheet {
       _selfCorrectSpanMap(_excel);
       List<_Span> _spanObjectsList = _getSpannedObjects(rowIndex, columnIndex);
 
-      if (_spanObjectsList == null || _spanObjectsList.length <= 0) {
+      if (_spanObjectsList.length <= 0) {
         while (currentRowPosition <= maxIterationIndex) {
           _putData(rowIndex, columnIndex, row[currentRowPosition]);
           currentRowPosition++;
@@ -941,8 +953,8 @@ class Sheet {
     }
     //int tempo_max_col = columnIndex + row.length - 1;
 
-    //if (this._maxCols - 1 < tempo_max_col) {
-    //  this._maxCols = tempo_max_col + 1;
+    //if (_maxCols - 1 < tempo_max_col) {
+    //  _maxCols = tempo_max_col + 1;
     //}
   }
 
@@ -950,36 +962,36 @@ class Sheet {
   /// Internal function for putting the data in `_sheetData`.
   ///
   _putData(int rowIndex, int columnIndex, dynamic value) {
-    if (_isContain(this._sheetData[rowIndex])) {
-      if (!_isContain(this._sheetData[rowIndex][columnIndex])) {
-        this._sheetData[rowIndex][columnIndex] =
+    if (_sheetData[rowIndex] != null) {
+      if (_sheetData[rowIndex]![columnIndex] == null) {
+        _sheetData[rowIndex]![columnIndex] =
             Data.newData(this, rowIndex, columnIndex);
       }
     } else {
-      this._sheetData[rowIndex] = {
+      _sheetData[rowIndex] = {
         columnIndex: Data.newData(this, rowIndex, columnIndex)
       };
     }
-    this._sheetData[rowIndex][columnIndex]._value = value;
+    _sheetData[rowIndex]![columnIndex]!._value = value;
 
     /// Sets value of `isFormula` to true if this is `instance of Formula`.
-    this._sheetData[rowIndex][columnIndex]._isFormula =
+    _sheetData[rowIndex]![columnIndex]!._isFormula =
         value is Formula || value.runtimeType == Formula;
 
     /// Sets type of the Data to `_cellType`
-    this._sheetData[rowIndex][columnIndex]._cellType =
+    _sheetData[rowIndex]![columnIndex]!._cellType =
         _getCellType(value.runtimeType);
 
     if (value.runtimeType == String) {
-      _excel._sharedStrings.add(value);
+      _excel._sharedStrings.list.add(value);
     }
 
-    if (this._maxCols - 1 < columnIndex) {
-      this._maxCols = columnIndex + 1;
+    if (_maxCols - 1 < columnIndex) {
+      _maxCols = columnIndex + 1;
     }
 
-    if (this._maxRows - 1 < rowIndex) {
-      this._maxRows = rowIndex + 1;
+    if (_maxRows - 1 < rowIndex) {
+      _maxRows = rowIndex + 1;
     }
 
     //_countRowAndCol();
@@ -990,17 +1002,17 @@ class Sheet {
   ///
   /// Row Indexing starts from 0
   ///
-  double _getRowHeight(int rowIndex) {
+  /* double _getRowHeight(int rowIndex) {
     _checkMaxRow(rowIndex);
     if (rowIndex < _rowHeight.length) return _rowHeight[rowIndex];
 
     return 15.75;
-  }
+  } */
 
   ///
   /// Set Row Height
   ///
-  void _setRowHeight(int rowIndex, double rowHeight) {
+  /* void _setRowHeight(int rowIndex, double rowHeight) {
     _checkMaxRow(rowIndex);
     if (rowHeight < 0) return;
 
@@ -1008,20 +1020,20 @@ class Sheet {
       _rowHeight.add(15.75);
     }
     _rowHeight[rowIndex] = rowHeight;
-  }
+  } */
 
   ///
   /// Get Col Width
   ///
-  double _getColWidth(int colIndex) {
+  /* double _getColWidth(int colIndex) {
     _checkMaxCol(colIndex);
     return _colWidth[colIndex] ?? 14.43;
-  }
+  } */
 
   ///
   /// Get Col Width
   ///
-  void _setColWidth(int colIndex, double colWidth) {
+  /* void _setColWidth(int colIndex, double colWidth) {
     _checkMaxCol(colIndex);
     if (colWidth < 0) return;
 
@@ -1029,7 +1041,7 @@ class Sheet {
       _colWidth.add(15.75);
     }
     _colWidth[colIndex] = colWidth;
-  }
+  } */
 
   CellType _getCellType(var type) {
     switch (type) {
@@ -1098,7 +1110,7 @@ class Sheet {
       }
     }
 
-    int rowsLength = this.maxRows, columnLength = this.maxCols;
+    int rowsLength = maxRows, columnLength = maxCols;
     RegExp sourceRegx;
     if (source.runtimeType == RegExp) {
       sourceRegx = source;
@@ -1114,13 +1126,12 @@ class Sheet {
         if (_endingColumn != -1 && j > _endingColumn) {
           break;
         }
-        if (this._sheetData.isNotEmpty &&
-            _isContain(this._sheetData[i]) &&
-            _isContain(this._sheetData[i][j]) &&
-            sourceRegx.hasMatch(this._sheetData[i][j].value.toString()) &&
+        if (_sheetData.isNotEmpty &&
+            _sheetData[i] != null &&
+            _sheetData[i]![j] != null &&
+            sourceRegx.hasMatch(_sheetData[i]![j]!.value.toString()) &&
             (first == -1 || first != replaceCount)) {
-          this
-              ._sheetData[i][j]
+          _sheetData[i]![j]!
               .value
               .toString()
               .replaceAll(sourceRegx, target.toString());
@@ -1147,28 +1158,27 @@ class Sheet {
     /// If this row exists then we check for the span condition
     bool isNotInside = true;
 
-    if (_isContain(this._sheetData) &&
-        _isContain(this._sheetData[rowIndex]) &&
-        this._sheetData[rowIndex].isNotEmpty) {
+    if (_sheetData[rowIndex] != null && _sheetData[rowIndex]!.isNotEmpty) {
       /// lets start iterating the spanList and check that if the row is inside the spanList or not
       /// we will expect that value of isNotInside should not be changed to false
       /// If it changes to false then we can't clear this row as it is inside the spanned Cells
-      if (this._spanList != null) {
-        for (int i = 0; i < this._spanList.length; i++) {
-          _Span spanObj = this._spanList[i];
-          if (rowIndex >= spanObj.rowSpanStart &&
-              rowIndex <= spanObj.rowSpanEnd) {
-            isNotInside = false;
-            break;
-          }
+      for (int i = 0; i < _spanList.length; i++) {
+        _Span? spanObj = _spanList[i];
+        if (spanObj == null) {
+          continue;
+        }
+        if (rowIndex >= spanObj.rowSpanStart &&
+            rowIndex <= spanObj.rowSpanEnd) {
+          isNotInside = false;
+          break;
         }
       }
 
       /// As the row is not inside any SpanList so we can easily clear its content.
       if (isNotInside) {
-        this._sheetData[rowIndex].keys.toList().forEach((key) {
+        _sheetData[rowIndex]!.keys.toList().forEach((key) {
           /// Main concern here is to [clear the contents] and [not remove] the entire row or the cell block
-          this._sheetData[rowIndex][key] = Data.newData(this, rowIndex, key);
+          _sheetData[rowIndex]![key] = Data.newData(this, rowIndex, key);
         });
       }
     }
@@ -1185,18 +1195,19 @@ class Sheet {
   List<int> _isInsideSpanning(int rowIndex, int columnIndex) {
     int newRowIndex = rowIndex, newColumnIndex = columnIndex;
 
-    if (this._spanList != null && this._spanList.isNotEmpty) {
-      for (int i = 0; i < this._spanList.length; i++) {
-        _Span spanObj = this._spanList[i];
+    for (int i = 0; i < _spanList.length; i++) {
+      _Span? spanObj = _spanList[i];
+      if (spanObj == null) {
+        continue;
+      }
 
-        if (rowIndex >= spanObj.rowSpanStart &&
-            rowIndex <= spanObj.rowSpanEnd &&
-            columnIndex >= spanObj.columnSpanStart &&
-            columnIndex <= spanObj.columnSpanEnd) {
-          newRowIndex = spanObj.rowSpanStart;
-          newColumnIndex = spanObj.columnSpanStart;
-          break;
-        }
+      if (rowIndex >= spanObj.rowSpanStart &&
+          rowIndex <= spanObj.rowSpanEnd &&
+          columnIndex >= spanObj.columnSpanStart &&
+          columnIndex <= spanObj.columnSpanEnd) {
+        newRowIndex = spanObj.rowSpanStart;
+        newColumnIndex = spanObj.columnSpanStart;
+        break;
       }
     }
 
@@ -1207,7 +1218,7 @@ class Sheet {
   ///Check if columnIndex is not out of `Excel Column limits`.
   ///
   _checkMaxCol(int colIndex) {
-    if (this._maxCols >= 16384 || colIndex >= 16384) {
+    if (_maxCols >= 16384 || colIndex >= 16384) {
       throw ArgumentError('Reached Max (16384) or (XFD) columns value.');
     }
     if (colIndex < 0) {
@@ -1219,7 +1230,7 @@ class Sheet {
   ///Check if rowIndex is not out of `Excel Row limits`.
   ///
   _checkMaxRow(int rowIndex) {
-    if (this._maxRows >= 1048576 || rowIndex >= 1048576) {
+    if (_maxRows >= 1048576 || rowIndex >= 1048576) {
       throw ArgumentError('Reached Max (1048576) rows value.');
     }
     if (rowIndex < 0) {
@@ -1235,27 +1246,29 @@ class Sheet {
   ///return type if String based cell-id
   ///
   List<String> get spannedItems {
-    this._spannedItems = <String>[];
+    _spannedItems = <String>[];
 
-    if (this._spanList != null && this._spanList.isNotEmpty) {
-      this._spanList.forEach((spanObj) {
-        String rC = getSpanCellId(spanObj.columnSpanStart, spanObj.rowSpanStart,
-            spanObj.columnSpanEnd, spanObj.rowSpanEnd);
-        if (!this._spannedItems.contains(rC)) {
-          this._spannedItems.add(rC);
-        }
-      });
+    for (int i = 0; i < _spanList.length; i++) {
+      _Span? spanObj = _spanList[i];
+      if (spanObj == null) {
+        continue;
+      }
+      String rC = getSpanCellId(spanObj.columnSpanStart, spanObj.rowSpanStart,
+          spanObj.columnSpanEnd, spanObj.rowSpanEnd);
+      if (!_spannedItems.contains(rC)) {
+        _spannedItems.add(rC);
+      }
     }
 
-    return this._spannedItems;
+    return _spannedItems;
   }
 
   ///
   ///Cleans the `_SpanList` by removing the indexes where null value exists.
   ///
   _cleanUpSpanMap() {
-    if (_spanList != null && _spanList.isNotEmpty) {
-      this._spanList.removeWhere((value) {
+    if (_spanList.isNotEmpty) {
+      _spanList.removeWhere((value) {
         return value == null;
       });
     }
@@ -1272,19 +1285,19 @@ class Sheet {
   ///
   ///
   List<Data> row(int rowIndex) {
-    if (rowIndex == null || rowIndex < 0) {
-      return [];
+    if (rowIndex < 0) {
+      return <Data>[];
     }
-    if (rowIndex < this._maxRows) {
-      if (_isContain(this._sheetData[rowIndex])) {
-        return List.generate(this.maxCols, (colIndex) {
-          if (_isContain(this._sheetData[rowIndex][colIndex])) {
-            return this._sheetData[rowIndex][colIndex];
+    if (rowIndex < _maxRows) {
+      if (_sheetData[rowIndex] != null) {
+        return List.generate(maxCols, (colIndex) {
+          if (_sheetData[rowIndex]![colIndex] != null) {
+            return _sheetData[rowIndex]![colIndex]!;
           }
           return Data.newData(this, rowIndex, colIndex);
         });
       } else {
-        return List.generate(this.maxCols, (colIndex) {
+        return List.generate(maxCols, (colIndex) {
           return Data.newData(this, rowIndex, colIndex);
         });
       }

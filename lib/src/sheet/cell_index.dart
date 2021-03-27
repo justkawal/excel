@@ -1,9 +1,10 @@
 part of excel;
 
-class CellIndex {
-  CellIndex._({int col, int row}) {
-    this._columnIndex = col;
-    this._rowIndex = row;
+class CellIndex extends Equatable {
+  CellIndex._({int? col, int? row}) {
+    assert(col != null && row != null);
+    this._columnIndex = col!;
+    this._rowIndex = row!;
   }
 
   ///
@@ -11,8 +12,9 @@ class CellIndex {
   ///CellIndex.indexByColumnRow(columnIndex: 0, rowIndex: 0 ); // A1
   ///CellIndex.indexByColumnRow(columnIndex: 0, rowIndex: 1 ); // A2
   ///```
-  static CellIndex indexByColumnRow({int columnIndex, int rowIndex}) {
-    return CellIndex._(col: columnIndex, row: rowIndex);
+  static CellIndex indexByColumnRow({int? columnIndex, int? rowIndex}) {
+    assert(columnIndex != null && rowIndex != null);
+    return CellIndex._(col: columnIndex!, row: rowIndex!);
   }
 
   ///
@@ -25,19 +27,27 @@ class CellIndex {
     return CellIndex._(row: li[0], col: li[1]);
   }
 
+  /// Avoid using it as it is very process expensive function.
+  ///
+  /// ```
+  /// var cellIndex = CellIndex.indexByColumnRow(columnIndex: 0, rowIndex: 0 );
+  /// var cell = cellIndex.cellId; // A1
   String get cellId {
     return getCellId(this.columnIndex, this.rowIndex);
   }
 
-  int _rowIndex;
+  late int _rowIndex;
 
   int get rowIndex {
     return this._rowIndex;
   }
 
-  int _columnIndex;
+  late int _columnIndex;
 
   int get columnIndex {
     return this._columnIndex;
   }
+
+  @override
+  List<Object?> get props => [_rowIndex, _columnIndex];
 }

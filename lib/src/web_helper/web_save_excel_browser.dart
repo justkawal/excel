@@ -9,12 +9,12 @@ class SavingHelper {
       ..href = url
       ..style.display = 'none'
       ..download = '$fileName';
-    html.document.body.children.add(anchor);
+    html.document.body?.children.add(anchor);
 
     // download the file
     anchor.click();
     // cleanup
-    html.document.body.children.remove(anchor);
+    html.document.body?.children.remove(anchor);
     html.Url.revokeObjectUrl(url);
     return val;
   }

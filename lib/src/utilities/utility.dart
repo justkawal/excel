@@ -1,9 +1,5 @@
 part of excel;
 
-bool _isContain(dynamic d) {
-  return (d ?? null) != null;
-}
-
 List<String> _noCompression = <String>[
   'mimetype',
   'Thumbnails/thumbnail.png',
@@ -143,12 +139,8 @@ List<int> _cellCoordsFromCellId(String cellId) {
 ///Throw error at situation where further processing is not possible
 ///It is also called when important parts of excel files are missing as corrupted excel file is used
 ///
-_damagedExcel({String? text}) {
-  String t = '\nDamaged Excel file:';
-  if (text != null) {
-    t += ' $text';
-  }
-  throw ArgumentError(t + '\n');
+_damagedExcel({String text = ''}) {
+  throw ArgumentError('\nDamaged Excel file: $text\n');
 }
 
 ///
@@ -161,11 +153,9 @@ String getSpanCellId(int startColumn, int startRow, int endColumn, int endRow) {
 ///
 ///returns updated SpanObject location as there might be cross-sectional interaction between the two spanning objects.
 ///
-Map<String, List<int>> _isLocationChangeRequired(
+List _isLocationChangeRequired(
     int startColumn, int startRow, int endColumn, int endRow, _Span spanObj) {
-  bool changeValue = false;
-
-  changeValue = (
+  bool changeValue = (
           // Overlapping checker
           startRow <= spanObj.rowSpanStart &&
               startColumn <= spanObj.columnSpanStart &&
@@ -215,10 +205,10 @@ Map<String, List<int>> _isLocationChangeRequired(
     }
   }
 
-  return Map<String, List<int>>.from({
-    "changeValue": List<int>.from([changeValue ? 1 : 0]),
-    "gotPosition": List<int>.from([startColumn, startRow, endColumn, endRow])
-  });
+  return List.from([
+    changeValue,
+    [startColumn, startRow, endColumn, endRow]
+  ]);
 }
 
 ///

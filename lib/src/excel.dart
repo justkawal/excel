@@ -22,39 +22,28 @@ Excel _newExcel(Archive archive) {
 
 /// Decode a excel file.
 class Excel {
-  bool _colorChanges, _mergeChanges, _rtlChanges;
-  Archive _archive;
-  Map<String, XmlNode> _sheets;
-  Map<String, XmlDocument> _xmlFiles;
-  Map<String, String> _xmlSheetId;
-  Map<String, Map<String, int>> _cellStyleReferenced;
-  Map<String, Sheet> _sheetMap;
-  List<CellStyle> _cellStyleList;
-  List<String> _patternFill, _mergeChangeLook, _rtlChangeLook;
-  _SharedStringsMaintainer _sharedStrings;
-  List<_FontStyle> _fontStyleList;
-  List<int> _numFormats;
-  String _stylesTarget, _sharedStringsTarget, _defaultSheet;
-  Parser parser;
+  bool _colorChanges = false, _mergeChanges = false, _rtlChanges = false;
+  late Archive _archive;
+  Map<String, XmlNode> _sheets = <String, XmlNode>{};
+  Map<String, XmlDocument> _xmlFiles = <String, XmlDocument>{};
+  Map<String, String> _xmlSheetId = <String, String>{};
+  Map<String, Map<String, int>> _cellStyleReferenced =
+      <String, Map<String, int>>{};
+  Map<String, Sheet> _sheetMap = <String, Sheet>{};
+  List<CellStyle> _cellStyleList = <CellStyle>[];
+  List<String> _patternFill = <String>[],
+      _mergeChangeLook = <String>[],
+      _rtlChangeLook = <String>[];
+  late _SharedStringsMaintainer _sharedStrings;
+  List<_FontStyle> _fontStyleList = <_FontStyle>[];
+  List<int> _numFormats = <int>[];
+  late String _stylesTarget, _sharedStringsTarget;
+  late String? _defaultSheet;
+  late Parser parser;
 
   Excel._(Archive archive) {
     _archive = archive;
-    _colorChanges = false;
-    _mergeChanges = false;
-    _rtlChanges = false;
-    _sheets = <String, XmlNode>{};
-    _xmlFiles = <String, XmlDocument>{};
-    _xmlSheetId = <String, String>{};
-    _sheetMap = <String, Sheet>{};
-    _cellStyleReferenced = <String, Map<String, int>>{};
-    _fontStyleList = <_FontStyle>[];
-    _patternFill = <String>[];
     _sharedStrings = _SharedStringsMaintainer.instance;
-    _sharedStrings.clear();
-    _cellStyleList = <CellStyle>[];
-    _mergeChangeLook = <String>[];
-    _rtlChangeLook = <String>[];
-    _numFormats = <int>[];
     parser = Parser._(this);
     parser._startParsing();
   }
@@ -90,7 +79,7 @@ class Excel {
   ///
   Sheet operator [](String sheet) {
     _availSheet(sheet);
-    return _sheetMap[sheet];
+    return _sheetMap[sheet]!;
   }
 
   ///
@@ -121,14 +110,14 @@ class Excel {
   ///Important Note: After linkage the operations performed on `sheet1`, will also get performed on `sheet2Object` and `vica-versa`.
   ///
   void link(String sheet1, Sheet existingSheetObject) {
-    if (_isContain(_sheetMap[existingSheetObject.sheetName])) {
+    if (_sheetMap[existingSheetObject.sheetName] != null) {
       _availSheet(sheet1);
 
-      _sheetMap[sheet1] = _sheetMap[existingSheetObject.sheetName];
+      _sheetMap[sheet1] = _sheetMap[existingSheetObject.sheetName]!;
 
-      if (_isContain(_cellStyleReferenced[existingSheetObject.sheetName])) {
+      if (_cellStyleReferenced[existingSheetObject.sheetName] != null) {
         _cellStyleReferenced[sheet1] = Map<String, int>.from(
-            _cellStyleReferenced[existingSheetObject.sheetName]);
+            _cellStyleReferenced[existingSheetObject.sheetName]!);
       }
     }
   }
@@ -137,7 +126,7 @@ class Excel {
   ///If `sheet` is linked with any other sheet's object then it's link will be broke
   ///
   void unLink(String sheet) {
-    if (_isContain(_sheetMap[sheet])) {
+    if (_sheetMap[sheet] != null) {
       ///
       /// copying the sheet into itself thus resulting in breaking the linkage as Sheet._clone() will provide new reference;
       copy(sheet, sheet);
@@ -152,12 +141,12 @@ class Excel {
   ///If `toSheet` does not exist then it will be automatically created.
   ///
   void copy(String fromSheet, String toSheet) {
-    if (_isContain(_sheetMap[fromSheet])) {
+    if (_sheetMap[fromSheet] != null) {
       this[toSheet] = this[fromSheet];
     }
-    if (_isContain(_cellStyleReferenced[fromSheet])) {
+    if (_cellStyleReferenced[fromSheet] != null) {
       _cellStyleReferenced[toSheet] =
-          Map<String, int>.from(_cellStyleReferenced[fromSheet]);
+          Map<String, int>.from(_cellStyleReferenced[fromSheet]!);
     }
   }
 
@@ -167,8 +156,7 @@ class Excel {
   ///In order to rename : `oldSheetName` should exist in `excel.tables.keys` and `newSheetName` must not exist.
   ///
   void rename(String oldSheetName, String newSheetName) {
-    if (_isContain(_sheetMap[oldSheetName]) &&
-        !_isContain(_sheetMap[newSheetName])) {
+    if (_sheetMap[oldSheetName] != null && _sheetMap[newSheetName] == null) {
       ///
       /// rename from _defaultSheet var also
       if (_defaultSheet == oldSheetName) {
@@ -192,7 +180,7 @@ class Excel {
 
     ///
     /// If it is not the last sheet then `delete` otherwise `return`;
-    if (_sheetMap == null || _sheetMap.length <= 1) {
+    if (_sheetMap.length <= 1) {
       return;
     }
 
@@ -204,7 +192,7 @@ class Excel {
 
     ///
     /// remove the `Sheet Object` from `_sheetMap`.
-    if (_isContain(_sheetMap[sheet])) {
+    if (_sheetMap[sheet] != null) {
       _sheetMap.remove(sheet);
     }
 
@@ -222,13 +210,13 @@ class Excel {
 
     ///
     /// remove from `_xmlSheetId`.
-    if (_isContain(_xmlSheetId[sheet])) {
+    if (_xmlSheetId[sheet] != null) {
       String sheetId1 = "worksheets" +
               _xmlSheetId[sheet].toString().split('worksheets')[1].toString(),
-          sheetId2 = _xmlSheetId[sheet];
+          sheetId2 = _xmlSheetId[sheet]!;
 
       _xmlFiles['xl/_rels/workbook.xml.rels']
-          .rootElement
+          ?.rootElement
           .children
           .removeWhere((_sheetName) {
         return _sheetName.getAttribute('Target') != null &&
@@ -236,7 +224,7 @@ class Excel {
       });
 
       _xmlFiles['[Content_Types].xml']
-          .rootElement
+          ?.rootElement
           .children
           .removeWhere((_sheetName) {
         return _sheetName.getAttribute('PartName') != null &&
@@ -252,7 +240,7 @@ class Excel {
 
       ///
       /// Also remove from the _xmlFiles list as we might want to create this sheet again from new starting.
-      if (_isContain(_xmlFiles[_xmlSheetId[sheet]])) {
+      if (_xmlFiles[_xmlSheetId[sheet]] != null) {
         _xmlFiles.remove(_xmlSheetId[sheet]);
       }
 
@@ -261,12 +249,12 @@ class Excel {
 
     ///
     /// remove from key = `sheet` from `_sheets`
-    if (_isContain(_sheets[sheet])) {
+    if (_sheets[sheet] != null) {
       ///
       /// Remove from `xl/workbook.xml`
       ///
       _xmlFiles['xl/workbook.xml']
-          .findAllElements('sheets')
+          ?.findAllElements('sheets')
           .first
           .children
           .removeWhere((element) {
@@ -279,7 +267,7 @@ class Excel {
 
     ///
     /// remove the cellStlye Referencing as it would be useless to have cellStyleReferenced saved
-    if (_isContain(_cellStyleReferenced[sheet])) {
+    if (_cellStyleReferenced[sheet] != null) {
       _cellStyleReferenced.remove(sheet);
     }
   }
@@ -301,17 +289,17 @@ class Excel {
   ///
   /// ```
   /// `On Android / iOS`
-  /// 
+  ///
   /// For getting directory on Android or iOS, Use: [path_provider](https://pub.dev/packages/path_provider)
   /// ```
   /// // Call function save() to download the file
   /// excel.save().then((fileBytes) async {
   ///   var directory = await getApplicationDocumentsDirectory();
-  /// 
+  ///
   ///   File(join("$directory/output_file_name.xlsx"))
   ///     ..createSync(recursive: true)
   ///     ..writeAsBytesSync(fileBytes);
-  /// 
+  ///
   /// });
   ///```
   Future<List<int>> save({
@@ -325,11 +313,11 @@ class Excel {
   ///
   ///returns the name of the `defaultSheet` (the sheet which opens firstly when xlsx file is opened in `excel based software`).
   ///
-  Future<String> getDefaultSheet() async {
+  Future<String?> getDefaultSheet() async {
     if (_defaultSheet != null) {
       return _defaultSheet;
     } else {
-      String re = await _getDefaultSheet();
+      String? re = await _getDefaultSheet();
       return re;
     }
   }
@@ -337,9 +325,13 @@ class Excel {
   ///
   ///Internal function which returns the defaultSheet-Name by reading from `workbook.xml`
   ///
-  Future<String> _getDefaultSheet() async {
-    XmlElement _sheet =
-        _xmlFiles['xl/workbook.xml'].findAllElements('sheet').first;
+  Future<String?> _getDefaultSheet() async {
+    Iterable<XmlElement>? elements =
+        _xmlFiles['xl/workbook.xml']?.findAllElements('sheet');
+    XmlElement? _sheet;
+    if (elements?.isNotEmpty ?? false) {
+      _sheet = elements?.first;
+    }
 
     if (_sheet != null) {
       var defaultSheet = _sheet.getAttribute('name');
@@ -357,7 +349,7 @@ class Excel {
   ///It returns `true` if the passed `sheetName` is successfully set to `default opening sheet` otherwise returns `false`.
   ///
   Future<bool> setDefaultSheet(String sheetName) async {
-    if (_isContain(_sheetMap[sheetName])) {
+    if (_sheetMap[sheetName] != null) {
       _defaultSheet = sheetName;
       return true;
     }
@@ -372,21 +364,19 @@ class Excel {
   ///If the `sheet` does not exists then it will be created automatically.
   ///
   void insertColumn(String sheet, int columnIndex) {
-    if (columnIndex == null || columnIndex < 0) {
+    if (columnIndex < 0) {
       return;
     }
     _availSheet(sheet);
-    _sheetMap[sheet].insertColumn(columnIndex);
+    _sheetMap[sheet]!.insertColumn(columnIndex);
   }
 
   ///
   ///If `sheet` exists and `columnIndex < maxColumns` then it removes column at index = `columnIndex`
   ///
   void removeColumn(String sheet, int columnIndex) {
-    if (columnIndex != null &&
-        columnIndex >= 0 &&
-        _isContain(_sheetMap[sheet])) {
-      _sheetMap[sheet].removeColumn(columnIndex);
+    if (columnIndex >= 0 && _sheetMap[sheet] != null) {
+      _sheetMap[sheet]!.removeColumn(columnIndex);
     }
   }
 
@@ -398,19 +388,19 @@ class Excel {
   ///If the `sheet` does not exists then it will be created automatically.
   ///
   void insertRow(String sheet, int rowIndex) {
-    if (rowIndex != null && rowIndex < 0) {
+    if (rowIndex < 0) {
       return;
     }
     _availSheet(sheet);
-    _sheetMap[sheet].insertRow(rowIndex);
+    _sheetMap[sheet]!.insertRow(rowIndex);
   }
 
   ///
   ///If `sheet` exists and `rowIndex < maxRows` then it removes row at index = `rowIndex`
   ///
   void removeRow(String sheet, int rowIndex) {
-    if (rowIndex != null && rowIndex >= 0 && _isContain(_sheetMap[sheet])) {
-      _sheetMap[sheet].removeRow(rowIndex);
+    if (rowIndex >= 0 && _sheetMap[sheet] != null) {
+      _sheetMap[sheet]!.removeRow(rowIndex);
     }
   }
 
@@ -420,11 +410,11 @@ class Excel {
   ///If `sheet` does not exist then it will be automatically created.
   ///
   void appendRow(String sheet, List<dynamic> row) {
-    if (row == null || row.length == 0) {
+    if (row.length == 0) {
       return;
     }
     _availSheet(sheet);
-    int targetRow = _sheetMap[sheet].maxRows;
+    int targetRow = _sheetMap[sheet]!.maxRows;
     insertRowIterables(sheet, row, targetRow);
   }
 
@@ -441,11 +431,11 @@ class Excel {
   ///
   void insertRowIterables(String sheet, List<dynamic> row, int rowIndex,
       {int startingColumn = 0, bool overwriteMergedCells = true}) {
-    if (rowIndex == null || rowIndex < 0) {
+    if (rowIndex < 0) {
       return;
     }
     _availSheet(sheet);
-    _sheetMap['$sheet'].insertRowIterables(row, rowIndex,
+    _sheetMap['$sheet']!.insertRowIterables(row, rowIndex,
         startingColumn: startingColumn,
         overwriteMergedCells: overwriteMergedCells);
   }
@@ -477,9 +467,9 @@ class Excel {
       int startingColumn = -1,
       int endingColumn = -1}) {
     int replaceCount = 0;
-    if (!_isContain(_sheetMap[sheet])) return replaceCount;
+    if (_sheetMap[sheet] == null) return replaceCount;
 
-    _sheetMap['$sheet'].findAndReplace(
+    _sheetMap['$sheet']!.findAndReplace(
       source,
       target,
       first: first,
@@ -496,10 +486,7 @@ class Excel {
   ///Make `sheet` available if it does not exist in `_sheetMap`
   ///
   _availSheet(String sheet) {
-    if (_sheetMap == null) {
-      _sheetMap = Map<String, Sheet>();
-    }
-    if (!_isContain(_sheetMap[sheet])) {
+    if (_sheetMap[sheet] == null) {
       _sheetMap[sheet] = Sheet._(this, sheet);
     }
   }
@@ -514,17 +501,14 @@ class Excel {
   ///If `sheet` does not exist then it will be automatically created.
   ///
   void updateCell(String sheet, CellIndex cellIndex, dynamic value,
-      {CellStyle cellStyle}) {
-    if (cellIndex == null) {
-      return;
-    }
+      {CellStyle? cellStyle}) {
     _availSheet(sheet);
 
     if (cellStyle != null) {
       _colorChanges = true;
-      _sheetMap[sheet].updateCell(cellIndex, value, cellStyle: cellStyle);
+      _sheetMap[sheet]!.updateCell(cellIndex, value, cellStyle: cellStyle);
     } else {
-      _sheetMap[sheet].updateCell(cellIndex, value);
+      _sheetMap[sheet]!.updateCell(cellIndex, value);
     }
   }
 
@@ -537,11 +521,8 @@ class Excel {
   ///
   void merge(String sheet, CellIndex start, CellIndex end,
       {dynamic customValue}) {
-    if (start == null || end == null) {
-      return;
-    }
     _availSheet(sheet);
-    _sheetMap[sheet].merge(start, end, customValue: customValue);
+    _sheetMap[sheet]!.merge(start, end, customValue: customValue);
   }
 
   ///
@@ -549,7 +530,7 @@ class Excel {
   ///
   List<String> getMergedCells(String sheet) {
     return List<String>.from(
-        _isContain(_sheetMap[sheet]) ? _sheetMap[sheet].spannedItems : []);
+        _sheetMap[sheet] != null ? _sheetMap[sheet]!.spannedItems : <String>[]);
   }
 
   ///
@@ -561,8 +542,8 @@ class Excel {
   ///       excel.unMerge(sheet, cellToUnMerge);
   ///
   void unMerge(String sheet, String unmergeCells) {
-    if (_isContain(_sheetMap[sheet])) {
-      _sheetMap[sheet].unMerge(unmergeCells);
+    if (_sheetMap[sheet] != null) {
+      _sheetMap[sheet]!.unMerge(unmergeCells);
     }
   }
 
