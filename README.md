@@ -489,8 +489,6 @@ On-going implementation for future:
 - Conversion to PDF
 
 
-# [Donate Paypal](https://paypal.me/kawal7415)
-<a href="https://patreon.com/justkawal">  
-    <img src="https://tenor.com/view/poor-kristen-wiig-help-no-broke-gif-4670237.gif"  width="70%" height="45%"  
-      alt="Donate" />  
-  </a>
+# [Donate on Paypal](https://paypal.me/kawal7415)
+
+## Thanks for d♥️nations, you are very kind hearted person 👌
