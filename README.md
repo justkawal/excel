@@ -468,7 +468,7 @@ key | description
 ### On Android / iOS
 For getting saving directory on Android or iOS, Use: [path_provider](https://pub.dev/packages/path_provider)
  ```dart
-     var fileBytes = excel.save()
+     var fileBytes = excel.save();
      var directory = await getApplicationDocumentsDirectory();
       
      File(join("$directory/output_file_name.xlsx"))
