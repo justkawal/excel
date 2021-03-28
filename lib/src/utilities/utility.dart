@@ -1,26 +1,22 @@
 part of excel;
 
-List<String> _noCompression = <String>[
-  'mimetype',
-  'Thumbnails/thumbnail.png',
-];
+List<String> _noCompression = <String>['mimetype', 'Thumbnails/thumbnail.png'];
 
 String getCellId(int colI, int rowI) {
   return '${_numericToLetters(colI + 1)}${rowI + 1}';
 }
 
 String _isColorAppropriate(String value) {
-  String hex = value;
-  if (value.length == 7) {
-    return value.replaceAll(RegExp(r'#'), 'FF').toString();
+  switch (value.length) {
+    case 7:
+      return value.replaceAll(RegExp(r'#'), 'FF').toString();
+    case 8:
+      return value;
+    case 9:
+      return value.replaceAll(RegExp(r'#'), '').toString();
+    default:
+      return value;
   }
-  if (value.length == 8) {
-    return value;
-  }
-  if (value.length == 9) {
-    return value.replaceAll(RegExp(r'#'), '').toString();
-  }
-  return hex;
 }
 
 /// Convert a character based column
@@ -61,12 +57,7 @@ int? _getRowNumber(XmlElement row) {
 }
 
 int _checkPosition(List<CellStyle> list, CellStyle cellStyle) {
-  for (int i = 0; i < list.length; i++) {
-    if (list[i] == cellStyle) {
-      return i;
-    }
-  }
-  return -1;
+  return list.indexOf(cellStyle);
 }
 
 int _letterOnly(int rune) {
@@ -80,9 +71,9 @@ int _letterOnly(int rune) {
 
 String _twoDigits(int n) {
   if (n > 9) {
-    return "$n";
+    return '$n';
   }
-  return "0$n";
+  return '0$n';
 }
 
 /// Convert a number to character based column
@@ -139,7 +130,7 @@ List<int> _cellCoordsFromCellId(String cellId) {
 ///Throw error at situation where further processing is not possible
 ///It is also called when important parts of excel files are missing as corrupted excel file is used
 ///
-_damagedExcel({String text = ''}) {
+void _damagedExcel({String text = ''}) {
   throw ArgumentError('\nDamaged Excel file: $text\n');
 }
 
@@ -234,11 +225,6 @@ int getColumnIndex(String columnAlphabet) {
 ///
 ///Checks if the fontStyle is already present in the list or not
 ///
-int _fontStyleIndex(List<_FontStyle> _fSList, _fs) {
-  for (int i = 0; i < _fSList.length; i++) {
-    if (_fSList[i] == _fs) {
-      return i;
-    }
-  }
-  return -1;
+int _fontStyleIndex(List<_FontStyle> list, _FontStyle fontStyle) {
+  return list.indexOf(fontStyle);
 }

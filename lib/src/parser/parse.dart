@@ -398,12 +398,17 @@ class Parser {
   }
 
   int _getFontIndex(var node, String text) {
-    int? applyFontInt;
-    String? applyFont = node.getAttribute(text);
+    String? applyFont = node.getAttribute(text)?.trim();
     if (applyFont != null) {
-      applyFontInt = int.tryParse(applyFont.toString());
+      try {
+        return int.parse(applyFont.toString());
+      } catch (e) {
+        if (applyFont.toLowerCase() == 'true') {
+          return 1;
+        }
+      }
     }
-    return applyFontInt ?? 0;
+    return 0;
   }
 
   _parseTable(XmlElement node) {
