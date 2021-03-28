@@ -1,25 +1,25 @@
 part of excel;
 
-class _TempDataHolder {
-  final int index;
-  late int count;
-  _TempDataHolder(this.index, [int count = 1]) {
-    this.count = count;
+class _SharedStringsMaintainer {
+  static final instance = _SharedStringsMaintainer._();
+
+  late Map<String, _IndexingHolder> _map;
+  late List<String> _list;
+  late int _index;
+
+  factory _SharedStringsMaintainer._() {
+    return _SharedStringsMaintainer();
   }
 
-  void increaseCount() {
-    this.count += 1;
+  _SharedStringsMaintainer() {
+    _map = <String, _IndexingHolder>{};
+    _list = <String>[];
+    _index = 0;
   }
-}
 
-class _OptimizedList<T> {
-  var _map = Map<T, _TempDataHolder>();
-  var _list = <T>[];
-  var _index = 0;
-
-  void add(T val) {
+  void add(String val) {
     if (_map[val] == null) {
-      _map[val] = _TempDataHolder(_index);
+      _map[val] = _IndexingHolder(_index);
       _list.add(val);
       _index += 1;
     } else {
@@ -27,31 +27,29 @@ class _OptimizedList<T> {
     }
   }
 
-  int indexOf(T val) {
-    return _map[val] != null ? _map[val]!.index : -1;
+  int indexOf(String val) {
+    return _map.containsKey(val) && _map[val] != null ? _map[val]!.index : -1;
   }
 
-  T? value(int index) {
-    return index < _list.length ? _list[index] : null;
+  String? value(int i) {
+    return i < _list.length ? _list[i] : null;
   }
 
   void clear() {
     _index = 0;
-    _list = <T>[];
-    _map = <T, _TempDataHolder>{};
+    _list = <String>[];
+    _map = <String, _IndexingHolder>{};
   }
 }
 
-class _SharedStringsMaintainer {
-  static final instance = _SharedStringsMaintainer._();
-
-  var list;
-
-  _SharedStringsMaintainer() {
-    list = _OptimizedList<String>();
+class _IndexingHolder {
+  final int index;
+  late int count;
+  _IndexingHolder(this.index, [int _count = 1]) {
+    this.count = _count;
   }
 
-  factory _SharedStringsMaintainer._() {
-    return _SharedStringsMaintainer();
+  void increaseCount() {
+    this.count += 1;
   }
 }

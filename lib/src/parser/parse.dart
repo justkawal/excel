@@ -60,7 +60,6 @@ class Parser {
               break;
           }
         }
-        // TODO: to check if this should be really outside the upper if ?
         if (id != null && !_rId.contains(id)) {
           _rId.add(id);
         }
@@ -147,7 +146,7 @@ class Parser {
     node.findAllElements('t').forEach((child) {
       list.add(_parseValue(child));
     });
-    _excel._sharedStrings.list.add(list.join(''));
+    _excel._sharedStrings.add(list.join(''));
   }
 
   _parseContent({bool run = true}) {
@@ -249,14 +248,16 @@ class Parser {
         node1.findAllElements('xf').forEach((node) {
           _excel._numFormats.add(_getFontIndex(node, 'numFmtId'));
 
-          String fontColor = "FF000000", backgroundColor = "none", fontFamily;
+          String fontColor = "FF000000", backgroundColor = "none";
+          String? fontFamily;
+
           int fontSize = 12;
           bool isBold = false, isItalic = false;
           Underline underline = Underline.None;
           HorizontalAlign horizontalAlign = HorizontalAlign.Left;
           VerticalAlign verticalAlign = VerticalAlign.Bottom;
-          TextWrapping textWrapping;
-          int rotation;
+          TextWrapping? textWrapping;
+          int rotation = 0;
           int fontId = _getFontIndex(node, 'fontId');
           _FontStyle _fontStyle = _FontStyle();
 
@@ -397,14 +398,12 @@ class Parser {
   }
 
   int _getFontIndex(var node, String text) {
-    int applyFontInt = 0;
-    var applyFont = node.getAttribute(text);
+    int? applyFontInt;
+    String? applyFont = node.getAttribute(text);
     if (applyFont != null) {
-      try {
-        applyFontInt = int.parse(applyFont.toString());
-      } catch (_) {}
+      applyFontInt = int.tryParse(applyFont.toString());
     }
-    return applyFontInt;
+    return applyFontInt ?? 0;
   }
 
   _parseTable(XmlElement node) {
@@ -447,7 +446,10 @@ class Parser {
   }
 
   _parseRow(XmlElement node, Sheet sheetObject, String name) {
-    var rowIndex = _getRowNumber(node) - 1;
+    var rowIndex = (_getRowNumber(node) ?? -1) - 1;
+    if (rowIndex < 0) {
+      return;
+    }
 
     _findCells(node).forEach((child) {
       _parseCell(child, sheetObject, rowIndex, name);
@@ -455,7 +457,10 @@ class Parser {
   }
 
   _parseCell(XmlElement node, Sheet sheetObject, int rowIndex, String name) {
-    int colIndex = _getCellNumber(node);
+    int? colIndex = _getCellNumber(node);
+    if (colIndex == null) {
+      return;
+    }
 
     var s1 = node.getAttribute('s');
     int s = 0;
@@ -482,7 +487,7 @@ class Parser {
     switch (type) {
       // sharedString
       case 's':
-        value = _excel._sharedStrings.list
+        value = _excel._sharedStrings
             .value(int.parse(_parseValue(node.findElements('v').first)));
         break;
       // boolean
@@ -543,7 +548,7 @@ class Parser {
         CellIndex.indexByColumnRow(columnIndex: colIndex, rowIndex: rowIndex),
         value);
     if (value.runtimeType == String) {
-      _excel._sharedStrings.list.add(value);
+      _excel._sharedStrings.add(value);
     }
   }
 
@@ -577,8 +582,9 @@ class Parser {
   ///
   ///
   _createSheet(String newSheet) {
+    /* 
     print('create Sheet: $newSheet');
-    /* List<XmlNode> list = _excel._xmlFiles['xl/workbook.xml']
+    List<XmlNode> list = _excel._xmlFiles['xl/workbook.xml']
         .findAllElements('sheets')
         .first
         .children;

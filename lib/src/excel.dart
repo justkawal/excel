@@ -38,7 +38,7 @@ class Excel {
   List<_FontStyle> _fontStyleList = <_FontStyle>[];
   List<int> _numFormats = <int>[];
   late String _stylesTarget, _sharedStringsTarget;
-  late String? _defaultSheet;
+  String? _defaultSheet;
   late Parser parser;
 
   Excel._(Archive archive) {
@@ -66,7 +66,7 @@ class Excel {
   ///It will return `tables` as map in order to mimic the previous versions reading the data.
   ///
   Map<String, Sheet> get tables {
-    if (this._sheetMap == null || this._sheetMap.isEmpty) {
+    if (this._sheetMap.isEmpty) {
       _damagedExcel(text: "Corrupted Excel file.");
     }
     return Map<String, Sheet>.from(this._sheetMap);
@@ -275,7 +275,7 @@ class Excel {
   ///
   ///It will start setting the edited values of `sheets` into the `files` and then `exports the file`.
   ///
-  Future<List<int>> encode() async {
+  List<int>? encode() {
     Save s = Save._(this, parser);
     return s._save();
   }
@@ -284,7 +284,7 @@ class Excel {
   /// `On Web`
   /// ```
   /// // Call function save() to download the file
-  /// await excel.save(fileName: "My_Excel_File_Name.xlsx");
+  /// var bytes = excel.save(fileName: "My_Excel_File_Name.xlsx");
   ///
   ///
   /// ```
@@ -293,31 +293,28 @@ class Excel {
   /// For getting directory on Android or iOS, Use: [path_provider](https://pub.dev/packages/path_provider)
   /// ```
   /// // Call function save() to download the file
-  /// excel.save().then((fileBytes) async {
-  ///   var directory = await getApplicationDocumentsDirectory();
+  /// var fileBytes = excel.save();
+  /// var directory = await getApplicationDocumentsDirectory();
   ///
-  ///   File(join("$directory/output_file_name.xlsx"))
-  ///     ..createSync(recursive: true)
-  ///     ..writeAsBytesSync(fileBytes);
+  /// File(join("$directory/output_file_name.xlsx"))
+  ///   ..createSync(recursive: true)
+  ///   ..writeAsBytesSync(fileBytes);
   ///
-  /// });
   ///```
-  Future<List<int>> save({
-    String fileName = 'FlutterExcel.xlsx',
-  }) async {
+  List<int>? save({String fileName = 'FlutterExcel.xlsx'}) {
     Save s = Save._(this, parser);
     var onValue = s._save();
-    return await helper.SavingHelper.saveFile(onValue, fileName);
+    return helper.SavingHelper.saveFile(onValue, fileName);
   }
 
   ///
   ///returns the name of the `defaultSheet` (the sheet which opens firstly when xlsx file is opened in `excel based software`).
   ///
-  Future<String?> getDefaultSheet() async {
+  String? getDefaultSheet() {
     if (_defaultSheet != null) {
       return _defaultSheet;
     } else {
-      String? re = await _getDefaultSheet();
+      String? re = _getDefaultSheet();
       return re;
     }
   }
@@ -325,7 +322,7 @@ class Excel {
   ///
   ///Internal function which returns the defaultSheet-Name by reading from `workbook.xml`
   ///
-  Future<String?> _getDefaultSheet() async {
+  String? _getDefaultSheet() {
     Iterable<XmlElement>? elements =
         _xmlFiles['xl/workbook.xml']?.findAllElements('sheet');
     XmlElement? _sheet;
@@ -348,7 +345,7 @@ class Excel {
   ///
   ///It returns `true` if the passed `sheetName` is successfully set to `default opening sheet` otherwise returns `false`.
   ///
-  Future<bool> setDefaultSheet(String sheetName) async {
+  bool setDefaultSheet(String sheetName) {
     if (_sheetMap[sheetName] != null) {
       _defaultSheet = sheetName;
       return true;

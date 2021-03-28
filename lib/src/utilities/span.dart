@@ -1,6 +1,7 @@
 part of excel;
 
 // For Spanning the columns and rows
+// ignore: must_be_immutable
 class _Span extends Equatable {
   _Span();
 

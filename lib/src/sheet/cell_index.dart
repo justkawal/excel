@@ -1,5 +1,6 @@
 part of excel;
 
+// ignore: must_be_immutable
 class CellIndex extends Equatable {
   CellIndex._({int? col, int? row}) {
     assert(col != null && row != null);

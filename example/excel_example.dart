@@ -8,39 +8,46 @@ void main(List<String> args) {
   //var excel = Excel.createExcel();
   // or
   var excel = Excel.decodeBytes(bytes);
+
+  ///
+  ///
+  /// reading excel file values
+  ///
+  ///
   for (var table in excel.tables.keys) {
     print(table);
-    print(excel.tables[table].maxCols);
-    print(excel.tables[table].maxRows);
-    for (var row in excel.tables[table].rows) {
+    print(excel.tables[table]!.maxCols);
+    print(excel.tables[table]!.maxRows);
+    for (var row in excel.tables[table]!.rows) {
       print("$row");
     }
   }
 
-  //
-  // Change sheet from rtl to ltr and vice-versa
-  //
+  ///
+  /// Change sheet from rtl to ltr and vice-versa i.e. (right-to-left -> left-to-right and vice-versa)
+  ///
   var sheet1rtl = excel['Sheet1'].isRTL;
-
   excel['Sheet1'].isRTL = false;
-
   print(
       'Sheet1: ((previous) isRTL: $sheet1rtl) ---> ((current) isRTL: ${excel['Sheet1'].isRTL})');
 
   var sheet2rtl = excel['Sheet2'].isRTL;
-
   excel['Sheet2'].isRTL = true;
-
   print(
       'Sheet2: ((previous) isRTL: $sheet2rtl) ---> ((current) isRTL: ${excel['Sheet2'].isRTL})');
 
+  ///
+  ///
+  /// declaring a cellStyle object
+  ///
+  ///
   CellStyle cellStyle = CellStyle(
     bold: true,
     italic: true,
+    textWrapping: TextWrapping.WrapText,
     fontFamily: getFontFamily(FontFamily.Comic_Sans_MS),
-    rotation: 50,
+    rotation: 0,
   );
-  cellStyle.rotation = -50;
 
   var sheet = excel['mySheet'];
 
@@ -55,12 +62,16 @@ void main(List<String> args) {
   /// printing cell-type
   print("CellType: " + cell.cellType.toString());
 
+  ///
+  ///
   /// Iterating and changing values to desired type
+  ///
+  ///
   for (int row = 0; row < sheet.maxRows; row++) {
-    sheet.row(row).forEach((cell) {
-      var val = cell.value; //  Value stored in the particular cell
-      print('$val');
-      cell.value = ' My custom Value ';
+    sheet.row(row).forEach((Data? cell1) {
+      if (cell1 != null) {
+        cell1.value = ' My custom Value ';
+      }
     });
   }
 
@@ -78,30 +89,36 @@ void main(List<String> args) {
   sheet = excel['sheet'];
 
   /// appending rows and checking the time complexity of it
-  /* List<List<String>> list = List.generate(6000, (index) => List.generate(20, (index1) => '$index $index1'));
-  Stopwatch stopwatch = new Stopwatch()..start();
+  Stopwatch stopwatch = Stopwatch()..start();
+  List<List<String>> list = List.generate(
+      9000, (index) => List.generate(20, (index1) => '$index $index1'));
+
+  print('list creation executed in ${stopwatch.elapsed}');
+  stopwatch.reset();
   list.forEach((row) {
     sheet.appendRow(row);
   });
-  print('doSomething() executed in ${stopwatch.elapsed}'); */
+  print('appending executed in ${stopwatch.elapsed}');
 
   sheet.appendRow([8]);
-  excel.setDefaultSheet(sheet.sheetName).then((isSet) {
-    // isSet is bool which tells that whether the setting of default sheet is successful or not.
-    if (isSet) {
-      print("${sheet.sheetName} is set to default sheet.");
-    } else {
-      print("Unable to set ${sheet.sheetName} to default sheet.");
-    }
-  });
+  bool isSet = excel.setDefaultSheet(sheet.sheetName);
+  // isSet is bool which tells that whether the setting of default sheet is successful or not.
+  if (isSet) {
+    print("${sheet.sheetName} is set to default sheet.");
+  } else {
+    print("Unable to set ${sheet.sheetName} to default sheet.");
+  }
 
   // Saving the file
 
   String outputFile = "/Users/kawal/Desktop/r.xlsx";
 
-  excel.save().then((fileBytes) {
+  stopwatch.reset();
+  List<int>? fileBytes = excel.save();
+  print('saving executed in ${stopwatch.elapsed}');
+  if (fileBytes != null) {
     File(join(outputFile))
       ..createSync(recursive: true)
       ..writeAsBytesSync(fileBytes);
-  });
+  }
 }

@@ -1,14 +1,15 @@
 part of excel;
 
-class Data {
-  CellStyle _cellStyle;
-  dynamic _value;
-  CellType _cellType;
-  Sheet _sheet;
-  String _sheetName;
-  bool _isFormula;
-  int _rowIndex;
-  int _colIndex;
+// ignore: must_be_immutable
+class Data extends Equatable {
+  CellStyle? _cellStyle;
+  late dynamic _value;
+  CellType _cellType = CellType.String;
+  late Sheet _sheet;
+  late String _sheetName;
+  bool _isFormula = false;
+  late int _rowIndex;
+  late int _colIndex;
 
   ///
   ///It will clone the object by changing the `this` reference of previous DataObject and putting `new this` reference, with copying the values too
@@ -19,9 +20,9 @@ class Data {
           dataObject._rowIndex,
           dataObject.colIndex,
           value_: dataObject._value,
-          cellStyle_: dataObject._cellStyle,
-          isFormula_: dataObject._isFormula,
-          cellType_: dataObject._cellType,
+          cellStyleVal: dataObject._cellStyle,
+          isFormulaVal: dataObject._isFormula,
+          cellTypeVal: dataObject._cellType,
         );
 
   ///
@@ -32,18 +33,18 @@ class Data {
     int row,
     int col, {
     dynamic value_,
-    CellStyle cellStyle_,
-    bool isFormula_,
-    CellType cellType_,
+    CellStyle? cellStyleVal,
+    bool isFormulaVal = false,
+    CellType cellTypeVal = CellType.String,
   }) {
-    this._sheet = sheet;
-    this._value = value_;
-    this._cellStyle = cellStyle_;
-    this._isFormula = isFormula_ ?? false;
-    this._cellType = cellType_ ?? CellType.String;
-    this._sheetName = sheet.sheetName;
-    this._rowIndex = row;
-    this._colIndex = col;
+    _sheet = sheet;
+    _value = value_;
+    _cellStyle = cellStyleVal;
+    _isFormula = isFormulaVal;
+    _cellType = cellTypeVal;
+    _sheetName = sheet.sheetName;
+    _rowIndex = row;
+    _colIndex = col;
   }
 
   /// returns the newData object when called from Sheet Class
@@ -53,36 +54,37 @@ class Data {
 
   /// returns the cell type
   CellType get cellType {
-    return this._cellType;
+    return _cellType;
   }
 
   /// returns true is the cellType is CellType.Formula
   bool get isFormula {
-    return this._isFormula;
+    return _isFormula;
   }
 
   /// returns the row Index
   int get rowIndex {
-    return this._rowIndex;
+    return _rowIndex;
   }
 
   /// returns the column Index
   int get colIndex {
-    return this._colIndex;
+    return _colIndex;
   }
 
   /// returns the sheet-name
   String get sheetName {
-    return this._sheetName;
+    return _sheetName;
   }
 
   /// returns the string based cellId as A1, A2 or Z5
-  String get cellId {
-    return getCellId(this._colIndex, this._rowIndex);
+  CellIndex get cellIndex {
+    return CellIndex.indexByColumnRow(
+        columnIndex: _colIndex, rowIndex: _rowIndex);
   }
 
-  set value(dynamic _value) {
-    _sheet.updateCell(CellIndex.indexByString(cellId), _value);
+  set value(dynamic val) {
+    _sheet.updateCell(cellIndex, val);
   }
 
   /// returns the value stored in this cell;
@@ -92,20 +94,25 @@ class Data {
     return _value;
   }
 
-  /// sets the user defined CellStyle in this current cell
-  set style(CellStyle _style) {
-    this._cellStyle = _style;
-  }
-
   /// returns the user-defined CellStyle
   ///
   /// if `no` cellStyle is set then it returns `null`
-  get cellStyle {
-    return this._cellStyle;
+  CellStyle? get cellStyle {
+    return _cellStyle;
   }
 
-  set cellStyle(CellStyle cellStyle_) {
+  /// sets the user defined CellStyle in this current cell
+  set cellStyle(CellStyle? _) {
     _sheet._excel._colorChanges = true;
-    this._cellStyle = cellStyle_;
+    _cellStyle = _;
   }
+
+  @override
+  List<Object?> get props => [
+        _value,
+        _colIndex,
+        _rowIndex,
+        _cellStyle,
+        _sheetName,
+      ];
 }

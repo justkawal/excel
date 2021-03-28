@@ -3,8 +3,11 @@ All notable changes to this project will be documented in this file.
 
 ## [Future Updates coming soon]
 - Formulas
-- Password Protection
 - Conversion to PDF
+
+## [2.0.0-null-safety] - 2021-03-28
+### Improved
+- Null-safety
 
 ## [1.1.5] - 2020-08-17
 ### Improved

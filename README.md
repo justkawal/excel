@@ -72,7 +72,7 @@ Add this to your package's `pubspec.yaml` file:
 
 ```yaml
 dependencies:
-  excel: ^1.1.5
+  excel: any
 ```
 
 ### 2. Install it

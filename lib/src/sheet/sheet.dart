@@ -3,7 +3,7 @@ part of excel;
 class Sheet {
   late Excel _excel;
   late String _sheet;
-  late bool _isRTL;
+  bool _isRTL = false;
   int _maxRows = 0;
   int _maxCols = 0;
   //List<double> _rowHeight = <double>[], _colWidth = <double>[];
@@ -649,7 +649,7 @@ class Sheet {
   void updateCell(CellIndex cellIndex, dynamic value, {CellStyle? cellStyle}) {
     int columnIndex = cellIndex._columnIndex;
     int rowIndex = cellIndex._rowIndex;
-    if (columnIndex < 0 || rowIndex < 0 || value == null) {
+    if (columnIndex < 0 || rowIndex < 0) {
       return;
     }
     _checkMaxCol(columnIndex);
@@ -983,14 +983,14 @@ class Sheet {
         _getCellType(value.runtimeType);
 
     if (value.runtimeType == String) {
-      _excel._sharedStrings.list.add(value);
+      _excel._sharedStrings.add(value);
     }
 
-    if (_maxCols - 1 < columnIndex) {
+    if ((_maxCols - 1) < columnIndex) {
       _maxCols = columnIndex + 1;
     }
 
-    if (_maxRows - 1 < rowIndex) {
+    if ((_maxRows - 1) < rowIndex) {
       _maxRows = rowIndex + 1;
     }
 
@@ -1284,25 +1284,23 @@ class Sheet {
   ///returns row at index = `rowIndex`
   ///
   ///
-  List<Data> row(int rowIndex) {
+  List<Data?> row(int rowIndex) {
     if (rowIndex < 0) {
-      return <Data>[];
+      return <Data?>[];
     }
     if (rowIndex < _maxRows) {
       if (_sheetData[rowIndex] != null) {
-        return List.generate(maxCols, (colIndex) {
+        return List.generate(_maxCols, (colIndex) {
           if (_sheetData[rowIndex]![colIndex] != null) {
             return _sheetData[rowIndex]![colIndex]!;
           }
-          return Data.newData(this, rowIndex, colIndex);
+          return null;
         });
       } else {
-        return List.generate(maxCols, (colIndex) {
-          return Data.newData(this, rowIndex, colIndex);
-        });
+        return List.generate(_maxCols, (_) => null);
       }
     }
-    return [];
+    return <Data?>[];
   }
 
   ///
