@@ -35,36 +35,6 @@
 
 #### This library is [MIT](https://github.com/justkawal/excel/blob/40b8b1ed8c3c213d8911784ddd40bf97841977a1/LICENSE#L1) licensed So, it's free to use anytime, anywhere without any consent, because we believe in Open Source work.
 
-
-# Table of Contents
-  - [Installing](#lets-get-started)
-  - [Usage](#usage)
-    * [Breaking Changes](#breaking-changes-for-those-moving-from-108-and-below-------109-and-above-versions)
-    * [Imports](#imports)
-    * [Read xlsx file](#read-xlsx-file)
-    * [Read XLSX in Flutter Web](#read-xlsx-in-flutter-web)
-    * [Read xlsx file from Asset Folder](#read-xlsx-from-flutters-asset-folder)
-    * [Create xlsx file](#create-new-xlsx-file)
-    * [Update Cell](#update-cell-values)
-      + [Cell Style options](#cell-style-options)
-    * [Copy Sheet](#copy-sheet-contents-to-another-sheet)
-    * [Rename Sheet](#rename-sheet)
-    * [Delete Sheet](#delete-sheet)
-    * [Link Sheet](#link-sheet)
-    * [Un-Link Sheet](#un-link-sheet)
-    * [Merge Cells](#merge-cells)
-    * [Get Merged Cells](#get-merged-cells-list)
-    * [Un-Merge Cells](#un-merge-cells)
-    * [Find and Replace](#find-and-replace)
-    * [Insert Row Iterables](#insert-row-iterables)
-      + [Iterables Options](#iterable-options)
-    * [Append Row](#append-row)
-    * [Get default sheet](#get-default-opening-sheet)
-    * [Set default sheet](#set-default-opening-sheet)
-    * [Saving](#saving)
-  - [Frequent Issues](#frequent-issues)
-  - [Upcoming Features](#features-coming-in-next-version)
-
 # Lets Get Started
 
 ### 1. Depend on it
@@ -457,17 +427,11 @@ key | description
  
  ```dart
     /* 
-     * Asynchronous method which returns the name of the default sheet
+     * method which returns the name of the default sheet
      * excel.getDefaultSheet();
      */
  
-      excel.getDefaultSheet().then((value) {
-        print("Default Sheet:" + value.toString());
-      });
-      
-      or
-      
-      var defaultSheet = await excel.getDefaultSheet();
+      var defaultSheet = excel.getDefaultSheet();
       print("Default Sheet:" + defaultSheet.toString());
     
 ```
@@ -476,23 +440,13 @@ key | description
  
  ```dart
     /* 
-     * Asynchronous method which sets the name of the default sheet
+     * method which sets the name of the default sheet
      * returns bool if successful then true else false
      * excel.setDefaultSheet(sheet);
      * sheet = 'SheetName'
      */
- 
-      excel.setDefaultSheet(sheet).then((isSet) {
-        if (isSet) {
-            print("$sheet is set to default sheet.");
-        } else {
-            print("Unable to set $sheet to default sheet.");
-        }
-      });
-      
-      or
-      
-      var isSet = await excel.setDefaultSheet(sheet);
+     
+      var isSet = excel.setDefaultSheet(sheet);
       if (isSet) {
         print("$sheet is set to default sheet.");
       } else {
@@ -507,21 +461,19 @@ key | description
      // when you are in flutter web then save() downloads the excel file.
      
      // Call function save() to download the file
-     await excel.save(fileName: "My_Excel_File_Name.xlsx");
+     var fileBytes = excel.save(fileName: "My_Excel_File_Name.xlsx");
      
 ```
    
 ### On Android / iOS
 For getting saving directory on Android or iOS, Use: [path_provider](https://pub.dev/packages/path_provider)
  ```dart
-     excel.save().then((fileBytes) async {
-      var directory = await getApplicationDocumentsDirectory();
+     var fileBytes = excel.save()
+     var directory = await getApplicationDocumentsDirectory();
       
-      File(join("$directory/output_file_name.xlsx"))
-        ..createSync(recursive: true)
-        ..writeAsBytesSync(fileBytes);
-     });
-     
+     File(join("$directory/output_file_name.xlsx"))
+       ..createSync(recursive: true)
+       ..writeAsBytesSync(fileBytes);
 ```
  
 # Frequent Issues
@@ -537,9 +489,8 @@ On-going implementation for future:
 - Conversion to PDF
 
 
-# Donate [![ ](https://img.shields.io/endpoint.svg?url=https%3A%2F%2Fshieldsio-patreon.vercel.app%2Fapi%3Fusername%3Djustkawal%26type%3Dpatrons&style=for-the-badge)](https://patreon.com/justkawal)
+# [Donate Paypal](https://paypal.me/kawal7415)
 <a href="https://patreon.com/justkawal">  
     <img src="https://tenor.com/view/poor-kristen-wiig-help-no-broke-gif-4670237.gif"  width="70%" height="45%"  
       alt="Donate" />  
   </a>
- 
