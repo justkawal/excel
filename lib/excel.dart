@@ -17,6 +17,7 @@ part 'src/sharedStrings/shared_strings.dart';
 
 /// Utilities
 part 'src/utilities/span.dart';
+part 'src/utilities/fast_list.dart';
 part 'src/utilities/utility.dart';
 part 'src/utilities/constants.dart';
 part 'src/utilities/enum.dart';

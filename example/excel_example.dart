@@ -19,7 +19,7 @@ void main(List<String> args) {
     print(excel.tables[table]!.maxCols);
     print(excel.tables[table]!.maxRows);
     for (var row in excel.tables[table]!.rows) {
-      print("$row");
+      print("${row.map((e) => e?.value)}");
     }
   }
 

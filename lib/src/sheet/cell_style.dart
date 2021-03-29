@@ -47,6 +47,34 @@ class CellStyle extends Equatable {
     _horizontalAlign = horizontalAlign;
   }
 
+  CellStyle copyWith({
+    String? fontColorHexVal,
+    String? backgroundColorHexVal,
+    String? fontFamilyVal,
+    HorizontalAlign? horizontalAlignVal,
+    VerticalAlign? verticalAlignVal,
+    TextWrapping? textWrappingVal,
+    bool? boldVal,
+    bool? italicVal,
+    Underline? underlineVal,
+    int? fontSizeVal,
+    int? rotationVal,
+  }) {
+    return CellStyle(
+      fontColorHex: fontColorHexVal ?? this._fontColorHex,
+      backgroundColorHex: backgroundColorHexVal ?? this._backgroundColorHex,
+      fontFamily: fontFamilyVal ?? this._fontFamily,
+      horizontalAlign: horizontalAlignVal ?? this._horizontalAlign,
+      verticalAlign: verticalAlignVal ?? this._verticalAlign,
+      textWrapping: textWrappingVal ?? this._textWrapping,
+      bold: boldVal ?? this._bold,
+      italic: italicVal ?? this._italic,
+      underline: underlineVal ?? this._underline,
+      fontSize: fontSizeVal ?? this._fontSize,
+      rotation: rotationVal ?? this._rotation,
+    );
+  }
+
   ///Get Font Color
   ///
   String get fontColor {

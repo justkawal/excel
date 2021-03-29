@@ -7,7 +7,7 @@ class Sheet {
   int _maxRows = 0;
   int _maxCols = 0;
   //List<double> _rowHeight = <double>[], _colWidth = <double>[];
-  List<String> _spannedItems = <String>[];
+  FastList<String> _spannedItems = FastList<String>();
   List<_Span?> _spanList = <_Span?>[];
   Map<int, Map<int, Data>> _sheetData = <int, Map<int, Data>>{};
 
@@ -33,7 +33,7 @@ class Sheet {
     String sheetName, {
     Map<int, Map<int, Data>>? sh,
     List<_Span?>? spanL_,
-    List<String>? spanI_,
+    FastList<String>? spanI_,
     int? maxRowsVal,
     int? maxColsVal,
     bool? isRTLVal,
@@ -47,7 +47,7 @@ class Sheet {
       _excel._mergeChangeLookup = sheetName;
     }
     if (spanI_ != null) {
-      _spannedItems = List<String>.from(spanI_);
+      _spannedItems = FastList<String>.from(spanI_);
     }
     if (maxColsVal != null) {
       _maxCols = maxColsVal;
@@ -143,8 +143,8 @@ class Sheet {
   ///
   /// returns `2-D dynamic List` of the sheet elements
   ///
-  List<List<dynamic>> get rows {
-    List<List<dynamic>> _data = <List<dynamic>>[];
+  List<List<Data?>> get rows {
+    var _data = <List<Data?>>[];
 
     if (_sheetData.isEmpty) {
       return _data;
@@ -155,7 +155,7 @@ class Sheet {
         return List.generate(_maxCols, (colIndex) {
           if (_sheetData[rowIndex] != null &&
               _sheetData[rowIndex]![colIndex] != null) {
-            return _sheetData[rowIndex]![colIndex]!.value;
+            return _sheetData[rowIndex]![colIndex];
           }
           return null;
         });
@@ -392,7 +392,7 @@ class Sheet {
 
     bool updateSpanCell = false;
 
-    _spannedItems = <String>[];
+    _spannedItems = FastList<String>();
     for (int i = 0; i < _spanList.length; i++) {
       _Span? spanObj = _spanList[i];
       if (spanObj == null) {
@@ -574,7 +574,7 @@ class Sheet {
 
     bool updateSpanCell = false;
 
-    _spannedItems = <String>[];
+    _spannedItems = FastList<String>();
     for (int i = 0; i < _spanList.length; i++) {
       _Span? spanObj = _spanList[i];
       if (spanObj == null) {
@@ -817,17 +817,11 @@ class Sheet {
         continue;
       }
 
-      /* Map<String, List<int>> gotMap = _isLocationChangeRequired(
+      List locationChange = _isLocationChangeRequired(
           startColumn, startRow, endColumn, endRow, spanObj);
-      List<int> gotPosition = gotMap['gotPosition'];
-      int changeValue = gotMap['changeValue'][0]; */
+      List<int> gotPosition = locationChange[1];
 
-      List gotMap = _isLocationChangeRequired(
-          startColumn, startRow, endColumn, endRow, spanObj);
-      List<int> gotPosition = gotMap[1];
-      bool changeValue = gotMap[0];
-
-      if (changeValue) {
+      if (locationChange[0]) {
         startColumn = gotPosition[0];
         startRow = gotPosition[1];
         endColumn = gotPosition[2];
@@ -1246,7 +1240,7 @@ class Sheet {
   ///return type if String based cell-id
   ///
   List<String> get spannedItems {
-    _spannedItems = <String>[];
+    _spannedItems = FastList<String>();
 
     for (int i = 0; i < _spanList.length; i++) {
       _Span? spanObj = _spanList[i];
@@ -1260,7 +1254,7 @@ class Sheet {
       }
     }
 
-    return _spannedItems;
+    return _spannedItems.keys;
   }
 
   ///
@@ -1275,15 +1269,11 @@ class Sheet {
   }
 
   ///return `SheetName`
-  ///
-  ///
   String get sheetName {
     return _sheet;
   }
 
   ///returns row at index = `rowIndex`
-  ///
-  ///
   List<Data?> row(int rowIndex) {
     if (rowIndex < 0) {
       return <Data?>[];

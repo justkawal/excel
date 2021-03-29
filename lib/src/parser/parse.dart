@@ -588,7 +588,6 @@ class Parser {
   ///
   _createSheet(String newSheet) {
     /* 
-    print('create Sheet: $newSheet');
     List<XmlNode> list = _excel._xmlFiles['xl/workbook.xml']
         .findAllElements('sheets')
         .first

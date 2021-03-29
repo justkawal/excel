@@ -3,11 +3,9 @@ part of excel;
 // For Spanning the columns and rows
 // ignore: must_be_immutable
 class _Span extends Equatable {
-  _Span();
+  var __start = <int>[];
 
-  List<int> __start = <int>[];
-
-  List<int> __end = <int>[];
+  var __end = <int>[];
 
   set _start(List<int> val) {
     __start = val;
@@ -35,7 +33,9 @@ class _Span extends Equatable {
 
   @override
   List<Object?> get props => [
-        __start,
-        __end,
+        __start[0],
+        __start[1],
+        __end[0],
+        __end[1],
       ];
 }

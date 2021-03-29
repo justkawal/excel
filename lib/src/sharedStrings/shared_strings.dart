@@ -28,7 +28,7 @@ class _SharedStringsMaintainer {
   }
 
   int indexOf(String val) {
-    return _map.containsKey(val) && _map[val] != null ? _map[val]!.index : -1;
+    return _map[val] != null ? _map[val]!.index : -1;
   }
 
   String? value(int i) {
