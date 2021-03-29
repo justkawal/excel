@@ -109,6 +109,19 @@ void main(List<String> args) {
     print("Unable to set ${sheet.sheetName} to default sheet.");
   }
 
+  var colIterableSheet = excel['ColumnIterables'];
+
+  var colIterables = ['A', 'B', 'C', 'D', 'E'];
+  int colIndex = 0;
+
+  colIterables.forEach((colValue) {
+    colIterableSheet.cell(CellIndex.indexByColumnRow(
+      rowIndex: colIterableSheet.maxRows,
+      columnIndex: colIndex,
+    ))
+      ..value = colValue;
+  });
+
   // Saving the file
 
   String outputFile = "/Users/kawal/Desktop/r.xlsx";
