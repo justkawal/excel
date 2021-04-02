@@ -537,9 +537,7 @@ On-going implementation for future:
 - Conversion to PDF
 
 
-# Donate [![ ](https://img.shields.io/endpoint.svg?url=https%3A%2F%2Fshieldsio-patreon.vercel.app%2Fapi%3Fusername%3Djustkawal%26type%3Dpatrons&style=for-the-badge)](https://patreon.com/justkawal)
-<a href="https://patreon.com/justkawal">  
-    <img src="https://tenor.com/view/poor-kristen-wiig-help-no-broke-gif-4670237.gif"  width="70%" height="45%"  
-      alt="Donate" />  
-  </a>
- 
+# Donate
+## Patreon [![ ](https://img.shields.io/endpoint.svg?url=https%3A%2F%2Fshieldsio-patreon.vercel.app%2Fapi%3Fusername%3Djustkawal%26type%3Dpatrons&style=for-the-badge)](https://patreon.com/justkawal)
+## [Paypal](https://paypal.me/kawal7415)
+## Thanks for d♥️nations, you are very kind hearted person 👌
