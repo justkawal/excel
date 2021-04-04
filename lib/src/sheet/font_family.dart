@@ -191,7 +191,6 @@ enum FontFamily {
 ///
 ///
 String getFontFamily(FontFamily fontFamily) {
-  return (fontFamily.toString().replaceAll("FontFamily.", ""))
-      .toString()
-      .replaceAll("_", " ");
+  return (fontFamily.toString().replaceAll('FontFamily.', ''))
+      .replaceAll('_', ' ');
 }
