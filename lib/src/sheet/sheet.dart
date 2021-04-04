@@ -810,12 +810,11 @@ class Sheet {
         continue;
       }
 
-      Map<String, List<int>> gotMap = _isLocationChangeRequired(
+      List locationChange = _isLocationChangeRequired(
           startColumn, startRow, endColumn, endRow, spanObj);
-      List<int> gotPosition = gotMap['gotPosition'];
-      int changeValue = gotMap['changeValue'][0];
+      List<int> gotPosition = locationChange[1];
 
-      if (changeValue == 1) {
+      if (locationChange[0]) {
         startColumn = gotPosition[0];
         startRow = gotPosition[1];
         endColumn = gotPosition[2];
