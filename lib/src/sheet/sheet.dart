@@ -7,7 +7,7 @@ class Sheet {
   int _maxRows = 0;
   int _maxCols = 0;
   //List<double> _rowHeight = <double>[], _colWidth = <double>[];
-  FastList<String> _spannedItems = <String>[];
+  FastList<String> _spannedItems = FastList<String>();
   List<_Span> _spanList = <_Span>[];
   Map<int, Map<int, Data>> _sheetData = <int, Map<int, Data>>{};
 
@@ -30,7 +30,7 @@ class Sheet {
     String sheetName, {
     Map<int, Map<int, Data>> sh,
     List<_Span> spanL_,
-    List<String> spanI_,
+    FastList<String> spanI_,
     int maxR_,
     int maxC_,
     bool isRTL_,
@@ -386,7 +386,7 @@ class Sheet {
 
     bool updateSpanCell = false;
 
-    _spannedItems = <String>[];
+    _spannedItems = FastList<String>();
     for (int i = 0; i < _spanList.length; i++) {
       _Span spanObj = _spanList[i];
       if (spanObj == null) {
@@ -568,7 +568,7 @@ class Sheet {
 
     bool updateSpanCell = false;
 
-    _spannedItems = <String>[];
+    _spannedItems = FastList<String>();
     for (int i = 0; i < _spanList.length; i++) {
       _Span spanObj = _spanList[i];
       if (spanObj == null) {
@@ -1233,7 +1233,7 @@ class Sheet {
   ///return type if String based cell-id
   ///
   List<String> get spannedItems {
-    _spannedItems = <String>[];
+    _spannedItems = FastList<String>();
 
     if (_spanList.isNotEmpty) {
       _spanList.forEach((spanObj) {
@@ -1245,7 +1245,7 @@ class Sheet {
       });
     }
 
-    return _spannedItems;
+    return _spannedItems.keys;
   }
 
   ///Cleans the `_SpanList` by removing the indexes where null value exists.
