@@ -3,6 +3,7 @@ library excel;
 import 'dart:convert';
 import 'dart:typed_data';
 import 'package:archive/archive.dart';
+import 'package:equatable/equatable.dart';
 import 'package:xml/xml.dart';
 import 'src/web_helper/client_save_excel.dart'
     if (dart.library.html) 'src/web_helper/web_save_excel_browser.dart' as helper;

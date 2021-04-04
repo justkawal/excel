@@ -1,7 +1,9 @@
 part of excel;
 
-class CellIndex {
+// ignore: must_be_immutable
+class CellIndex extends Equatable {
   CellIndex._({int col, int row}) {
+    assert(col != null && row != null);
     this._columnIndex = col;
     this._rowIndex = row;
   }
@@ -12,6 +14,7 @@ class CellIndex {
   ///CellIndex.indexByColumnRow(columnIndex: 0, rowIndex: 1 ); // A2
   ///```
   static CellIndex indexByColumnRow({int columnIndex, int rowIndex}) {
+    assert(columnIndex != null && rowIndex != null);
     return CellIndex._(col: columnIndex, row: rowIndex);
   }
 
@@ -25,6 +28,11 @@ class CellIndex {
     return CellIndex._(row: li[0], col: li[1]);
   }
 
+  /// Avoid using it as it is very process expensive function.
+  ///
+  /// ```
+  /// var cellIndex = CellIndex.indexByColumnRow(columnIndex: 0, rowIndex: 0 );
+  /// var cell = cellIndex.cellId; // A1
   String get cellId {
     return getCellId(this.columnIndex, this.rowIndex);
   }
@@ -40,4 +48,7 @@ class CellIndex {
   int get columnIndex {
     return this._columnIndex;
   }
+
+  @override
+  List<Object> get props => [_rowIndex, _columnIndex];
 }
