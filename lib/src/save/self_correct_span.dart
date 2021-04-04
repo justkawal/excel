@@ -24,28 +24,26 @@ _selfCorrectSpanMap(Excel _excel) {
             continue;
           }
 
-          List gotMap = _isLocationChangeRequired(
+          List locationChange = _isLocationChangeRequired(
               startColumn, startRow, endColumn, endRow, spanObj);
-          List<int> gotPosition = gotMap[1];
-          bool changeValue = gotMap[0];
+          List<int> gotPosition = locationChange[1];
 
-          if (changeValue) {
+          if (locationChange[0]) {
             startColumn = gotPosition[0];
             startRow = gotPosition[1];
             endColumn = gotPosition[2];
             endRow = gotPosition[3];
             spanList[j] = null;
           } else {
-            List gotMap2 = _isLocationChangeRequired(
+            List locationChange2 = _isLocationChangeRequired(
                 spanObj.columnSpanStart,
                 spanObj.rowSpanStart,
                 spanObj.columnSpanEnd,
                 spanObj.rowSpanEnd,
                 checkerPos);
-            List<int> gotPosition2 = gotMap2[1];
-            bool changeValue2 = gotMap2[0];
+            List<int> gotPosition2 = locationChange2[1];
 
-            if (changeValue2) {
+            if (locationChange2[0]) {
               startColumn = gotPosition2[0];
               startRow = gotPosition2[1];
               endColumn = gotPosition2[2];

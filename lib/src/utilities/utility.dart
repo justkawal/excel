@@ -9,11 +9,9 @@ String getCellId(int colI, int rowI) {
 String _isColorAppropriate(String value) {
   switch (value.length) {
     case 7:
-      return value.replaceAll(RegExp(r'#'), 'FF').toString();
-    case 8:
-      return value;
+      return value.replaceAll(RegExp(r'#'), 'FF');
     case 9:
-      return value.replaceAll(RegExp(r'#'), '').toString();
+      return value.replaceAll(RegExp(r'#'), '');
     default:
       return value;
   }
