@@ -2,7 +2,7 @@ import 'dart:html' as html;
 
 // A wrapper to save the
 class SavingHelper {
-  static Future<List<int>> saveFile(List<int> val, String fileName) async {
+  static List<int> saveFile(List<int> val, String fileName) {
     final blob = html.Blob([val]);
     final url = html.Url.createObjectUrlFromBlob(blob);
     final anchor = html.document.createElement('a') as html.AnchorElement

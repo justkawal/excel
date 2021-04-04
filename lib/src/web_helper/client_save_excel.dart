@@ -1,5 +1,5 @@
 class SavingHelper {
-  static Future<List<int>> saveFile(List<int> val, String fileName) async {
+  static List<int> saveFile(List<int> val, String fileName) {
     return val;
   }
 }
