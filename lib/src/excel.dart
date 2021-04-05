@@ -31,9 +31,8 @@ class Excel {
       <String, Map<String, int>>{};
   Map<String, Sheet> _sheetMap = <String, Sheet>{};
   List<CellStyle> _cellStyleList = <CellStyle>[];
-  List<String> _patternFill = <String>[],
-      _mergeChangeLook = <String>[],
-      _rtlChangeLook = <String>[];
+  List<String> _patternFill = <String>[], _mergeChangeLook = <String>[];
+  FastList<String> _rtlChangeLook = FastList<String>();
   _SharedStringsMaintainer _sharedStrings;
   List<_FontStyle> _fontStyleList = <_FontStyle>[];
   List<int> _numFormats = <int>[];
@@ -277,7 +276,7 @@ class Excel {
   ///It will start setting the edited values of `sheets` into the `files` and then `exports the file`.
   ///
   List<int> encode() {
-    Save s = Save._(this, parser);
+    _Save s = _Save._(this, parser);
     return s._save();
   }
 
@@ -306,7 +305,7 @@ class Excel {
   List<int> save({
     String fileName = 'FlutterExcel.xlsx',
   }) {
-    Save s = Save._(this, parser);
+    _Save s = _Save._(this, parser);
     var onValue = s._save();
     return helper.SavingHelper.saveFile(onValue, fileName);
   }

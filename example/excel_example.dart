@@ -86,22 +86,20 @@ void main(List<String> args) {
   print('doSomething() executed in ${stopwatch.elapsed}'); */
 
   sheet.appendRow([8]);
-  excel.setDefaultSheet(sheet.sheetName).then((isSet) {
-    // isSet is bool which tells that whether the setting of default sheet is successful or not.
-    if (isSet) {
-      print("${sheet.sheetName} is set to default sheet.");
-    } else {
-      print("Unable to set ${sheet.sheetName} to default sheet.");
-    }
-  });
+  var isSet = excel.setDefaultSheet(sheet.sheetName);
+  // isSet is bool which tells that whether the setting of default sheet is successful or not.
+  if (isSet) {
+    print("${sheet.sheetName} is set to default sheet.");
+  } else {
+    print("Unable to set ${sheet.sheetName} to default sheet.");
+  }
 
   // Saving the file
 
   String outputFile = "/Users/kawal/Desktop/r.xlsx";
 
-  excel.save().then((fileBytes) {
-    File(join(outputFile))
-      ..createSync(recursive: true)
-      ..writeAsBytesSync(fileBytes);
-  });
+  var fileBytes = excel.save();
+  File(join(outputFile))
+    ..createSync(recursive: true)
+    ..writeAsBytesSync(fileBytes);
 }

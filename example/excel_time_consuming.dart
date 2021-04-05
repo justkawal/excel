@@ -21,12 +21,11 @@ void main(List<String> args) {
   }
   print('Generating executed in ${stopwatch.elapsed}');
   stopwatch.reset();
-  excel.encode().then((onValue) {
-    print('Encoding executed in ${stopwatch.elapsed}');
-    stopwatch.reset();
-    File(join("/Users/kawal/Desktop/r1.xlsx"))
-      ..createSync(recursive: true)
-      ..writeAsBytesSync(onValue);
-    print('Downloaded executed in ${stopwatch.elapsed}');
-  });
+  var onValue = excel.encode();
+  print('Encoding executed in ${stopwatch.elapsed}');
+  stopwatch.reset();
+  File(join("/Users/kawal/Desktop/r1.xlsx"))
+    ..createSync(recursive: true)
+    ..writeAsBytesSync(onValue);
+  print('Downloaded executed in ${stopwatch.elapsed}');
 }

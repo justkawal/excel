@@ -1,16 +1,11 @@
 part of excel;
 
-class Save {
-  Excel _excel;
-  Map<String, ArchiveFile> _archiveFiles;
-  List<CellStyle> _innerCellStyle;
-  Parser parser;
-  Save._(Excel excel, Parser _parser) {
-    _excel = excel;
-    parser = _parser;
-    _archiveFiles = Map<String, ArchiveFile>();
-    _innerCellStyle = List<CellStyle>();
-  }
+class _Save {
+  final Excel _excel;
+  Map<String, ArchiveFile> _archiveFiles = Map<String, ArchiveFile>();
+  List<CellStyle> _innerCellStyle = <CellStyle>[];
+  final Parser parser;
+  _Save._(this._excel, this.parser);
 
   List<int> _save() {
     if (_excel._colorChanges) {
@@ -121,11 +116,11 @@ class Save {
   }
 
   _setRTL() {
-    this._excel._rtlChangeLook.forEach((s) {
-      var sheetObject = this._excel._sheetMap['$s'];
+    _excel._rtlChangeLook.keys.forEach((s) {
+      var sheetObject = _excel._sheetMap['$s'];
       if (_isContain(sheetObject) &&
-          this._excel._xmlSheetId.containsKey(s) &&
-          this._excel._xmlFiles.containsKey(this._excel._xmlSheetId[s])) {
+          _excel._xmlSheetId.containsKey(s) &&
+          _excel._xmlFiles.containsKey(_excel._xmlSheetId[s])) {
         var itrSheetViewsRTLElement = this
             ._excel
             ._xmlFiles[_excel._xmlSheetId[s]]
