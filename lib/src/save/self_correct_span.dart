@@ -3,7 +3,7 @@ part of excel;
 ///Self correct the spanning of rows and columns by checking their cross-sectional relationship between if exists.
 _selfCorrectSpanMap(Excel _excel) {
   _excel._mergeChangeLook.forEach((key) {
-    if (_isContain(_excel._sheetMap[key]) &&
+    if (_excel._sheetMap[key] != null &&
         _excel._sheetMap[key]._spanList.isNotEmpty) {
       List<_Span> spanList = List<_Span>.from(_excel._sheetMap[key]._spanList);
 

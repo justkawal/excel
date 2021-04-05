@@ -403,11 +403,11 @@ class Parser {
     var name = node.getAttribute('name');
     var target = _worksheetTargets[node.getAttribute('r:id')];
 
-    if (!_isContain(_excel._sheetMap['$name'])) {
-      _excel._sheetMap['$name'] = Sheet._(_excel, '$name');
+    if (_excel._sheetMap[name] == null) {
+      _excel._sheetMap[name] = Sheet._(_excel, name);
     }
 
-    Sheet sheetObject = _excel._sheetMap['$name'];
+    Sheet sheetObject = _excel._sheetMap[name];
 
     var file = _excel._archive.findFile('xl/$target');
     file.decompress();
@@ -461,7 +461,7 @@ class Parser {
 
       String rC = node.getAttribute('r').toString();
 
-      if (_isContain(_excel._cellStyleReferenced[name])) {
+      if (_excel._cellStyleReferenced[name] != null) {
         _excel._cellStyleReferenced[name][rC] = s;
       } else {
         _excel._cellStyleReferenced[name] = {rC: s};

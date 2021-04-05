@@ -1,9 +1,5 @@
 part of excel;
 
-bool _isContain(dynamic d) {
-  return (d ?? null) != null;
-}
-
 List<String> _noCompression = <String>['mimetype', 'Thumbnails/thumbnail.png'];
 
 String getCellId(int colI, int rowI) {

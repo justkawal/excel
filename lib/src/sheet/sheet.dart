@@ -110,14 +110,13 @@ class Sheet {
 
     /// checking if the map has been already initialized or not?
     /// if the user has called this class by its own
-    if (!_isContain(_sheetData)) {
+    /* if (!_isContain(_sheetData)) {
       _sheetData = Map<int, Map<int, Data>>();
-    }
+    } */
 
     /// if the sheetData contains the row then start putting the column
-    if (_isContain(_sheetData[cellIndex._rowIndex])) {
-      if (!_isContain(
-          _sheetData[cellIndex._rowIndex][cellIndex._columnIndex])) {
+    if (_sheetData[cellIndex._rowIndex] != null) {
+      if (_sheetData[cellIndex._rowIndex][cellIndex._columnIndex] == null) {
         _sheetData[cellIndex._rowIndex][cellIndex._columnIndex] =
             Data.newData(this, cellIndex.rowIndex, cellIndex.columnIndex);
       }
@@ -145,8 +144,8 @@ class Sheet {
     if (_maxRows > 0 && maxCols > 0) {
       _data = List.generate(_maxRows, (rowIndex) {
         return List.generate(_maxCols, (colIndex) {
-          if (_isContain(_sheetData[rowIndex]) &&
-              _isContain(_sheetData[rowIndex][colIndex])) {
+          if (_sheetData[rowIndex] != null &&
+              _sheetData[rowIndex][colIndex] != null) {
             return _sheetData[rowIndex][colIndex].value;
           }
           return null;
@@ -204,15 +203,15 @@ class Sheet {
     }
 
     List<List<Data>> _selectedRange = <List<Data>>[];
-    if (!_isContain(_sheetData) || _sheetData.isEmpty) {
+    if (_sheetData.isEmpty) {
       return _selectedRange;
     }
 
     for (var i = _startRow; i <= (_endRow ?? maxRows); i++) {
-      if (_isContain(_sheetData[i])) {
+      if (_sheetData[i] != null) {
         var row = <Data>[];
         for (var j = _startColumn; j <= (_endColumn ?? maxCols); j++) {
-          if (_isContain(_sheetData[i][j])) {
+          if (_sheetData[i][j] != null) {
             row.add(_sheetData[i][j]);
           } else {
             row.add(null);
@@ -262,20 +261,19 @@ class Sheet {
   ///
   _countRowAndCol() {
     int maximumColIndex = -1, maximumRowIndex = -1;
-    if (_isContain(_sheetData)) {
-      List<int> sortedKeys = _sheetData.keys.toList()..sort();
-      sortedKeys.forEach((rowKey) {
-        if (_isContain(_sheetData[rowKey]) && _sheetData[rowKey].isNotEmpty) {
-          List<int> keys = _sheetData[rowKey].keys.toList()..sort();
-          if (keys != null && keys.isNotEmpty && keys.last > maximumColIndex) {
-            maximumColIndex = keys.last;
-          }
-        }
-      });
 
-      if (sortedKeys != null && sortedKeys.isNotEmpty) {
-        maximumRowIndex = sortedKeys.last;
+    List<int> sortedKeys = _sheetData.keys.toList()..sort();
+    sortedKeys.forEach((rowKey) {
+      if (_sheetData[rowKey] != null && _sheetData[rowKey].isNotEmpty) {
+        List<int> keys = _sheetData[rowKey].keys.toList()..sort();
+        if (keys != null && keys.isNotEmpty && keys.last > maximumColIndex) {
+          maximumColIndex = keys.last;
+        }
       }
+    });
+
+    if (sortedKeys != null && sortedKeys.isNotEmpty) {
+      maximumRowIndex = sortedKeys.last;
     }
 
     _maxCols = maximumColIndex + 1;
@@ -345,8 +343,8 @@ class Sheet {
         Map<int, Data> colMap = Map<int, Data>();
         List<int> sortedColKeys = _sheetData[rowKey].keys.toList()..sort();
         sortedColKeys.forEach((colKey) {
-          if (_isContain(_sheetData[rowKey]) &&
-              _isContain(_sheetData[rowKey][colKey])) {
+          if (_sheetData[rowKey] != null &&
+              _sheetData[rowKey][colKey] != null) {
             if (colKey < colIndex) {
               colMap[colKey] = _sheetData[rowKey][colKey];
             }
@@ -419,7 +417,7 @@ class Sheet {
       _excel._mergeChangeLookup = sheetName;
     }
 
-    if (_isContain(_sheetData) && _sheetData.isNotEmpty) {
+    if (_sheetData.isNotEmpty) {
       Map<int, Map<int, Data>> _data = Map<int, Map<int, Data>>();
       List<int> sortedKeys = _sheetData.keys.toList()..sort();
       if (colIndex <= maxCols - 1) {
@@ -433,8 +431,8 @@ class Sheet {
               return b.compareTo(a);
             });
           sortedColKeys.forEach((colKey) {
-            if (_isContain(_sheetData[rowKey]) &&
-                _isContain(_sheetData[rowKey][colKey])) {
+            if (_sheetData[rowKey] != null &&
+                _sheetData[rowKey][colKey] != null) {
               if (colKey < colIndex) {
                 colMap[colKey] = _sheetData[rowKey][colKey];
               }
@@ -528,16 +526,29 @@ class Sheet {
         /// do the shifting task
         List<int> sortedKeys = _sheetData.keys.toList()..sort();
         sortedKeys.forEach((rowKey) {
-          if (rowKey < rowIndex && _isContain(_sheetData[rowKey])) {
+          /// optimized code
+          if (_sheetData[rowKey] != null) {
+            if (rowKey < rowIndex) {
+              _data[rowKey] = Map<int, Data>.from(_sheetData[rowKey]);
+            } else {
+              if (rowIndex < rowKey) {
+                _data[rowKey - 1] = Map<int, Data>.from(_sheetData[rowKey]);
+              }
+              _sheetData.remove(rowKey);
+            }
+          }
+
+          /// slow code
+          /* if (rowKey < rowIndex && _sheetData[rowKey] != null) {
             _data[rowKey] = Map<int, Data>.from(_sheetData[rowKey]);
           }
-          if (rowIndex == rowKey && _isContain(_sheetData[rowKey])) {
+          if (rowIndex == rowKey && _sheetData[rowKey] != null) {
             _sheetData.remove(rowKey);
           }
-          if (rowIndex < rowKey && _isContain(_sheetData[rowKey])) {
+          if (rowIndex < rowKey && _sheetData[rowKey] != null) {
             _data[rowKey - 1] = Map<int, Data>.from(_sheetData[rowKey]);
             _sheetData.remove(rowKey);
-          }
+          } */
         });
         _sheetData = Map<int, Map<int, Data>>.from(_data);
       }
@@ -602,7 +613,7 @@ class Sheet {
     }
 
     Map<int, Map<int, Data>> _data = Map<int, Map<int, Data>>();
-    if (_isContain(_sheetData) && _sheetData.isNotEmpty) {
+    if (_sheetData.isNotEmpty) {
       List<int> sortedKeys = _sheetData.keys.toList()
         ..sort((a, b) {
           return b.compareTo(a);
@@ -712,7 +723,7 @@ class Sheet {
 
     for (int j = startRow; j <= endRow; j++) {
       for (int k = startColumn; k <= endColumn; k++) {
-        if (_isContain(_sheetData[j]) && _isContain(_sheetData[j][k])) {
+        if (_sheetData[j] != null && _sheetData[j][k] != null) {
           if (getValue &&
               _sheetData[j][k].value != null &&
               _sheetData[j][k].cellStyle != null) {
@@ -724,7 +735,7 @@ class Sheet {
       }
     }
 
-    if (_isContain(_sheetData[startRow])) {
+    if (_sheetData[startRow] != null) {
       _sheetData[startRow][startColumn] = value;
     } else {
       _sheetData[startRow] = {startColumn: value};
@@ -949,8 +960,8 @@ class Sheet {
   /// Internal function for putting the data in `_sheetData`.
   ///
   _putData(int rowIndex, int columnIndex, dynamic value) {
-    if (_isContain(_sheetData[rowIndex])) {
-      if (!_isContain(_sheetData[rowIndex][columnIndex])) {
+    if (_sheetData[rowIndex] != null) {
+      if (_sheetData[rowIndex][columnIndex] == null) {
         _sheetData[rowIndex][columnIndex] =
             Data.newData(this, rowIndex, columnIndex);
       }
@@ -1113,9 +1124,8 @@ class Sheet {
         if (_endingColumn != -1 && j > _endingColumn) {
           break;
         }
-        if (_sheetData.isNotEmpty &&
-            _isContain(_sheetData[i]) &&
-            _isContain(_sheetData[i][j]) &&
+        if (_sheetData[i] != null &&
+            _sheetData[i][j] != null &&
             sourceRegx.hasMatch(_sheetData[i][j].value.toString()) &&
             (first == -1 || first != replaceCount)) {
           this
@@ -1146,7 +1156,7 @@ class Sheet {
     /// If this row exists then we check for the span condition
     bool isNotInside = true;
 
-    if (_isContain(_sheetData[rowIndex]) && _sheetData[rowIndex].isNotEmpty) {
+    if (_sheetData[rowIndex] != null && _sheetData[rowIndex].isNotEmpty) {
       /// lets start iterating the spanList and check that if the row is inside the spanList or not
       /// we will expect that value of isNotInside should not be changed to false
       /// If it changes to false then we can't clear this row as it is inside the spanned Cells
