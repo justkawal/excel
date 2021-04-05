@@ -261,9 +261,6 @@ class Parser {
           int fontId = _getFontIndex(node, 'fontId');
           _FontStyle _fontStyle = _FontStyle();
 
-          /// getting font Color
-          if (fontId < fontList.length) {}
-
           /// checking for other font values
           if (fontId < fontList.length) {
             XmlElement font = fontList.elementAt(fontId);
