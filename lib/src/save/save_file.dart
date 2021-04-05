@@ -1,14 +1,11 @@
 part of excel;
 
 class Save {
-  late Excel _excel;
+  final Excel _excel;
   Map<String, ArchiveFile> _archiveFiles = <String, ArchiveFile>{};
   List<CellStyle> _innerCellStyle = <CellStyle>[];
-  late Parser parser;
-  Save._(Excel excel, Parser _parser) {
-    _excel = excel;
-    parser = _parser;
-  }
+  final Parser parser;
+  Save._(this._excel, this.parser);
 
   List<int>? _save() {
     if (_excel._colorChanges) {
@@ -128,15 +125,6 @@ class Save {
           }
         }
       }
-      /*  value._sheetData.forEach((rowIndex, map) {
-        var foundRow =
-            _createNewRow(_excel._sheets[sheet]! as XmlElement, rowIndex);
-        map.forEach((columnIndex, data) {
-          if (data.value != null) {
-            _updateCell(sheet, foundRow, columnIndex, rowIndex, data.value);
-          }
-        });
-      }); */
     });
   }
 
