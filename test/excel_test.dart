@@ -69,21 +69,19 @@ void main() {
     var excel = Excel.decodeBytes(bytes);
     Sheet sheetObject = excel.tables['Sheet1'];
     sheetObject.insertRowIterables(["Russia", "Moscow", "Putin"], 4);
-    excel.encode().then((onValue) {
-      File(Directory.current.path + "/tmp/exampleOut.xlsx")
-        ..createSync(recursive: true)
-        ..writeAsBytesSync(onValue);
-    }).whenComplete(() {
-      var file = "./tmp/exampleOut.xlsx";
-      var bytes = File(file).readAsBytesSync();
-      var excel = Excel.decodeBytes(bytes);
-      // delete tmp folder
-      new Directory("./tmp").delete(recursive: true);
-      expect(excel.sheets.entries.length, equals(1));
-      expect(
-          excel.tables["Sheet1"].rows[1][1].toString(), equals('Washington'));
-      expect(excel.tables['Sheet1'].maxCols, equals(3));
-      expect(excel.tables["Sheet1"].rows[4][1].toString(), equals('Moscow'));
-    });
+    var onValue = excel.encode();
+    File(Directory.current.path + "/tmp/exampleOut.xlsx")
+      ..createSync(recursive: true)
+      ..writeAsBytesSync(onValue);
+
+    var file1 = "./tmp/exampleOut.xlsx";
+    var bytes1 = File(file1).readAsBytesSync();
+    var excel1 = Excel.decodeBytes(bytes1);
+    // delete tmp folder
+    new Directory("./tmp").delete(recursive: true);
+    expect(excel1.sheets.entries.length, equals(1));
+    expect(excel1.tables["Sheet1"].rows[1][1].toString(), equals('Washington'));
+    expect(excel1.tables['Sheet1'].maxCols, equals(3));
+    expect(excel1.tables["Sheet1"].rows[4][1].toString(), equals('Moscow'));
   });
 }
