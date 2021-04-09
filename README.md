@@ -35,6 +35,7 @@
 
 #### This library is [MIT](https://github.com/justkawal/excel/blob/40b8b1ed8c3c213d8911784ddd40bf97841977a1/LICENSE#L1) licensed So, it's free to use anytime, anywhere without any consent, because we believe in Open Source work.
 
+## I only Supports XLSX file format. ( Thanks ✌️)
 
 # Table of Contents
   - [Installing](#lets-get-started)
