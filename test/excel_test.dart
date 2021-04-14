@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:math';
 
 import 'package:excel/excel.dart';
 import 'package:test/test.dart';
@@ -16,6 +17,18 @@ void main() {
     var excel = Excel.decodeBytes(bytes);
     expect(excel.tables['Sheet1'].maxCols, equals(3));
     expect(excel.tables["Sheet1"].rows[1][1].toString(), equals('Washington'));
+  });
+
+  test('Convert XLSX File -> toJson()', () {
+    var file = "./test/test_resources/example.xlsx";
+    var bytes = File(file).readAsBytesSync();
+    var excel = Excel.decodeBytes(bytes);
+    var json  = excel.toJson();
+
+    expect(json, isMap);
+    expect(json, isNotEmpty);
+    expect(json.values.first.length, excel.sheets.values.first.maxRows - 1); // NO header row
+    expect(json.values.first.first.values.first, excel.sheets.values.first.rows[1].first);
   });
 
   group('Sheet Operations', () {

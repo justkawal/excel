@@ -1291,6 +1291,30 @@ class Sheet {
     return <Data>[];
   }
 
+  List<Map<String, dynamic>> toJson() {
+    List<String>               header = List<String>.from(rows.first);
+    List<Map<String, dynamic>> data   = [];
+    Map<String, dynamic>       entry;
+    
+    for (int ir = 1; ir < rows.length; ir++) {
+      entry = {};
+
+      for (int ic = 0; ic < rows[ir].length; ic++) {
+        if (rows[ir][ic] is Formula) {
+          entry[header[ic]] = rows[ir][ic].value;
+        } else { 
+          entry[header[ic]] = rows[ir][ic];
+        }   
+      }
+
+      data.add(entry);
+    }
+
+    return data;
+  }
+
+  String toString() => 'Sheet (name: $_sheet, rows: $maxRows)';
+
   ///
   ///returns count of `rows` having data in `sheet`
   ///
