@@ -550,6 +550,18 @@ class Excel {
     }
   }
 
+  Map<String, List<Map<String, dynamic>>> toJson() {
+    Map<String, List<Map<String, dynamic>>> json = {};
+
+    for (MapEntry sheet in sheets.entries) {
+      json[sheet.key] = sheet.value.toJson(); 
+    }
+
+    return json;
+  }
+
+  String toString() => 'Excel (sheets: $sheets)';
+
   ///
   ///Internal function taking care of adding the `sheetName` to the `mergeChangeLook` List
   ///So that merging function will be only called on `sheetNames of mergeChangeLook`
@@ -568,3 +580,5 @@ class Excel {
     }
   }
 }
+
+bool _isContain(dynamic val) => val != null; // (? Why is this function missing?)
