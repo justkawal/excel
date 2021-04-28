@@ -3,11 +3,11 @@ import 'package:path/path.dart';
 import 'package:excel/excel.dart';
 
 void main(List<String> args) {
-  var file = "/Users/kawal/Desktop/excel/test/test_resources/example.xlsx";
-  var bytes = File(file).readAsBytesSync();
-  //var excel = Excel.createExcel();
+  //var file = "/Users/kawal/Desktop/excel/test/test_resources/example.xlsx";
+  //var bytes = File(file).readAsBytesSync();
+  var excel = Excel.createExcel();
   // or
-  var excel = Excel.decodeBytes(bytes);
+  //var excel = Excel.decodeBytes(bytes);
 
   ///
   ///
@@ -27,21 +27,28 @@ void main(List<String> args) {
   /// Change sheet from rtl to ltr and vice-versa i.e. (right-to-left -> left-to-right and vice-versa)
   ///
   var sheet1rtl = excel['Sheet1'].isRTL;
-  excel['Sheet1'].isRTL = false;
+  //excel['Sheet1'].isRTL = false;
   print(
       'Sheet1: ((previous) isRTL: $sheet1rtl) ---> ((current) isRTL: ${excel['Sheet1'].isRTL})');
+  var sheet1 = excel['Sheet1'];
+  sheet1.cell(CellIndex.indexByString('A1')).value = 'Sheet1';
 
-  var sheet2rtl = excel['Sheet2'].isRTL;
+  excel.copy('Sheet1', 'newlyCopied');
+
+  var sheet2 = excel['newlyCopied'];
+  sheet2.cell(CellIndex.indexByString('A1')).value = 'newlyCopied';
+
+  /* var sheet2rtl = excel['Sheet2'].isRTL;
   excel['Sheet2'].isRTL = true;
   print(
-      'Sheet2: ((previous) isRTL: $sheet2rtl) ---> ((current) isRTL: ${excel['Sheet2'].isRTL})');
+      'Sheet2: ((previous) isRTL: $sheet2rtl) ---> ((current) isRTL: ${excel['Sheet2'].isRTL})'); */
 
   ///
   ///
   /// declaring a cellStyle object
   ///
   ///
-  CellStyle cellStyle = CellStyle(
+  /*  CellStyle cellStyle = CellStyle(
     bold: true,
     italic: true,
     textWrapping: TextWrapping.WrapText,
@@ -120,15 +127,15 @@ void main(List<String> args) {
       columnIndex: colIndex,
     ))
       ..value = colValue;
-  });
+  }); */
 
   // Saving the file
 
-  String outputFile = "/Users/kawal/Desktop/r.xlsx";
+  String outputFile = "/Users/kawal/Desktop/git_projects/r.xlsx";
 
-  stopwatch.reset();
+  //stopwatch.reset();
   List<int>? fileBytes = excel.save();
-  print('saving executed in ${stopwatch.elapsed}');
+  //print('saving executed in ${stopwatch.elapsed}');
   if (fileBytes != null) {
     File(join(outputFile))
       ..createSync(recursive: true)

@@ -68,12 +68,14 @@ class Sheet {
 
     /// copy the data objects into a temp folder and then while putting it into `_sheetData` change the data objects references.
     if (sh != null) {
-      _sheetData = Map<int, Map<int, Data>>.from(sh);
+      _sheetData = <int, Map<int, Data>>{};
       Map<int, Map<int, Data>> temp = Map<int, Map<int, Data>>.from(sh);
       temp.forEach((key, value) {
-        _sheetData[key]!.forEach((key1, oldDataObject) {
-          Data newDataObject = Data._clone(this, oldDataObject);
-          _sheetData[key]![key1] = newDataObject;
+        if (_sheetData[key] == null) {
+          _sheetData[key] = <int, Data>{};
+        }
+        temp[key]!.forEach((key1, oldDataObject) {
+          _sheetData[key]![key1] = Data._clone(this, oldDataObject);
         });
       });
     }

@@ -141,6 +141,8 @@ class Excel {
   ///If `toSheet` does not exist then it will be automatically created.
   ///
   void copy(String fromSheet, String toSheet) {
+    _availSheet(toSheet);
+
     if (_sheetMap[fromSheet] != null) {
       this[toSheet] = this[fromSheet];
     }
@@ -482,7 +484,7 @@ class Excel {
   ///
   ///Make `sheet` available if it does not exist in `_sheetMap`
   ///
-  _availSheet(String sheet) {
+  void _availSheet(String sheet) {
     if (_sheetMap[sheet] == null) {
       _sheetMap[sheet] = Sheet._(this, sheet);
     }
