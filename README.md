@@ -160,7 +160,7 @@ Use `FilePicker` to pick files in Flutter Web. [FilePicker](https://pub.dev/pack
     
     ByteData data = await rootBundle.load("assets/existing_excel_file.xlsx");
     var bytes = data.buffer.asUint8List(data.offsetInBytes, data.lengthInBytes);
-    var excel = Excel.decodeBytes(bytes, update: true);
+    var excel = Excel.decodeBytes(bytes);
         
     for (var table in excel.tables.keys) {
       print(table); //sheet Name
@@ -398,7 +398,7 @@ key | description
       */
       
       /// It will put the list-iterables in the 8th index row
-      List<String> dataList = ["Google", "loves", "Flutter", "and", "Flutter", "loves", "Google"];
+      List<String> dataList = ["Google", "loves", "Flutter", "and", "Flutter", "loves", "Excel"];
       
       sheetObject.insertRowIterables(dataList, 8);
     
