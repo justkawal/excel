@@ -27,28 +27,21 @@ void main(List<String> args) {
   /// Change sheet from rtl to ltr and vice-versa i.e. (right-to-left -> left-to-right and vice-versa)
   ///
   var sheet1rtl = excel['Sheet1'].isRTL;
-  //excel['Sheet1'].isRTL = false;
+  excel['Sheet1'].isRTL = false;
   print(
       'Sheet1: ((previous) isRTL: $sheet1rtl) ---> ((current) isRTL: ${excel['Sheet1'].isRTL})');
-  var sheet1 = excel['Sheet1'];
-  sheet1.cell(CellIndex.indexByString('A1')).value = 'Sheet1';
 
-  excel.copy('Sheet1', 'newlyCopied');
-
-  var sheet2 = excel['newlyCopied'];
-  sheet2.cell(CellIndex.indexByString('A1')).value = 'newlyCopied';
-
-  /* var sheet2rtl = excel['Sheet2'].isRTL;
+  var sheet2rtl = excel['Sheet2'].isRTL;
   excel['Sheet2'].isRTL = true;
   print(
-      'Sheet2: ((previous) isRTL: $sheet2rtl) ---> ((current) isRTL: ${excel['Sheet2'].isRTL})'); */
+      'Sheet2: ((previous) isRTL: $sheet2rtl) ---> ((current) isRTL: ${excel['Sheet2'].isRTL})');
 
   ///
   ///
   /// declaring a cellStyle object
   ///
   ///
-  /*  CellStyle cellStyle = CellStyle(
+  CellStyle cellStyle = CellStyle(
     bold: true,
     italic: true,
     textWrapping: TextWrapping.WrapText,
@@ -84,13 +77,22 @@ void main(List<String> args) {
 
   excel.rename("mySheet", "myRenamedNewSheet");
 
-  // fromSheet should exist in order to sucessfully copy the contents
-  excel.copy('myRenamedNewSheet', 'toSheet');
+  var sheet1 = excel['Sheet1'];
+  sheet1.cell(CellIndex.indexByString('A1')).value = 'Sheet1';
 
+  /// fromSheet should exist in order to sucessfully copy the contents
+  excel.copy('Sheet1', 'newlyCopied');
+
+  var sheet2 = excel['newlyCopied'];
+  sheet2.cell(CellIndex.indexByString('A1')).value = 'Newly Copied Sheet';
+
+  /// renaming the sheet
   excel.rename('oldSheetName', 'newSheetName');
 
+  /// deleting the sheet
   excel.delete('Sheet1');
 
+  /// unlinking the sheet if any link function is used !!
   excel.unLink('sheet1');
 
   sheet = excel['sheet'];
@@ -127,7 +129,7 @@ void main(List<String> args) {
       columnIndex: colIndex,
     ))
       ..value = colValue;
-  }); */
+  });
 
   // Saving the file
 
