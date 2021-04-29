@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 - Formulas
 - Conversion to PDF
 
+## [2.0.0-null-safety-2] - 2021-04-29
+### Improved
+- Fix of sharedStringTarget fail to initialize issue
+
 ## [2.0.0-null-safety-1] - 2021-04-29
 ### Improved
 - Fix of value not updating in cell

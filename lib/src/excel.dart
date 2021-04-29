@@ -22,8 +22,12 @@ Excel _newExcel(Archive archive) {
 
 /// Decode a excel file.
 class Excel {
-  bool _colorChanges = false, _mergeChanges = false, _rtlChanges = false;
+  bool _colorChanges = false;
+  bool _mergeChanges = false;
+  bool _rtlChanges = false;
+
   late Archive _archive;
+  
   Map<String, XmlNode> _sheets = <String, XmlNode>{};
   Map<String, XmlDocument> _xmlFiles = <String, XmlDocument>{};
   Map<String, String> _xmlSheetId = <String, String>{};
@@ -31,13 +35,19 @@ class Excel {
       <String, Map<String, int>>{};
   Map<String, Sheet> _sheetMap = <String, Sheet>{};
   List<CellStyle> _cellStyleList = <CellStyle>[];
-  List<String> _patternFill = <String>[],
-      _mergeChangeLook = <String>[],
-      _rtlChangeLook = <String>[];
+
+  List<String> _patternFill = <String>[];
+  List<String> _mergeChangeLook = <String>[];
+  List<String> _rtlChangeLook = <String>[];
+
   late _SharedStringsMaintainer _sharedStrings;
+
   List<_FontStyle> _fontStyleList = <_FontStyle>[];
   List<int> _numFormats = <int>[];
-  late String _stylesTarget, _sharedStringsTarget;
+
+  String _stylesTarget = '';
+  String _sharedStringsTarget = '';
+
   String? _defaultSheet;
   late Parser parser;
 
