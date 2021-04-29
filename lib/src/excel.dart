@@ -27,7 +27,7 @@ class Excel {
   bool _rtlChanges = false;
 
   late Archive _archive;
-  
+
   Map<String, XmlNode> _sheets = <String, XmlNode>{};
   Map<String, XmlDocument> _xmlFiles = <String, XmlDocument>{};
   Map<String, String> _xmlSheetId = <String, String>{};
