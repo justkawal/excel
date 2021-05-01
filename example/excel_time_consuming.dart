@@ -16,7 +16,7 @@ void main(List<String> args) {
     for (int col = 0; col < 80; col++) {
       sh
           .cell(CellIndex.indexByColumnRow(rowIndex: row, columnIndex: col))
-          .value = 'value';
+          .value = '$row$col value';
     }
   }
   print('Generating executed in ${stopwatch.elapsed}');
