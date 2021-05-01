@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 - Formulas
 - Conversion to PDF
 
+## [2.0.0-null-safety-3] - 2021-04-29
+### Improved
+- Forcefully initializing the variables on re-creation
+
 ## [2.0.0-null-safety-2] - 2021-04-29
 ### Improved
 - Fix of sharedStringTarget fail to initialize issue
