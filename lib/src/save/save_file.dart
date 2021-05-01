@@ -2,10 +2,13 @@ part of excel;
 
 class Save {
   final Excel _excel;
-  Map<String, ArchiveFile> _archiveFiles = <String, ArchiveFile>{};
-  List<CellStyle> _innerCellStyle = <CellStyle>[];
+  late Map<String, ArchiveFile> _archiveFiles;
+  late List<CellStyle> _innerCellStyle;
   final Parser parser;
-  Save._(this._excel, this.parser);
+  Save._(this._excel, this.parser) {
+    _archiveFiles = <String, ArchiveFile>{};
+    _innerCellStyle = <CellStyle>[];
+  }
 
   List<int>? _save() {
     if (_excel._colorChanges) {

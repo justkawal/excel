@@ -22,38 +22,54 @@ Excel _newExcel(Archive archive) {
 
 /// Decode a excel file.
 class Excel {
-  bool _colorChanges = false;
-  bool _mergeChanges = false;
-  bool _rtlChanges = false;
+  late bool _colorChanges;
+  late bool _mergeChanges;
+  late bool _rtlChanges;
 
   late Archive _archive;
 
-  Map<String, XmlNode> _sheets = <String, XmlNode>{};
-  Map<String, XmlDocument> _xmlFiles = <String, XmlDocument>{};
-  Map<String, String> _xmlSheetId = <String, String>{};
-  Map<String, Map<String, int>> _cellStyleReferenced =
-      <String, Map<String, int>>{};
-  Map<String, Sheet> _sheetMap = <String, Sheet>{};
-  List<CellStyle> _cellStyleList = <CellStyle>[];
+  late Map<String, XmlNode> _sheets;
+  late Map<String, XmlDocument> _xmlFiles;
+  late Map<String, String> _xmlSheetId;
+  late Map<String, Map<String, int>> _cellStyleReferenced;
+  late Map<String, Sheet> _sheetMap;
 
-  List<String> _patternFill = <String>[];
-  List<String> _mergeChangeLook = <String>[];
-  List<String> _rtlChangeLook = <String>[];
+  late List<CellStyle> _cellStyleList;
+  late List<String> _patternFill;
+  late List<String> _mergeChangeLook;
+  late List<String> _rtlChangeLook;
+  late List<_FontStyle> _fontStyleList;
+  late List<int> _numFormats;
 
   late _SharedStringsMaintainer _sharedStrings;
 
-  List<_FontStyle> _fontStyleList = <_FontStyle>[];
-  List<int> _numFormats = <int>[];
-
-  String _stylesTarget = '';
-  String _sharedStringsTarget = '';
+  late String _stylesTarget;
+  late String _sharedStringsTarget;
 
   String? _defaultSheet;
   late Parser parser;
 
   Excel._(Archive archive) {
+    _colorChanges = false;
+    _mergeChanges = false;
+    _rtlChanges = false;
+    _sheets = <String, XmlNode>{};
+    _xmlFiles = <String, XmlDocument>{};
+    _xmlSheetId = <String, String>{};
+    _cellStyleReferenced = <String, Map<String, int>>{};
+    _sheetMap = <String, Sheet>{};
+    _cellStyleList = <CellStyle>[];
+    _patternFill = <String>[];
+    _mergeChangeLook = <String>[];
+    _rtlChangeLook = <String>[];
+    _fontStyleList = <_FontStyle>[];
+    _numFormats = <int>[];
+    _stylesTarget = '';
+    _sharedStringsTarget = '';
+
     _archive = archive;
     _sharedStrings = _SharedStringsMaintainer.instance;
+    _sharedStrings.ensureReinitialize();
     parser = Parser._(this);
     parser._startParsing();
   }

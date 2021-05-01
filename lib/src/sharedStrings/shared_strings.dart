@@ -40,6 +40,12 @@ class _SharedStringsMaintainer {
     _list = <String>[];
     _map = <String, _IndexingHolder>{};
   }
+
+  void ensureReinitialize() {
+    _map = <String, _IndexingHolder>{};
+    _list = <String>[];
+    _index = 0;
+  }
 }
 
 class _IndexingHolder {

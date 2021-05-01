@@ -3,13 +3,13 @@ part of excel;
 class Sheet {
   late Excel _excel;
   late String _sheet;
-  bool _isRTL = false;
-  int _maxRows = 0;
-  int _maxCols = 0;
+  late bool _isRTL;
+  late int _maxRows;
+  late int _maxCols;
   //List<double> _rowHeight = <double>[], _colWidth = <double>[];
-  FastList<String> _spannedItems = FastList<String>();
-  List<_Span?> _spanList = <_Span?>[];
-  Map<int, Map<int, Data>> _sheetData = <int, Map<int, Data>>{};
+  late FastList<String> _spannedItems;
+  late List<_Span?> _spanList;
+  late Map<int, Map<int, Data>> _sheetData;
 
   ///
   /// It will clone the object by changing the `this` reference of previous oldSheetObject and putting `new this` reference, with copying the values too
@@ -42,6 +42,13 @@ class Sheet {
   }) {
     _excel = excel;
     _sheet = sheetName;
+    _sheetData = <int, Map<int, Data>>{};
+    _spanList = <_Span?>[];
+    _spannedItems = FastList<String>();
+    _isRTL = false;
+    _maxRows = 0;
+    _maxCols = 0;
+
     if (spanL_ != null) {
       _spanList = List<_Span?>.from(spanL_);
       _excel._mergeChangeLookup = sheetName;

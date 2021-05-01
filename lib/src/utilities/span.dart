@@ -3,9 +3,13 @@ part of excel;
 // For Spanning the columns and rows
 // ignore: must_be_immutable
 class _Span extends Equatable {
-  var __start = <int>[];
+  late List<int> __start;
+  late List<int> __end;
 
-  var __end = <int>[];
+  _Span() {
+    __start = <int>[];
+    __end = <int>[];
+  }
 
   set _start(List<int> val) {
     __start = val;
