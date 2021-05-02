@@ -83,6 +83,16 @@ class Data extends Equatable {
         columnIndex: _colIndex, rowIndex: _rowIndex);
   }
 
+  /// Helps to set the formula
+  ///```
+  ///var sheet = excel['Sheet1'];
+  ///var cell = sheet.cell(CellIndex.indexByString("E5"));
+  ///cell.setFormula('=SUM(1,2)');
+  ///```
+  void setFormula(String formula) {
+    _sheet.updateCell(cellIndex, Formula.custom(formula));
+  }
+
   set value(dynamic val) {
     _sheet.updateCell(cellIndex, val);
   }
