@@ -8,7 +8,7 @@ environment:
 
 dependencies:
   archive: ^3.0.0
-  xml: ^4.1.0
+  xml: ^5.0.0
   equatable: ^1.2.6
 
 dev_dependencies:
