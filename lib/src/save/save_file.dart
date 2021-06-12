@@ -111,6 +111,8 @@ class Save {
         _excel._sheets[sheet]!.children.clear();
       }
 
+      _setColumnWidth(sheet);
+
       /// `Above function is important in order to wipe out the old contents of the sheet.`
       for (var rowIndex = 0; rowIndex < value._maxRows; rowIndex++) {
         if (value._sheetData[rowIndex] == null) {
@@ -129,6 +131,83 @@ class Save {
         }
       }
     });
+  }
+
+  _setColumnWidth(String sheetName) {
+    final sheetObject = _excel._sheetMap[sheetName];
+    if (sheetObject == null) return;
+
+    var xmlFile = _excel._xmlFiles[_excel._xmlSheetId[sheetName]];
+    if (xmlFile == null) return;
+
+    final colElements = xmlFile.findAllElements('cols');
+
+    if (sheetObject.getColWidths.isEmpty &&
+        sheetObject.getColAutoFits.isEmpty) {
+      if (colElements.isEmpty) {
+        return;
+      }
+
+      final cols = colElements.first;
+      final worksheet = xmlFile.findAllElements('worksheet').first;
+      worksheet.children.remove(cols);
+      return;
+    }
+
+    if (colElements.isEmpty) {
+      final worksheet = xmlFile.findAllElements('worksheet').first;
+      final sheetData = xmlFile.findAllElements('sheetData').first;
+      final index = worksheet.children.indexOf(sheetData);
+
+      worksheet.children.insert(index, XmlElement(XmlName('cols'), [], []));
+    }
+
+    var cols = colElements.first;
+
+    if (cols.children.isNotEmpty) {
+      cols.children.clear();
+    }
+
+    final autoFits = sheetObject.getColAutoFits.asMap();
+    final customWidths = sheetObject.getColWidths.asMap();
+
+    final columnCount = max(autoFits.length, customWidths.length);
+
+    for (var index = 0; index < columnCount; index++) {
+      double value = _defaultColumnWidth;
+
+      if (autoFits.containsKey(index) &&
+          autoFits[index] == true &&
+          (!customWidths.containsKey(index) ||
+              customWidths[index] == _defaultColumnWidth)) {
+        value = _calcAutoFitColWidth(sheetObject, index);
+      } else {
+        if (customWidths.containsKey(index)) {
+          value = customWidths[index]!;
+        }
+      }
+
+      final colIdx = (index + 1).toString();
+      cols.children.add(XmlElement(XmlName('col'), [
+        XmlAttribute(XmlName('min'), colIdx),
+        XmlAttribute(XmlName('max'), colIdx),
+        XmlAttribute(XmlName('width'), value.toString()),
+        XmlAttribute(XmlName('customWidth'), "1"),
+        XmlAttribute(XmlName('bestFit'), "1"),
+      ], []));
+    }
+  }
+
+  double _calcAutoFitColWidth(Sheet sheet, int col) {
+    var maxNumOfCharacters = 0;
+    sheet._sheetData.forEach((key, value) {
+      if (value.containsKey(col) && value[col]!._isFormula == false) {
+        maxNumOfCharacters =
+            max(value[col]!.value.toString().length, maxNumOfCharacters);
+      }
+    });
+
+    return ((maxNumOfCharacters * 7.0 + 9.0) / 7.0 * 256).truncate() / 256;
   }
 
   _setRTL() {
@@ -509,7 +588,7 @@ class Save {
       count += ss.count;
 
       shareString.children.add(XmlElement(XmlName('si'), [], [
-        XmlElement(XmlName('t'), [], [XmlText(string)])
+        XmlElement(XmlName('t'), [], [XmlText(string)]),
       ]));
     });
 
