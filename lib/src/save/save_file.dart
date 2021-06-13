@@ -173,6 +173,9 @@ class Save {
 
     final columnCount = max(autoFits.length, customWidths.length);
 
+    List<double> colWidths = <double>[];
+    int min = 0;
+
     for (var index = 0; index < columnCount; index++) {
       double value = _defaultColumnWidth;
 
@@ -187,15 +190,27 @@ class Save {
         }
       }
 
-      final colIdx = (index + 1).toString();
-      cols.children.add(XmlElement(XmlName('col'), [
-        XmlAttribute(XmlName('min'), colIdx),
-        XmlAttribute(XmlName('max'), colIdx),
-        XmlAttribute(XmlName('width'), value.toString()),
-        XmlAttribute(XmlName('customWidth'), "1"),
-        XmlAttribute(XmlName('bestFit'), "1"),
-      ], []));
+      colWidths.add(value);
+
+      if (index != 0 && colWidths[index - 1] != value) {
+        _addNewCol(cols, min, index, colWidths[index - 1]);
+        min = index;
+      }
+
+      if (index == (columnCount - 1)) {
+        _addNewCol(cols, index, index, value);
+      }
     }
+  }
+
+  void _addNewCol(XmlElement cols, int min, int max, double value) {
+    cols.children.add(XmlElement(XmlName('col'), [
+      XmlAttribute(XmlName('min'), (min + 1).toString()),
+      XmlAttribute(XmlName('max'), (max + 1).toString()),
+      XmlAttribute(XmlName('width'), value.toString()),
+      XmlAttribute(XmlName('customWidth'), "1"),
+      XmlAttribute(XmlName('bestFit'), "1"),
+    ], []));
   }
 
   double _calcAutoFitColWidth(Sheet sheet, int col) {

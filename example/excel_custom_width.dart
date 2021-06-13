@@ -4,8 +4,8 @@ import 'package:path/path.dart';
 import '../lib/excel.dart';
 
 void main(List<String> args) {
-  final file = "/Users/igdmit/Downloads/reference_template_v1.xlsx";
-  final bytes = File(file).readAsBytesSync();
+  //final file = "/Users/igdmit/Downloads/reference_template_v1.xlsx";
+  //final bytes = File(file).readAsBytesSync();
   //final excel = Excel.decodeBytes(bytes);
 
   var excel = Excel.createExcel();
