@@ -1,28 +1,49 @@
+import 'dart:convert';
 import 'dart:io';
+import 'dart:math';
 import 'package:path/path.dart';
 
 import '../lib/excel.dart';
 
 void main(List<String> args) {
-  //final file = "/Users/igdmit/Downloads/reference_template_v1.xlsx";
-  //final bytes = File(file).readAsBytesSync();
-  //final excel = Excel.decodeBytes(bytes);
-
   var excel = Excel.createExcel();
   final Sheet sheet = excel[excel.getDefaultSheet()!];
 
-  sheet.cell(CellIndex.indexByColumnRow(columnIndex: 0, rowIndex: 0)).value =
-      'abcdefghijklmnopqrstuvwxyzABCD123';
-  sheet.cell(CellIndex.indexByColumnRow(columnIndex: 5, rowIndex: 5)).value =
-      'abcdefghijklm';
-  sheet.cell(CellIndex.indexByColumnRow(columnIndex: 5, rowIndex: 8)).value =
-      'abcdefghijklm01234567890';
-  sheet.cell(CellIndex.indexByColumnRow(columnIndex: 5, rowIndex: 10)).value =
-      'abcdefghijklm01234567890'.toUpperCase();
+  for (var row = 0; row < 100; row++) {
+    sheet
+        .cell(CellIndex.indexByColumnRow(columnIndex: 0, rowIndex: row))
+        .value = getRandString();
 
-  sheet.setColWidth(0, 50.0);
-  sheet.setColWidth(10000, 10.0);
-  sheet.setColAutoFit(5);
+    sheet
+        .cell(CellIndex.indexByColumnRow(columnIndex: 1, rowIndex: row))
+        .value = getRandString();
+
+    sheet
+        .cell(CellIndex.indexByColumnRow(columnIndex: 2, rowIndex: row))
+        .value = getRandString();
+
+    sheet
+        .cell(CellIndex.indexByColumnRow(columnIndex: 4, rowIndex: row))
+        .value = getRandString();
+
+    sheet
+        .cell(CellIndex.indexByColumnRow(columnIndex: 7, rowIndex: row))
+        .value = getRandString();
+
+    sheet
+        .cell(CellIndex.indexByColumnRow(columnIndex: 50, rowIndex: row))
+        .value = getRandString();
+  }
+
+  sheet.setColWidth(0, 10.0);
+  sheet.setColWidth(1, 10.0);
+  sheet.setColAutoFit(0);
+  sheet.setColAutoFit(1);
+  sheet.setColAutoFit(2);
+  sheet.setColWidth(50, 10.0);
+
+  sheet.merge(CellIndex.indexByColumnRow(columnIndex: 0, rowIndex: 0),
+      CellIndex.indexByColumnRow(columnIndex: 1, rowIndex: 10));
 
   String outputFile =
       "/Users/igdmit/Downloads/excel_custom-${DateTime.now().toIso8601String()}.xlsx";
@@ -33,4 +54,11 @@ void main(List<String> args) {
       ..createSync(recursive: true)
       ..writeAsBytesSync(fileBytes);
   }
+}
+
+String getRandString() {
+  final random = Random.secure();
+  final len = random.nextInt(20);
+  final values = List<int>.generate(len, (i) => random.nextInt(255));
+  return base64UrlEncode(values);
 }

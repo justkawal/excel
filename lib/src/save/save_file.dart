@@ -193,7 +193,7 @@ class Save {
       colWidths.add(value);
 
       if (index != 0 && colWidths[index - 1] != value) {
-        _addNewCol(cols, min, index, colWidths[index - 1]);
+        _addNewCol(cols, min, index - 1, colWidths[index - 1]);
         min = index;
       }
 
