@@ -207,9 +207,9 @@ class Save {
     cols.children.add(XmlElement(XmlName('col'), [
       XmlAttribute(XmlName('min'), (min + 1).toString()),
       XmlAttribute(XmlName('max'), (max + 1).toString()),
-      XmlAttribute(XmlName('width'), value.toString()),
-      XmlAttribute(XmlName('customWidth'), "1"),
+      XmlAttribute(XmlName('width'), value.toStringAsFixed(2)),
       XmlAttribute(XmlName('bestFit'), "1"),
+      XmlAttribute(XmlName('customWidth'), "1"),
     ], []));
   }
 
