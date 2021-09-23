@@ -8,8 +8,8 @@ environment:
 
 dependencies:
   archive: ^3.1.2
-  xml: ^5.3.0
-  equatable: ^2.0.3
+  xml: ^5.0.2
+  equatable: ^2.0.0
 
 dev_dependencies:
   test: ^1.16.5
