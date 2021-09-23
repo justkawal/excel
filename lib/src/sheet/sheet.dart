@@ -224,13 +224,15 @@ class Sheet {
 
     for (var i = _startRow; i <= (_endRow ?? maxRows); i++) {
       if (_sheetData[i] != null) {
-        List<Data?> row = <Data>[];
+        List<Data?> row = <Data?>[];
         for (var j = _startColumn; j <= (_endColumn ?? maxCols); j++) {
-          if (_sheetData[i]![j] != null) {
+          row.add(_sheetData[i]?[j]);
+
+          /* if (_sheetData[i]![j] != null) {
             row.add(_sheetData[i]![j]!);
           } else {
             row.add(null);
-          }
+          } */
         }
         _selectedRange.add(row);
       } else {
@@ -265,10 +267,7 @@ class Sheet {
   ///
   List<List<dynamic>?> selectRangeValues(CellIndex start, {CellIndex? end}) {
     var _list = (end == null ? selectRange(start) : selectRange(start, end: end));
-    return _list.map((List<Data?>? e) {
-      print('selectRangeValues: $e');
-      return e?.map((e1) => e1 != null ? e1.value : null).toList();
-    }).toList();
+    return _list.map((List<Data?>? e) => e?.map((e1) => e1 != null ? e1.value : null).toList()).toList();
   }
 
   ///
