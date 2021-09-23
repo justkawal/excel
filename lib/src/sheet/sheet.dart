@@ -223,11 +223,11 @@ class Sheet {
     }
 
     for (var i = _startRow; i <= (_endRow ?? maxRows); i++) {
-      if (_sheetData[i] != null) {
+      var mapData = _sheetData[i];
+      if (mapData != null) {
         List<Data?> row = <Data?>[];
         for (var j = _startColumn; j <= (_endColumn ?? maxCols); j++) {
-          row.add(_sheetData[i]?[j]);
-
+          row.add(mapData[j]);
           /* if (_sheetData[i]![j] != null) {
             row.add(_sheetData[i]![j]!);
           } else {
