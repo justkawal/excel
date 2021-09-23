@@ -228,11 +228,6 @@ class Sheet {
         List<Data?> row = <Data?>[];
         for (var j = _startColumn; j <= (_endColumn ?? maxCols); j++) {
           row.add(mapData[j]);
-          /* if (_sheetData[i]![j] != null) {
-            row.add(_sheetData[i]![j]!);
-          } else {
-            row.add(null);
-          } */
         }
         _selectedRange.add(row);
       } else {
