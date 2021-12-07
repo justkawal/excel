@@ -23,6 +23,8 @@ class _SharedStringsMaintainer {
       _list.add(val);
       _index += 1;
     } else {
+      _list.add(val);
+      _index += 1;
       _map[val].increaseCount();
     }
   }
