@@ -7,9 +7,9 @@ environment:
   sdk: '>=2.12.0 <3.0.0'
 
 dependencies:
-  archive: ^3.1.2
-  xml: ^5.0.2
-  equatable: ^2.0.0
+  archive: 
+  xml: 
+  equatable:
 
 dev_dependencies:
   test: ^1.16.5
