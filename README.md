@@ -383,7 +383,7 @@ key | description
      * it returns the number of replacements made
      */
       
-      int replacedCount = sheetObject.findAndReplace(Flutter', 'Google');
+      int replacedCount = sheetObject.findAndReplace('Flutter', 'Google');
       
 ```
    
