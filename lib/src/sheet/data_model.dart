@@ -2,42 +2,46 @@ part of excel;
 
 // ignore: must_be_immutable
 class Data extends Equatable {
-  CellStyle _cellStyle;
-  dynamic _value;
-  CellType _cellType;
-  Sheet _sheet;
-  String _sheetName;
-  bool _isFormula;
-  int _rowIndex;
-  int _colIndex;
+  CellStyle? _cellStyle;
+  late dynamic _value;
+  CellType _cellType = CellType.String;
+  late Sheet _sheet;
+  late String _sheetName;
+  bool _isFormula = false;
+  late int _rowIndex;
+  late int _colIndex;
 
+  ///
   ///It will clone the object by changing the `this` reference of previous DataObject and putting `new this` reference, with copying the values too
+  ///
   Data._clone(Sheet sheet, Data dataObject)
       : this._(
           sheet,
           dataObject._rowIndex,
           dataObject.colIndex,
           value_: dataObject._value,
-          cellStyle_: dataObject._cellStyle,
-          isFormula_: dataObject._isFormula,
-          cellType_: dataObject._cellType,
+          cellStyleVal: dataObject._cellStyle,
+          isFormulaVal: dataObject._isFormula,
+          cellTypeVal: dataObject._cellType,
         );
 
+  ///
   ///Initializes the new `Data Object`
+  ///
   Data._(
     Sheet sheet,
     int row,
     int col, {
     dynamic value_,
-    CellStyle cellStyle_,
-    bool isFormula_,
-    CellType cellType_,
+    CellStyle? cellStyleVal,
+    bool isFormulaVal = false,
+    CellType cellTypeVal = CellType.String,
   }) {
     _sheet = sheet;
     _value = value_;
-    _cellStyle = cellStyle_;
-    _isFormula = isFormula_ ?? false;
-    _cellType = cellType_ ?? CellType.String;
+    _cellStyle = cellStyleVal;
+    _isFormula = isFormulaVal;
+    _cellType = cellTypeVal;
     _sheetName = sheet.sheetName;
     _rowIndex = row;
     _colIndex = col;
@@ -74,12 +78,23 @@ class Data extends Equatable {
   }
 
   /// returns the string based cellId as A1, A2 or Z5
-  String get cellId {
-    return getCellId(_colIndex, _rowIndex);
+  CellIndex get cellIndex {
+    return CellIndex.indexByColumnRow(
+        columnIndex: _colIndex, rowIndex: _rowIndex);
   }
 
-  set value(dynamic _value) {
-    _sheet.updateCell(CellIndex.indexByString(cellId), _value);
+  /// Helps to set the formula
+  ///```
+  ///var sheet = excel['Sheet1'];
+  ///var cell = sheet.cell(CellIndex.indexByString("E5"));
+  ///cell.setFormula('=SUM(1,2)');
+  ///```
+  void setFormula(String formula) {
+    _sheet.updateCell(cellIndex, Formula.custom(formula));
+  }
+
+  set value(dynamic val) {
+    _sheet.updateCell(cellIndex, val);
   }
 
   /// returns the value stored in this cell;
@@ -89,25 +104,21 @@ class Data extends Equatable {
     return _value;
   }
 
-  /// sets the user defined CellStyle in this current cell
-  set style(CellStyle _style) {
-    _cellStyle = _style;
-  }
-
   /// returns the user-defined CellStyle
   ///
   /// if `no` cellStyle is set then it returns `null`
-  CellStyle get cellStyle {
+  CellStyle? get cellStyle {
     return _cellStyle;
   }
 
-  set cellStyle(CellStyle cellStyle_) {
+  /// sets the user defined CellStyle in this current cell
+  set cellStyle(CellStyle? _) {
     _sheet._excel._colorChanges = true;
-    _cellStyle = cellStyle_;
+    _cellStyle = _;
   }
 
   @override
-  List<Object> get props => [
+  List<Object?> get props => [
         _value,
         _colIndex,
         _rowIndex,

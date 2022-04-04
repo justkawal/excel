@@ -1,70 +1,89 @@
 part of excel;
 
 class Sheet {
-  Excel _excel;
-  String _sheet;
-  bool _isRTL;
-  int _maxRows = 0;
-  int _maxCols = 0;
-  //List<double> _rowHeight = <double>[], _colWidth = <double>[];
-  FastList<String> _spannedItems = FastList<String>();
-  List<_Span> _spanList = <_Span>[];
-  Map<int, Map<int, Data>> _sheetData = <int, Map<int, Data>>{};
+  late Excel _excel;
+  late String _sheet;
+  late bool _isRTL;
+  late int _maxRows;
+  late int _maxCols;
+  List<double> _colWidth = <double>[];
+  List<bool> _colAutoFit = <bool>[];
+  late FastList<String> _spannedItems;
+  late List<_Span?> _spanList;
+  late Map<int, Map<int, Data>> _sheetData;
 
   ///
   /// It will clone the object by changing the `this` reference of previous oldSheetObject and putting `new this` reference, with copying the values too
   ///
   Sheet._clone(Excel excel, String sheetName, Sheet oldSheetObject)
-      : this._(excel, sheetName,
-            sh: oldSheetObject._sheetData,
-            spanL_: oldSheetObject._spanList,
-            spanI_: oldSheetObject._spannedItems,
-            maxR_: oldSheetObject._maxRows,
-            maxC_: oldSheetObject._maxCols,
-            //rowHeight_: oldSheetObject._rowHeight,
-            //colWidth_: oldSheetObject._colWidth,
-            isRTL_: oldSheetObject._isRTL);
+      : this._(
+          excel,
+          sheetName,
+          sh: oldSheetObject._sheetData,
+          spanL_: oldSheetObject._spanList,
+          spanI_: oldSheetObject._spannedItems,
+          maxRowsVal: oldSheetObject._maxRows,
+          maxColsVal: oldSheetObject._maxCols,
+          colWidthVal: oldSheetObject._colWidth,
+          colAutoFitVal: oldSheetObject._colAutoFit,
+          isRTLVal: oldSheetObject._isRTL,
+        );
 
   Sheet._(
     Excel excel,
     String sheetName, {
-    Map<int, Map<int, Data>> sh,
-    List<_Span> spanL_,
-    FastList<String> spanI_,
-    int maxR_,
-    int maxC_,
-    bool isRTL_,
-    //List<double> rowHeight_,
-    //List<double> colWidth_,
+    Map<int, Map<int, Data>>? sh,
+    List<_Span?>? spanL_,
+    FastList<String>? spanI_,
+    int? maxRowsVal,
+    int? maxColsVal,
+    bool? isRTLVal,
+    List<double>? colWidthVal,
+    List<bool>? colAutoFitVal,
   }) {
     _excel = excel;
     _sheet = sheetName;
+    _sheetData = <int, Map<int, Data>>{};
+    _spanList = <_Span?>[];
+    _spannedItems = FastList<String>();
+    _isRTL = false;
+    _maxRows = 0;
+    _maxCols = 0;
+
     if (spanL_ != null) {
-      _spanList = List<_Span>.from(spanL_);
+      _spanList = List<_Span?>.from(spanL_);
       _excel._mergeChangeLookup = sheetName;
     }
     if (spanI_ != null) {
       _spannedItems = FastList<String>.from(spanI_);
     }
-    _maxCols = maxC_ ?? 0;
-    _maxRows = maxR_ ?? 0;
-    _sheetData = <int, Map<int, Data>>{};
-    //_rowHeight = List<double>.from(rowHeight_ ?? []);
-    //_colWidth = List<double>.from(colWidth_ ?? []);
-
-    if (isRTL_ != null) {
-      _isRTL = isRTL_;
+    if (maxColsVal != null) {
+      _maxCols = maxColsVal;
+    }
+    if (maxRowsVal != null) {
+      _maxRows = maxRowsVal;
+    }
+    if (isRTLVal != null) {
+      _isRTL = isRTLVal;
       _excel._rtlChangeLookup = sheetName;
     }
+    if (colWidthVal != null) {
+      _colWidth = List<double>.from(colWidthVal);
+    }
+    if (colAutoFitVal != null) {
+      _colAutoFit = List<bool>.from(colAutoFitVal);
+    }
 
-    /// copy the data objects into a temp folder and then while putting it into ` _sheetData` change the data objects references.
+    /// copy the data objects into a temp folder and then while putting it into `_sheetData` change the data objects references.
     if (sh != null) {
-      _sheetData = Map<int, Map<int, Data>>.from(sh);
+      _sheetData = <int, Map<int, Data>>{};
       Map<int, Map<int, Data>> temp = Map<int, Map<int, Data>>.from(sh);
       temp.forEach((key, value) {
-        _sheetData[key].forEach((key1, oldDataObject) {
-          Data newDataObject = Data._clone(this, oldDataObject);
-          _sheetData[key][key1] = newDataObject;
+        if (_sheetData[key] == null) {
+          _sheetData[key] = <int, Data>{};
+        }
+        temp[key]!.forEach((key1, oldDataObject) {
+          _sheetData[key]![key1] = Data._clone(this, oldDataObject);
         });
       });
     }
@@ -95,7 +114,7 @@ class Sheet {
     if (cellIndex._columnIndex < 0 || cellIndex._rowIndex < 0) {
       _damagedExcel(
           text:
-              '${cellIndex._columnIndex < 0 ? 'Column' : 'Row'} Index: ${cellIndex._columnIndex < 0 ? cellIndex._columnIndex : cellIndex._rowIndex} Negative index does not exist.');
+              '${cellIndex._columnIndex < 0 ? "Column" : "Row"} Index: ${cellIndex._columnIndex < 0 ? cellIndex._columnIndex : cellIndex._rowIndex} Negative index does not exist.');
     }
 
     /// increasing the rowCount
@@ -110,14 +129,14 @@ class Sheet {
 
     /// checking if the map has been already initialized or not?
     /// if the user has called this class by its own
-    /* if (!_isContain(_sheetData)) {
+    /* if (_sheetData == null) {
       _sheetData = Map<int, Map<int, Data>>();
     } */
 
     /// if the sheetData contains the row then start putting the column
     if (_sheetData[cellIndex._rowIndex] != null) {
-      if (_sheetData[cellIndex._rowIndex][cellIndex._columnIndex] == null) {
-        _sheetData[cellIndex._rowIndex][cellIndex._columnIndex] =
+      if (_sheetData[cellIndex._rowIndex]![cellIndex._columnIndex] == null) {
+        _sheetData[cellIndex._rowIndex]![cellIndex._columnIndex] =
             Data.newData(this, cellIndex.rowIndex, cellIndex.columnIndex);
       }
     } else {
@@ -128,14 +147,14 @@ class Sheet {
       };
     }
 
-    return _sheetData[cellIndex._rowIndex][cellIndex._columnIndex];
+    return _sheetData[cellIndex._rowIndex]![cellIndex._columnIndex]!;
   }
 
   ///
   /// returns `2-D dynamic List` of the sheet elements
   ///
-  List<List<dynamic>> get rows {
-    List<List<dynamic>> _data = <List<dynamic>>[];
+  List<List<Data?>> get rows {
+    var _data = <List<Data?>>[];
 
     if (_sheetData.isEmpty) {
       return _data;
@@ -145,8 +164,8 @@ class Sheet {
       _data = List.generate(_maxRows, (rowIndex) {
         return List.generate(_maxCols, (colIndex) {
           if (_sheetData[rowIndex] != null &&
-              _sheetData[rowIndex][colIndex] != null) {
-            return _sheetData[rowIndex][colIndex].value;
+              _sheetData[rowIndex]![colIndex] != null) {
+            return _sheetData[rowIndex]![colIndex];
           }
           return null;
         });
@@ -161,8 +180,8 @@ class Sheet {
   ///
   /// Ex. selectRange('D8:H12'); or selectRange('D8');
   ///
-  List<List<Data>> selectRangeWithString(String range) {
-    List<List<Data>> _selectedRange = <List<Data>>[];
+  List<List<Data?>?> selectRangeWithString(String range) {
+    List<List<Data?>?> _selectedRange = <List<Data?>?>[];
     if (!range.contains(':')) {
       var start = CellIndex.indexByString(range);
       _selectedRange = selectRange(start);
@@ -178,7 +197,7 @@ class Sheet {
   ///
   /// returns `2-D dynamic List` of the sheet cell data in that range.
   ///
-  List<List<Data>> selectRange(CellIndex start, {CellIndex end}) {
+  List<List<Data?>?> selectRange(CellIndex start, {CellIndex? end}) {
     _checkMaxCol(start.columnIndex);
     _checkMaxRow(start.rowIndex);
     if (end != null) {
@@ -186,36 +205,31 @@ class Sheet {
       _checkMaxRow(end.rowIndex);
     }
 
-    int _startColumn = start.columnIndex,
-        _startRow = start.rowIndex,
-        _endColumn = end?.columnIndex,
-        _endRow = end?.rowIndex;
+    int _startColumn = start.columnIndex, _startRow = start.rowIndex;
+    int? _endColumn = end?.columnIndex, _endRow = end?.rowIndex;
 
     if (_endColumn != null && _endRow != null) {
       if (_startRow > _endRow) {
-        _startRow = end.rowIndex;
+        _startRow = end!.rowIndex;
         _endRow = start.rowIndex;
       }
       if (_endColumn < _startColumn) {
         _endColumn = start.columnIndex;
-        _startColumn = end.columnIndex;
+        _startColumn = end!.columnIndex;
       }
     }
 
-    List<List<Data>> _selectedRange = <List<Data>>[];
+    List<List<Data?>?> _selectedRange = <List<Data?>?>[];
     if (_sheetData.isEmpty) {
       return _selectedRange;
     }
 
     for (var i = _startRow; i <= (_endRow ?? maxRows); i++) {
-      if (_sheetData[i] != null) {
-        var row = <Data>[];
+      var mapData = _sheetData[i];
+      if (mapData != null) {
+        List<Data?> row = <Data?>[];
         for (var j = _startColumn; j <= (_endColumn ?? maxCols); j++) {
-          if (_sheetData[i][j] != null) {
-            row.add(_sheetData[i][j]);
-          } else {
-            row.add(null);
-          }
+          row.add(mapData[j]);
         }
         _selectedRange.add(row);
       } else {
@@ -231,8 +245,8 @@ class Sheet {
   ///
   /// Ex. selectRange('D8:H12'); or selectRange('D8');
   ///
-  List<List<dynamic>> selectRangeValuesWithString(String range) {
-    var _selectedRange = <List<dynamic>>[];
+  List<List<dynamic>?> selectRangeValuesWithString(String range) {
+    List<List<dynamic>?> _selectedRange = <List<dynamic>?>[];
     if (!range.contains(':')) {
       var start = CellIndex.indexByString(range);
       _selectedRange = selectRangeValues(start);
@@ -248,11 +262,12 @@ class Sheet {
   ///
   /// returns `2-D dynamic List` of the sheet elements in that range.
   ///
-  List<List<dynamic>> selectRangeValues(CellIndex start, {CellIndex end}) {
+  List<List<dynamic>?> selectRangeValues(CellIndex start, {CellIndex? end}) {
     var _list =
         (end == null ? selectRange(start) : selectRange(start, end: end));
     return _list
-        .map((e) => e.map((e) => e != null ? e.value : null).toList())
+        .map((List<Data?>? e) =>
+            e?.map((e1) => e1 != null ? e1.value : null).toList())
         .toList();
   }
 
@@ -261,18 +276,17 @@ class Sheet {
   ///
   _countRowAndCol() {
     int maximumColIndex = -1, maximumRowIndex = -1;
-
     List<int> sortedKeys = _sheetData.keys.toList()..sort();
     sortedKeys.forEach((rowKey) {
-      if (_sheetData[rowKey] != null && _sheetData[rowKey].isNotEmpty) {
-        List<int> keys = _sheetData[rowKey].keys.toList()..sort();
-        if (keys != null && keys.isNotEmpty && keys.last > maximumColIndex) {
+      if (_sheetData[rowKey] != null && _sheetData[rowKey]!.isNotEmpty) {
+        List<int> keys = _sheetData[rowKey]!.keys.toList()..sort();
+        if (keys.isNotEmpty && keys.last > maximumColIndex) {
           maximumColIndex = keys.last;
         }
       }
     });
 
-    if (sortedKeys != null && sortedKeys.isNotEmpty) {
+    if (sortedKeys.isNotEmpty) {
       maximumRowIndex = sortedKeys.last;
     }
 
@@ -292,8 +306,9 @@ class Sheet {
     bool updateSpanCell = false;
 
     /// Do the shifting of the cell Id of span Object
+
     for (int i = 0; i < _spanList.length; i++) {
-      _Span spanObj = _spanList[i];
+      _Span? spanObj = _spanList[i];
       if (spanObj == null) {
         continue;
       }
@@ -341,19 +356,19 @@ class Sheet {
       List<int> sortedKeys = _sheetData.keys.toList()..sort();
       sortedKeys.forEach((rowKey) {
         Map<int, Data> colMap = Map<int, Data>();
-        List<int> sortedColKeys = _sheetData[rowKey].keys.toList()..sort();
+        List<int> sortedColKeys = _sheetData[rowKey]!.keys.toList()..sort();
         sortedColKeys.forEach((colKey) {
           if (_sheetData[rowKey] != null &&
-              _sheetData[rowKey][colKey] != null) {
+              _sheetData[rowKey]![colKey] != null) {
             if (colKey < colIndex) {
-              colMap[colKey] = _sheetData[rowKey][colKey];
+              colMap[colKey] = _sheetData[rowKey]![colKey]!;
             }
             if (colIndex == colKey) {
-              _sheetData[rowKey].remove(colKey);
+              _sheetData[rowKey]!.remove(colKey);
             }
             if (colIndex < colKey) {
-              colMap[colKey - 1] = _sheetData[rowKey][colKey];
-              _sheetData[rowKey].remove(colKey);
+              colMap[colKey - 1] = _sheetData[rowKey]![colKey]!;
+              _sheetData[rowKey]!.remove(colKey);
             }
           }
         });
@@ -377,7 +392,7 @@ class Sheet {
   /// If the `sheet` does not exists then it will be created automatically.
   ///
   void insertColumn(int colIndex) {
-    if (colIndex == null || colIndex < 0) {
+    if (colIndex < 0) {
       return;
     }
     _checkMaxCol(colIndex);
@@ -386,7 +401,7 @@ class Sheet {
 
     _spannedItems = FastList<String>();
     for (int i = 0; i < _spanList.length; i++) {
-      _Span spanObj = _spanList[i];
+      _Span? spanObj = _spanList[i];
       if (spanObj == null) {
         continue;
       }
@@ -426,18 +441,18 @@ class Sheet {
           Map<int, Data> colMap = Map<int, Data>();
 
           /// getting the cols keys in descending order so as to shifting becomes easy
-          List<int> sortedColKeys = _sheetData[rowKey].keys.toList()
+          List<int> sortedColKeys = _sheetData[rowKey]!.keys.toList()
             ..sort((a, b) {
               return b.compareTo(a);
             });
           sortedColKeys.forEach((colKey) {
             if (_sheetData[rowKey] != null &&
-                _sheetData[rowKey][colKey] != null) {
+                _sheetData[rowKey]![colKey] != null) {
               if (colKey < colIndex) {
-                colMap[colKey] = _sheetData[rowKey][colKey];
+                colMap[colKey] = _sheetData[rowKey]![colKey]!;
               }
               if (colIndex <= colKey) {
-                colMap[colKey + 1] = _sheetData[rowKey][colKey];
+                colMap[colKey + 1] = _sheetData[rowKey]![colKey]!;
               }
             }
           });
@@ -451,7 +466,7 @@ class Sheet {
         /// and mock the user as if the 2-D list is being saved
         ///
         /// As when user calls DataObject.cells then we will output 2-D list - pretending.
-        _sheetData[sortedKeys.first][colIndex] =
+        _sheetData[sortedKeys.first]![colIndex] =
             Data.newData(this, sortedKeys.first, colIndex);
       }
     } else {
@@ -480,7 +495,7 @@ class Sheet {
     bool updateSpanCell = false;
 
     for (int i = 0; i < _spanList.length; i++) {
-      _Span spanObj = _spanList[i];
+      _Span? spanObj = _spanList[i];
       if (spanObj == null) {
         continue;
       }
@@ -526,29 +541,16 @@ class Sheet {
         /// do the shifting task
         List<int> sortedKeys = _sheetData.keys.toList()..sort();
         sortedKeys.forEach((rowKey) {
-          /// optimized code
-          if (_sheetData[rowKey] != null) {
-            if (rowKey < rowIndex) {
-              _data[rowKey] = Map<int, Data>.from(_sheetData[rowKey]);
-            } else {
-              if (rowIndex < rowKey) {
-                _data[rowKey - 1] = Map<int, Data>.from(_sheetData[rowKey]);
-              }
-              _sheetData.remove(rowKey);
-            }
-          }
-
-          /// slow code
-          /* if (rowKey < rowIndex && _sheetData[rowKey] != null) {
-            _data[rowKey] = Map<int, Data>.from(_sheetData[rowKey]);
+          if (rowKey < rowIndex && _sheetData[rowKey] != null) {
+            _data[rowKey] = Map<int, Data>.from(_sheetData[rowKey]!);
           }
           if (rowIndex == rowKey && _sheetData[rowKey] != null) {
             _sheetData.remove(rowKey);
           }
           if (rowIndex < rowKey && _sheetData[rowKey] != null) {
-            _data[rowKey - 1] = Map<int, Data>.from(_sheetData[rowKey]);
+            _data[rowKey - 1] = Map<int, Data>.from(_sheetData[rowKey]!);
             _sheetData.remove(rowKey);
-          } */
+          }
         });
         _sheetData = Map<int, Map<int, Data>>.from(_data);
       }
@@ -581,7 +583,7 @@ class Sheet {
 
     _spannedItems = FastList<String>();
     for (int i = 0; i < _spanList.length; i++) {
-      _Span spanObj = _spanList[i];
+      _Span? spanObj = _spanList[i];
       if (spanObj == null) {
         continue;
       }
@@ -622,10 +624,10 @@ class Sheet {
         /// do the shifting task
         sortedKeys.forEach((rowKey) {
           if (rowKey < rowIndex) {
-            _data[rowKey] = _sheetData[rowKey];
+            _data[rowKey] = _sheetData[rowKey]!;
           }
           if (rowIndex <= rowKey) {
-            _data[rowKey + 1] = _sheetData[rowKey];
+            _data[rowKey + 1] = _sheetData[rowKey]!;
           }
         });
       }
@@ -645,16 +647,16 @@ class Sheet {
   ///
   /// Updates the contents of `sheet` of the `cellIndex: CellIndex.indexByColumnRow(0, 0);` where indexing starts from 0
   ///
-  /// ----or---- by `cellIndex: CellIndex.indexByString('A3');`.
+  /// ----or---- by `cellIndex: CellIndex.indexByString("A3");`.
   ///
   /// Styling of cell can be done by passing the CellStyle object to `cellStyle`.
   ///
   /// If `sheet` does not exist then it will be automatically created.
   ///
-  void updateCell(CellIndex cellIndex, dynamic value, {CellStyle cellStyle}) {
+  void updateCell(CellIndex cellIndex, dynamic value, {CellStyle? cellStyle}) {
     int columnIndex = cellIndex._columnIndex;
     int rowIndex = cellIndex._rowIndex;
-    if (columnIndex < 0 || rowIndex < 0 || value == null) {
+    if (columnIndex < 0 || rowIndex < 0) {
       return;
     }
     _checkMaxCol(columnIndex);
@@ -675,7 +677,7 @@ class Sheet {
 
     /// Puts the cellStyle
     if (cellStyle != null) {
-      _sheetData[newRowIndex][newColumnIndex]._cellStyle = cellStyle;
+      _sheetData[newRowIndex]![newColumnIndex]!._cellStyle = cellStyle;
       _excel._colorChanges = true;
     }
   }
@@ -698,9 +700,8 @@ class Sheet {
 
     if ((startColumn == endColumn && startRow == endRow) ||
         (startColumn < 0 || startRow < 0 || endColumn < 0 || endRow < 0) ||
-        (_spannedItems != null &&
-            _spannedItems.contains(
-                getSpanCellId(startColumn, startRow, endColumn, endRow)))) {
+        (_spannedItems.contains(
+            getSpanCellId(startColumn, startRow, endColumn, endRow)))) {
       return;
     }
 
@@ -723,20 +724,20 @@ class Sheet {
 
     for (int j = startRow; j <= endRow; j++) {
       for (int k = startColumn; k <= endColumn; k++) {
-        if (_sheetData[j] != null && _sheetData[j][k] != null) {
+        if (_sheetData[j] != null && _sheetData[j]![k] != null) {
           if (getValue &&
-              _sheetData[j][k].value != null &&
-              _sheetData[j][k].cellStyle != null) {
-            value = _sheetData[j][k];
+              _sheetData[j]![k]!.value != null &&
+              _sheetData[j]![k]!.cellStyle != null) {
+            value = _sheetData[j]![k]!;
             getValue = false;
           }
-          _sheetData[j].remove(k);
+          _sheetData[j]!.remove(k);
         }
       }
     }
 
     if (_sheetData[startRow] != null) {
-      _sheetData[startRow][startColumn] = value;
+      _sheetData[startRow]![startColumn] = value;
     } else {
       _sheetData[startRow] = {startColumn: value};
     }
@@ -760,15 +761,14 @@ class Sheet {
   ///
   ///        var sheet = 'DesiredSheet';
   ///        List<String> spannedCells = excel.getMergedCells(sheet);
-  ///        var cellToUnMerge = 'A1:A2';
+  ///        var cellToUnMerge = "A1:A2";
   ///        excel.unMerge(sheet, cellToUnMerge);
   ///
   unMerge(String unmergeCells) {
-    if (unmergeCells != null &&
-        _spannedItems.isNotEmpty &&
+    if (_spannedItems.isNotEmpty &&
         _spanList.isNotEmpty &&
         _spannedItems.contains(unmergeCells)) {
-      List<String> lis = unmergeCells.split(RegExp(r':'));
+      List<String> lis = unmergeCells.split(RegExp(r":"));
       if (lis.length == 2) {
         bool remove = false;
         List<int> start, end;
@@ -776,7 +776,10 @@ class Sheet {
             _cellCoordsFromCellId(lis[0]); // [x,y] => [startRow, startColumn]
         end = _cellCoordsFromCellId(lis[1]); // [x,y] => [endRow, endColumn]
         for (int i = 0; i < _spanList.length; i++) {
-          _Span spanObject = _spanList[i];
+          _Span? spanObject = _spanList[i];
+          if (spanObject == null) {
+            continue;
+          }
 
           if (spanObject.columnSpanStart == start[1] &&
               spanObject.rowSpanStart == start[0] &&
@@ -816,7 +819,7 @@ class Sheet {
     }
 
     for (int i = 0; i < _spanList.length; i++) {
-      _Span spanObj = _spanList[i];
+      _Span? spanObj = _spanList[i];
       if (spanObj == null) {
         continue;
       }
@@ -832,7 +835,7 @@ class Sheet {
         endRow = gotPosition[3];
         String sp = getSpanCellId(spanObj.columnSpanStart, spanObj.rowSpanStart,
             spanObj.columnSpanEnd, spanObj.rowSpanEnd);
-        if (_spannedItems != null && _spannedItems.contains(sp)) {
+        if (_spannedItems.contains(sp)) {
           _spannedItems.remove(sp);
         }
         remove = true;
@@ -857,7 +860,7 @@ class Sheet {
   /// getting the List of _Span Objects which have the rowIndex containing and
   /// also lower the range by giving the starting columnIndex
   List<_Span> _getSpannedObjects(int rowIndex, int startingColumnIndex) {
-    List<_Span> obtained;
+    List<_Span> obtained = <_Span>[];
 
     if (_spanList.isNotEmpty) {
       obtained = <_Span>[];
@@ -933,7 +936,7 @@ class Sheet {
       _selfCorrectSpanMap(_excel);
       List<_Span> _spanObjectsList = _getSpannedObjects(rowIndex, columnIndex);
 
-      if (_spanObjectsList == null || _spanObjectsList.length <= 0) {
+      if (_spanObjectsList.length <= 0) {
         while (currentRowPosition <= maxIterationIndex) {
           _putData(rowIndex, columnIndex, row[currentRowPosition]);
           currentRowPosition++;
@@ -951,8 +954,8 @@ class Sheet {
     }
     //int tempo_max_col = columnIndex + row.length - 1;
 
-    //if ( _maxCols - 1 < tempo_max_col) {
-    //   _maxCols = tempo_max_col + 1;
+    //if (_maxCols - 1 < tempo_max_col) {
+    //  _maxCols = tempo_max_col + 1;
     //}
   }
 
@@ -961,8 +964,8 @@ class Sheet {
   ///
   _putData(int rowIndex, int columnIndex, dynamic value) {
     if (_sheetData[rowIndex] != null) {
-      if (_sheetData[rowIndex][columnIndex] == null) {
-        _sheetData[rowIndex][columnIndex] =
+      if (_sheetData[rowIndex]![columnIndex] == null) {
+        _sheetData[rowIndex]![columnIndex] =
             Data.newData(this, rowIndex, columnIndex);
       }
     } else {
@@ -970,25 +973,25 @@ class Sheet {
         columnIndex: Data.newData(this, rowIndex, columnIndex)
       };
     }
-    _sheetData[rowIndex][columnIndex]._value = value;
+    _sheetData[rowIndex]![columnIndex]!._value = value;
 
     /// Sets value of `isFormula` to true if this is `instance of Formula`.
-    _sheetData[rowIndex][columnIndex]._isFormula =
+    _sheetData[rowIndex]![columnIndex]!._isFormula =
         value is Formula || value.runtimeType == Formula;
 
     /// Sets type of the Data to `_cellType`
-    _sheetData[rowIndex][columnIndex]._cellType =
+    _sheetData[rowIndex]![columnIndex]!._cellType =
         _getCellType(value.runtimeType);
 
     if (value.runtimeType == String) {
       _excel._sharedStrings.add(value);
     }
 
-    if (_maxCols - 1 < columnIndex) {
+    if ((_maxCols - 1) < columnIndex) {
       _maxCols = columnIndex + 1;
     }
 
-    if (_maxRows - 1 < rowIndex) {
+    if ((_maxRows - 1) < rowIndex) {
       _maxRows = rowIndex + 1;
     }
 
@@ -996,50 +999,59 @@ class Sheet {
   }
 
   ///
-  /// Get Row Height
+  /// returns list of auto fit columns
   ///
-  /// Row Indexing starts from 0
-  ///
-  /* double _getRowHeight(int rowIndex) {
-    _checkMaxRow(rowIndex);
-    if (rowIndex < _rowHeight.length) return _rowHeight[rowIndex];
-
-    return 15.75;
-  } */
+  List<bool> get getColAutoFits {
+    return _colAutoFit;
+  }
 
   ///
-  /// Set Row Height
+  /// returns list of custom width columns
   ///
-  /* void _setRowHeight(int rowIndex, double rowHeight) {
-    _checkMaxRow(rowIndex);
-    if (rowHeight < 0) return;
-
-    while (rowIndex >= _rowHeight.length) {
-      _rowHeight.add(15.75);
-    }
-    _rowHeight[rowIndex] = rowHeight;
-  } */
+  List<double> get getColWidths {
+    return _colWidth;
+  }
 
   ///
-  /// Get Col Width
+  /// Get Column AutoFit
   ///
-  /* double _getColWidth(int colIndex) {
+  bool getColAutoFit(int colIndex) {
     _checkMaxCol(colIndex);
-    return _colWidth[colIndex] ?? 14.43;
-  } */
+    return _colAutoFit[colIndex];
+  }
 
   ///
-  /// Get Col Width
+  /// Get Column Width
   ///
-  /* void _setColWidth(int colIndex, double colWidth) {
+  double getColWidth(int colIndex) {
+    _checkMaxCol(colIndex);
+    return _colWidth[colIndex];
+  }
+
+  ///
+  /// Set Column AutoFit
+  ///
+  void setColAutoFit(int colIndex) {
+    _checkMaxCol(colIndex);
+
+    while (colIndex >= _colAutoFit.length) {
+      _colAutoFit.add(false);
+    }
+    _colAutoFit[colIndex] = true;
+  }
+
+  ///
+  /// Set Column Width
+  ///
+  void setColWidth(int colIndex, double colWidth) {
     _checkMaxCol(colIndex);
     if (colWidth < 0) return;
 
     while (colIndex >= _colWidth.length) {
-      _colWidth.add(15.75);
+      _colWidth.add(_defaultColumnWidth);
     }
     _colWidth[colIndex] = colWidth;
-  } */
+  }
 
   CellType _getCellType(var type) {
     switch (type) {
@@ -1124,12 +1136,12 @@ class Sheet {
         if (_endingColumn != -1 && j > _endingColumn) {
           break;
         }
-        if (_sheetData[i] != null &&
-            _sheetData[i][j] != null &&
-            sourceRegx.hasMatch(_sheetData[i][j].value.toString()) &&
+        if (_sheetData.isNotEmpty &&
+            _sheetData[i] != null &&
+            _sheetData[i]![j] != null &&
+            sourceRegx.hasMatch(_sheetData[i]![j]!.value.toString()) &&
             (first == -1 || first != replaceCount)) {
-          this
-              ._sheetData[i][j]
+          _sheetData[i]![j]!
               .value
               .toString()
               .replaceAll(sourceRegx, target.toString());
@@ -1156,26 +1168,27 @@ class Sheet {
     /// If this row exists then we check for the span condition
     bool isNotInside = true;
 
-    if (_sheetData[rowIndex] != null && _sheetData[rowIndex].isNotEmpty) {
+    if (_sheetData[rowIndex] != null && _sheetData[rowIndex]!.isNotEmpty) {
       /// lets start iterating the spanList and check that if the row is inside the spanList or not
       /// we will expect that value of isNotInside should not be changed to false
       /// If it changes to false then we can't clear this row as it is inside the spanned Cells
-      if (_spanList != null) {
-        for (int i = 0; i < _spanList.length; i++) {
-          _Span spanObj = _spanList[i];
-          if (rowIndex >= spanObj.rowSpanStart &&
-              rowIndex <= spanObj.rowSpanEnd) {
-            isNotInside = false;
-            break;
-          }
+      for (int i = 0; i < _spanList.length; i++) {
+        _Span? spanObj = _spanList[i];
+        if (spanObj == null) {
+          continue;
+        }
+        if (rowIndex >= spanObj.rowSpanStart &&
+            rowIndex <= spanObj.rowSpanEnd) {
+          isNotInside = false;
+          break;
         }
       }
 
       /// As the row is not inside any SpanList so we can easily clear its content.
       if (isNotInside) {
-        _sheetData[rowIndex].keys.toList().forEach((key) {
+        _sheetData[rowIndex]!.keys.toList().forEach((key) {
           /// Main concern here is to [clear the contents] and [not remove] the entire row or the cell block
-          _sheetData[rowIndex][key] = Data.newData(this, rowIndex, key);
+          _sheetData[rowIndex]![key] = Data.newData(this, rowIndex, key);
         });
       }
     }
@@ -1192,18 +1205,19 @@ class Sheet {
   List<int> _isInsideSpanning(int rowIndex, int columnIndex) {
     int newRowIndex = rowIndex, newColumnIndex = columnIndex;
 
-    if (_spanList != null && _spanList.isNotEmpty) {
-      for (int i = 0; i < _spanList.length; i++) {
-        _Span spanObj = _spanList[i];
+    for (int i = 0; i < _spanList.length; i++) {
+      _Span? spanObj = _spanList[i];
+      if (spanObj == null) {
+        continue;
+      }
 
-        if (rowIndex >= spanObj.rowSpanStart &&
-            rowIndex <= spanObj.rowSpanEnd &&
-            columnIndex >= spanObj.columnSpanStart &&
-            columnIndex <= spanObj.columnSpanEnd) {
-          newRowIndex = spanObj.rowSpanStart;
-          newColumnIndex = spanObj.columnSpanStart;
-          break;
-        }
+      if (rowIndex >= spanObj.rowSpanStart &&
+          rowIndex <= spanObj.rowSpanEnd &&
+          columnIndex >= spanObj.columnSpanStart &&
+          columnIndex <= spanObj.columnSpanEnd) {
+        newRowIndex = spanObj.rowSpanStart;
+        newColumnIndex = spanObj.columnSpanStart;
+        break;
       }
     }
 
@@ -1237,29 +1251,33 @@ class Sheet {
   ///
   ///returns List of Spanned Cells as
   ///
-  ///     ['A1:A2', 'A4:G6', 'Y4:Y6', ....]
+  ///     ["A1:A2", "A4:G6", "Y4:Y6", ....]
   ///
   ///return type if String based cell-id
   ///
   List<String> get spannedItems {
     _spannedItems = FastList<String>();
 
-    if (_spanList.isNotEmpty) {
-      _spanList.forEach((spanObj) {
-        String rC = getSpanCellId(spanObj.columnSpanStart, spanObj.rowSpanStart,
-            spanObj.columnSpanEnd, spanObj.rowSpanEnd);
-        if (!_spannedItems.contains(rC)) {
-          _spannedItems.add(rC);
-        }
-      });
+    for (int i = 0; i < _spanList.length; i++) {
+      _Span? spanObj = _spanList[i];
+      if (spanObj == null) {
+        continue;
+      }
+      String rC = getSpanCellId(spanObj.columnSpanStart, spanObj.rowSpanStart,
+          spanObj.columnSpanEnd, spanObj.rowSpanEnd);
+      if (!_spannedItems.contains(rC)) {
+        _spannedItems.add(rC);
+      }
     }
 
     return _spannedItems.keys;
   }
 
+  ///
   ///Cleans the `_SpanList` by removing the indexes where null value exists.
+  ///
   _cleanUpSpanMap() {
-    if (_spanList != null && _spanList.isNotEmpty) {
+    if (_spanList.isNotEmpty) {
       _spanList.removeWhere((value) {
         return value == null;
       });
@@ -1272,48 +1290,24 @@ class Sheet {
   }
 
   ///returns row at index = `rowIndex`
-  List<Data> row(int rowIndex) {
+  List<Data?> row(int rowIndex) {
     if (rowIndex < 0) {
-      return <Data>[];
+      return <Data?>[];
     }
     if (rowIndex < _maxRows) {
-      if (_isContain(_sheetData[rowIndex])) {
-        return List.generate(maxCols, (colIndex) {
-          if (_isContain(_sheetData[rowIndex][colIndex])) {
-            return _sheetData[rowIndex][colIndex];
+      if (_sheetData[rowIndex] != null) {
+        return List.generate(_maxCols, (colIndex) {
+          if (_sheetData[rowIndex]![colIndex] != null) {
+            return _sheetData[rowIndex]![colIndex]!;
           }
           return null;
         });
       } else {
-        return List.generate(maxCols, (_) => null);
+        return List.generate(_maxCols, (_) => null);
       }
     }
-    return <Data>[];
+    return <Data?>[];
   }
-
-  List<Map<String, dynamic>> toJson() {
-    List<String>               header = List<String>.from(rows.first);
-    List<Map<String, dynamic>> data   = [];
-    Map<String, dynamic>       entry;
-    
-    for (int ir = 1; ir < rows.length; ir++) {
-      entry = {};
-
-      for (int ic = 0; ic < rows[ir].length; ic++) {
-        if (rows[ir][ic] is Formula) {
-          entry[header[ic]] = rows[ir][ic].value;
-        } else { 
-          entry[header[ic]] = rows[ir][ic];
-        }   
-      }
-
-      data.add(entry);
-    }
-
-    return data;
-  }
-
-  String toString() => 'Sheet (name: $_sheet, rows: $maxRows)';
 
   ///
   ///returns count of `rows` having data in `sheet`

@@ -3,44 +3,51 @@ import 'package:path/path.dart';
 import 'package:excel/excel.dart';
 
 void main(List<String> args) {
-  var file = "/Users/kawal/Desktop/excel/test/test_resources/example.xlsx";
-  var bytes = File(file).readAsBytesSync();
-  //var excel = Excel.createExcel();
+  //var file = "/Users/kawal/Desktop/excel/test/test_resources/example.xlsx";
+  //var bytes = File(file).readAsBytesSync();
+  var excel = Excel.createExcel();
   // or
-  var excel = Excel.decodeBytes(bytes);
+  //var excel = Excel.decodeBytes(bytes);
+
+  ///
+  ///
+  /// reading excel file values
+  ///
+  ///
   for (var table in excel.tables.keys) {
     print(table);
-    print(excel.tables[table].maxCols);
-    print(excel.tables[table].maxRows);
-    for (var row in excel.tables[table].rows) {
-      print("$row");
+    print(excel.tables[table]!.maxCols);
+    print(excel.tables[table]!.maxRows);
+    for (var row in excel.tables[table]!.rows) {
+      print("${row.map((e) => e?.value)}");
     }
   }
 
-  //
-  // Change sheet from rtl to ltr and vice-versa
-  //
+  ///
+  /// Change sheet from rtl to ltr and vice-versa i.e. (right-to-left -> left-to-right and vice-versa)
+  ///
   var sheet1rtl = excel['Sheet1'].isRTL;
-
   excel['Sheet1'].isRTL = false;
-
   print(
       'Sheet1: ((previous) isRTL: $sheet1rtl) ---> ((current) isRTL: ${excel['Sheet1'].isRTL})');
 
   var sheet2rtl = excel['Sheet2'].isRTL;
-
   excel['Sheet2'].isRTL = true;
-
   print(
       'Sheet2: ((previous) isRTL: $sheet2rtl) ---> ((current) isRTL: ${excel['Sheet2'].isRTL})');
 
+  ///
+  ///
+  /// declaring a cellStyle object
+  ///
+  ///
   CellStyle cellStyle = CellStyle(
     bold: true,
     italic: true,
+    textWrapping: TextWrapping.WrapText,
     fontFamily: getFontFamily(FontFamily.Comic_Sans_MS),
-    rotation: 50,
+    rotation: 0,
   );
-  cellStyle.rotation = -50;
 
   var sheet = excel['mySheet'];
 
@@ -55,38 +62,55 @@ void main(List<String> args) {
   /// printing cell-type
   print("CellType: " + cell.cellType.toString());
 
+  ///
+  ///
   /// Iterating and changing values to desired type
+  ///
+  ///
   for (int row = 0; row < sheet.maxRows; row++) {
-    sheet.row(row).forEach((cell) {
-      var val = cell.value; //  Value stored in the particular cell
-      print('$val');
-      cell.value = ' My custom Value ';
+    sheet.row(row).forEach((Data? cell1) {
+      if (cell1 != null) {
+        cell1.value = ' My custom Value ';
+      }
     });
   }
 
   excel.rename("mySheet", "myRenamedNewSheet");
 
-  // fromSheet should exist in order to sucessfully copy the contents
-  excel.copy('myRenamedNewSheet', 'toSheet');
+  var sheet1 = excel['Sheet1'];
+  sheet1.cell(CellIndex.indexByString('A1')).value = 'Sheet1';
 
+  /// fromSheet should exist in order to sucessfully copy the contents
+  excel.copy('Sheet1', 'newlyCopied');
+
+  var sheet2 = excel['newlyCopied'];
+  sheet2.cell(CellIndex.indexByString('A1')).value = 'Newly Copied Sheet';
+
+  /// renaming the sheet
   excel.rename('oldSheetName', 'newSheetName');
 
+  /// deleting the sheet
   excel.delete('Sheet1');
 
+  /// unlinking the sheet if any link function is used !!
   excel.unLink('sheet1');
 
   sheet = excel['sheet'];
 
   /// appending rows and checking the time complexity of it
-  /* List<List<String>> list = List.generate(6000, (index) => List.generate(20, (index1) => '$index $index1'));
-  Stopwatch stopwatch = new Stopwatch()..start();
+  Stopwatch stopwatch = Stopwatch()..start();
+  List<List<String>> list = List.generate(
+      9000, (index) => List.generate(20, (index1) => '$index $index1'));
+
+  print('list creation executed in ${stopwatch.elapsed}');
+  stopwatch.reset();
   list.forEach((row) {
     sheet.appendRow(row);
   });
-  print('doSomething() executed in ${stopwatch.elapsed}'); */
+  print('appending executed in ${stopwatch.elapsed}');
 
   sheet.appendRow([8]);
-  var isSet = excel.setDefaultSheet(sheet.sheetName);
+  bool isSet = excel.setDefaultSheet(sheet.sheetName);
   // isSet is bool which tells that whether the setting of default sheet is successful or not.
   if (isSet) {
     print("${sheet.sheetName} is set to default sheet.");
@@ -94,12 +118,29 @@ void main(List<String> args) {
     print("Unable to set ${sheet.sheetName} to default sheet.");
   }
 
+  var colIterableSheet = excel['ColumnIterables'];
+
+  var colIterables = ['A', 'B', 'C', 'D', 'E'];
+  int colIndex = 0;
+
+  colIterables.forEach((colValue) {
+    colIterableSheet.cell(CellIndex.indexByColumnRow(
+      rowIndex: colIterableSheet.maxRows,
+      columnIndex: colIndex,
+    ))
+      ..value = colValue;
+  });
+
   // Saving the file
 
-  String outputFile = "/Users/kawal/Desktop/r.xlsx";
+  String outputFile = "/Users/kawal/Desktop/git_projects/r.xlsx";
 
-  var fileBytes = excel.save();
-  File(join(outputFile))
-    ..createSync(recursive: true)
-    ..writeAsBytesSync(fileBytes);
+  //stopwatch.reset();
+  List<int>? fileBytes = excel.save();
+  //print('saving executed in ${stopwatch.elapsed}');
+  if (fileBytes != null) {
+    File(join(outputFile))
+      ..createSync(recursive: true)
+      ..writeAsBytesSync(fileBytes);
+  }
 }

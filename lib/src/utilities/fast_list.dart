@@ -2,8 +2,8 @@ part of excel;
 
 // A helper class to optimized the usage of Maps
 class FastList<K> {
-  Map<K, int> _map;
-  int _index;
+  late Map<K, int> _map;
+  late int _index;
 
   FastList() {
     _map = <K, int>{};

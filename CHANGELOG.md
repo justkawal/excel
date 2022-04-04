@@ -3,8 +3,27 @@ All notable changes to this project will be documented in this file.
 
 ## [Future Updates coming soon]
 - Formulas
-- Password Protection
 - Conversion to PDF
+
+## [2.0.0-null-safety-4] - 2022-02-15
+### Improved
+- Fix saving XLXS bug on archive 3.2.0
+
+## [2.0.0-null-safety-3] - 2021-04-29
+### Improved
+- Forcefully initializing the variables on re-creation
+
+## [2.0.0-null-safety-2] - 2021-04-29
+### Improved
+- Fix of sharedStringTarget fail to initialize issue
+
+## [2.0.0-null-safety-1] - 2021-04-29
+### Improved
+- Fix of value not updating in cell
+
+## [2.0.0-null-safety] - 2021-03-28
+### Improved
+- Null-safety
 
 ## [1.1.5] - 2020-08-17
 ### Improved

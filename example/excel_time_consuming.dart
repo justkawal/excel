@@ -13,19 +13,22 @@ void main(List<String> args) {
     //sh.cell(CellIndex.indexByColumnRow(rowIndex: 0, columnIndex: i)).cellStyle =CellStyle(bold: true);
   }
   for (int row = 1; row < 9000; row++) {
-    for (int col = 0; col < 8; col++) {
+    for (int col = 0; col < 80; col++) {
       sh
           .cell(CellIndex.indexByColumnRow(rowIndex: row, columnIndex: col))
-          .value = 'value ${row}_$col';
+          .value = '$row$col value';
     }
   }
   print('Generating executed in ${stopwatch.elapsed}');
   stopwatch.reset();
-  var onValue = excel.encode();
+  var fileBytes = excel.encode();
+
   print('Encoding executed in ${stopwatch.elapsed}');
   stopwatch.reset();
-  File(join("/Users/kawal/Desktop/r1.xlsx"))
-    ..createSync(recursive: true)
-    ..writeAsBytesSync(onValue);
+  if (fileBytes != null) {
+    File(join("/Users/kawal/Desktop/r2.xlsx"))
+      ..createSync(recursive: true)
+      ..writeAsBytesSync(fileBytes);
+  }
   print('Downloaded executed in ${stopwatch.elapsed}');
 }

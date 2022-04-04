@@ -3,28 +3,28 @@ part of excel;
 /// Styling class for cells
 // ignore: must_be_immutable
 class _FontStyle extends Equatable {
-  String _fontColorHex, _fontFamily;
-  bool _bold, _italic;
-  Underline _underline;
-  int _fontSize;
+  String? _fontColorHex = 'FF000000';
+  String? _fontFamily;
+  bool _bold = false, _italic = false;
+  Underline _underline = Underline.None;
+  int? _fontSize;
 
-  _FontStyle({
-    String fontColorHex = 'FF000000',
-    int fontSize,
-    String fontFamily,
-    bool bold = false,
-    Underline underline = Underline.None,
-    bool italic = false,
-  }) {
-    _bold = bold ?? false;
+  _FontStyle(
+      {String? fontColorHex = 'FF000000',
+      int? fontSize,
+      String? fontFamily,
+      bool bold = false,
+      Underline underline = Underline.None,
+      bool italic = false}) {
+    _bold = bold;
 
-    fontSize = fontSize;
+    _fontSize = fontSize;
 
-    _italic = italic ?? false;
+    _italic = italic;
 
-    fontFamily = fontFamily;
+    _fontFamily = fontFamily;
 
-    _underline = underline ?? Underline.None;
+    _underline = underline;
 
     if (fontColorHex != null) {
       _fontColorHex = _isColorAppropriate(fontColorHex);
@@ -35,11 +35,11 @@ class _FontStyle extends Equatable {
 
   /// Get Font Color
   String get fontColor {
-    return _fontColorHex;
+    return _fontColorHex ?? 'FF000000';
   }
 
   /// Set Font Color
-  set fontColor(String fontColorHex) {
+  set fontColor(String? fontColorHex) {
     if (fontColorHex != null) {
       _fontColorHex = _isColorAppropriate(fontColorHex);
     } else {
@@ -48,23 +48,23 @@ class _FontStyle extends Equatable {
   }
 
   /// `Get FontFamily`
-  String get fontFamily {
+  String? get fontFamily {
     return _fontFamily;
   }
 
   /// `Set FontFamily`
-  set fontFamily(String family) {
+  set fontFamily(String? family) {
     _fontFamily = family;
   }
 
   /// Get Font Size
-  int get fontSize {
+  int? get fontSize {
     return _fontSize;
   }
 
   /// Set Font Size
-  set fontSize(int _font_Size) {
-    _fontSize = _font_Size;
+  set fontSize(int? _fs) {
+    _fontSize = _fs;
   }
 
   /// Get `Underline`
@@ -72,9 +72,9 @@ class _FontStyle extends Equatable {
     return _underline;
   }
 
-  /// Set `Underline`
+  /// set `Underline`
   set underline(Underline underline) {
-    _underline = underline ?? Underline.None;
+    _underline = underline;
   }
 
   /// Get `Bold`
@@ -84,7 +84,7 @@ class _FontStyle extends Equatable {
 
   /// Set `Bold`
   set isBold(bool bold) {
-    _bold = bold ?? false;
+    _bold = bold;
   }
 
   /// Get `Italic`
@@ -94,11 +94,11 @@ class _FontStyle extends Equatable {
 
   /// Set `Italic`
   set isItalic(bool italic) {
-    _italic = italic ?? false;
+    _italic = italic;
   }
 
   @override
-  List<Object> get props => [
+  List<Object?> get props => [
         _bold,
         _italic,
         _fontSize,

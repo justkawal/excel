@@ -8,7 +8,7 @@
     <img src="https://github.com/justkawal/excel/workflows/Test/badge.svg"  
       alt="Test" />  
   </a> 
-   <a href="https://pub.dev/packages/excel/versions/2.0.0-null-safety">  
+   <a href="https://pub.dartlang.org/packages/excel">  
     <img src="https://img.shields.io/pub/v/excel.svg"  
       alt="Pub Package" />  
   </a>
@@ -31,7 +31,7 @@
   <br>
   <br>
 
-### [Excel](https://pub.dev/packages/excel/versions/2.0.0-null-safety) is a flutter and dart library for reading, creating and updating excel-sheets for XLSX files.
+### [Excel](https://www.pub.dev/packages/excel) is a flutter and dart library for reading, creating and updating excel-sheets for XLSX files.
 
 #### This library is [MIT](https://github.com/justkawal/excel/blob/40b8b1ed8c3c213d8911784ddd40bf97841977a1/LICENSE#L1) licensed So, it's free to use anytime, anywhere without any consent, because we believe in Open Source work.
 
@@ -42,8 +42,7 @@ Add this to your package's `pubspec.yaml` file:
 
 ```yaml
 dependencies:
-  # From now on most of the changes and fixes will be pushed to null-safe versions only
-  excel: 2.0.0-null-safety
+  excel: any
 ```
 
 ### 2. Install it
@@ -181,7 +180,7 @@ Use `FilePicker` to pick files in Flutter Web. [FilePicker](https://pub.dev/pack
     
 ```
 
-### Cell values
+### Update Cell values
  
 ```dart
      /* 
@@ -383,7 +382,7 @@ key | description
      * it returns the number of replacements made
      */
       
-      int replacedCount = sheetObject.findAndReplace('Flutter', 'Google');
+      int replacedCount = sheetObject.findAndReplace(Flutter', 'Google');
       
 ```
    
@@ -399,7 +398,7 @@ key | description
       */
       
       /// It will put the list-iterables in the 8th index row
-      List<String> dataList = ["Google", "loves", "Flutter", "and", "Flutter", "loves", "Google"];
+      List<String> dataList = ["Google", "loves", "Flutter", "and", "Flutter", "loves", "Excel"];
       
       sheetObject.insertRowIterables(dataList, 8);
     

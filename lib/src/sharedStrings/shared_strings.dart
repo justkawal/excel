@@ -3,9 +3,9 @@ part of excel;
 class _SharedStringsMaintainer {
   static final instance = _SharedStringsMaintainer._();
 
-  var _map;
-  var _list;
-  var _index;
+  late Map<String, _IndexingHolder> _map;
+  late List<String> _list;
+  late int _index;
 
   factory _SharedStringsMaintainer._() {
     return _SharedStringsMaintainer();
@@ -23,17 +23,15 @@ class _SharedStringsMaintainer {
       _list.add(val);
       _index += 1;
     } else {
-      _list.add(val);
-      _index += 1;
-      _map[val].increaseCount();
+      _map[val]!.increaseCount();
     }
   }
 
   int indexOf(String val) {
-    return _map[val].index;
+    return _map[val] != null ? _map[val]!.index : -1;
   }
 
-  String value(int i) {
+  String? value(int i) {
     return i < _list.length ? _list[i] : null;
   }
 
@@ -42,11 +40,17 @@ class _SharedStringsMaintainer {
     _list = <String>[];
     _map = <String, _IndexingHolder>{};
   }
+
+  void ensureReinitialize() {
+    _map = <String, _IndexingHolder>{};
+    _list = <String>[];
+    _index = 0;
+  }
 }
 
 class _IndexingHolder {
   final int index;
-  int count;
+  late int count;
   _IndexingHolder(this.index, [int _count = 1]) {
     this.count = _count;
   }

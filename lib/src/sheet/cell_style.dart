@@ -3,22 +3,24 @@ part of excel;
 /// Styling class for cells
 // ignore: must_be_immutable
 class CellStyle extends Equatable {
-  String _fontColorHex, _backgroundColorHex, _fontFamily;
-  HorizontalAlign _horizontalAlign;
-  VerticalAlign _verticalAlign;
-  TextWrapping _textWrapping;
-  bool _bold, _italic;
-  Underline _underline;
-  int _fontSize, _rotation;
+  String _fontColorHex = 'FF000000', _backgroundColorHex = 'none';
+  String? _fontFamily;
+  HorizontalAlign _horizontalAlign = HorizontalAlign.Left;
+  VerticalAlign _verticalAlign = VerticalAlign.Bottom;
+  TextWrapping? _textWrapping;
+  bool _bold = false, _italic = false;
+  Underline _underline = Underline.None;
+  int? _fontSize;
+  int _rotation = 0;
 
   CellStyle({
-    String fontColorHex = "FF000000",
-    String backgroundColorHex = "none",
-    int fontSize,
-    String fontFamily,
+    String fontColorHex = 'FF000000',
+    String backgroundColorHex = 'none',
+    int? fontSize,
+    String? fontFamily,
     HorizontalAlign horizontalAlign = HorizontalAlign.Left,
     VerticalAlign verticalAlign = VerticalAlign.Bottom,
-    TextWrapping textWrapping,
+    TextWrapping? textWrapping,
     bool bold = false,
     Underline underline = Underline.None,
     bool italic = false,
@@ -26,117 +28,145 @@ class CellStyle extends Equatable {
   }) {
     _textWrapping = textWrapping;
 
-    _bold = bold ?? false;
+    _bold = bold;
 
-    fontSize = fontSize;
+    _fontSize = fontSize;
 
-    _italic = italic ?? false;
+    _italic = italic;
 
-    fontFamily = fontFamily;
+    _fontFamily = fontFamily;
 
-    _rotation = rotation ?? 0;
+    _rotation = rotation;
 
-    if (fontColorHex != null) {
-      _fontColorHex = _isColorAppropriate(fontColorHex);
-    } else {
-      _fontColorHex = "FF000000";
-    }
+    _fontColorHex = _isColorAppropriate(fontColorHex);
 
-    if (backgroundColorHex != null) {
-      _backgroundColorHex = _isColorAppropriate(backgroundColorHex);
-    } else {
-      _backgroundColorHex = "none";
-    }
+    _backgroundColorHex = _isColorAppropriate(backgroundColorHex);
 
-    _verticalAlign = verticalAlign ?? VerticalAlign.Bottom;
+    _verticalAlign = verticalAlign;
 
-    _horizontalAlign = horizontalAlign ?? HorizontalAlign.Left;
+    _horizontalAlign = horizontalAlign;
+  }
+
+  CellStyle copyWith({
+    String? fontColorHexVal,
+    String? backgroundColorHexVal,
+    String? fontFamilyVal,
+    HorizontalAlign? horizontalAlignVal,
+    VerticalAlign? verticalAlignVal,
+    TextWrapping? textWrappingVal,
+    bool? boldVal,
+    bool? italicVal,
+    Underline? underlineVal,
+    int? fontSizeVal,
+    int? rotationVal,
+  }) {
+    return CellStyle(
+      fontColorHex: fontColorHexVal ?? this._fontColorHex,
+      backgroundColorHex: backgroundColorHexVal ?? this._backgroundColorHex,
+      fontFamily: fontFamilyVal ?? this._fontFamily,
+      horizontalAlign: horizontalAlignVal ?? this._horizontalAlign,
+      verticalAlign: verticalAlignVal ?? this._verticalAlign,
+      textWrapping: textWrappingVal ?? this._textWrapping,
+      bold: boldVal ?? this._bold,
+      italic: italicVal ?? this._italic,
+      underline: underlineVal ?? this._underline,
+      fontSize: fontSizeVal ?? this._fontSize,
+      rotation: rotationVal ?? this._rotation,
+    );
   }
 
   ///Get Font Color
+  ///
   String get fontColor {
     return _fontColorHex;
   }
 
   ///Set Font Color
+  ///
   set fontColor(String fontColorHex) {
-    if (fontColorHex != null) {
-      _fontColorHex = _isColorAppropriate(fontColorHex);
-    } else {
-      _fontColorHex = "FF000000";
-    }
+    _fontColorHex = _isColorAppropriate(fontColorHex);
   }
 
   ///Get Background Color
+  ///
   String get backgroundColor {
     return _backgroundColorHex;
   }
 
   ///Set Background Color
+  ///
   set backgroundColor(String backgroundColorHex) {
-    if (backgroundColorHex != null) {
-      _backgroundColorHex = _isColorAppropriate(backgroundColorHex);
-    } else {
-      _backgroundColorHex = "none";
-    }
+    _backgroundColorHex = _isColorAppropriate(backgroundColorHex);
   }
 
   ///Get Horizontal Alignment
+  ///
   HorizontalAlign get horizontalAlignment {
     return _horizontalAlign;
   }
 
   ///Set Horizontal Alignment
+  ///
   set horizontalAlignment(HorizontalAlign horizontalAlign) {
-    _horizontalAlign = horizontalAlign ?? HorizontalAlign.Left;
+    _horizontalAlign = horizontalAlign;
   }
 
   ///Get Vertical Alignment
+  ///
   VerticalAlign get verticalAlignment {
     return _verticalAlign;
   }
 
   ///Set Vertical Alignment
+  ///
   set verticalAlignment(VerticalAlign verticalAlign) {
-    _verticalAlign = verticalAlign ?? VerticalAlign.Bottom;
+    _verticalAlign = verticalAlign;
   }
 
   ///`Get Wrapping`
-  TextWrapping get wrap {
+  ///
+  TextWrapping? get wrap {
     return _textWrapping;
   }
 
   ///`Set Wrapping`
-  set wrap(TextWrapping textWrapping) {
+  ///
+  set wrap(TextWrapping? textWrapping) {
     _textWrapping = textWrapping;
   }
 
   ///`Get FontFamily`
-  String get fontFamily {
+  ///
+  String? get fontFamily {
     return _fontFamily;
   }
 
   ///`Set FontFamily`
-  set fontFamily(String family) {
+  ///
+  set fontFamily(String? family) {
     _fontFamily = family;
   }
 
   ///Get Font Size
-  int get fontSize {
+  ///
+  int? get fontSize {
     return _fontSize;
   }
 
   ///Set Font Size
-  set fontSize(int _font_Size) {
-    _fontSize = _font_Size;
+  ///
+  set fontSize(int? _fs) {
+    _fontSize = _fs;
   }
 
   ///Get Rotation
+  ///
   int get rotation {
     return _rotation;
   }
 
   ///Rotation varies from [90 to -90]
+  ///
   set rotation(int _rotate) {
     if (_rotate > 90 || _rotate < -90) {
       _rotate = 0;
@@ -151,37 +181,42 @@ class CellStyle extends Equatable {
   }
 
   ///Get `Underline`
+  ///
   Underline get underline {
     return _underline;
   }
 
-  ///Set `Underline`
-  set underline(Underline underline_) {
-    _underline = underline_ ?? Underline.None;
+  ///set `Underline`
+  ///
+  set underline(Underline _) {
+    _underline = _;
   }
 
   ///Get `Bold`
+  ///
   bool get isBold {
     return _bold;
   }
 
   ///Set `Bold`
   set isBold(bool bold) {
-    _bold = bold ?? false;
+    _bold = bold;
   }
 
   ///Get `Italic`
+  ///
   bool get isItalic {
     return _italic;
   }
 
   ///Set `Italic`
+  ///
   set isItalic(bool italic) {
-    _italic = italic ?? false;
+    _italic = italic;
   }
 
   @override
-  List<Object> get props => [
+  List<Object?> get props => [
         _bold,
         _rotation,
         _italic,

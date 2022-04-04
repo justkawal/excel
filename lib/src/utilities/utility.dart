@@ -19,7 +19,7 @@ String _isColorAppropriate(String value) {
 
 /// Convert a character based column
 int lettersToNumeric(String letters) {
-  var sum = 0, mul = 1, n;
+  var sum = 0, mul = 1, n = 1;
   for (var index = letters.length - 1; index >= 0; index--) {
     var c = letters[index].codeUnitAt(0);
     n = 1;
@@ -42,12 +42,16 @@ Iterable<XmlElement> _findCells(XmlElement row) {
   return row.findElements('c');
 }
 
-int _getCellNumber(XmlElement cell) {
-  return _cellCoordsFromCellId(cell.getAttribute('r'))[1];
+int? _getCellNumber(XmlElement cell) {
+  var r = cell.getAttribute('r');
+  if (r == null) {
+    return null;
+  }
+  return _cellCoordsFromCellId(r)[1];
 }
 
-int _getRowNumber(XmlElement row) {
-  return int.parse(row.getAttribute('r'));
+int? _getRowNumber(XmlElement row) {
+  return int.tryParse(row.getAttribute('r').toString());
 }
 
 int _checkPosition(List<CellStyle> list, CellStyle cellStyle) {
@@ -102,8 +106,8 @@ String _normalizeNewLine(String text) {
 ///
 ///Returns the coordinates from a cell name.
 ///
-///       cellCoordsFromCellId('A2'); // returns [2, 1]
-///       cellCoordsFromCellId('B3'); // returns [3, 2]
+///       cellCoordsFromCellId("A2"); // returns [2, 1]
+///       cellCoordsFromCellId("B3"); // returns [3, 2]
 ///
 ///It is useful to convert CellId to Indexing.
 ///
@@ -124,12 +128,8 @@ List<int> _cellCoordsFromCellId(String cellId) {
 ///Throw error at situation where further processing is not possible
 ///It is also called when important parts of excel files are missing as corrupted excel file is used
 ///
-_damagedExcel({String text}) {
-  String t = '\nDamaged Excel file:';
-  if (text != null) {
-    t += ' $text';
-  }
-  throw ArgumentError(t + '\n');
+void _damagedExcel({String text = ''}) {
+  throw ArgumentError('\nDamaged Excel file: $text\n');
 }
 
 ///
@@ -200,10 +200,12 @@ List _isLocationChangeRequired(
   ]);
 }
 
+///
 ///Returns Column based String alphabet when column index is passed
 ///
 ///     `getColumnAlphabet(0); // returns A`
 ///     `getColumnAlphabet(5); // returns F`
+///
 String getColumnAlphabet(int collIndex) {
   return '${_numericToLetters(collIndex + 1)}';
 }
@@ -211,8 +213,8 @@ String getColumnAlphabet(int collIndex) {
 ///
 ///Returns Column based int index when column alphabet is passed
 ///
-///    `getColumnAlphabet('A'); // returns 0`
-///    `getColumnAlphabet('F'); // returns 5`
+///    `getColumnAlphabet("A"); // returns 0`
+///    `getColumnAlphabet("F"); // returns 5`
 ///
 int getColumnIndex(String columnAlphabet) {
   return _cellCoordsFromCellId('${columnAlphabet}')[1];
