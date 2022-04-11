@@ -43,7 +43,7 @@ Add this to your package's `pubspec.yaml` file:
 ```yaml
 dependencies:
   # From now on most of the changes and fixes will be pushed to null-safe versions only
-  excel: 2.0.0-null-safety
+  excel: ^2.0.0-null-safety-3
 ```
 
 ### 2. Install it
