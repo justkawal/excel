@@ -267,7 +267,7 @@ class Parser {
 
             /// Checking for font Size.
             var _clr = _nodeChildren(font, 'color', attribute: 'rgb');
-            if (_clr != null && _clr is bool && !_clr) {
+            if (_clr != null && !(_clr is bool)) {
               fontColor = _clr.toString();
             }
 
@@ -548,7 +548,8 @@ class Parser {
     }
     sheetObject.updateCell(
         CellIndex.indexByColumnRow(columnIndex: colIndex, rowIndex: rowIndex),
-        value);
+        value,
+        cellStyle: _excel._cellStyleList[s]);
     if (value.runtimeType == String) {
       _excel._sharedStrings.add(value);
     }
@@ -584,7 +585,7 @@ class Parser {
   ///
   ///
   _createSheet(String newSheet) {
-    /* 
+    /*
     List<XmlNode> list = _excel._xmlFiles['xl/workbook.xml']
         .findAllElements('sheets')
         .first
