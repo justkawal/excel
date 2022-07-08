@@ -130,6 +130,8 @@ class Save {
           }
         }
       }
+
+      _setHeaderFooter(sheet);
     });
   }
 
@@ -763,5 +765,24 @@ class Save {
     var cell = _createCell(sheet, columnIndex, rowIndex, value);
     row.children.add(cell);
     return cell;
+  }
+
+  void _setHeaderFooter(String sheetName) {
+    final sheet = _excel._sheetMap[sheetName];
+    if (sheet == null) return;
+
+    final xmlFile = _excel._xmlFiles[_excel._xmlSheetId[sheetName]];
+    if (xmlFile == null) return;
+
+    final sheetXmlElement = xmlFile.findAllElements("worksheet").first;
+
+    final results = sheetXmlElement.findAllElements("headerFooter");
+    if (results.isNotEmpty) {
+      sheetXmlElement.children.remove(results.first);
+    }
+
+    if (sheet.headerFooter == null) return;
+
+    sheetXmlElement.children.add(sheet.headerFooter!.toXmlElement());
   }
 }
