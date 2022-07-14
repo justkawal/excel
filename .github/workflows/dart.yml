@@ -2,9 +2,9 @@ name: Test
 
 on:
   push:
-    branches: [ workflow , master ]
+    branches: [ null-safety, master ]
   pull_request:
-    branches: [ workflow, master ]
+    branches: [ null-safety, master ]
 
 jobs:
   tests:
