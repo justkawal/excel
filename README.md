@@ -488,8 +488,3 @@ For getting saving directory on Android or iOS, Use: [path_provider](https://pub
 On-going implementation for future:
 - Formulas
 - Conversion to PDF
-
-
-# [Donate on Paypal](https://paypal.me/kawal7415)
-
-## Thanks for d♥️nations, you are very kind hearted person 👌
