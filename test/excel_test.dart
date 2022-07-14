@@ -93,4 +93,29 @@ void main() {
     expect(newExcel.tables['Sheet1']!.rows[4][1]!.value.toString(),
         equals('Moscow'));
   });
+
+  test("Update header/footer", () {
+    var file = './test/test_resources/example.xlsx';
+    var bytes = File(file).readAsBytesSync();
+    var excel = Excel.decodeBytes(bytes);
+    Sheet? sheetObject = excel.tables['Sheet1']!;
+
+    sheetObject.headerFooter!.oddHeader = "Foo";
+    sheetObject.headerFooter!.oddFooter = "Bar";
+
+    var fileBytes = excel.encode();
+    if (fileBytes != null) {
+      File(Directory.current.path + '/tmp/exampleOut.xlsx')
+        ..createSync(recursive: true)
+        ..writeAsBytesSync(fileBytes);
+    }
+    var newFile = './tmp/exampleOut.xlsx';
+    var newFileBytes = File(newFile).readAsBytesSync();
+    var newExcel = Excel.decodeBytes(newFileBytes);
+    expect(newExcel.tables['Sheet1']!.headerFooter!.oddHeader!, equals('Foo'));
+    expect(newExcel.tables['Sheet1']!.headerFooter!.oddFooter!, equals('Bar'));
+
+    // delete tmp folder only when test is successful (diagnosis)
+    new Directory('./tmp').delete(recursive: true);
+  });
 }

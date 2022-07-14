@@ -36,3 +36,4 @@ part 'src/sheet/formula.dart';
 part 'src/sheet/cell_index.dart';
 part 'src/sheet/cell_style.dart';
 part 'src/sheet/font_style.dart';
+part 'src/sheet/header_footer.dart';

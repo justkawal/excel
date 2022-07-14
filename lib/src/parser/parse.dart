@@ -439,6 +439,8 @@ class Parser {
       _parseRow(child, sheetObject, name);
     });
 
+    _parseHeaderFooter(worksheet, sheetObject);
+
     _excel._sheets[name] = sheet;
 
     _excel._xmlFiles['xl/$target'] = content;
@@ -688,5 +690,14 @@ class Parser {
     if (_excel._xmlFiles['xl/workbook.xml'] != null)
       _parseTable(
           _excel._xmlFiles['xl/workbook.xml']!.findAllElements('sheet').last);
+  }
+
+  void _parseHeaderFooter(XmlElement worksheet, Sheet sheetObject) {
+    final results = worksheet.findAllElements("headerFooter");
+    if (results.isEmpty) return;
+
+    final headerFooterElement = results.first;
+
+    sheetObject.headerFooter = HeaderFooter.fromXmlElement(headerFooterElement);
   }
 }
