@@ -1214,7 +1214,7 @@ class Sheet {
   ///Check if columnIndex is not out of `Excel Column limits`.
   ///
   _checkMaxCol(int colIndex) {
-    if (_maxCols >= 16384 || colIndex >= 16384) {
+    if (_maxCols > 16384 || colIndex >= 16384) {
       throw ArgumentError('Reached Max (16384) or (XFD) columns value.');
     }
     if (colIndex < 0) {
@@ -1226,7 +1226,7 @@ class Sheet {
   ///Check if rowIndex is not out of `Excel Row limits`.
   ///
   _checkMaxRow(int rowIndex) {
-    if (_maxRows >= 1048576 || rowIndex >= 1048576) {
+    if (_maxRows > 1048576 || rowIndex >= 1048576) {
       throw ArgumentError('Reached Max (1048576) rows value.');
     }
     if (rowIndex < 0) {
