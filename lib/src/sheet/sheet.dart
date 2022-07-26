@@ -17,31 +17,27 @@ class Sheet {
   /// It will clone the object by changing the `this` reference of previous oldSheetObject and putting `new this` reference, with copying the values too
   ///
   Sheet._clone(Excel excel, String sheetName, Sheet oldSheetObject)
-      : this._(
-          excel,
-          sheetName,
-          sh: oldSheetObject._sheetData,
-          spanL_: oldSheetObject._spanList,
-          spanI_: oldSheetObject._spannedItems,
-          maxRowsVal: oldSheetObject._maxRows,
-          maxColsVal: oldSheetObject._maxCols,
-          colWidthVal: oldSheetObject._colWidth,
-          colAutoFitVal: oldSheetObject._colAutoFit,
-          isRTLVal: oldSheetObject._isRTL,
-        );
+      : this._(excel, sheetName,
+            sh: oldSheetObject._sheetData,
+            spanL_: oldSheetObject._spanList,
+            spanI_: oldSheetObject._spannedItems,
+            maxRowsVal: oldSheetObject._maxRows,
+            maxColsVal: oldSheetObject._maxCols,
+            colWidthVal: oldSheetObject._colWidth,
+            colAutoFitVal: oldSheetObject._colAutoFit,
+            isRTLVal: oldSheetObject._isRTL,
+            headerFooter: oldSheetObject._headerFooter);
 
-  Sheet._(
-    Excel excel,
-    String sheetName, {
-    Map<int, Map<int, Data>>? sh,
-    List<_Span?>? spanL_,
-    FastList<String>? spanI_,
-    int? maxRowsVal,
-    int? maxColsVal,
-    bool? isRTLVal,
-    List<double>? colWidthVal,
-    List<bool>? colAutoFitVal,
-  }) {
+  Sheet._(Excel excel, String sheetName,
+      {Map<int, Map<int, Data>>? sh,
+      List<_Span?>? spanL_,
+      FastList<String>? spanI_,
+      int? maxRowsVal,
+      int? maxColsVal,
+      bool? isRTLVal,
+      List<double>? colWidthVal,
+      List<bool>? colAutoFitVal,
+      HeaderFooter? headerFooter}) {
     _excel = excel;
     _sheet = sheetName;
     _sheetData = <int, Map<int, Data>>{};
@@ -50,6 +46,7 @@ class Sheet {
     _isRTL = false;
     _maxRows = 0;
     _maxCols = 0;
+    _headerFooter = headerFooter;
 
     if (spanL_ != null) {
       _spanList = List<_Span?>.from(spanL_);
