@@ -273,7 +273,7 @@ class Parser {
 
             /// Checking for font Size.
             String? _size = _nodeChildren(font, 'sz', attribute: 'val');
-            if (_size != null && _size is String) {
+            if (_size != null) {
               fontSize = double.parse(_size).round();
             }
 
