@@ -46,7 +46,7 @@ void main(List<String> args) {
       CellIndex.indexByColumnRow(columnIndex: 1, rowIndex: 10));
 
   String outputFile =
-      "/Users/igdmit/Downloads/excel_custom-${DateTime.now().toIso8601String()}.xlsx";
+      "/Users/igdmitrov/Downloads/excel_custom-${DateTime.now().toIso8601String()}.xlsx";
 
   List<int>? fileBytes = excel.save();
   if (fileBytes != null) {
