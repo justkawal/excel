@@ -1,4 +1,4 @@
-part of excel;
+part of excel_facility;
 
 // ignore: must_be_immutable
 class CellIndex extends Equatable {

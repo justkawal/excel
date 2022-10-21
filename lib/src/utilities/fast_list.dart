@@ -1,4 +1,4 @@
-part of excel;
+part of excel_facility;
 
 // A helper class to optimized the usage of Maps
 class FastList<K> {

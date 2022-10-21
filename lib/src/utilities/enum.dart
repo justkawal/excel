@@ -1,4 +1,4 @@
-part of excel;
+part of excel_facility;
 
 ///enum for `wrapping` up the text
 ///

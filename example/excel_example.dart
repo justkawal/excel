@@ -1,5 +1,5 @@
 import 'dart:io';
-import 'package:excel_facility/excel.dart';
+import 'package:excel_facility/excel_facility.dart';
 import 'package:path/path.dart';
 
 void main(List<String> args) {

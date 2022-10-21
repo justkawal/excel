@@ -1,4 +1,4 @@
-part of excel;
+part of excel_facility;
 
 class Sheet {
   late Excel _excel;

@@ -1,4 +1,4 @@
-part of excel;
+part of excel_facility;
 
 class Formula {
   late String _formula;

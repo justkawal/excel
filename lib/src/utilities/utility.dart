@@ -1,4 +1,4 @@
-part of excel;
+part of excel_facility;
 
 List<String> _noCompression = <String>['mimetype', 'Thumbnails/thumbnail.png'];
 

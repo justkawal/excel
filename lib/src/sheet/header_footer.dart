@@ -1,4 +1,4 @@
-part of excel;
+part of excel_facility;
 
 class HeaderFooter {
   late bool? _alignWithMargins;

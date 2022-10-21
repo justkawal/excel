@@ -1,4 +1,4 @@
-part of excel;
+part of excel_facility;
 
 class Parser {
   late Excel _excel;

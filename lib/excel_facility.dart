@@ -1,4 +1,4 @@
-library excel;
+library excel_facility;
 
 import 'dart:convert';
 import 'dart:math';

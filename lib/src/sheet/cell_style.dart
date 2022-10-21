@@ -1,4 +1,4 @@
-part of excel;
+part of excel_facility;
 
 /// Styling class for cells
 // ignore: must_be_immutable

@@ -1,4 +1,4 @@
-part of excel;
+part of excel_facility;
 
 class _SharedStringsMaintainer {
   static final instance = _SharedStringsMaintainer._();

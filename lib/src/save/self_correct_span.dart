@@ -1,4 +1,4 @@
-part of excel;
+part of excel_facility;
 
 ///Self correct the spanning of rows and columns by checking their cross-sectional relationship between if exists.
 _selfCorrectSpanMap(Excel _excel) {
