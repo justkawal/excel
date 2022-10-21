@@ -1,6 +1,6 @@
 import 'dart:io';
 
-import 'package:excel/excel.dart';
+import 'package:excel_facility/excel.dart';
 import 'package:test/test.dart';
 
 void main() {

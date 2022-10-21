@@ -1,4 +1,4 @@
-name: excel
+name: excel_facility
 description: A flutter and dart library for reading, creating, editing and
   updating excel sheets with compatible both on client and server side.
 version: 1.0.0
