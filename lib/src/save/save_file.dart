@@ -604,9 +604,7 @@ class Save {
       uniqueCount += 1;
       count += ss.count;
 
-      shareString.children.add(XmlElement(XmlName('si'), [], [
-        XmlElement(XmlName('t'), [], [XmlText(string)]),
-      ]));
+      shareString.children.add(string.node);
     });
 
     [
@@ -680,7 +678,7 @@ class Save {
   // Manage value's type
   XmlElement _createCell(
       String sheet, int columnIndex, int rowIndex, dynamic value) {
-    if (value.runtimeType == String) {
+    if (value is SharedString) {
       _excel._sharedStrings.add(value);
     }
 
@@ -688,7 +686,7 @@ class Save {
 
     var attributes = <XmlAttribute>[
       XmlAttribute(XmlName('r'), rC),
-      if (value.runtimeType == String) XmlAttribute(XmlName('t'), 's'),
+      if (value is SharedString) XmlAttribute(XmlName('t'), 's'),
     ];
 
     if (_excel._colorChanges &&
@@ -727,7 +725,7 @@ class Save {
             if (value is Formula)
               XmlElement(XmlName('f'), [], [XmlText(value.formula.toString())]),
             XmlElement(XmlName('v'), [], [
-              XmlText(value is String
+              XmlText(value is SharedString
                   ? _excel._sharedStrings.indexOf(value).toString()
                   : value is Formula
                       ? ''
