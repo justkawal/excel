@@ -94,6 +94,32 @@ void main() {
         equals('Moscow'));
   });
 
+  test('Saving XLSX File with superscript', () async {
+    var file = './test/test_resources/superscriptExample.xlsx';
+    var bytes = File(file).readAsBytesSync();
+    var excel = Excel.decodeBytes(bytes);
+
+    var fileBytes = excel.encode();
+    if (fileBytes != null) {
+      File(Directory.current.path + '/tmp/superscriptExampleOut.xlsx')
+        ..createSync(recursive: true)
+        ..writeAsBytesSync(fileBytes);
+    }
+    var newFile = './tmp/superscriptExampleOut.xlsx';
+    var newFileBytes = File(newFile).readAsBytesSync();
+    var newExcel = Excel.decodeBytes(newFileBytes);
+    // delete tmp folder
+    new Directory('./tmp').delete(recursive: true);
+    expect(newExcel.sheets.entries.length, equals(1));
+
+    expect(newExcel.tables['Sheet1']!.rows[0][0]!.value.toString(),
+        equals('Text and superscript text'));
+    expect(newExcel.tables['Sheet1']!.rows[1][0]!.value.toString(),
+        equals('Text and superscript text'));
+    expect(newExcel.tables['Sheet1']!.rows[2][0]!.value.toString(),
+        equals('Text in A3'));
+  });
+
   group('Header/Footer', () {
     test("Update header/footer", () {
       var file = './test/test_resources/example.xlsx';
