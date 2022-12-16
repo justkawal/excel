@@ -907,7 +907,7 @@ class Sheet {
   ///
   insertRowIterables(List<dynamic> row, int rowIndex,
       {int startingColumn = 0, bool overwriteMergedCells = true}) {
-    if (row.length == 0 || rowIndex < 0) {
+    if (row.isEmpty || rowIndex < 0) {
       return;
     }
 
@@ -934,7 +934,7 @@ class Sheet {
       _selfCorrectSpanMap(_excel);
       List<_Span> _spanObjectsList = _getSpannedObjects(rowIndex, columnIndex);
 
-      if (_spanObjectsList.length <= 0) {
+      if (_spanObjectsList.isEmpty) {
         while (currentRowPosition <= maxIterationIndex) {
           _putData(rowIndex, columnIndex, row[currentRowPosition]);
           currentRowPosition++;

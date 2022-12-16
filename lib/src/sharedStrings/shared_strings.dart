@@ -77,7 +77,7 @@ class _IndexingHolder {
 
 class SharedString {
   final XmlElement node;
-  final _hashCode;
+  final int _hashCode;
 
   SharedString({required this.node}) : _hashCode = node.toString().hashCode;
 

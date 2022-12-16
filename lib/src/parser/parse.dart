@@ -293,8 +293,8 @@ class Parser {
             }
 
             /// Checking for single underline
-            var _single_underline = _nodeChildren(font, 'u');
-            if (_single_underline != null) {
+            var _singleUnderline = _nodeChildren(font, 'u');
+            if (_singleUnderline != null) {
               underline = Underline.Single;
             }
 
@@ -483,7 +483,8 @@ class Parser {
       return;
     }
 
-    var value, type = node.getAttribute('t');
+    dynamic value;
+    String? type = node.getAttribute('t');
 
     switch (type) {
       // sharedString
@@ -682,9 +683,10 @@ class Parser {
                 XmlName('PartName'), '/xl/worksheets/sheet${sheetNumber}.xml'),
           ],
         ));
-    if (_excel._xmlFiles['xl/workbook.xml'] != null)
+    if (_excel._xmlFiles['xl/workbook.xml'] != null) {
       _parseTable(
           _excel._xmlFiles['xl/workbook.xml']!.findAllElements('sheet').last);
+    }
   }
 
   void _parseHeaderFooter(XmlElement worksheet, Sheet sheetObject) {
