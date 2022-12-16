@@ -1,7 +1,9 @@
+import 'dart:convert';
 import 'dart:io';
-
+import 'package:archive/archive.dart';
 import 'package:excel/excel.dart';
 import 'package:test/test.dart';
+import 'package:xml/xml.dart';
 
 void main() {
   test('Create New XLSX File', () {
@@ -92,6 +94,114 @@ void main() {
     expect(newExcel.tables['Sheet1']!.maxCols, equals(3));
     expect(newExcel.tables['Sheet1']!.rows[4][1]!.value.toString(),
         equals('Moscow'));
+  });
+
+  test('Saving XLSX File with superscript', () async {
+    var file = './test/test_resources/superscriptExample.xlsx';
+    var bytes = File(file).readAsBytesSync();
+    var excel = Excel.decodeBytes(bytes);
+
+    var fileBytes = excel.encode();
+    if (fileBytes != null) {
+      File(Directory.current.path + '/tmp/superscriptExampleOut.xlsx')
+        ..createSync(recursive: true)
+        ..writeAsBytesSync(fileBytes);
+    }
+    var newFile = './tmp/superscriptExampleOut.xlsx';
+    var newFileBytes = File(newFile).readAsBytesSync();
+    var newExcel = Excel.decodeBytes(newFileBytes);
+    // delete tmp folder
+    new Directory('./tmp').delete(recursive: true);
+    expect(newExcel.sheets.entries.length, equals(1));
+
+    expect(newExcel.tables['Sheet1']!.rows[0][0]!.value.toString(),
+        equals('Text and superscript text'));
+    expect(newExcel.tables['Sheet1']!.rows[1][0]!.value.toString(),
+        equals('Text and superscript text'));
+    expect(newExcel.tables['Sheet1']!.rows[2][0]!.value.toString(),
+        equals('Text in A3'));
+  });
+
+  test(
+      'Add already shared strings and make sure that they are reused by checking increased usage count but equal unique count',
+      () {
+    var file = './test/test_resources/example.xlsx';
+    var bytes = File(file).readAsBytesSync();
+    var archive = ZipDecoder().decodeBytes(bytes);
+    var sharedStringsArchive = archive.findFile('xl/sharedStrings.xml')!;
+
+    var oldSharedStringsDocument =
+        XmlDocument.parse(utf8.decode(sharedStringsArchive.content));
+    var oldCount = oldSharedStringsDocument
+        .findAllElements('sst')
+        .first
+        .getAttributeNode("count");
+    var oldUniqueCount = oldSharedStringsDocument
+        .findAllElements('sst')
+        .first
+        .getAttributeNode("uniqueCount");
+
+    var excel = Excel.decodeBytes(bytes);
+
+    Sheet? sheetObject = excel.tables['Sheet1']!;
+    sheetObject
+        .insertRowIterables(['ISRAEL', 'Jerusalem', 'Benjamin Netanyahu'], 4);
+    var fileBytes = excel.encode();
+    if (fileBytes != null) {
+      File(Directory.current.path + '/tmp/exampleOut.xlsx')
+        ..createSync(recursive: true)
+        ..writeAsBytesSync(fileBytes);
+    }
+    var newFile = './tmp/exampleOut.xlsx';
+    var newFileBytes = File(newFile).readAsBytesSync();
+    var newExcel = Excel.decodeBytes(newFileBytes);
+
+    var newArchive = ZipDecoder().decodeBytes(newFileBytes);
+    var newSharedStringsArchive = newArchive.findFile('xl/sharedStrings.xml')!;
+
+    var newSharedStringsDocument =
+        XmlDocument.parse(utf8.decode(newSharedStringsArchive.content));
+    var newCount = newSharedStringsDocument
+        .findAllElements('sst')
+        .first
+        .getAttributeNode("count");
+    var newUniqueCount = newSharedStringsDocument
+        .findAllElements('sst')
+        .first
+        .getAttributeNode("uniqueCount");
+
+    // delete tmp folder
+    new Directory('./tmp').delete(recursive: true);
+
+    expect(oldUniqueCount!.value, equals(newUniqueCount!.value));
+    expect(oldCount!.value, "12");
+    expect(newCount!.value, "15");
+  });
+
+  test('Saving XLSX File with superscript', () async {
+    var file = './test/test_resources/superscriptExample.xlsx';
+    var bytes = File(file).readAsBytesSync();
+    var excel = Excel.decodeBytes(bytes);
+
+    var fileBytes = excel.encode();
+    if (fileBytes != null) {
+      File(Directory.current.path + '/tmp/superscriptExampleOut.xlsx')
+        ..createSync(recursive: true)
+        ..writeAsBytesSync(fileBytes);
+    }
+    var newFile = './tmp/superscriptExampleOut.xlsx';
+    var newFileBytes = File(newFile).readAsBytesSync();
+    var newExcel = Excel.decodeBytes(newFileBytes);
+    // delete tmp folder
+    new Directory('./tmp').delete(recursive: true);
+    expect(newExcel.sheets.entries.length, equals(1));
+
+    expect(newExcel.tables['Sheet1']!.rows[0][0]!.value.toString(),
+        equals('Text and superscript text'));
+    expect(newExcel.tables['Sheet1']!.rows[1][0]!.value.toString(),
+        equals('Text and superscript text'));
+    expect(newExcel.tables['Sheet1']!.rows[2][0]!.value.toString(),
+        equals('Text in A3'));
   });
 
   group('Header/Footer', () {

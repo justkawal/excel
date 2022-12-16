@@ -971,7 +971,13 @@ class Sheet {
         columnIndex: Data.newData(this, rowIndex, columnIndex)
       };
     }
-    _sheetData[rowIndex]![columnIndex]!._value = value;
+
+    if (value is String) {
+      final sharedString = _excel._sharedStrings.addFromString(value);
+      _sheetData[rowIndex]![columnIndex]!._value = sharedString;
+    } else {
+      _sheetData[rowIndex]![columnIndex]!._value = value;
+    }
 
     /// Sets value of `isFormula` to true if this is `instance of Formula`.
     _sheetData[rowIndex]![columnIndex]!._isFormula =
@@ -980,10 +986,6 @@ class Sheet {
     /// Sets type of the Data to `_cellType`
     _sheetData[rowIndex]![columnIndex]!._cellType =
         _getCellType(value.runtimeType);
-
-    if (value.runtimeType == String) {
-      _excel._sharedStrings.add(value);
-    }
 
     if ((_maxCols - 1) < columnIndex) {
       _maxCols = columnIndex + 1;
