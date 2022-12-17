@@ -2,7 +2,7 @@ part of excel;
 
 Excel _newExcel(Archive archive) {
   // Lookup at file format
-  var format;
+  String? format;
 
   var mimetype = archive.findFile('mimetype');
   if (mimetype == null) {
@@ -435,7 +435,7 @@ class Excel {
   ///If `sheet` does not exist then it will be automatically created.
   ///
   void appendRow(String sheet, List<dynamic> row) {
-    if (row.length == 0) {
+    if (row.isEmpty) {
       return;
     }
     _availSheet(sheet);
