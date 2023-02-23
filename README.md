@@ -35,6 +35,8 @@
 
 #### This library is [MIT](https://github.com/justkawal/excel/blob/40b8b1ed8c3c213d8911784ddd40bf97841977a1/LICENSE#L1) licensed So, it's free to use anytime, anywhere without any consent, because we believe in Open Source work.
 
+### If you find this tool useful! Please star this repo and give a like on [Excel](https://www.pub.dev/packages/excel).
+
 # Lets Get Started
 
 ### 1. Depend on it
@@ -52,7 +54,7 @@ You can install packages from the command line:
 with `pub`:
 
 ```css
-$  pub get
+$  dart pub get
 ```
 
 with `Flutter`:
@@ -488,7 +490,3 @@ On-going implementation for future:
 - Formulas
 - Conversion to PDF
 
-
-# [Donate on Paypal](https://paypal.me/kawal7415)
-
-## Thanks for d♥️nations, you are very kind hearted person 👌
