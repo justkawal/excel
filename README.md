@@ -484,12 +484,6 @@ For getting saving directory on Android or iOS, Use: [path_provider](https://pub
       ..writeAsBytesSync(fileBytes);
 ```
 
-# Frequent Issues
-
-### Having Trouble using excel i.e: `every version of some_other_library depends on version..... blah blah blah`
-
-`Similar issues have been solved in the past :` [#26](https://github.com/justkawal/excel/issues/26), [#25](https://github.com/justkawal/excel/issues/25), [#11](https://github.com/justkawal/excel/issues/11)
-
 ## Features coming in next version
 
 On-going implementation for future:
