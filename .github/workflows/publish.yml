@@ -1,14 +1,27 @@
 # .github/workflows/publish.yml
-name: Publish to pub.dev
-
+name: Publish package to pub.dev
 on:
   push:
-    tags:
-    - 'v[0-9]+.[0-9]+.[0-9]+*' # for tags like: 'v1.2.3'
-
+    branches:   
+      - publish
 jobs:
-  publish:
-    uses: dart-lang/setup-dart/.github/workflows/publish.yml@v1
-    with:
-      # Specify the github actions deployment environment
-      environment: pub.dev
+  build:
+    runs-on: ubuntu-latest
+    container:
+      image:  google/dart:latest
+    steps:
+    - uses: actions/checkout@v1
+    - name: Setup credentials
+      run: | 
+        mkdir -p ~/.pub-cache 
+        cat <<EOF > ~/.pub-cache/credentials.json
+        {
+          "accessToken":"${{ secrets.OAUTH_ACCESS_TOKEN }}",
+          "refreshToken":"${{ secrets.OAUTH_REFRESH_TOKEN }}",
+          "tokenEndpoint":"https://accounts.google.com/o/oauth2/token",
+          "scopes": [ "openid", "https://www.googleapis.com/auth/userinfo.email" ],
+          "expiration": 1570721159347
+        }
+        EOF
+    - name: Publish package
+      run: pub publish -f
