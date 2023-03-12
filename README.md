@@ -45,7 +45,7 @@ Add this to your package's `pubspec.yaml` file:
 
 ```yaml
 dependencies:
-  excel: 2.0.3
+  excel: 2.0.4
 ```
 
 ### 2. Install it
