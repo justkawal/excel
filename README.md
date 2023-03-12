@@ -1,5 +1,7 @@
 # Excel
 
+# If you find this tool useful! Please drop a ⭐️.
+
   <a href='https://flutter.io'>  
     <img src='https://img.shields.io/badge/Platform-Flutter-yellow.svg'  
       alt='Platform' />  
@@ -35,8 +37,6 @@
 
 #### This library is [MIT](https://github.com/justkawal/excel/blob/40b8b1ed8c3c213d8911784ddd40bf97841977a1/LICENSE#L1) licensed So, it's free to use anytime, anywhere without any consent, because we believe in Open Source work.
 
-### If you find this tool useful! Please star this repo and give a like on [Excel](https://www.pub.dev/packages/excel).
-
 # Lets Get Started
 
 ### 1. Depend on it
@@ -45,7 +45,7 @@ Add this to your package's `pubspec.yaml` file:
 
 ```yaml
 dependencies:
-  excel: any
+  excel: 2.0.3
 ```
 
 ### 2. Install it

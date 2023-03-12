@@ -3,8 +3,9 @@ name: Publish package to pub.dev
 
 on:
   push:
-    branches:
-      - publish
+    branches: [ publish ]
+  pull_request:
+    branches: [ publish ]
 
 jobs:
   build:
