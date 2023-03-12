@@ -1,6 +1,10 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [2.0.4] - 2023-03-12
+### Improved
+- Automated Publishing.
+
 ## [2.0.3] - 2023-03-12
 ### Improved
 - Readme updated.
