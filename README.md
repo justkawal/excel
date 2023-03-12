@@ -1,32 +1,32 @@
 # Excel
 
-  <a href="https://flutter.io">  
-    <img src="https://img.shields.io/badge/Platform-Flutter-yellow.svg"  
-      alt="Platform" />  
+  <a href='https://flutter.io'>  
+    <img src='https://img.shields.io/badge/Platform-Flutter-yellow.svg'  
+      alt='Platform' />  
   </a> 
-  <a href="https://github.com/justkawal/excel">  
-    <img src="https://github.com/justkawal/excel/workflows/Test/badge.svg"  
-      alt="Test" />  
+  <a href='https://github.com/justkawal/excel'>  
+    <img src='https://github.com/justkawal/excel/workflows/Test/badge.svg'  
+      alt='Test' />  
   </a> 
-   <a href="https://pub.dartlang.org/packages/excel">  
-    <img src="https://img.shields.io/pub/v/excel.svg"  
-      alt="Pub Package" />  
+   <a href='https://pub.dartlang.org/packages/excel'>  
+    <img src='https://img.shields.io/pub/v/excel.svg'  
+      alt='Pub Package' />  
   </a>
-   <a href="https://opensource.org/licenses/MIT">  
-    <img src="https://img.shields.io/badge/License-MIT-red.svg"  
-      alt="License: MIT" />  
+   <a href='https://opensource.org/licenses/MIT'>  
+    <img src='https://img.shields.io/badge/License-MIT-red.svg'  
+      alt='License: MIT' />  
   </a>
-   <a href="https://github.com/justkawal/excel/issues">  
-    <img src="https://img.shields.io/github/issues/justkawal/excel"  
-      alt="Issue" />  
+   <a href='https://github.com/justkawal/excel/issues'>  
+    <img src='https://img.shields.io/github/issues/justkawal/excel'  
+      alt='Issue' />  
   </a> 
-   <a href="https://github.com/justkawal/excel/network">  
-    <img src="https://img.shields.io/github/forks/justkawal/excel"  
-      alt="Forks" />  
+   <a href='https://github.com/justkawal/excel/network'>  
+    <img src='https://img.shields.io/github/forks/justkawal/excel'  
+      alt='Forks' />  
   </a> 
-   <a href="https://github.com/justkawal/excel/stargazers">  
-    <img src="https://img.shields.io/github/stars/justkawal/excel"  
-      alt="Stars" />  
+   <a href='https://github.com/justkawal/excel/stargazers'>  
+    <img src='https://img.shields.io/github/stars/justkawal/excel'  
+      alt='Stars' />  
   </a>
   <br>
   <br>
@@ -55,7 +55,7 @@ You can install packages from the command line:
 with `pub`:
 
 ```css
-$  dart pub get
+$  dart pub add excel
 ```
 
 with `Flutter`:
@@ -80,12 +80,12 @@ The necessary changes to be made to updateCell function in order to prevent the 
 
 ```dart
 
-    excel.updateCell('SheetName', CellIndex.indexByString("A2"), "Here value", backgroundColorHex: "#1AFF1A", horizontalAlign: HorizontalAlign.Right);
+    excel.updateCell('SheetName', CellIndex.indexByString('A2'), 'Here value', backgroundColorHex: '#1AFF1A', horizontalAlign: HorizontalAlign.Right);
 
     // Now in the above code wrap the optional arguments with CellStyle() and pass it to optional cellStyle parameter.
     // So the resulting code will look like
 
-    excel.updateCell('SheetName', CellIndex.indexByString("A2"), "Here value", cellStyle: CellStyle( backgroundColorHex: "#1AFF1A", horizontalAlign: HorizontalAlign.Right ) );
+    excel.updateCell('SheetName', CellIndex.indexByString('A2'), 'Here value', cellStyle: CellStyle( backgroundColorHex: '#1AFF1A', horizontalAlign: HorizontalAlign.Right ) );
 
 ```
 
@@ -105,7 +105,7 @@ The necessary changes to be made to updateCell function in order to prevent the 
 ### Read XLSX File
 
 ```dart
-    var file = "Path_to_pre_existing_Excel_File/excel_file.xlsx";
+    var file = 'Path_to_pre_existing_Excel_File/excel_file.xlsx';
     var bytes = File(file).readAsBytesSync();
     var excel = Excel.decodeBytes(bytes);
 
@@ -114,7 +114,7 @@ The necessary changes to be made to updateCell function in order to prevent the 
       print(excel.tables[table].maxCols);
       print(excel.tables[table].maxRows);
       for (var row in excel.tables[table].rows) {
-        print("$row");
+        print('$row');
       }
     }
 
@@ -148,7 +148,7 @@ Use `FilePicker` to pick files in Flutter Web. [FilePicker](https://pub.dev/pack
       print(excel.tables[table].maxCols);
       print(excel.tables[table].maxRows);
       for (var row in excel.tables[table].rows) {
-        print("$row");
+        print('$row');
       }
     }
   }
@@ -161,7 +161,7 @@ Use `FilePicker` to pick files in Flutter Web. [FilePicker](https://pub.dev/pack
 
     /* Your blah blah code here */
 
-    ByteData data = await rootBundle.load("assets/existing_excel_file.xlsx");
+    ByteData data = await rootBundle.load('assets/existing_excel_file.xlsx');
     var bytes = data.buffer.asUint8List(data.offsetInBytes, data.lengthInBytes);
     var excel = Excel.decodeBytes(bytes);
 
@@ -170,7 +170,7 @@ Use `FilePicker` to pick files in Flutter Web. [FilePicker](https://pub.dev/pack
       print(excel.tables[table].maxCols);
       print(excel.tables[table].maxRows);
       for (var row in excel.tables[table].rows) {
-        print("$row");
+        print('$row');
       }
     }
 
@@ -195,17 +195,17 @@ Use `FilePicker` to pick files in Flutter Web. [FilePicker](https://pub.dev/pack
 
       Sheet sheetObject = excel['SheetName'];
 
-      CellStyle cellStyle = CellStyle(backgroundColorHex: "#1AFF1A", fontFamily : getFontFamily(FontFamily.Calibri));
+      CellStyle cellStyle = CellStyle(backgroundColorHex: '#1AFF1A', fontFamily : getFontFamily(FontFamily.Calibri));
 
       cellStyle.underline = Underline.Single; // or Underline.Double
 
 
-      var cell = sheetObject.cell(CellIndex.indexByString("A1"));
+      var cell = sheetObject.cell(CellIndex.indexByString('A1'));
       cell.value = 8; // dynamic values support provided;
       cell.cellStyle = cellStyle;
 
       // printing cell-type
-      print("CellType: "+ cell.cellType.toString());
+      print('CellType: '+ cell.cellType.toString());
 
       ///
       /// Inserting and removing column and rows
@@ -234,9 +234,9 @@ Use `FilePicker` to pick files in Flutter Web. [FilePicker](https://pub.dev/pack
 | bold               | makes text bold - when set to `true`, by-default it is set to `false`                                                                   |
 | italic             | makes text italic - when set to `true`, by-default it is set to `false`                                                                 |
 | underline          | Gives underline to text `enum Underline { None, Single, Double }` eg. Underline.Single, by-default it is set to Underline.None          |
-| fontColorHex       | Font Color eg. "#0000FF"                                                                                                                |
+| fontColorHex       | Font Color eg. '#0000FF'                                                                                                                |
 | rotation (degree)  | rotation of text eg. 50, rotation varies from `-90 to 90`, with including `90` and `-90`                                                |
-| backgroundColorHex | Background color of cell eg. "#faf487"                                                                                                  |
+| backgroundColorHex | Background color of cell eg. '#faf487'                                                                                                  |
 | wrap               | Text wrapping `enum TextWrapping { WrapText, Clip }` eg. TextWrapping.Clip                                                              |
 | verticalAlign      | align text vertically `enum VerticalAlign { Top, Center, Bottom }` eg. VerticalAlign.Top                                                |
 | horizontalAlign    | align text horizontally `enum HorizontalAlign { Left, Center, Right }` eg. HorizontalAlign.Right                                        |
@@ -343,7 +343,7 @@ Use `FilePicker` to pick files in Flutter Web. [FilePicker](https://pub.dev/pack
      * customValue is optional
      */
 
-      sheetObject.merge(CellIndex.indexByString("A1"), CellIndex.indexByString("E4"), customValue: "Put this text after merge");
+      sheetObject.merge(CellIndex.indexByString('A1'), CellIndex.indexByString('E4'), customValue: 'Put this text after merge');
 
 ```
 
@@ -353,7 +353,7 @@ Use `FilePicker` to pick files in Flutter Web. [FilePicker](https://pub.dev/pack
       // Check which cells are merged
 
       sheetObject.spannedItems.forEach((cells) {
-        print("Merged:" + cells.toString());
+        print('Merged:' + cells.toString());
       });
 
 ```
@@ -364,12 +364,12 @@ Use `FilePicker` to pick files in Flutter Web. [FilePicker](https://pub.dev/pack
     /*
      * sheetObject.unMerge(cell);
      * sheetObject created by calling - // Sheet sheetObject = excel['SheetName'];
-     * cell should be identified with string only with an example as "A1:E4".
-     * to check if "A1:E4" is un-merged or not
+     * cell should be identified with string only with an example as 'A1:E4'.
+     * to check if 'A1:E4' is un-merged or not
      * call the method excel.getMergedCells(sheet); and verify that it is not present in it.
      */
 
-      sheetObject.unMerge("A1:E4");
+      sheetObject.unMerge('A1:E4');
 
 ```
 
@@ -401,7 +401,7 @@ Use `FilePicker` to pick files in Flutter Web. [FilePicker](https://pub.dev/pack
       */
 
       /// It will put the list-iterables in the 8th index row
-      List<String> dataList = ["Google", "loves", "Flutter", "and", "Flutter", "loves", "Excel"];
+      List<String> dataList = ['Google', 'loves', 'Flutter', 'and', 'Flutter', 'loves', 'Excel'];
 
       sheetObject.insertRowIterables(dataList, 8);
 
@@ -423,7 +423,7 @@ Use `FilePicker` to pick files in Flutter Web. [FilePicker](https://pub.dev/pack
     * list-iterables === list of iterables
     */
 
-     sheetObject.appendRow(["Flutter", "till", "Eternity"]);
+     sheetObject.appendRow(['Flutter', 'till', 'Eternity']);
 
 ```
 
@@ -436,7 +436,7 @@ Use `FilePicker` to pick files in Flutter Web. [FilePicker](https://pub.dev/pack
     */
 
      var defaultSheet = excel.getDefaultSheet();
-     print("Default Sheet:" + defaultSheet.toString());
+     print('Default Sheet:' + defaultSheet.toString());
 
 ```
 
@@ -452,9 +452,9 @@ Use `FilePicker` to pick files in Flutter Web. [FilePicker](https://pub.dev/pack
 
      var isSet = excel.setDefaultSheet(sheet);
      if (isSet) {
-       print("$sheet is set to default sheet.");
+       print('$sheet is set to default sheet.');
      } else {
-       print("Unable to set $sheet to default sheet.");
+       print('Unable to set $sheet to default sheet.');
      }
 
 ```
@@ -467,7 +467,7 @@ Use `FilePicker` to pick files in Flutter Web. [FilePicker](https://pub.dev/pack
      // when you are in flutter web then save() downloads the excel file.
 
      // Call function save() to download the file
-     var fileBytes = excel.save(fileName: "My_Excel_File_Name.xlsx");
+     var fileBytes = excel.save(fileName: 'My_Excel_File_Name.xlsx');
 
 ```
 
@@ -479,7 +479,7 @@ For getting saving directory on Android or iOS, Use: [path_provider](https://pub
     var fileBytes = excel.save();
     var directory = await getApplicationDocumentsDirectory();
 
-    File(join("$directory/output_file_name.xlsx"))
+    File(join('$directory/output_file_name.xlsx'))
       ..createSync(recursive: true)
       ..writeAsBytesSync(fileBytes);
 ```

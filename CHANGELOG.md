@@ -1,9 +1,9 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
-## [Future Updates coming soon]
-- Formulas
-- Conversion to PDF
+## [2.0.1] - 2023-03-12
+### Improved
+- Fix bug on header and footer.
 
 ## [2.0.0-null-safety-4] - 2022-02-15
 ### Improved

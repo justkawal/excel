@@ -154,7 +154,7 @@ void main() {
     }
     var newFile = './tmp/exampleOut.xlsx';
     var newFileBytes = File(newFile).readAsBytesSync();
-    var newExcel = Excel.decodeBytes(newFileBytes);
+    expect(() => Excel.decodeBytes(newFileBytes), returnsNormally);
 
     var newArchive = ZipDecoder().decodeBytes(newFileBytes);
     var newSharedStringsArchive = newArchive.findFile('xl/sharedStrings.xml')!;
