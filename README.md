@@ -120,7 +120,7 @@ The necessary changes to be made to updateCell function in order to prevent the 
 
 ```
 
-### Is your excel file password protected ? ( We got u covered )
+### Is your excel file password protected ?
 
 `Protect helps you to apply and remove password protection on your excel file.` [protect](https://github.com/justkawal/protect.git)
 
@@ -159,7 +159,7 @@ Use `FilePicker` to pick files in Flutter Web. [FilePicker](https://pub.dev/pack
 ```dart
     import 'package:flutter/services.dart' show ByteData, rootBundle;
 
-    /* Your blah blah code here */
+    /* Your ......other important..... code here */
 
     ByteData data = await rootBundle.load('assets/existing_excel_file.xlsx');
     var bytes = data.buffer.asUint8List(data.offsetInBytes, data.lengthInBytes);

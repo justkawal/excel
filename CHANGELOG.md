@@ -1,7 +1,7 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
-## [2.0.1] - 2023-03-12
+## [2.0.2] - 2023-03-12
 ### Improved
 - Fix bug on header and footer.
 
