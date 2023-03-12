@@ -7,7 +7,7 @@ name: Dart
 
 on:
   push:
-    branches: [ null-safety, publish ]
+    branches: [ null-safety ]
   pull_request:
     branches: [ null-safety, publish ]
 
