@@ -255,5 +255,19 @@ void main() {
     });
 
     test("Remove header/footer from Workbook", () {});
+
+    test("Reader headerFooter attributes", () {
+      var file = './test/test_resources/headerFooter.xlsx';
+      var bytes = File(file).readAsBytesSync();
+      var excel = Excel.decodeBytes(bytes);
+      Sheet? sheetObject = excel.tables['Sheet1']!;
+
+      var headerFooter = sheetObject.headerFooter!;
+
+      expect(headerFooter.alignWithMargins, isFalse);
+      expect(headerFooter.differentFirst, isTrue);
+      expect(headerFooter.differentOddEven, isTrue);
+      expect(headerFooter.scaleWithDoc, isFalse);
+    });
   });
 }

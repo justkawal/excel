@@ -184,9 +184,10 @@ class HeaderFooter {
 
 extension BoolParsing on String {
   bool parseBool() {
-    if (this.toLowerCase() == 'true') {
+    var value = this.toLowerCase();
+    if (value == 'true' || value == '1') {
       return true;
-    } else if (this.toLowerCase() == 'false') {
+    } else if (value == 'false' || value == '0') {
       return false;
     }
 
