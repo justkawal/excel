@@ -716,7 +716,7 @@ class Sheet {
 
     Data value = Data.newData(this, startRow, startColumn);
     if (customValue != null) {
-      value._value = customValue;
+      value.value = customValue;
       getValue = false;
     }
 
