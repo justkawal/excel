@@ -724,7 +724,7 @@ class Sheet {
         if (_sheetData[j] != null && _sheetData[j]![k] != null) {
           if (getValue &&
               (_sheetData[j]![k]!.value != null ||
-              _sheetData[j]![k]!.cellStyle != null)) {
+                  _sheetData[j]![k]!.cellStyle != null)) {
             value = _sheetData[j]![k]!;
             getValue = false;
           }
