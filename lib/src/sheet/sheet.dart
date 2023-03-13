@@ -717,15 +717,14 @@ class Sheet {
     Data value = Data.newData(this, startRow, startColumn);
     if (customValue != null) {
       value.value = customValue;
-      getValue = false;
     }
 
     for (int j = startRow; j <= endRow; j++) {
       for (int k = startColumn; k <= endColumn; k++) {
         if (_sheetData[j] != null && _sheetData[j]![k] != null) {
           if (getValue &&
-              _sheetData[j]![k]!.value != null &&
-              _sheetData[j]![k]!.cellStyle != null) {
+              (_sheetData[j]![k]!.value != null ||
+              _sheetData[j]![k]!.cellStyle != null)) {
             value = _sheetData[j]![k]!;
             getValue = false;
           }
