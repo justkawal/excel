@@ -7,9 +7,9 @@ name: Dart
 
 on:
   push:
-    branches: [ null-safety, master ]
+    branches: [ developement ]
   pull_request:
-    branches: [ null-safety, master ]
+    branches: [ developement, publish ]
 
 jobs:
   build:

@@ -1,5 +1,7 @@
 # Excel
 
+# If you find this tool useful! Please drop a ⭐️.
+
   <a href='https://flutter.io'>  
     <img src='https://img.shields.io/badge/Platform-Flutter-yellow.svg'  
       alt='Platform' />  
@@ -35,8 +37,6 @@
 
 #### This library is [MIT](https://github.com/justkawal/excel/blob/40b8b1ed8c3c213d8911784ddd40bf97841977a1/LICENSE#L1) licensed So, it's free to use anytime, anywhere without any consent, because we believe in Open Source work.
 
-### If you find this tool useful! Please star this repo and give a like on [Excel](https://www.pub.dev/packages/excel).
-
 # Lets Get Started
 
 ### 1. Depend on it
@@ -45,7 +45,7 @@ Add this to your package's `pubspec.yaml` file:
 
 ```yaml
 dependencies:
-  excel: any
+  excel: 2.0.4
 ```
 
 ### 2. Install it
@@ -120,7 +120,7 @@ The necessary changes to be made to updateCell function in order to prevent the 
 
 ```
 
-### Is your excel file password protected ? ( We got u covered )
+### Is your excel file password protected ?
 
 `Protect helps you to apply and remove password protection on your excel file.` [protect](https://github.com/justkawal/protect.git)
 
@@ -159,7 +159,7 @@ Use `FilePicker` to pick files in Flutter Web. [FilePicker](https://pub.dev/pack
 ```dart
     import 'package:flutter/services.dart' show ByteData, rootBundle;
 
-    /* Your blah blah code here */
+    /* Your ......other important..... code here */
 
     ByteData data = await rootBundle.load('assets/existing_excel_file.xlsx');
     var bytes = data.buffer.asUint8List(data.offsetInBytes, data.lengthInBytes);
