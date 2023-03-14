@@ -12,6 +12,7 @@ class CellStyle extends Equatable {
   Underline _underline = Underline.None;
   int? _fontSize;
   int _rotation = 0;
+  BorderSet? _borderSet;
 
   CellStyle({
     String fontColorHex = 'FF000000',
@@ -25,6 +26,7 @@ class CellStyle extends Equatable {
     Underline underline = Underline.None,
     bool italic = false,
     int rotation = 0,
+    BorderSet? borderSet = null,
   }) {
     _textWrapping = textWrapping;
 
@@ -45,6 +47,8 @@ class CellStyle extends Equatable {
     _verticalAlign = verticalAlign;
 
     _horizontalAlign = horizontalAlign;
+
+    _borderSet = borderSet;
   }
 
   CellStyle copyWith({
@@ -59,6 +63,7 @@ class CellStyle extends Equatable {
     Underline? underlineVal,
     int? fontSizeVal,
     int? rotationVal,
+    BorderSet? borderSetVal,
   }) {
     return CellStyle(
       fontColorHex: fontColorHexVal ?? this._fontColorHex,
@@ -72,6 +77,7 @@ class CellStyle extends Equatable {
       underline: underlineVal ?? this._underline,
       fontSize: fontSizeVal ?? this._fontSize,
       rotation: rotationVal ?? this._rotation,
+      borderSet: borderSetVal ?? this._borderSet,
     );
   }
 
@@ -215,6 +221,18 @@ class CellStyle extends Equatable {
     _italic = italic;
   }
 
+  ///Get `BorderSet`
+  ///
+  BorderSet? get borderSet {
+    return _borderSet;
+  }
+
+  ///Set `BorderSet`
+  ///
+  set borderSet(BorderSet? borderSet) {
+    _borderSet = borderSet;
+  }
+
   @override
   List<Object?> get props => [
         _bold,
@@ -228,5 +246,6 @@ class CellStyle extends Equatable {
         _horizontalAlign,
         _fontColorHex,
         _backgroundColorHex,
+        _borderSet,
       ];
 }

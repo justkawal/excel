@@ -4,6 +4,7 @@ import 'dart:convert';
 import 'dart:math';
 import 'dart:typed_data';
 import 'package:archive/archive.dart';
+import 'package:collection/collection.dart';
 import 'package:equatable/equatable.dart';
 import 'package:xml/xml.dart';
 import 'src/web_helper/client_save_excel.dart'
@@ -37,3 +38,4 @@ part 'src/sheet/cell_index.dart';
 part 'src/sheet/cell_style.dart';
 part 'src/sheet/font_style.dart';
 part 'src/sheet/header_footer.dart';
+part 'src/sheet/border_style.dart';
