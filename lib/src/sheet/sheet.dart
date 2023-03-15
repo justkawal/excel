@@ -716,16 +716,19 @@ class Sheet {
 
     Data value = Data.newData(this, startRow, startColumn);
     if (customValue != null) {
-      value._value = customValue;
+      if (customValue is String) {
+        final sharedString = _excel._sharedStrings.addFromString(customValue);
+        value._value = sharedString;
+      } else {
+        value._value = customValue;
+      }
       getValue = false;
     }
 
     for (int j = startRow; j <= endRow; j++) {
       for (int k = startColumn; k <= endColumn; k++) {
-        if (_sheetData[j] != null && _sheetData[j]![k] != null) {
-          if (getValue &&
-              _sheetData[j]![k]!.value != null &&
-              _sheetData[j]![k]!.cellStyle != null) {
+        if (_sheetData[j] != null) {
+          if (getValue && _sheetData[j]![k]?.value != null) {
             value = _sheetData[j]![k]!;
             getValue = false;
           }
