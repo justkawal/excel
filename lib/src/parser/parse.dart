@@ -249,14 +249,10 @@ class Parser {
             .contains(node.getAttribute('diagonalDown')?.trim());
 
         const List<String> borderElementNamesList = [
-          'start',
-          'end',
+          'left',
+          'right',
           'top',
           'bottom',
-          'vertical',
-          'horizontal',
-          'right',
-          'left',
           'diagonal'
         ];
         Map<String, Border> borderElements = {};
@@ -285,15 +281,11 @@ class Parser {
         }
 
         final borderSet = BorderSet(
+          leftBorder: borderElements['left'],
+          rightBorder: borderElements['right'],
           topBorder: borderElements['top'],
           bottomBorder: borderElements['bottom'],
-          rightBorder: borderElements['right'],
-          leftBorder: borderElements['left'],
           diagonalBorder: borderElements['diagonal'],
-          startBorder: borderElements['start'],
-          endBorder: borderElements['end'],
-          verticalBorder: borderElements['vertical'],
-          horizontalBorder: borderElements['horizontal'],
           diagonalBorderDown: diagonalDown,
           diagonalBorderUp: diagonalUp,
         );

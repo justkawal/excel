@@ -26,10 +26,6 @@ class BorderSet extends Equatable {
   late final Border? topBorder;
   late final Border? bottomBorder;
   late final Border? diagonalBorder;
-  late final Border? startBorder;
-  late final Border? endBorder;
-  late final Border? verticalBorder;
-  late final Border? horizontalBorder;
   late final bool diagonalBorderUp;
   late final bool diagonalBorderDown;
 
@@ -39,10 +35,6 @@ class BorderSet extends Equatable {
     this.topBorder,
     this.bottomBorder,
     this.diagonalBorder,
-    this.startBorder,
-    this.endBorder,
-    this.verticalBorder,
-    this.horizontalBorder,
     this.diagonalBorderUp = false,
     this.diagonalBorderDown = false,
   });
@@ -53,10 +45,6 @@ class BorderSet extends Equatable {
     Border? topBorder,
     Border? bottomBorder,
     Border? diagonalBorder,
-    Border? startBorder,
-    Border? endBorder,
-    Border? verticalBorder,
-    Border? horizontalBorder,
     bool? diagonalBorderUp,
     bool? diagonalBorderDown,
   }) {
@@ -66,10 +54,6 @@ class BorderSet extends Equatable {
       topBorder: topBorder ?? this.topBorder,
       bottomBorder: bottomBorder ?? this.bottomBorder,
       diagonalBorder: diagonalBorder ?? this.diagonalBorder,
-      startBorder: startBorder ?? this.startBorder,
-      endBorder: endBorder ?? this.endBorder,
-      verticalBorder: verticalBorder ?? this.verticalBorder,
-      horizontalBorder: horizontalBorder ?? this.horizontalBorder,
       diagonalBorderUp: diagonalBorderUp ?? this.diagonalBorderUp,
       diagonalBorderDown: diagonalBorderDown ?? this.diagonalBorderDown,
     );
@@ -82,10 +66,6 @@ class BorderSet extends Equatable {
         topBorder,
         bottomBorder,
         diagonalBorder,
-        startBorder,
-        endBorder,
-        verticalBorder,
-        horizontalBorder,
         diagonalBorderUp,
         diagonalBorderDown,
       ];

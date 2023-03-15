@@ -306,10 +306,6 @@ class Save {
         'top': border.topBorder,
         'bottom': border.bottomBorder,
         'diagonal': border.diagonalBorder,
-        'start': border.startBorder,
-        'end': border.endBorder,
-        'horizontal': border.horizontalBorder,
-        'vertical': border.verticalBorder,
       };
       for (var key in borderMap.keys) {
         final borderValue = borderMap[key];

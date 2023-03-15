@@ -228,7 +228,7 @@ Use `FilePicker` to pick files in Flutter Web. [FilePicker](https://pub.dev/pack
 ### Cell-Style Options
 
 | key                | description                                                                                                                             |
-| ------------------ | --------------------------------------------------------------------------------------------------------------------------------------- |
+|--------------------|-----------------------------------------------------------------------------------------------------------------------------------------|
 | fontFamily         | eg. getFontFamily(`FontFamily.Arial`) or getFontFamily(`FontFamily.Comic_Sans_MS`) `There is total 182 Font Families available for now` |
 | fontSize           | specify the font-size as integer eg. fontSize = 15                                                                                      |
 | bold               | makes text bold - when set to `true`, by-default it is set to `false`                                                                   |
@@ -240,6 +240,62 @@ Use `FilePicker` to pick files in Flutter Web. [FilePicker](https://pub.dev/pack
 | wrap               | Text wrapping `enum TextWrapping { WrapText, Clip }` eg. TextWrapping.Clip                                                              |
 | verticalAlign      | align text vertically `enum VerticalAlign { Top, Center, Bottom }` eg. VerticalAlign.Top                                                |
 | horizontalAlign    | align text horizontally `enum HorizontalAlign { Left, Center, Right }` eg. HorizontalAlign.Right                                        |
+| borderSet          | display borders around the cell. This should be an instance of BorderSet method.                                                        |
+
+### Borders
+Borders are defined in a BorderSet. A BorderSet is the set of every border of a single cell. The BorderSet is assigned
+to the `borderSet` property of the CellStyle objects.
+
+The different borders are:
+
+| property       | description                       |
+|----------------|-----------------------------------|
+| leftBorder     | the left border of the cell       |
+| rightBorder    | the right border of the cell      |
+| topBorder      | the top border of the cell        |
+| bottomBorder   | the bottom border of the cell     |
+| diagonalBorder | the diagonal "border" of the cell |
+
+The diagonalBorder defines border style and color for both diagonal of the cell. It should be specified if this is set
+for the "up" (`diagonalBorderUp`) or for the "down" (`diagonalBorderDown`). These are boolean properties.
+
+Each border is an instance of the Border class. The border class defines the border properties, such as the 
+`borderStyle` and the `borderColorHex` color.
+
+The `borderStyle` must be a value from the enumeration`BorderStyle`:
+* `BorderStyle.None`
+* `BorderStyle.DashDot`
+* `BorderStyle.DashDotDot`
+* `BorderStyle.Dashed`
+* `BorderStyle.Dotted`
+* `BorderStyle.Double`
+* `BorderStyle.Hair`
+* `BorderStyle.Medium`
+* `BorderStyle.MediumDashDot`
+* `BorderStyle.MediumDashDotDot`
+* `BorderStyle.MediumDashed`
+* `BorderStyle.SlantDashDot`
+* `BorderStyle.Thick`
+* `BorderStyle.Thin`
+
+
+```dart
+     /*
+      * 
+      * Defines thin borders on the left and right of the cell, red thin border on the top
+      * and blue medium border on the bottom.
+      *
+      */
+
+      CellStyle cellStyle = CellStyle(borderSet: BorderSet(
+        leftBorder: Border(borderStyle: BorderStyle.Thin),
+        rightBorder: Border(borderStyle: BorderStyle.Thin),
+        topBorder: Border(borderStyle: BorderStyle.Thin, borderColorHex: 'FFFF0000'),
+        bottomBorder: Border(borderStyle: BorderStyle.Medium, borderColorHex: 'FF0000FF'),
+      ));
+
+```
+
 
 ### Make sheet RTL
 
