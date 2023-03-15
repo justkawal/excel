@@ -276,7 +276,8 @@ class Parser {
             borderColorHex = color.getAttribute('rgb')?.trim();
           } on StateError catch (_) {}
 
-          borderElements[elementName] = Border(borderStyle: borderStyle, borderColorHex: borderColorHex);
+          borderElements[elementName] =
+              Border(borderStyle: borderStyle, borderColorHex: borderColorHex);
           print('$elementName: ${borderElements[elementName]}');
         }
 

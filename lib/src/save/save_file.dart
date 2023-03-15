@@ -178,7 +178,6 @@ class Save {
           !innerBorderSet.contains(borderSet)) {
         innerBorderSet.add(borderSet);
       }
-
     });
 
     XmlElement fonts =
@@ -295,7 +294,8 @@ class Save {
     innerBorderSet.forEach((border) {
       var borderElement = XmlElement(XmlName('border'));
       if (border.diagonalBorderDown) {
-        borderElement.attributes.add(XmlAttribute(XmlName('diagonalDown'), '1'));
+        borderElement.attributes
+            .add(XmlAttribute(XmlName('diagonalDown'), '1'));
       }
       if (border.diagonalBorderUp) {
         borderElement.attributes.add(XmlAttribute(XmlName('diagonalUp'), '1'));
@@ -313,18 +313,19 @@ class Save {
           final element = XmlElement(XmlName(key));
           final style = borderValue.borderStyle;
           if (style != null) {
-            element.attributes.add(XmlAttribute(XmlName('style'), getBorderStyleName(style)));
+            element.attributes
+                .add(XmlAttribute(XmlName('style'), getBorderStyleName(style)));
           }
           final color = borderValue.borderColorHex;
           if (color != null) {
-            element.children.add(XmlElement(XmlName('color'), [XmlAttribute(XmlName('rgb'), color)]));
+            element.children.add(XmlElement(
+                XmlName('color'), [XmlAttribute(XmlName('rgb'), color)]));
           }
           borderElement.children.add(element);
         }
       }
       borders.children.add(borderElement);
     });
-
 
     XmlElement celx =
         _excel._xmlFiles['xl/styles.xml']!.findAllElements('cellXfs').first;
@@ -355,10 +356,13 @@ class Save {
       TextWrapping? textWrapping = cellStyle.wrap;
       int backgroundIndex = innerPatternFill.indexOf(backgroundColor),
           fontIndex = _fontStyleIndex(innerFontStyle, _fs);
-      int borderIndex = cellStyle.borderSet != null ? innerBorderSet.indexOf(cellStyle.borderSet!) : -1;
+      int borderIndex = cellStyle.borderSet != null
+          ? innerBorderSet.indexOf(cellStyle.borderSet!)
+          : -1;
 
       var attributes = <XmlAttribute>[
-        XmlAttribute(XmlName('borderId'), '${borderIndex == -1 ? 0 : borderIndex + _excel._borderSetList.length}'),
+        XmlAttribute(XmlName('borderId'),
+            '${borderIndex == -1 ? 0 : borderIndex + _excel._borderSetList.length}'),
         XmlAttribute(XmlName('fillId'),
             '${backgroundIndex == -1 ? 0 : backgroundIndex + _excel._patternFill.length}'),
         XmlAttribute(XmlName('fontId'),
@@ -735,7 +739,7 @@ class Save {
     });
   }
 
-/// Writing the value of excel cells into the separate
+  /// Writing the value of excel cells into the separate
   /// sharedStrings file so as to minimize the size of excel files.
   _setSharedStrings() {
     var uniqueCount = 0;
@@ -767,7 +771,7 @@ class Save {
     });
   }
 
-/// Writing cell contained text into the excel sheet files.
+  /// Writing cell contained text into the excel sheet files.
   _setSheetElements() {
     _excel._sharedStrings = _SharedStringsMaintainer.instance;
     _excel._sharedStrings.clear();

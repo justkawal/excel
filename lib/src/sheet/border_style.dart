@@ -5,7 +5,8 @@ class Border extends Equatable {
   late final String? borderColorHex;
 
   Border({this.borderStyle, String? borderColorHex}) {
-    this.borderColorHex = borderColorHex != null ? _isColorAppropriate(borderColorHex) : null;
+    this.borderColorHex =
+        borderColorHex != null ? _isColorAppropriate(borderColorHex) : null;
   }
 
   @override
