@@ -1,163 +1,74 @@
 part of excel;
 
 class HeaderFooter {
-  late bool? _alignWithMargins;
-  late bool? _differentFirst;
-  late bool? _differentOddEven;
-  late bool? _scaleWithDoc;
+  bool? alignWithMargins;
+  bool? differentFirst;
+  bool? differentOddEven;
+  bool? scaleWithDoc;
 
-  late String? _evenFooter;
-  late String? _evenHeader;
-  late String? _firstFooter;
-  late String? _firstHeader;
-  late String? _oddFooter;
-  late String? _oddHeader;
+  String? evenFooter;
+  String? evenHeader;
+  String? firstFooter;
+  String? firstHeader;
+  String? oddFooter;
+  String? oddHeader;
 
   HeaderFooter({
-    bool? alignWithMargins = null,
-    bool? differentFirst = null,
-    bool? differentOddEven = null,
-    bool? scaleWithDoc = null,
-    String? evenFooter = null,
-    String? evenHeader = null,
-    String? firstFooter = null,
-    String? firstHeader = null,
-    String? oddFooter = null,
-    String? oddHeader = null,
-  })  : _alignWithMargins = alignWithMargins,
-        _differentFirst = differentFirst,
-        _differentOddEven = differentOddEven,
-        _scaleWithDoc = scaleWithDoc,
-        _evenFooter = evenFooter,
-        _evenHeader = evenHeader,
-        _firstFooter = firstFooter,
-        _firstHeader = firstHeader,
-        _oddFooter = oddFooter,
-        _oddHeader = oddHeader;
-
-  bool? get alignWithMargins {
-    return _alignWithMargins;
-  }
-
-  set alignWithMargins(bool? alignWithMargins) {
-    _alignWithMargins = alignWithMargins;
-  }
-
-  bool? get differentFirst {
-    return _differentFirst;
-  }
-
-  set differentFist(bool? differentFirst) {
-    _differentFirst = differentFirst;
-  }
-
-  bool? get differentOddEven {
-    return _differentOddEven;
-  }
-
-  set differentOddEven(bool? differentOddEven) {
-    _differentOddEven = differentOddEven;
-  }
-
-  bool? get scaleWithDoc {
-    return _scaleWithDoc;
-  }
-
-  set scaleWithDoc(bool? scaleWithDoc) {
-    _scaleWithDoc = scaleWithDoc;
-  }
-
-  String? get evenFooter {
-    return _evenFooter;
-  }
-
-  set evenFooter(String? evenFooter) {
-    _evenFooter = evenFooter;
-  }
-
-  String? get evenHeader {
-    return _evenHeader;
-  }
-
-  set evenHeader(String? evenHeader) {
-    _evenHeader = evenHeader;
-  }
-
-  String? get firstFooter {
-    return _firstFooter;
-  }
-
-  set firstFooter(String? firstFooter) {
-    _firstFooter = firstFooter;
-  }
-
-  String? get firstHeader {
-    return _firstHeader;
-  }
-
-  set firstHeader(String? firstHeader) {
-    _firstHeader = firstHeader;
-  }
-
-  String? get oddFooter {
-    return _oddFooter;
-  }
-
-  set oddFooter(String? oddFooter) {
-    _oddFooter = oddFooter;
-  }
-
-  String? get oddHeader {
-    return _oddHeader;
-  }
-
-  set oddHeader(String? oddHeader) {
-    _oddHeader = oddHeader;
-  }
+    this.alignWithMargins,
+    this.differentFirst,
+    this.differentOddEven,
+    this.scaleWithDoc,
+    this.evenFooter,
+    this.evenHeader,
+    this.firstFooter,
+    this.firstHeader,
+    this.oddFooter,
+    this.oddHeader,
+  });
 
   XmlNode toXmlElement() {
     final attributes = <XmlAttribute>[];
-    if (_alignWithMargins != null) {
+    if (alignWithMargins != null) {
       attributes.add(XmlAttribute(
-          XmlName("alignWithMargins"), _alignWithMargins.toString()));
+          XmlName("alignWithMargins"), alignWithMargins.toString()));
     }
-    if (_differentFirst != null) {
+    if (differentFirst != null) {
       attributes.add(
-          XmlAttribute(XmlName("differentFirst"), _differentFirst.toString()));
+          XmlAttribute(XmlName("differentFirst"), differentFirst.toString()));
     }
-    if (_differentOddEven != null) {
+    if (differentOddEven != null) {
       attributes.add(XmlAttribute(
-          XmlName("differentOddEven"), _differentOddEven.toString()));
+          XmlName("differentOddEven"), differentOddEven.toString()));
     }
-    if (_scaleWithDoc != null) {
+    if (scaleWithDoc != null) {
       attributes
-          .add(XmlAttribute(XmlName("scaleWithDoc"), _scaleWithDoc.toString()));
+          .add(XmlAttribute(XmlName("scaleWithDoc"), scaleWithDoc.toString()));
     }
 
     final children = <XmlNode>[];
-    if (_evenFooter != null) {
-      children
-          .add(XmlElement(XmlName("evenFooter"), [], [XmlText(_evenFooter!)]));
+    if (evenHeader != null) {
+      children.add(XmlElement(
+          XmlName("evenHeader"), [], [XmlText(evenHeader!.simplifyText())]));
     }
-    if (_evenHeader != null) {
-      children
-          .add(XmlElement(XmlName("evenHeader"), [], [XmlText(_evenHeader!)]));
+    if (evenFooter != null) {
+      children.add(XmlElement(
+          XmlName("evenFooter"), [], [XmlText(evenFooter!.simplifyText())]));
     }
-    if (_firstFooter != null) {
-      children.add(
-          XmlElement(XmlName("firstFooter"), [], [XmlText(_firstFooter!)]));
+    if (firstHeader != null) {
+      children.add(XmlElement(
+          XmlName("firstHeader"), [], [XmlText(firstHeader!.simplifyText())]));
     }
-    if (_firstHeader != null) {
-      children.add(
-          XmlElement(XmlName("firstHeader"), [], [XmlText(_firstHeader!)]));
+    if (firstFooter != null) {
+      children.add(XmlElement(
+          XmlName("firstFooter"), [], [XmlText(firstFooter!.simplifyText())]));
     }
-    if (_oddFooter != null) {
-      children
-          .add(XmlElement(XmlName("oddFooter"), [], [XmlText(_oddFooter!)]));
+    if (oddHeader != null) {
+      children.add(XmlElement(
+          XmlName("oddHeader"), [], [XmlText(oddHeader!.simplifyText())]));
     }
-    if (_oddHeader != null) {
-      children
-          .add(XmlElement(XmlName("oddHeader"), [], [XmlText(_oddHeader!)]));
+    if (oddFooter != null) {
+      children.add(XmlElement(
+          XmlName("oddFooter"), [], [XmlText(oddFooter!.simplifyText())]));
     }
 
     return XmlElement(XmlName("headerFooter"), attributes, children);
@@ -173,12 +84,12 @@ class HeaderFooter {
             headerFooterElement.getAttribute("differentOddEven")?.parseBool(),
         scaleWithDoc:
             headerFooterElement.getAttribute("scaleWithDoc")?.parseBool(),
-        evenFooter: headerFooterElement.getElement("evenFooter")?.innerXml,
-        evenHeader: headerFooterElement.getElement("evenHeader")?.innerXml,
-        firstFooter: headerFooterElement.getElement("firstFooter")?.innerXml,
-        firstHeader: headerFooterElement.getElement("firstHeader")?.innerXml,
-        oddFooter: headerFooterElement.getElement("oddFooter")?.innerXml,
-        oddHeader: headerFooterElement.getElement("oddHeader")?.innerXml);
+        evenHeader: headerFooterElement.getElement("evenHeader")?.text,
+        evenFooter: headerFooterElement.getElement("evenFooter")?.text,
+        firstHeader: headerFooterElement.getElement("firstHeader")?.text,
+        firstFooter: headerFooterElement.getElement("firstFooter")?.text,
+        oddFooter: headerFooterElement.getElement("oddFooter")?.text,
+        oddHeader: headerFooterElement.getElement("oddHeader")?.text);
   }
 }
 
@@ -192,5 +103,13 @@ extension BoolParsing on String {
     }
 
     throw '"$this" can not be parsed to boolean.';
+  }
+
+  String simplifyText() {
+    String value = this.replaceAll('&amp', '&');
+    value = value.replaceAll('amp', '&');
+    value = value.replaceAll('&', '&amp;');
+    value = value.replaceAll('"', '&quot;');
+    return value;
   }
 }
