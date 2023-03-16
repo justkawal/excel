@@ -124,59 +124,61 @@ void main() {
 
   test(
       'Add already shared strings and make sure that they are reused by checking increased usage count but equal unique count',
-      () {
-    var file = './test/test_resources/example.xlsx';
-    var bytes = File(file).readAsBytesSync();
-    var archive = ZipDecoder().decodeBytes(bytes);
-    var sharedStringsArchive = archive.findFile('xl/sharedStrings.xml')!;
+          () {
+        var file = './test/test_resources/example.xlsx';
+        var bytes = File(file).readAsBytesSync();
+        var archive = ZipDecoder().decodeBytes(bytes);
+        var sharedStringsArchive = archive.findFile('xl/sharedStrings.xml')!;
 
-    var oldSharedStringsDocument =
+        var oldSharedStringsDocument =
         XmlDocument.parse(utf8.decode(sharedStringsArchive.content));
-    var oldCount = oldSharedStringsDocument
-        .findAllElements('sst')
-        .first
-        .getAttributeNode("count");
-    var oldUniqueCount = oldSharedStringsDocument
-        .findAllElements('sst')
-        .first
-        .getAttributeNode("uniqueCount");
+        var oldCount = oldSharedStringsDocument
+            .findAllElements('sst')
+            .first
+            .getAttributeNode("count");
+        var oldUniqueCount = oldSharedStringsDocument
+            .findAllElements('sst')
+            .first
+            .getAttributeNode("uniqueCount");
 
-    var excel = Excel.decodeBytes(bytes);
+        var excel = Excel.decodeBytes(bytes);
 
-    Sheet? sheetObject = excel.tables['Sheet1']!;
-    sheetObject
-        .insertRowIterables(['ISRAEL', 'Jerusalem', 'Benjamin Netanyahu'], 4);
-    var fileBytes = excel.encode();
-    if (fileBytes != null) {
-      File(Directory.current.path + '/tmp/exampleOut.xlsx')
-        ..createSync(recursive: true)
-        ..writeAsBytesSync(fileBytes);
-    }
-    var newFile = './tmp/exampleOut.xlsx';
-    var newFileBytes = File(newFile).readAsBytesSync();
-    expect(() => Excel.decodeBytes(newFileBytes), returnsNormally);
+        Sheet? sheetObject = excel.tables['Sheet1']!;
+        sheetObject
+            .insertRowIterables(
+            ['ISRAEL', 'Jerusalem', 'Benjamin Netanyahu'], 4);
+        var fileBytes = excel.encode();
+        if (fileBytes != null) {
+          File(Directory.current.path + '/tmp/exampleOut.xlsx')
+            ..createSync(recursive: true)
+            ..writeAsBytesSync(fileBytes);
+        }
+        var newFile = './tmp/exampleOut.xlsx';
+        var newFileBytes = File(newFile).readAsBytesSync();
+        expect(() => Excel.decodeBytes(newFileBytes), returnsNormally);
 
-    var newArchive = ZipDecoder().decodeBytes(newFileBytes);
-    var newSharedStringsArchive = newArchive.findFile('xl/sharedStrings.xml')!;
+        var newArchive = ZipDecoder().decodeBytes(newFileBytes);
+        var newSharedStringsArchive = newArchive.findFile(
+            'xl/sharedStrings.xml')!;
 
-    var newSharedStringsDocument =
+        var newSharedStringsDocument =
         XmlDocument.parse(utf8.decode(newSharedStringsArchive.content));
-    var newCount = newSharedStringsDocument
-        .findAllElements('sst')
-        .first
-        .getAttributeNode("count");
-    var newUniqueCount = newSharedStringsDocument
-        .findAllElements('sst')
-        .first
-        .getAttributeNode("uniqueCount");
+        var newCount = newSharedStringsDocument
+            .findAllElements('sst')
+            .first
+            .getAttributeNode("count");
+        var newUniqueCount = newSharedStringsDocument
+            .findAllElements('sst')
+            .first
+            .getAttributeNode("uniqueCount");
 
-    // delete tmp folder
-    new Directory('./tmp').delete(recursive: true);
+        // delete tmp folder
+        new Directory('./tmp').delete(recursive: true);
 
-    expect(oldUniqueCount!.value, equals(newUniqueCount!.value));
-    expect(oldCount!.value, "12");
-    expect(newCount!.value, "15");
-  });
+        expect(oldUniqueCount!.value, equals(newUniqueCount!.value));
+        expect(oldCount!.value, "12");
+        expect(newCount!.value, "15");
+      });
 
   test('Saving XLSX File with superscript', () async {
     var file = './test/test_resources/superscriptExample.xlsx';
@@ -268,6 +270,128 @@ void main() {
       expect(headerFooter.differentFirst, isTrue);
       expect(headerFooter.differentOddEven, isTrue);
       expect(headerFooter.scaleWithDoc, isFalse);
+    });
+  });
+
+  group('Borders', () {
+    test('read file with borders', () {
+      final file = './test/test_resources/borders.xlsx';
+      final bytes = File(file).readAsBytesSync();
+      final excel = Excel.decodeBytes(bytes);
+      final Sheet sheetObject = excel.tables['Sheet1']!;
+
+      final borderEmpty = Border();
+      final borderMedium = Border(borderStyle: BorderStyle.Medium);
+      final borderMediumRed = Border(
+          borderStyle: BorderStyle.Medium, borderColorHex: 'FFFF0000');
+      final borderHair = Border(borderStyle: BorderStyle.Hair);
+      final borderDouble = Border(borderStyle: BorderStyle.Double);
+
+      final cellStyleA1 = sheetObject
+          .cell(CellIndex.indexByString('A1'))
+          .cellStyle;
+      expect(cellStyleA1?.leftBorder, equals(borderMedium));
+      expect(cellStyleA1?.rightBorder, equals(borderMedium));
+      expect(cellStyleA1?.topBorder, anyOf(isNull, equals(borderEmpty)));
+      expect(cellStyleA1?.bottomBorder, equals(borderMediumRed));
+      expect(cellStyleA1?.diagonalBorder, anyOf(isNull, equals(borderEmpty)));
+      expect(cellStyleA1?.diagonalBorderUp, isFalse);
+      expect(cellStyleA1?.diagonalBorderDown, isFalse);
+
+      final cellStyleB3 = sheetObject
+          .cell(CellIndex.indexByString('B3'))
+          .cellStyle;
+      expect(cellStyleB3?.leftBorder, equals(borderMedium));
+      expect(cellStyleB3?.rightBorder, equals(borderMedium));
+      expect(cellStyleB3?.topBorder, equals(borderHair));
+      expect(cellStyleB3?.bottomBorder, equals(borderHair));
+
+      final cellStyleA5 = sheetObject
+          .cell(CellIndex.indexByString('A5'))
+          .cellStyle;
+      expect(cellStyleA5?.diagonalBorder, equals(borderDouble));
+      expect(cellStyleA5?.diagonalBorderUp, isFalse);
+      expect(cellStyleA5?.diagonalBorderDown, isTrue);
+
+      final cellStyleC5 = sheetObject
+          .cell(CellIndex.indexByString('C5'))
+          .cellStyle;
+      expect(cellStyleC5?.diagonalBorder, equals(borderDouble));
+      expect(cellStyleC5?.diagonalBorderUp, isTrue);
+      expect(cellStyleC5?.diagonalBorderDown, isFalse);
+    });
+
+    test('test support all border styles', () {
+      final file = './test/test_resources/borders2.xlsx';
+      final bytes = File(file).readAsBytesSync();
+      final excel = Excel.decodeBytes(bytes);
+      final Sheet sheetObject = excel.tables['Sheet1']!;
+
+      final borderStyles = <BorderStyle>[
+        BorderStyle.None,
+        BorderStyle.DashDot,
+        BorderStyle.DashDotDot,
+        BorderStyle.Dashed,
+        BorderStyle.Dotted,
+        BorderStyle.Double,
+        BorderStyle.Hair,
+        BorderStyle.Medium,
+        BorderStyle.MediumDashDot,
+        BorderStyle.MediumDashDotDot,
+        BorderStyle.MediumDashed,
+        BorderStyle.SlantDashDot,
+        BorderStyle.Thick,
+        BorderStyle.Thin,
+      ];
+
+      for (var i = 1; i < borderStyles.length; ++i) {
+        // Loop from i = 1, as Excel does not set None type.
+        final border = Border(borderStyle: borderStyles[i]);
+
+        final cellStyle = sheetObject
+            .cell(CellIndex.indexByString('B${2 * (i + 1)}'))
+            .cellStyle;
+
+        expect(cellStyle?.leftBorder, equals(border));
+        expect(cellStyle?.rightBorder, equals(border));
+        expect(cellStyle?.topBorder, equals(border));
+        expect(cellStyle?.bottomBorder, equals(border));
+      }
+    });
+
+    test('saving XLSX File with borders', () async {
+      final file = './test/test_resources/borders.xlsx';
+      final bytes = File(file).readAsBytesSync();
+      final excel = Excel.decodeBytes(bytes);
+
+      final outFilePath = Directory.current.path + '/tmp/bordersOut.xlsx';
+      final fileBytes = excel.encode();
+      if (fileBytes != null) {
+        File(outFilePath)
+          ..createSync(recursive: true)
+          ..writeAsBytesSync(fileBytes);
+      }
+
+      final newFileBytes = File(outFilePath).readAsBytesSync();
+      final newExcel = Excel.decodeBytes(newFileBytes);
+      expect(newExcel.sheets.entries.length, equals(1));
+
+      final borderEmpty = Border();
+      final borderMedium = Border(borderStyle: BorderStyle.Medium);
+      final borderMediumRed = Border(
+          borderStyle: BorderStyle.Medium, borderColorHex: 'FFFF0000');
+
+      final Sheet sheetObject = newExcel.tables['Sheet1']!;
+      final cellStyleB1 = sheetObject
+          .cell(CellIndex.indexByString('B1'))
+          .cellStyle;
+      expect(cellStyleB1?.leftBorder, equals(borderMedium));
+      expect(cellStyleB1?.rightBorder, equals(borderMedium));
+      expect(cellStyleB1?.topBorder, equals(borderEmpty));
+      expect(cellStyleB1?.bottomBorder, equals(borderMediumRed));
+
+      // delete tmp folder only when test is successful (diagnosis)
+      new Directory('./tmp').delete(recursive: true);
     });
   });
 }
