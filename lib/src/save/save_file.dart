@@ -135,7 +135,7 @@ class Save {
     _innerCellStyle = <CellStyle>[];
     List<String> innerPatternFill = <String>[];
     List<_FontStyle> innerFontStyle = <_FontStyle>[];
-    List<BorderSet> innerBorderSet = <BorderSet>[];
+    List<_BorderSet> innerBorderSet = <_BorderSet>[];
 
     _excel._sheetMap.forEach((sheetName, sheetObject) {
       sheetObject._sheetData.forEach((_, colMap) {
@@ -165,18 +165,17 @@ class Save {
         innerFontStyle.add(_fs);
       }
 
-      /// Filling the inner usable extra list of backgroung color
+      /// Filling the inner usable extra list of background color
       String backgroundColor = cellStyle.backgroundColor;
       if (!_excel._patternFill.contains(backgroundColor) &&
           !innerPatternFill.contains(backgroundColor)) {
         innerPatternFill.add(backgroundColor);
       }
 
-      var borderSet = cellStyle.borderSet;
-      if (borderSet != null &&
-          !_excel._borderSetList.contains(borderSet) &&
-          !innerBorderSet.contains(borderSet)) {
-        innerBorderSet.add(borderSet);
+      final _bs = _createBorderSetFromCellStyle(cellStyle);
+      if (!_excel._borderSetList.contains(_bs) &&
+          !innerBorderSet.contains(_bs)) {
+        innerBorderSet.add(_bs);
       }
     });
 
@@ -300,7 +299,7 @@ class Save {
       if (border.diagonalBorderUp) {
         borderElement.attributes.add(XmlAttribute(XmlName('diagonalUp'), '1'));
       }
-      final Map<String, Border?> borderMap = {
+      final Map<String, Border> borderMap = {
         'left': border.leftBorder,
         'right': border.rightBorder,
         'top': border.topBorder,
@@ -308,22 +307,21 @@ class Save {
         'diagonal': border.diagonalBorder,
       };
       for (var key in borderMap.keys) {
-        final borderValue = borderMap[key];
-        if (borderValue != null) {
-          final element = XmlElement(XmlName(key));
-          final style = borderValue.borderStyle;
-          if (style != null) {
-            element.attributes
-                .add(XmlAttribute(XmlName('style'), getBorderStyleName(style)));
-          }
-          final color = borderValue.borderColorHex;
-          if (color != null) {
-            element.children.add(XmlElement(
-                XmlName('color'), [XmlAttribute(XmlName('rgb'), color)]));
-          }
-          borderElement.children.add(element);
+        final borderValue = borderMap[key]!;
+
+        final element = XmlElement(XmlName(key));
+        final style = borderValue.borderStyle;
+        if (style != null) {
+          element.attributes.add(XmlAttribute(XmlName('style'), style.style));
         }
+        final color = borderValue.borderColorHex;
+        if (color != null) {
+          element.children.add(XmlElement(
+              XmlName('color'), [XmlAttribute(XmlName('rgb'), color)]));
+        }
+        borderElement.children.add(element);
       }
+
       borders.children.add(borderElement);
     });
 
@@ -350,15 +348,14 @@ class Save {
           fontSize: cellStyle.fontSize,
           fontFamily: cellStyle.fontFamily);
 
-      HorizontalAlign horizontalALign = cellStyle.horizontalAlignment;
+      HorizontalAlign horizontalAlign = cellStyle.horizontalAlignment;
       VerticalAlign verticalAlign = cellStyle.verticalAlignment;
       int rotation = cellStyle.rotation;
       TextWrapping? textWrapping = cellStyle.wrap;
       int backgroundIndex = innerPatternFill.indexOf(backgroundColor),
           fontIndex = _fontStyleIndex(innerFontStyle, _fs);
-      int borderIndex = cellStyle.borderSet != null
-          ? innerBorderSet.indexOf(cellStyle.borderSet!)
-          : -1;
+      _BorderSet _bs = _createBorderSetFromCellStyle(cellStyle);
+      int borderIndex = innerBorderSet.indexOf(_bs);
 
       var attributes = <XmlAttribute>[
         XmlAttribute(XmlName('borderId'),
@@ -386,7 +383,7 @@ class Save {
 
       var children = <XmlElement>[];
 
-      if (horizontalALign != HorizontalAlign.Left ||
+      if (horizontalAlign != HorizontalAlign.Left ||
           textWrapping != null ||
           verticalAlign != VerticalAlign.Bottom ||
           rotation != 0) {
@@ -406,9 +403,9 @@ class Save {
           childAttributes.add(XmlAttribute(XmlName('vertical'), '$ver'));
         }
 
-        if (horizontalALign != HorizontalAlign.Left) {
+        if (horizontalAlign != HorizontalAlign.Left) {
           String hor =
-              horizontalALign == HorizontalAlign.Right ? 'right' : 'center';
+              horizontalAlign == HorizontalAlign.Right ? 'right' : 'center';
           childAttributes.add(XmlAttribute(XmlName('horizontal'), '$hor'));
         }
         if (rotation != 0) {
@@ -843,4 +840,14 @@ class Save {
     row.children.add(cell);
     return cell;
   }
+
+  _BorderSet _createBorderSetFromCellStyle(CellStyle cellStyle) => _BorderSet(
+        leftBorder: cellStyle.leftBorder,
+        rightBorder: cellStyle.rightBorder,
+        topBorder: cellStyle.topBorder,
+        bottomBorder: cellStyle.bottomBorder,
+        diagonalBorder: cellStyle.diagonalBorder,
+        diagonalBorderUp: cellStyle.diagonalBorderUp,
+        diagonalBorderDown: cellStyle.diagonalBorderDown,
+      );
 }

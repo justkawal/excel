@@ -226,7 +226,7 @@ class Parser {
       _excel._fontStyleList = <_FontStyle>[];
       _excel._patternFill = <String>[];
       _excel._cellStyleList = <CellStyle>[];
-      _excel._borderSetList = <BorderSet>[];
+      _excel._borderSetList = <_BorderSet>[];
 
       Iterable<XmlElement> fontList = document.findAllElements('font');
 
@@ -257,36 +257,35 @@ class Parser {
         ];
         Map<String, Border> borderElements = {};
         for (var elementName in borderElementNamesList) {
-          late XmlElement element;
+          XmlElement? element;
           try {
             element = node.findElements(elementName).single;
           } on StateError catch (_) {
             // Either there is no element, or there are too many ones.
             // Silently ignore this element.
-            continue;
           }
-          final borderStyleAttribute = element.getAttribute('style')?.trim();
+
+          final borderStyleAttribute = element?.getAttribute('style')?.trim();
           final borderStyle = borderStyleAttribute != null
               ? getBorderStyleByName(borderStyleAttribute)
               : null;
 
           String? borderColorHex;
           try {
-            final color = element.findElements('color').single;
-            borderColorHex = color.getAttribute('rgb')?.trim();
+            final color = element?.findElements('color').single;
+            borderColorHex = color?.getAttribute('rgb')?.trim();
           } on StateError catch (_) {}
 
           borderElements[elementName] =
               Border(borderStyle: borderStyle, borderColorHex: borderColorHex);
-          print('$elementName: ${borderElements[elementName]}');
         }
 
-        final borderSet = BorderSet(
-          leftBorder: borderElements['left'],
-          rightBorder: borderElements['right'],
-          topBorder: borderElements['top'],
-          bottomBorder: borderElements['bottom'],
-          diagonalBorder: borderElements['diagonal'],
+        final borderSet = _BorderSet(
+          leftBorder: borderElements['left']!,
+          rightBorder: borderElements['right']!,
+          topBorder: borderElements['top']!,
+          bottomBorder: borderElements['bottom']!,
+          diagonalBorder: borderElements['diagonal']!,
           diagonalBorderDown: diagonalDown,
           diagonalBorderUp: diagonalUp,
         );
@@ -299,7 +298,7 @@ class Parser {
 
           String fontColor = "FF000000", backgroundColor = "none";
           String? fontFamily;
-          BorderSet? borderSet;
+          _BorderSet? borderSet;
 
           int fontSize = 12;
           bool isBold = false, isItalic = false;
@@ -424,7 +423,13 @@ class Parser {
             verticalAlign: verticalAlign,
             textWrapping: textWrapping,
             rotation: rotation,
-            borderSet: borderSet,
+            leftBorder: borderSet?.leftBorder,
+            rightBorder: borderSet?.rightBorder,
+            topBorder: borderSet?.topBorder,
+            bottomBorder: borderSet?.bottomBorder,
+            diagonalBorder: borderSet?.diagonalBorder,
+            diagonalBorderUp: borderSet?.diagonalBorderUp ?? false,
+            diagonalBorderDown: borderSet?.diagonalBorderDown ?? false,
           );
 
           _excel._cellStyleList.add(cellStyle);

@@ -12,7 +12,13 @@ class CellStyle extends Equatable {
   Underline _underline = Underline.None;
   int? _fontSize;
   int _rotation = 0;
-  BorderSet? _borderSet;
+  late Border _leftBorder;
+  late Border _rightBorder;
+  late Border _topBorder;
+  late Border _bottomBorder;
+  late Border _diagonalBorder;
+  bool _diagonalBorderUp = false;
+  bool _diagonalBorderDown = false;
 
   CellStyle({
     String fontColorHex = 'FF000000',
@@ -26,7 +32,13 @@ class CellStyle extends Equatable {
     Underline underline = Underline.None,
     bool italic = false,
     int rotation = 0,
-    BorderSet? borderSet = null,
+    Border? leftBorder,
+    Border? rightBorder,
+    Border? topBorder,
+    Border? bottomBorder,
+    Border? diagonalBorder,
+    bool diagonalBorderUp = false,
+    bool diagonalBorderDown = false,
   }) {
     _textWrapping = textWrapping;
 
@@ -48,7 +60,19 @@ class CellStyle extends Equatable {
 
     _horizontalAlign = horizontalAlign;
 
-    _borderSet = borderSet;
+    _leftBorder = leftBorder ?? Border();
+
+    _rightBorder = rightBorder ?? Border();
+
+    _topBorder = topBorder ?? Border();
+
+    _bottomBorder = bottomBorder ?? Border();
+
+    _diagonalBorder = diagonalBorder ?? Border();
+
+    _diagonalBorderUp = diagonalBorderUp;
+
+    _diagonalBorderDown = diagonalBorderDown;
   }
 
   CellStyle copyWith({
@@ -63,7 +87,13 @@ class CellStyle extends Equatable {
     Underline? underlineVal,
     int? fontSizeVal,
     int? rotationVal,
-    BorderSet? borderSetVal,
+    Border? leftBorderVal,
+    Border? rightBorderVal,
+    Border? topBorderVal,
+    Border? bottomBorderVal,
+    Border? diagonalBorderVal,
+    bool? diagonalBorderUpVal,
+    bool? diagonalBorderDownVal,
   }) {
     return CellStyle(
       fontColorHex: fontColorHexVal ?? this._fontColorHex,
@@ -77,7 +107,13 @@ class CellStyle extends Equatable {
       underline: underlineVal ?? this._underline,
       fontSize: fontSizeVal ?? this._fontSize,
       rotation: rotationVal ?? this._rotation,
-      borderSet: borderSetVal ?? this._borderSet,
+      leftBorder: leftBorderVal ?? this._leftBorder,
+      rightBorder: rightBorderVal ?? this._rightBorder,
+      topBorder: topBorderVal ?? this._topBorder,
+      bottomBorder: bottomBorderVal ?? this._bottomBorder,
+      diagonalBorder: diagonalBorderVal ?? this._diagonalBorder,
+      diagonalBorderUp: diagonalBorderUpVal ?? this._diagonalBorderUp,
+      diagonalBorderDown: diagonalBorderDownVal ?? this._diagonalBorderDown,
     );
   }
 
@@ -221,16 +257,88 @@ class CellStyle extends Equatable {
     _italic = italic;
   }
 
-  ///Get `BorderSet`
+  ///Get `LeftBorder`
   ///
-  BorderSet? get borderSet {
-    return _borderSet;
+  Border get leftBorder {
+    return _leftBorder;
   }
 
-  ///Set `BorderSet`
+  ///Set `LeftBorder`
   ///
-  set borderSet(BorderSet? borderSet) {
-    _borderSet = borderSet;
+  set leftBorder(Border? leftBorder) {
+    _leftBorder = leftBorder ?? Border();
+  }
+
+  ///Get `RightBorder`
+  ///
+  Border get rightBorder {
+    return _rightBorder;
+  }
+
+  ///Set `RightBorder`
+  ///
+  set rightBorder(Border? rightBorder) {
+    _rightBorder = rightBorder ?? Border();
+  }
+
+  ///Get `TopBorder`
+  ///
+  Border get topBorder {
+    return _topBorder;
+  }
+
+  ///Set `TopBorder`
+  ///
+  set topBorder(Border? topBorder) {
+    _topBorder = topBorder ?? Border();
+  }
+
+  ///Get `BottomBorder`
+  ///
+  Border get bottomBorder {
+    return _bottomBorder;
+  }
+
+  ///Set `BottomBorder`
+  ///
+  set bottomBorder(Border? bottomBorder) {
+    _bottomBorder = bottomBorder ?? Border();
+  }
+
+  ///Get `DiagonalBorder`
+  ///
+  Border get diagonalBorder {
+    return _diagonalBorder;
+  }
+
+  ///Set `DiagonalBorder`
+  ///
+  set diagonalBorder(Border? diagonalBorder) {
+    _diagonalBorder = diagonalBorder ?? Border();
+  }
+
+  ///Get `DiagonalBorderUp`
+  ///
+  bool get diagonalBorderUp {
+    return _diagonalBorderUp;
+  }
+
+  ///Set `DiagonalBorderUp`
+  ///
+  set diagonalBorderUp(bool diagonalBorderUp) {
+    _diagonalBorderUp = diagonalBorderUp;
+  }
+
+  ///Get `DiagonalBorderDown`
+  ///
+  bool get diagonalBorderDown {
+    return _diagonalBorderDown;
+  }
+
+  ///Set `DiagonalBorderDown`
+  ///
+  set diagonalBorderDown(bool diagonalBorderDown) {
+    _diagonalBorderDown = diagonalBorderDown;
   }
 
   @override
@@ -246,6 +354,12 @@ class CellStyle extends Equatable {
         _horizontalAlign,
         _fontColorHex,
         _backgroundColorHex,
-        _borderSet,
+        _leftBorder,
+        _rightBorder,
+        _topBorder,
+        _bottomBorder,
+        _diagonalBorder,
+        _diagonalBorderUp,
+        _diagonalBorderDown,
       ];
 }

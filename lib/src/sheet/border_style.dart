@@ -4,7 +4,8 @@ class Border extends Equatable {
   late final BorderStyle? borderStyle;
   late final String? borderColorHex;
 
-  Border({this.borderStyle, String? borderColorHex}) {
+  Border({BorderStyle? borderStyle, String? borderColorHex}) {
+    this.borderStyle = borderStyle == BorderStyle.None ? null : borderStyle;
     this.borderColorHex =
         borderColorHex != null ? _isColorAppropriate(borderColorHex) : null;
   }
@@ -21,26 +22,26 @@ class Border extends Equatable {
       ];
 }
 
-class BorderSet extends Equatable {
-  late final Border? leftBorder;
-  late final Border? rightBorder;
-  late final Border? topBorder;
-  late final Border? bottomBorder;
-  late final Border? diagonalBorder;
+class _BorderSet extends Equatable {
+  late final Border leftBorder;
+  late final Border rightBorder;
+  late final Border topBorder;
+  late final Border bottomBorder;
+  late final Border diagonalBorder;
   late final bool diagonalBorderUp;
   late final bool diagonalBorderDown;
 
-  BorderSet({
-    this.leftBorder,
-    this.rightBorder,
-    this.topBorder,
-    this.bottomBorder,
-    this.diagonalBorder,
-    this.diagonalBorderUp = false,
-    this.diagonalBorderDown = false,
+  _BorderSet({
+    required this.leftBorder,
+    required this.rightBorder,
+    required this.topBorder,
+    required this.bottomBorder,
+    required this.diagonalBorder,
+    required this.diagonalBorderUp,
+    required this.diagonalBorderDown,
   });
 
-  BorderSet copyWith({
+  _BorderSet copyWith({
     Border? leftBorder,
     Border? rightBorder,
     Border? topBorder,
@@ -49,7 +50,7 @@ class BorderSet extends Equatable {
     bool? diagonalBorderUp,
     bool? diagonalBorderDown,
   }) {
-    return BorderSet(
+    return _BorderSet(
       leftBorder: leftBorder ?? this.leftBorder,
       rightBorder: rightBorder ?? this.rightBorder,
       topBorder: topBorder ?? this.topBorder,
@@ -73,43 +74,25 @@ class BorderSet extends Equatable {
 }
 
 enum BorderStyle {
-  None,
-  DashDot,
-  DashDotDot,
-  Dashed,
-  Dotted,
-  Double,
-  Hair,
-  Medium,
-  MediumDashDot,
-  MediumDashDotDot,
-  MediumDashed,
-  SlantDashDot,
-  Thick,
-  Thin,
+  None('none'),
+  DashDot('dashDot'),
+  DashDotDot('dashDotDot'),
+  Dashed('dashed'),
+  Dotted('dotted'),
+  Double('double'),
+  Hair('hair'),
+  Medium('medium'),
+  MediumDashDot('mediumDashDot'),
+  MediumDashDotDot('mediumDashDotDot'),
+  MediumDashed('mediumDashed'),
+  SlantDashDot('slantDashDot'),
+  Thick('thick'),
+  Thin('thin');
+
+  final String style;
+  const BorderStyle(this.style);
 }
 
-Map<BorderStyle, String> _borderStyleStringMap = {};
-
-Map<BorderStyle, String> _getBorderStyleStringMap() {
-  if (_borderStyleStringMap.isEmpty) {
-    for (BorderStyle borderStyle in BorderStyle.values) {
-      var borderStyleStr =
-          borderStyle.toString().replaceAll('BorderStyle.', '');
-      borderStyleStr =
-          borderStyleStr[0].toLowerCase() + borderStyleStr.substring(1);
-      _borderStyleStringMap[borderStyle] = borderStyleStr;
-    }
-  }
-
-  return _borderStyleStringMap;
-}
-
-BorderStyle? getBorderStyleByName(String name) {
-  var borderStyleStringMap = _getBorderStyleStringMap();
-  return borderStyleStringMap.keys
-      .firstWhereOrNull((k) => borderStyleStringMap[k] == name);
-}
-
-String getBorderStyleName(BorderStyle borderStyle) =>
-    _getBorderStyleStringMap()[borderStyle]!;
+BorderStyle? getBorderStyleByName(String name) =>
+    BorderStyle.values.firstWhereOrNull((e) =>
+        e.toString().toLowerCase() == 'borderstyle.' + name.toLowerCase());

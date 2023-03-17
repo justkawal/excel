@@ -240,27 +240,21 @@ Use `FilePicker` to pick files in Flutter Web. [FilePicker](https://pub.dev/pack
 | wrap               | Text wrapping `enum TextWrapping { WrapText, Clip }` eg. TextWrapping.Clip                                                              |
 | verticalAlign      | align text vertically `enum VerticalAlign { Top, Center, Bottom }` eg. VerticalAlign.Top                                                |
 | horizontalAlign    | align text horizontally `enum HorizontalAlign { Left, Center, Right }` eg. HorizontalAlign.Right                                        |
-| borderSet          | display borders around the cell. This should be an instance of BorderSet method.                                                        |
+| leftBorder         | the left border of the cell (see below)                                                                                                 |
+| rightBorder        | the right border of the cell                                                                                                            |
+| topBorder          | the top border of the cell                                                                                                              |
+| bottomBorder       | the bottom border of the cell                                                                                                           |
+| diagonalBorder     | the diagonal "border" of the cell                                                                                                       |
+| diagonalBorderUp   | boolean value indicating if the diagonal "border" should be displayed on the up diagonal                                                |
+| diagonalBorderDown | boolean value indicating if the diagonal "border" should be displayed on the down diagonal                                              |
 
 ### Borders
-Borders are defined in a BorderSet. A BorderSet is the set of every border of a single cell. The BorderSet is assigned
-to the `borderSet` property of the CellStyle objects.
+Borders are defined for each side (left, right, top, and bottom) of the cell. Both diagonals (up and down) share the
+same settings. A boolean value `true` must be set to either `diagonalBorderUp` or `diagonalBorderDown` (or both) to
+display the desired diagonal.
 
-The different borders are:
-
-| property       | description                       |
-|----------------|-----------------------------------|
-| leftBorder     | the left border of the cell       |
-| rightBorder    | the right border of the cell      |
-| topBorder      | the top border of the cell        |
-| bottomBorder   | the bottom border of the cell     |
-| diagonalBorder | the diagonal "border" of the cell |
-
-The diagonalBorder defines border style and color for both diagonal of the cell. It should be specified if this is set
-for the "up" (`diagonalBorderUp`) or for the "down" (`diagonalBorderDown`). These are boolean properties.
-
-Each border is an instance of the Border class. The border class defines the border properties, such as the 
-`borderStyle` and the `borderColorHex` color.
+Each border must be a `Border` object. This object accepts two parameters : `borderStyle` to select one of the different
+supported styles and `borderColorHex` to change the border color.
 
 The `borderStyle` must be a value from the enumeration`BorderStyle`:
 * `BorderStyle.None`
@@ -287,13 +281,12 @@ The `borderStyle` must be a value from the enumeration`BorderStyle`:
       *
       */
 
-      CellStyle cellStyle = CellStyle(borderSet: BorderSet(
+      CellStyle cellStyle = CellStyle(
         leftBorder: Border(borderStyle: BorderStyle.Thin),
         rightBorder: Border(borderStyle: BorderStyle.Thin),
         topBorder: Border(borderStyle: BorderStyle.Thin, borderColorHex: 'FFFF0000'),
         bottomBorder: Border(borderStyle: BorderStyle.Medium, borderColorHex: 'FF0000FF'),
-      ));
-
+      );
 ```
 
 
