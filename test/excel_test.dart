@@ -124,61 +124,59 @@ void main() {
 
   test(
       'Add already shared strings and make sure that they are reused by checking increased usage count but equal unique count',
-          () {
-        var file = './test/test_resources/example.xlsx';
-        var bytes = File(file).readAsBytesSync();
-        var archive = ZipDecoder().decodeBytes(bytes);
-        var sharedStringsArchive = archive.findFile('xl/sharedStrings.xml')!;
+      () {
+    var file = './test/test_resources/example.xlsx';
+    var bytes = File(file).readAsBytesSync();
+    var archive = ZipDecoder().decodeBytes(bytes);
+    var sharedStringsArchive = archive.findFile('xl/sharedStrings.xml')!;
 
-        var oldSharedStringsDocument =
+    var oldSharedStringsDocument =
         XmlDocument.parse(utf8.decode(sharedStringsArchive.content));
-        var oldCount = oldSharedStringsDocument
-            .findAllElements('sst')
-            .first
-            .getAttributeNode("count");
-        var oldUniqueCount = oldSharedStringsDocument
-            .findAllElements('sst')
-            .first
-            .getAttributeNode("uniqueCount");
+    var oldCount = oldSharedStringsDocument
+        .findAllElements('sst')
+        .first
+        .getAttributeNode("count");
+    var oldUniqueCount = oldSharedStringsDocument
+        .findAllElements('sst')
+        .first
+        .getAttributeNode("uniqueCount");
 
-        var excel = Excel.decodeBytes(bytes);
+    var excel = Excel.decodeBytes(bytes);
 
-        Sheet? sheetObject = excel.tables['Sheet1']!;
-        sheetObject
-            .insertRowIterables(
-            ['ISRAEL', 'Jerusalem', 'Benjamin Netanyahu'], 4);
-        var fileBytes = excel.encode();
-        if (fileBytes != null) {
-          File(Directory.current.path + '/tmp/exampleOut.xlsx')
-            ..createSync(recursive: true)
-            ..writeAsBytesSync(fileBytes);
-        }
-        var newFile = './tmp/exampleOut.xlsx';
-        var newFileBytes = File(newFile).readAsBytesSync();
-        expect(() => Excel.decodeBytes(newFileBytes), returnsNormally);
+    Sheet? sheetObject = excel.tables['Sheet1']!;
+    sheetObject
+        .insertRowIterables(['ISRAEL', 'Jerusalem', 'Benjamin Netanyahu'], 4);
+    var fileBytes = excel.encode();
+    if (fileBytes != null) {
+      File(Directory.current.path + '/tmp/exampleOut.xlsx')
+        ..createSync(recursive: true)
+        ..writeAsBytesSync(fileBytes);
+    }
+    var newFile = './tmp/exampleOut.xlsx';
+    var newFileBytes = File(newFile).readAsBytesSync();
+    expect(() => Excel.decodeBytes(newFileBytes), returnsNormally);
 
-        var newArchive = ZipDecoder().decodeBytes(newFileBytes);
-        var newSharedStringsArchive = newArchive.findFile(
-            'xl/sharedStrings.xml')!;
+    var newArchive = ZipDecoder().decodeBytes(newFileBytes);
+    var newSharedStringsArchive = newArchive.findFile('xl/sharedStrings.xml')!;
 
-        var newSharedStringsDocument =
+    var newSharedStringsDocument =
         XmlDocument.parse(utf8.decode(newSharedStringsArchive.content));
-        var newCount = newSharedStringsDocument
-            .findAllElements('sst')
-            .first
-            .getAttributeNode("count");
-        var newUniqueCount = newSharedStringsDocument
-            .findAllElements('sst')
-            .first
-            .getAttributeNode("uniqueCount");
+    var newCount = newSharedStringsDocument
+        .findAllElements('sst')
+        .first
+        .getAttributeNode("count");
+    var newUniqueCount = newSharedStringsDocument
+        .findAllElements('sst')
+        .first
+        .getAttributeNode("uniqueCount");
 
-        // delete tmp folder
-        new Directory('./tmp').delete(recursive: true);
+    // delete tmp folder
+    new Directory('./tmp').delete(recursive: true);
 
-        expect(oldUniqueCount!.value, equals(newUniqueCount!.value));
-        expect(oldCount!.value, "12");
-        expect(newCount!.value, "15");
-      });
+    expect(oldUniqueCount!.value, equals(newUniqueCount!.value));
+    expect(oldCount!.value, "12");
+    expect(newCount!.value, "15");
+  });
 
   test('Saving XLSX File with superscript', () async {
     var file = './test/test_resources/superscriptExample.xlsx';
@@ -282,14 +280,13 @@ void main() {
 
       final borderEmpty = Border();
       final borderMedium = Border(borderStyle: BorderStyle.Medium);
-      final borderMediumRed = Border(
-          borderStyle: BorderStyle.Medium, borderColorHex: 'FFFF0000');
+      final borderMediumRed =
+          Border(borderStyle: BorderStyle.Medium, borderColorHex: 'FFFF0000');
       final borderHair = Border(borderStyle: BorderStyle.Hair);
       final borderDouble = Border(borderStyle: BorderStyle.Double);
 
-      final cellStyleA1 = sheetObject
-          .cell(CellIndex.indexByString('A1'))
-          .cellStyle;
+      final cellStyleA1 =
+          sheetObject.cell(CellIndex.indexByString('A1')).cellStyle;
       expect(cellStyleA1?.leftBorder, equals(borderMedium));
       expect(cellStyleA1?.rightBorder, equals(borderMedium));
       expect(cellStyleA1?.topBorder, anyOf(isNull, equals(borderEmpty)));
@@ -298,24 +295,21 @@ void main() {
       expect(cellStyleA1?.diagonalBorderUp, isFalse);
       expect(cellStyleA1?.diagonalBorderDown, isFalse);
 
-      final cellStyleB3 = sheetObject
-          .cell(CellIndex.indexByString('B3'))
-          .cellStyle;
+      final cellStyleB3 =
+          sheetObject.cell(CellIndex.indexByString('B3')).cellStyle;
       expect(cellStyleB3?.leftBorder, equals(borderMedium));
       expect(cellStyleB3?.rightBorder, equals(borderMedium));
       expect(cellStyleB3?.topBorder, equals(borderHair));
       expect(cellStyleB3?.bottomBorder, equals(borderHair));
 
-      final cellStyleA5 = sheetObject
-          .cell(CellIndex.indexByString('A5'))
-          .cellStyle;
+      final cellStyleA5 =
+          sheetObject.cell(CellIndex.indexByString('A5')).cellStyle;
       expect(cellStyleA5?.diagonalBorder, equals(borderDouble));
       expect(cellStyleA5?.diagonalBorderUp, isFalse);
       expect(cellStyleA5?.diagonalBorderDown, isTrue);
 
-      final cellStyleC5 = sheetObject
-          .cell(CellIndex.indexByString('C5'))
-          .cellStyle;
+      final cellStyleC5 =
+          sheetObject.cell(CellIndex.indexByString('C5')).cellStyle;
       expect(cellStyleC5?.diagonalBorder, equals(borderDouble));
       expect(cellStyleC5?.diagonalBorderUp, isTrue);
       expect(cellStyleC5?.diagonalBorderDown, isFalse);
@@ -378,13 +372,12 @@ void main() {
 
       final borderEmpty = Border();
       final borderMedium = Border(borderStyle: BorderStyle.Medium);
-      final borderMediumRed = Border(
-          borderStyle: BorderStyle.Medium, borderColorHex: 'FFFF0000');
+      final borderMediumRed =
+          Border(borderStyle: BorderStyle.Medium, borderColorHex: 'FFFF0000');
 
       final Sheet sheetObject = newExcel.tables['Sheet1']!;
-      final cellStyleB1 = sheetObject
-          .cell(CellIndex.indexByString('B1'))
-          .cellStyle;
+      final cellStyleB1 =
+          sheetObject.cell(CellIndex.indexByString('B1')).cellStyle;
       expect(cellStyleB1?.leftBorder, equals(borderMedium));
       expect(cellStyleB1?.rightBorder, equals(borderMedium));
       expect(cellStyleB1?.topBorder, equals(borderEmpty));
