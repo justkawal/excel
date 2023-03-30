@@ -40,6 +40,7 @@ class Excel {
   late List<String> _rtlChangeLook;
   late List<_FontStyle> _fontStyleList;
   late List<int> _numFormats;
+  late List<_BorderSet> _borderSetList;
 
   late _SharedStringsMaintainer _sharedStrings;
 

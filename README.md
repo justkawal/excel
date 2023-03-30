@@ -228,7 +228,7 @@ Use `FilePicker` to pick files in Flutter Web. [FilePicker](https://pub.dev/pack
 ### Cell-Style Options
 
 | key                | description                                                                                                                             |
-| ------------------ | --------------------------------------------------------------------------------------------------------------------------------------- |
+|--------------------|-----------------------------------------------------------------------------------------------------------------------------------------|
 | fontFamily         | eg. getFontFamily(`FontFamily.Arial`) or getFontFamily(`FontFamily.Comic_Sans_MS`) `There is total 182 Font Families available for now` |
 | fontSize           | specify the font-size as integer eg. fontSize = 15                                                                                      |
 | bold               | makes text bold - when set to `true`, by-default it is set to `false`                                                                   |
@@ -240,6 +240,55 @@ Use `FilePicker` to pick files in Flutter Web. [FilePicker](https://pub.dev/pack
 | wrap               | Text wrapping `enum TextWrapping { WrapText, Clip }` eg. TextWrapping.Clip                                                              |
 | verticalAlign      | align text vertically `enum VerticalAlign { Top, Center, Bottom }` eg. VerticalAlign.Top                                                |
 | horizontalAlign    | align text horizontally `enum HorizontalAlign { Left, Center, Right }` eg. HorizontalAlign.Right                                        |
+| leftBorder         | the left border of the cell (see below)                                                                                                 |
+| rightBorder        | the right border of the cell                                                                                                            |
+| topBorder          | the top border of the cell                                                                                                              |
+| bottomBorder       | the bottom border of the cell                                                                                                           |
+| diagonalBorder     | the diagonal "border" of the cell                                                                                                       |
+| diagonalBorderUp   | boolean value indicating if the diagonal "border" should be displayed on the up diagonal                                                |
+| diagonalBorderDown | boolean value indicating if the diagonal "border" should be displayed on the down diagonal                                              |
+
+### Borders
+Borders are defined for each side (left, right, top, and bottom) of the cell. Both diagonals (up and down) share the
+same settings. A boolean value `true` must be set to either `diagonalBorderUp` or `diagonalBorderDown` (or both) to
+display the desired diagonal.
+
+Each border must be a `Border` object. This object accepts two parameters : `borderStyle` to select one of the different
+supported styles and `borderColorHex` to change the border color.
+
+The `borderStyle` must be a value from the enumeration`BorderStyle`:
+* `BorderStyle.None`
+* `BorderStyle.DashDot`
+* `BorderStyle.DashDotDot`
+* `BorderStyle.Dashed`
+* `BorderStyle.Dotted`
+* `BorderStyle.Double`
+* `BorderStyle.Hair`
+* `BorderStyle.Medium`
+* `BorderStyle.MediumDashDot`
+* `BorderStyle.MediumDashDotDot`
+* `BorderStyle.MediumDashed`
+* `BorderStyle.SlantDashDot`
+* `BorderStyle.Thick`
+* `BorderStyle.Thin`
+
+
+```dart
+     /*
+      * 
+      * Defines thin borders on the left and right of the cell, red thin border on the top
+      * and blue medium border on the bottom.
+      *
+      */
+
+      CellStyle cellStyle = CellStyle(
+        leftBorder: Border(borderStyle: BorderStyle.Thin),
+        rightBorder: Border(borderStyle: BorderStyle.Thin),
+        topBorder: Border(borderStyle: BorderStyle.Thin, borderColorHex: 'FFFF0000'),
+        bottomBorder: Border(borderStyle: BorderStyle.Medium, borderColorHex: 'FF0000FF'),
+      );
+```
+
 
 ### Make sheet RTL
 

@@ -226,6 +226,7 @@ class Parser {
       _excel._fontStyleList = <_FontStyle>[];
       _excel._patternFill = <String>[];
       _excel._cellStyleList = <CellStyle>[];
+      _excel._borderSetList = <_BorderSet>[];
 
       Iterable<XmlElement> fontList = document.findAllElements('font');
 
@@ -241,12 +242,63 @@ class Parser {
         }
       });
 
+      document.findAllElements('border').forEach((node) {
+        final diagonalUp = !['0', 'false', null]
+            .contains(node.getAttribute('diagonalUp')?.trim());
+        final diagonalDown = !['0', 'false', null]
+            .contains(node.getAttribute('diagonalDown')?.trim());
+
+        const List<String> borderElementNamesList = [
+          'left',
+          'right',
+          'top',
+          'bottom',
+          'diagonal'
+        ];
+        Map<String, Border> borderElements = {};
+        for (var elementName in borderElementNamesList) {
+          XmlElement? element;
+          try {
+            element = node.findElements(elementName).single;
+          } on StateError catch (_) {
+            // Either there is no element, or there are too many ones.
+            // Silently ignore this element.
+          }
+
+          final borderStyleAttribute = element?.getAttribute('style')?.trim();
+          final borderStyle = borderStyleAttribute != null
+              ? getBorderStyleByName(borderStyleAttribute)
+              : null;
+
+          String? borderColorHex;
+          try {
+            final color = element?.findElements('color').single;
+            borderColorHex = color?.getAttribute('rgb')?.trim();
+          } on StateError catch (_) {}
+
+          borderElements[elementName] =
+              Border(borderStyle: borderStyle, borderColorHex: borderColorHex);
+        }
+
+        final borderSet = _BorderSet(
+          leftBorder: borderElements['left']!,
+          rightBorder: borderElements['right']!,
+          topBorder: borderElements['top']!,
+          bottomBorder: borderElements['bottom']!,
+          diagonalBorder: borderElements['diagonal']!,
+          diagonalBorderDown: diagonalDown,
+          diagonalBorderUp: diagonalUp,
+        );
+        _excel._borderSetList.add(borderSet);
+      });
+
       document.findAllElements('cellXfs').forEach((node1) {
         node1.findAllElements('xf').forEach((node) {
           _excel._numFormats.add(_getFontIndex(node, 'numFmtId'));
 
           String fontColor = "FF000000", backgroundColor = "none";
           String? fontFamily;
+          _BorderSet? borderSet;
 
           int fontSize = 12;
           bool isBold = false, isItalic = false;
@@ -321,6 +373,11 @@ class Parser {
             backgroundColor = _excel._patternFill[fillId];
           }
 
+          int borderId = _getFontIndex(node, 'borderId');
+          if (borderId < _excel._borderSetList.length) {
+            borderSet = _excel._borderSetList[borderId];
+          }
+
           if (node.children.isNotEmpty) {
             node.findElements('alignment').forEach((child) {
               if (_getFontIndex(child, 'wrapText') == 1) {
@@ -366,6 +423,13 @@ class Parser {
             verticalAlign: verticalAlign,
             textWrapping: textWrapping,
             rotation: rotation,
+            leftBorder: borderSet?.leftBorder,
+            rightBorder: borderSet?.rightBorder,
+            topBorder: borderSet?.topBorder,
+            bottomBorder: borderSet?.bottomBorder,
+            diagonalBorder: borderSet?.diagonalBorder,
+            diagonalBorderUp: borderSet?.diagonalBorderUp ?? false,
+            diagonalBorderDown: borderSet?.diagonalBorderDown ?? false,
           );
 
           _excel._cellStyleList.add(cellStyle);
