@@ -387,4 +387,47 @@ void main() {
       new Directory('./tmp').delete(recursive: true);
     });
   });
+
+  group('rPh tag', () {
+    test('Read Cell shared text without rPh elements', () {
+      var file = './test/test_resources/rphSample.xlsx';
+      var bytes = File(file).readAsBytesSync();
+      var excel = Excel.decodeBytes(bytes);
+      expect(excel.tables['Sheet1']!.rows[1][0]!.value.toString(),
+          equals('plainText'));
+      expect(excel.tables['Sheet1']!.rows[1][1]!.value.toString(),
+          equals('Hellow world'));
+      expect(excel.tables['Sheet1']!.rows[1][2]!.value.toString(),
+          equals('世界よこんにちは'));
+      expect(excel.tables['Sheet1']!.rows[2][2]!.value.toString(),
+          equals('ようこそユーザー'));
+      expect(excel.tables['Sheet1']!.rows[3][2]!.value.toString(),
+          equals('ロケール選択'));
+      expect(excel.tables['Sheet1']!.rows[4][2]!.value.toString(),
+          equals('ロケール選択'));
+    });
+
+    test('saving XLSX File without rPh elements', () async {
+      final file = './test/test_resources/rphSample.xlsx';
+      final bytes = File(file).readAsBytesSync();
+      final excel = Excel.decodeBytes(bytes);
+      excel.tables['Sheet1']!.rows[3][2]!.value = 'ロケール選択';
+
+      final outFilePath = Directory.current.path + '/tmp/rphSampleOut.xlsx';
+      final fileBytes = excel.encode();
+      if (fileBytes != null) {
+        File(outFilePath)
+          ..createSync(recursive: true)
+          ..writeAsBytesSync(fileBytes);
+      }
+
+      final newFileBytes = File(outFilePath).readAsBytesSync();
+      final newExcel = Excel.decodeBytes(newFileBytes);
+      expect(newExcel.tables['Sheet1']!.rows[3][2]!.value.toString(),
+          equals('ロケール選択'));
+
+      // delete tmp folder only when test is successful (diagnosis)
+      new Directory('./tmp').delete(recursive: true);
+    });
+  });
 }
