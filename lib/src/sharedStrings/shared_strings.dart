@@ -96,5 +96,12 @@ class SharedString {
   int get hashCode => _hashCode;
 
   @override
-  operator ==(Object other) => other.hashCode == _hashCode;
+  operator ==(Object other) {
+    if (other.hashCode == _hashCode) {
+      if (other.toString() == toString()) {
+        return true;
+      }
+    }
+    return false;
+  }
 }
