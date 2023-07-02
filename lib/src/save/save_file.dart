@@ -10,11 +10,11 @@ class Save {
     _innerCellStyle = <CellStyle>[];
   }
 
-  void _addNewCol(XmlElement cols, int min, int max, double value) {
+  void _addNewCol(XmlElement cols, int min, int max, double width) {
     cols.children.add(XmlElement(XmlName('col'), [
       XmlAttribute(XmlName('min'), (min + 1).toString()),
       XmlAttribute(XmlName('max'), (max + 1).toString()),
-      XmlAttribute(XmlName('width'), value.toStringAsFixed(2)),
+      XmlAttribute(XmlName('width'), width.toStringAsFixed(2)),
       XmlAttribute(XmlName('bestFit'), "1"),
       XmlAttribute(XmlName('customWidth'), "1"),
     ], []));
@@ -122,9 +122,12 @@ class Save {
   }
 
   ///
-  XmlElement _createNewRow(XmlElement table, int rowIndex) {
-    var row = XmlElement(XmlName('row'),
-        [XmlAttribute(XmlName('r'), (rowIndex + 1).toString())], []);
+  XmlElement _createNewRow(XmlElement table, int rowIndex, double? height) {
+    var row = XmlElement(XmlName('row'), [
+      XmlAttribute(XmlName('r'), (rowIndex + 1).toString()),
+      if (height != null) XmlAttribute(XmlName('ht'), height.toString()),
+      XmlAttribute(XmlName('customHeight'), '1'),
+    ], []);
     table.children.add(row);
     return row;
   }
@@ -446,17 +449,11 @@ class Save {
     return ZipEncoder().encode(_cloneArchive(_excel._archive));
   }
 
-  _setColumnWidth(String sheetName) {
-    final sheetObject = _excel._sheetMap[sheetName];
-    if (sheetObject == null) return;
-
-    var xmlFile = _excel._xmlFiles[_excel._xmlSheetId[sheetName]];
-    if (xmlFile == null) return;
-
+  void _setColumns(Sheet sheetObject, XmlDocument xmlFile) {
     final colElements = xmlFile.findAllElements('cols');
 
     if (sheetObject.getColWidths.isEmpty &&
-        sheetObject.getColAutoFits.isEmpty) {
+        sheetObject.getColumnAutoFit.isEmpty) {
       if (colElements.isEmpty) {
         return;
       }
@@ -481,37 +478,63 @@ class Save {
       cols.children.clear();
     }
 
-    final autoFits = sheetObject.getColAutoFits.asMap();
-    final customWidths = sheetObject.getColWidths.asMap();
+    final autoFits = sheetObject.getColumnAutoFit;
+    final customWidths = sheetObject.getColWidths;
 
     final columnCount = max(autoFits.length, customWidths.length);
 
     List<double> colWidths = <double>[];
     int min = 0;
 
-    for (var index = 0; index < columnCount; index++) {
-      double value = _defaultColumnWidth;
+    double defaultColumnWidth = sheetObject.defaultColumnWidth;
 
-      if (autoFits.containsKey(index) &&
-          autoFits[index] == true &&
-          (!customWidths.containsKey(index) ||
-              customWidths[index] == _defaultColumnWidth)) {
-        value = _calcAutoFitColWidth(sheetObject, index);
+    for (var index = 0; index < columnCount; index++) {
+      double width = defaultColumnWidth;
+
+      if (autoFits.containsKey(index) && (!customWidths.containsKey(index))) {
+        width = _calcAutoFitColWidth(sheetObject, index);
       } else {
         if (customWidths.containsKey(index)) {
-          value = customWidths[index]!;
+          width = customWidths[index]!;
         }
       }
 
-      colWidths.add(value);
+      colWidths.add(width);
 
-      if (index != 0 && colWidths[index - 1] != value) {
+      if (index != 0 && colWidths[index - 1] != width) {
         _addNewCol(cols, min, index - 1, colWidths[index - 1]);
         min = index;
       }
 
       if (index == (columnCount - 1)) {
-        _addNewCol(cols, index, index, value);
+        _addNewCol(cols, index, index, width);
+      }
+    }
+  }
+
+  void _setRows(String sheetName, Sheet sheetObject) {
+    final customHeights = sheetObject.getRowHeights;
+
+    for (var rowIndex = 0; rowIndex < sheetObject._maxRows; rowIndex++) {
+      double? height;
+
+      if (customHeights.containsKey(rowIndex)) {
+        height = customHeights[rowIndex];
+      }
+
+      if (sheetObject._sheetData[rowIndex] == null) {
+        continue;
+      }
+      var foundRow = _createNewRow(
+          _excel._sheets[sheetName]! as XmlElement, rowIndex, height);
+      for (var colIndex = 0; colIndex < sheetObject._maxCols; colIndex++) {
+        var data = sheetObject._sheetData[rowIndex]![colIndex];
+        if (data == null) {
+          continue;
+        }
+        if (data.value != null) {
+          _updateCell(sheetName, foundRow, colIndex, rowIndex, data.value);
+        }
       }
     }
   }
@@ -773,41 +796,45 @@ class Save {
     _excel._sharedStrings = _SharedStringsMaintainer.instance;
     _excel._sharedStrings.clear();
 
-    _excel._sheetMap.forEach((sheet, value) {
+    _excel._sheetMap.forEach((sheetName, sheetObject) {
       ///
       /// Create the sheet's xml file if it does not exist.
-      if (_excel._sheets[sheet] == null) {
-        parser._createSheet(sheet);
+      if (_excel._sheets[sheetName] == null) {
+        parser._createSheet(sheetName);
       }
 
       /// Clear the previous contents of the sheet if it exists,
       /// in order to reduce the time to find and compare with the sheet rows
       /// and hence just do the work of putting the data only i.e. creating new rows
-      if (_excel._sheets[sheet]?.children.isNotEmpty ?? false) {
-        _excel._sheets[sheet]!.children.clear();
+      if (_excel._sheets[sheetName]?.children.isNotEmpty ?? false) {
+        _excel._sheets[sheetName]!.children.clear();
       }
-
-      _setColumnWidth(sheet);
 
       /// `Above function is important in order to wipe out the old contents of the sheet.`
-      for (var rowIndex = 0; rowIndex < value._maxRows; rowIndex++) {
-        if (value._sheetData[rowIndex] == null) {
-          continue;
-        }
-        var foundRow =
-            _createNewRow(_excel._sheets[sheet]! as XmlElement, rowIndex);
-        for (var colIndex = 0; colIndex < value._maxCols; colIndex++) {
-          var data = value._sheetData[rowIndex]![colIndex];
-          if (data == null) {
-            continue;
-          }
-          if (data.value != null) {
-            _updateCell(sheet, foundRow, colIndex, rowIndex, data.value);
-          }
-        }
-      }
 
-      _setHeaderFooter(sheet);
+      XmlDocument? xmlFile = _excel._xmlFiles[_excel._xmlSheetId[sheetName]];
+      if (xmlFile == null) return;
+
+      double defaultRowHeight = sheetObject.defaultRowHeight;
+      double defaultColumnWidth = sheetObject.defaultColumnWidth;
+
+      /// Set default column width and height for the sheet.
+      XmlElement sheetFormatPrElement = xmlFile
+          .findAllElements('worksheet')
+          .first
+          .findElements('sheetFormatPr')
+          .first;
+      sheetFormatPrElement.setAttribute(
+          'defaultRowHeight', defaultRowHeight.toStringAsFixed(2));
+      sheetFormatPrElement.setAttribute(
+          'defaultColWidth', defaultColumnWidth.toStringAsFixed(2));
+      sheetFormatPrElement.removeAttribute('customHeight');
+
+      _setColumns(sheetObject, xmlFile);
+
+      _setRows(sheetName, sheetObject);
+
+      _setHeaderFooter(sheetName);
     });
   }
 

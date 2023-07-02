@@ -6,8 +6,11 @@ class Sheet {
   late bool _isRTL;
   late int _maxRows;
   late int _maxCols;
-  List<double> _colWidth = <double>[];
-  List<bool> _colAutoFit = <bool>[];
+  double _defaultColumnWidth = _excelDefaultColumnWidth;
+  double _defaultRowHeight = _excelDefaultRowHeight;
+  Map<int, double> _columnWidths = {};
+  Map<int, double> _rowHeights = {};
+  Map<int, bool> _columnAutoFit = {};
   late FastList<String> _spannedItems;
   late List<_Span?> _spanList;
   late Map<int, Map<int, Data>> _sheetData;
@@ -23,8 +26,9 @@ class Sheet {
             spanI_: oldSheetObject._spannedItems,
             maxRowsVal: oldSheetObject._maxRows,
             maxColsVal: oldSheetObject._maxCols,
-            colWidthVal: oldSheetObject._colWidth,
-            colAutoFitVal: oldSheetObject._colAutoFit,
+            columnWidthsVal: oldSheetObject._columnWidths,
+            rowHeightsVal: oldSheetObject._rowHeights,
+            columnAutoFitVal: oldSheetObject._columnAutoFit,
             isRTLVal: oldSheetObject._isRTL,
             headerFooter: oldSheetObject._headerFooter);
 
@@ -35,8 +39,9 @@ class Sheet {
       int? maxRowsVal,
       int? maxColsVal,
       bool? isRTLVal,
-      List<double>? colWidthVal,
-      List<bool>? colAutoFitVal,
+      Map<int, double>? columnWidthsVal,
+      Map<int, double>? rowHeightsVal,
+      Map<int, bool>? columnAutoFitVal,
       HeaderFooter? headerFooter}) {
     _excel = excel;
     _sheet = sheetName;
@@ -65,11 +70,14 @@ class Sheet {
       _isRTL = isRTLVal;
       _excel._rtlChangeLookup = sheetName;
     }
-    if (colWidthVal != null) {
-      _colWidth = List<double>.from(colWidthVal);
+    if (columnWidthsVal != null) {
+      _columnWidths = Map<int, double>.from(columnWidthsVal);
     }
-    if (colAutoFitVal != null) {
-      _colAutoFit = List<bool>.from(colAutoFitVal);
+    if (rowHeightsVal != null) {
+      _rowHeights = Map<int, double>.from(rowHeightsVal);
+    }
+    if (columnAutoFitVal != null) {
+      _columnAutoFit = Map<int, bool>.from(columnAutoFitVal);
     }
 
     /// copy the data objects into a temp folder and then while putting it into `_sheetData` change the data objects references.
@@ -1001,59 +1009,60 @@ class Sheet {
     //_countRowAndCol();
   }
 
-  ///
-  /// returns list of auto fit columns
-  ///
-  List<bool> get getColAutoFits {
-    return _colAutoFit;
-  }
+  double get defaultRowHeight => _defaultRowHeight;
+
+  double get defaultColumnWidth => _defaultColumnWidth;
 
   ///
-  /// returns list of custom width columns
+  /// returns map of auto fit columns
   ///
-  List<double> get getColWidths {
-    return _colWidth;
-  }
+  Map<int, bool> get getColumnAutoFit => _columnAutoFit;
 
   ///
-  /// Get Column AutoFit
+  /// returns map of custom width columns
   ///
-  bool getColAutoFit(int colIndex) {
-    _checkMaxCol(colIndex);
-    return _colAutoFit[colIndex];
-  }
+  Map<int, double> get getColWidths => _columnWidths;
 
   ///
-  /// Get Column Width
+  /// returns map of custom height rows
   ///
-  double getColWidth(int colIndex) {
-    _checkMaxCol(colIndex);
-    return _colWidth[colIndex];
+  Map<int, double> get getRowHeights => _rowHeights;
+
+  void setDefaultRowHeight(double rowHeight) {
+    if (rowHeight < 0) return;
+    _defaultRowHeight = rowHeight;
+  }
+
+  void setDefaultColumnWidth(double colWidth) {
+    if (colWidth < 0) return;
+    _defaultColumnWidth = colWidth;
   }
 
   ///
   /// Set Column AutoFit
   ///
-  void setColAutoFit(int colIndex) {
-    _checkMaxCol(colIndex);
-
-    while (colIndex >= _colAutoFit.length) {
-      _colAutoFit.add(false);
-    }
-    _colAutoFit[colIndex] = true;
+  void setColumnAutoFit(int columnIndex) {
+    _checkMaxCol(columnIndex);
+    if (columnIndex < 0) return;
+    _columnAutoFit[columnIndex] = true;
   }
 
   ///
   /// Set Column Width
   ///
-  void setColWidth(int colIndex, double colWidth) {
-    _checkMaxCol(colIndex);
-    if (colWidth < 0) return;
+  void setColumnWidth(int columnIndex, double columnWidth) {
+    _checkMaxCol(columnIndex);
+    if (columnWidth < 0) return;
+    _columnWidths[columnIndex] = columnWidth;
+  }
 
-    while (colIndex >= _colWidth.length) {
-      _colWidth.add(_defaultColumnWidth);
-    }
-    _colWidth[colIndex] = colWidth;
+  ///
+  /// Set Row Height
+  ///
+  void setRowHeight(int rowIndex, double rowHeight) {
+    _checkMaxRow(rowIndex);
+    if (rowHeight < 0) return;
+    _rowHeights[rowIndex] = rowHeight;
   }
 
   CellType _getCellType(var type) {
