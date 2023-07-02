@@ -1144,7 +1144,7 @@ class Sheet {
             _sheetData[i]![j] != null &&
             sourceRegx.hasMatch(_sheetData[i]![j]!.value.toString()) &&
             (first == -1 || first != replaceCount)) {
-          _sheetData[i]![j]!
+          _sheetData[i]![j]!.value = _sheetData[i]![j]!
               .value
               .toString()
               .replaceAll(sourceRegx, target.toString());
