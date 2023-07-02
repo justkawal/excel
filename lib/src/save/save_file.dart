@@ -121,12 +121,12 @@ class Save {
     return XmlElement(XmlName('c'), attributes, children);
   }
 
-  ///
+  /// Create a new row in the sheet.
   XmlElement _createNewRow(XmlElement table, int rowIndex, double? height) {
     var row = XmlElement(XmlName('row'), [
       XmlAttribute(XmlName('r'), (rowIndex + 1).toString()),
       if (height != null) XmlAttribute(XmlName('ht'), height.toString()),
-      XmlAttribute(XmlName('customHeight'), '1'),
+      if (height != null) XmlAttribute(XmlName('customHeight'), '1'),
     ], []);
     table.children.add(row);
     return row;
