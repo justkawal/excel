@@ -6,8 +6,8 @@ class Sheet {
   late bool _isRTL;
   late int _maxRows;
   late int _maxCols;
-  double _defaultColumnWidth = _excelDefaultColumnWidth;
-  double _defaultRowHeight = _excelDefaultRowHeight;
+  double? _defaultColumnWidth;
+  double? _defaultRowHeight;
   Map<int, double> _columnWidths = {};
   Map<int, double> _rowHeights = {};
   Map<int, bool> _columnAutoFit = {};
@@ -684,7 +684,7 @@ class Sheet {
     /// Puts the cellStyle
     if (cellStyle != null) {
       _sheetData[newRowIndex]![newColumnIndex]!._cellStyle = cellStyle;
-      _excel._colorChanges = true;
+      _excel._styleChanges = true;
     }
   }
 
@@ -719,6 +719,10 @@ class Sheet {
     startRow = gotPosition[1];
     endColumn = gotPosition[2];
     endRow = gotPosition[3];
+
+    /// Update the maxCols and maxRows
+    _maxCols = _maxCols > endColumn ? _maxCols : endColumn + 1;
+    _maxRows = _maxRows > endRow ? _maxRows : endRow + 1;
 
     bool getValue = true;
 
@@ -1009,9 +1013,9 @@ class Sheet {
     //_countRowAndCol();
   }
 
-  double get defaultRowHeight => _defaultRowHeight;
+  double? get defaultRowHeight => _defaultRowHeight;
 
-  double get defaultColumnWidth => _defaultColumnWidth;
+  double? get defaultColumnWidth => _defaultColumnWidth;
 
   ///
   /// returns map of auto fit columns
@@ -1028,12 +1032,12 @@ class Sheet {
   ///
   Map<int, double> get getRowHeights => _rowHeights;
 
-  void setDefaultRowHeight(double rowHeight) {
+  void setDefaultRowHeight([double rowHeight = _excelDefaultRowHeight]) {
     if (rowHeight < 0) return;
     _defaultRowHeight = rowHeight;
   }
 
-  void setDefaultColumnWidth(double colWidth) {
+  void setDefaultColumnWidth([double colWidth = _excelDefaultColumnWidth]) {
     if (colWidth < 0) return;
     _defaultColumnWidth = colWidth;
   }

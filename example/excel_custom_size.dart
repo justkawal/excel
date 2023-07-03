@@ -8,6 +8,9 @@ void main(List<String> args) {
   var excel = Excel.createExcel();
   final Sheet sheet = excel[excel.getDefaultSheet()!];
 
+  sheet.setDefaultRowHeight();
+  sheet.setDefaultColumnWidth();
+
   for (var row = 0; row < 100; row++) {
     sheet
         .cell(CellIndex.indexByColumnRow(columnIndex: 0, rowIndex: row))

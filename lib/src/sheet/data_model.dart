@@ -113,7 +113,7 @@ class Data extends Equatable {
 
   /// sets the user defined CellStyle in this current cell
   set cellStyle(CellStyle? _) {
-    _sheet._excel._colorChanges = true;
+    _sheet._excel._styleChanges = true;
     _cellStyle = _;
   }
 

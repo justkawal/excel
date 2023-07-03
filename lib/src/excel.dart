@@ -22,7 +22,7 @@ Excel _newExcel(Archive archive) {
 
 /// Decode a excel file.
 class Excel {
-  late bool _colorChanges;
+  late bool _styleChanges;
   late bool _mergeChanges;
   late bool _rtlChanges;
 
@@ -32,6 +32,7 @@ class Excel {
   late Map<String, XmlDocument> _xmlFiles;
   late Map<String, String> _xmlSheetId;
   late Map<String, Map<String, int>> _cellStyleReferenced;
+  late Map<String, Map<String, int>> _mergedCellStyleReferenced;
   late Map<String, Sheet> _sheetMap;
 
   late List<CellStyle> _cellStyleList;
@@ -51,13 +52,14 @@ class Excel {
   late Parser parser;
 
   Excel._(Archive archive) {
-    _colorChanges = false;
+    _styleChanges = false;
     _mergeChanges = false;
     _rtlChanges = false;
     _sheets = <String, XmlNode>{};
     _xmlFiles = <String, XmlDocument>{};
     _xmlSheetId = <String, String>{};
     _cellStyleReferenced = <String, Map<String, int>>{};
+    _mergedCellStyleReferenced = <String, Map<String, int>>{};
     _sheetMap = <String, Sheet>{};
     _cellStyleList = <CellStyle>[];
     _patternFill = <String>[];
@@ -531,7 +533,7 @@ class Excel {
     _availSheet(sheet);
 
     if (cellStyle != null) {
-      _colorChanges = true;
+      _styleChanges = true;
       _sheetMap[sheet]!.updateCell(cellIndex, value, cellStyle: cellStyle);
     } else {
       _sheetMap[sheet]!.updateCell(cellIndex, value);
