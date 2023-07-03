@@ -988,7 +988,11 @@ class Save {
       }
 
       if (defaultRowHeight == null && defaultColumnWidth == null) {
-        sheetFormatPrElement.remove();
+        xmlFile
+            .findAllElements('worksheet')
+            .first
+            .children
+            .remove(sheetFormatPrElement);
       }
 
       _setColumns(sheetObject, xmlFile);
