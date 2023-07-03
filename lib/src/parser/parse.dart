@@ -70,8 +70,7 @@ class Parser {
   }
 
   _parseSharedStrings() {
-    var sharedStrings =
-        _excel._archive.findFile('xl/${_excel._sharedStringsTarget}');
+    var sharedStrings = _excel._archive.findFile(_excel._absSharedStringsTarget);
     if (sharedStrings == null) {
       _excel._sharedStringsTarget = 'sharedStrings.xml';
 
@@ -127,10 +126,8 @@ class Parser {
 
       var content = utf8.encode(
           "<sst xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" count=\"0\" uniqueCount=\"0\"/>");
-      _excel._archive.addFile(ArchiveFile(
-          'xl/${_excel._sharedStringsTarget}', content.length, content));
-      sharedStrings =
-          _excel._archive.findFile('xl/${_excel._sharedStringsTarget}');
+      _excel._archive.addFile(ArchiveFile("xl/sharedStrings.xml", content.length, content));
+      sharedStrings = _excel._archive.findFile("xl/sharedStrings.xml");
     }
     sharedStrings!.decompress();
     var document = XmlDocument.parse(utf8.decode(sharedStrings.content));
