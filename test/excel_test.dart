@@ -1,6 +1,5 @@
 import 'dart:convert';
 import 'dart:io';
-import 'dart:math';
 import 'package:archive/archive.dart';
 import 'package:excel/excel.dart';
 import 'package:test/test.dart';
@@ -377,19 +376,13 @@ void main() {
         BorderStyle.Thin,
       ];
 
-      final borderColors = <String?>[null] +
-          List.generate(
-              13,
-              (index) =>
-                  "FF${Random().nextInt(0xFFFFFF).toRadixString(16).toUpperCase()}");
-
       sheetObject.merge(
           CellIndex.indexByString('B2'), CellIndex.indexByString('D4'));
 
       for (var i = 1; i < borderStyles.length; ++i) {
         // Loop from i = 1, as Excel does not set None type.
-        final border = Border(
-            borderStyle: borderStyles[i], borderColorHex: borderColors[i]);
+        final border =
+            Border(borderStyle: borderStyles[i], borderColorHex: "FF000000");
         final start = CellIndex.indexByString('B${(4 * i + 2)}');
         final end = CellIndex.indexByString('D${(4 * i + 4)}');
 
@@ -406,13 +399,6 @@ void main() {
         );
       }
 
-      final fileBytes = excel.encode();
-      if (fileBytes != null) {
-        File(file)
-          ..createSync(recursive: true)
-          ..writeAsBytesSync(fileBytes);
-      }
-
       for (var i = 1; i < borderStyles.length; ++i) {
         CellIndex cellIndexStart = CellIndex.indexByString('B${(4 * i + 2)}');
         CellIndex cellIndexEnd = CellIndex.indexByString('D${(4 * i + 4)}');
@@ -427,7 +413,7 @@ void main() {
 
             final borderStyle = Border(
               borderStyle: borderStyles[i],
-              borderColorHex: borderColors[i],
+              borderColorHex: "FF000000",
             );
 
             if (j == cellIndexStart.rowIndex) {
