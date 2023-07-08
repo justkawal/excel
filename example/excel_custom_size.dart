@@ -34,6 +34,9 @@ void main(List<String> args) {
         .value = getRandString();
   }
 
+  sheet.setDefaultColumnWidth();
+  sheet.setDefaultRowHeight();
+
   sheet.setColumnAutoFit(0);
   sheet.setColumnAutoFit(1);
   sheet.setColumnAutoFit(2);

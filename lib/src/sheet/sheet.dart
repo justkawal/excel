@@ -6,8 +6,8 @@ class Sheet {
   late bool _isRTL;
   late int _maxRows;
   late int _maxCols;
-  double _defaultColumnWidth = _excelDefaultColumnWidth;
-  double _defaultRowHeight = _excelDefaultRowHeight;
+  double? _defaultColumnWidth;
+  double? _defaultRowHeight;
   Map<int, double> _columnWidths = {};
   Map<int, double> _rowHeights = {};
   Map<int, bool> _columnAutoFit = {};
@@ -684,7 +684,7 @@ class Sheet {
     /// Puts the cellStyle
     if (cellStyle != null) {
       _sheetData[newRowIndex]![newColumnIndex]!._cellStyle = cellStyle;
-      _excel._colorChanges = true;
+      _excel._styleChanges = true;
     }
   }
 
@@ -719,6 +719,10 @@ class Sheet {
     startRow = gotPosition[1];
     endColumn = gotPosition[2];
     endRow = gotPosition[3];
+
+    // Update the maxCols and maxRows
+    _maxCols = _maxCols > endColumn ? _maxCols : endColumn + 1;
+    _maxRows = _maxRows > endRow ? _maxRows : endRow + 1;
 
     bool getValue = true;
 
@@ -804,6 +808,89 @@ class Sheet {
       }
       _spannedItems.remove(unmergeCells);
       _excel._mergeChangeLookup = sheetName;
+    }
+  }
+
+  ///
+  /// Sets the cellStyle of the merged cells.
+  ///
+  /// It will get the merged cells only by giving the starting position of merged cells.
+  ///
+  void setMergedCellStyle(CellIndex start, CellStyle mergedCellStyle) {
+    List<List<CellIndex>> _mergedCells = spannedItems
+        .map(
+          (e) => e.split(":").map((e) => CellIndex.indexByString(e)).toList(),
+        )
+        .toList();
+
+    List<CellIndex> _startIndices = _mergedCells.map((e) => e[0]).toList();
+    List<CellIndex> _endIndices = _mergedCells.map((e) => e[1]).toList();
+
+    if (_mergedCells.isEmpty ||
+        start._columnIndex < 0 ||
+        start._rowIndex < 0 ||
+        !_startIndices.contains(start)) {
+      return;
+    }
+
+    CellIndex end = _endIndices[_startIndices.indexOf(start)];
+
+    bool hasBorder = mergedCellStyle.topBorder != Border() ||
+        mergedCellStyle.bottomBorder != Border() ||
+        mergedCellStyle.leftBorder != Border() ||
+        mergedCellStyle.rightBorder != Border() ||
+        mergedCellStyle.diagonalBorderUp ||
+        mergedCellStyle.diagonalBorderDown;
+    if (hasBorder) {
+      for (var i = start.rowIndex; i <= end.rowIndex; i++) {
+        for (var j = start.columnIndex; j <= end.columnIndex; j++) {
+          CellStyle cellStyle = mergedCellStyle.copyWith(
+            topBorderVal: Border(),
+            bottomBorderVal: Border(),
+            leftBorderVal: Border(),
+            rightBorderVal: Border(),
+            diagonalBorderUpVal: false,
+            diagonalBorderDownVal: false,
+          );
+
+          if (i == start.rowIndex) {
+            cellStyle = cellStyle.copyWith(
+              topBorderVal: mergedCellStyle.topBorder,
+            );
+          }
+          if (i == end.rowIndex) {
+            cellStyle = cellStyle.copyWith(
+              bottomBorderVal: mergedCellStyle.bottomBorder,
+            );
+          }
+          if (j == start.columnIndex) {
+            cellStyle = cellStyle.copyWith(
+              leftBorderVal: mergedCellStyle.leftBorder,
+            );
+          }
+          if (j == end.columnIndex) {
+            cellStyle = cellStyle.copyWith(
+              rightBorderVal: mergedCellStyle.rightBorder,
+            );
+          }
+
+          if (i == j ||
+              start.rowIndex == end.rowIndex ||
+              start.columnIndex == end.columnIndex) {
+            cellStyle = cellStyle.copyWith(
+              diagonalBorderUpVal: mergedCellStyle.diagonalBorderUp,
+              diagonalBorderDownVal: mergedCellStyle.diagonalBorderDown,
+            );
+          }
+
+          if (i == start.rowIndex && j == start.columnIndex) {
+            cell(start).cellStyle = cellStyle;
+          } else {
+            _putData(i, j, null);
+            _sheetData[i]![j]!.cellStyle = cellStyle;
+          }
+        }
+      }
     }
   }
 
@@ -1009,9 +1096,9 @@ class Sheet {
     //_countRowAndCol();
   }
 
-  double get defaultRowHeight => _defaultRowHeight;
+  double? get defaultRowHeight => _defaultRowHeight;
 
-  double get defaultColumnWidth => _defaultColumnWidth;
+  double? get defaultColumnWidth => _defaultColumnWidth;
 
   ///
   /// returns map of auto fit columns
@@ -1028,14 +1115,30 @@ class Sheet {
   ///
   Map<int, double> get getRowHeights => _rowHeights;
 
-  void setDefaultRowHeight(double rowHeight) {
-    if (rowHeight < 0) return;
-    _defaultRowHeight = rowHeight;
-  }
-
-  void setDefaultColumnWidth(double colWidth) {
+  ///
+  /// Set the default column width.
+  ///
+  /// If both `setDefaultRowHeight` and `setDefaultColumnWidth` are not called,
+  /// then the default row height and column width will be set by Excel.
+  /// 
+  /// The default row height is 15.0 and the default column width is 8.43.
+  ///
+  void setDefaultColumnWidth([double colWidth = _excelDefaultColumnWidth]) {
     if (colWidth < 0) return;
     _defaultColumnWidth = colWidth;
+  }
+
+  ///
+  /// Set the default row height.
+  ///
+  /// If both `setDefaultRowHeight` and `setDefaultColumnWidth` are not called,
+  /// then the default row height and column width will be set by Excel.
+  /// 
+  /// The default row height is 15.0 and the default column width is 8.43.
+  ///
+  void setDefaultRowHeight([double rowHeight = _excelDefaultRowHeight]) {
+    if (rowHeight < 0) return;
+    _defaultRowHeight = rowHeight;
   }
 
   ///

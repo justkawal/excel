@@ -75,7 +75,7 @@ class Save {
       if (value is SharedString) XmlAttribute(XmlName('t'), 's'),
     ];
 
-    if (_excel._colorChanges &&
+    if (_excel._styleChanges &&
         (_excel._sheetMap[sheet]?._sheetData != null) &&
         _excel._sheetMap[sheet]!._sheetData[rowIndex] != null &&
         _excel._sheetMap[sheet]!._sheetData[rowIndex]![columnIndex]
@@ -125,7 +125,8 @@ class Save {
   XmlElement _createNewRow(XmlElement table, int rowIndex, double? height) {
     var row = XmlElement(XmlName('row'), [
       XmlAttribute(XmlName('r'), (rowIndex + 1).toString()),
-      if (height != null) XmlAttribute(XmlName('ht'), height.toString()),
+      if (height != null)
+        XmlAttribute(XmlName('ht'), height.toStringAsFixed(2)),
       if (height != null) XmlAttribute(XmlName('customHeight'), '1'),
     ], []);
     table.children.add(row);
@@ -424,7 +425,7 @@ class Save {
   }
 
   List<int>? _save() {
-    if (_excel._colorChanges) {
+    if (_excel._styleChanges) {
       _processStylesFile();
     }
     _setSheetElements();
@@ -486,7 +487,8 @@ class Save {
     List<double> colWidths = <double>[];
     int min = 0;
 
-    double defaultColumnWidth = sheetObject.defaultColumnWidth;
+    double defaultColumnWidth =
+        sheetObject.defaultColumnWidth ?? _excelDefaultColumnWidth;
 
     for (var index = 0; index < columnCount; index++) {
       double width = defaultColumnWidth;
@@ -532,9 +534,7 @@ class Save {
         if (data == null) {
           continue;
         }
-        if (data.value != null) {
-          _updateCell(sheetName, foundRow, colIndex, rowIndex, data.value);
-        }
+        _updateCell(sheetName, foundRow, colIndex, rowIndex, data.value);
       }
     }
   }
@@ -815,20 +815,36 @@ class Save {
       XmlDocument? xmlFile = _excel._xmlFiles[_excel._xmlSheetId[sheetName]];
       if (xmlFile == null) return;
 
-      double defaultRowHeight = sheetObject.defaultRowHeight;
-      double defaultColumnWidth = sheetObject.defaultColumnWidth;
+      // Set default column width and height for the sheet.
+      double? defaultRowHeight = sheetObject.defaultRowHeight;
+      double? defaultColumnWidth = sheetObject.defaultColumnWidth;
 
-      /// Set default column width and height for the sheet.
-      XmlElement sheetFormatPrElement = xmlFile
-          .findAllElements('worksheet')
-          .first
-          .findElements('sheetFormatPr')
-          .first;
-      sheetFormatPrElement.setAttribute(
-          'defaultRowHeight', defaultRowHeight.toStringAsFixed(2));
-      sheetFormatPrElement.setAttribute(
-          'defaultColWidth', defaultColumnWidth.toStringAsFixed(2));
-      sheetFormatPrElement.removeAttribute('customHeight');
+      XmlElement worksheetElement = xmlFile.findAllElements('worksheet').first;
+
+      XmlElement? sheetFormatPrElement =
+          worksheetElement.findElements('sheetFormatPr').isNotEmpty
+              ? worksheetElement.findElements('sheetFormatPr').first
+              : null;
+
+      if (sheetFormatPrElement != null) {
+        sheetFormatPrElement.attributes.clear();
+
+        if (defaultRowHeight == null && defaultColumnWidth == null) {
+          worksheetElement.children.remove(sheetFormatPrElement);
+        }
+      } else if (defaultRowHeight != null || defaultColumnWidth != null) {
+        sheetFormatPrElement = XmlElement(XmlName('sheetFormatPr'), [], []);
+        worksheetElement.children.insert(0, sheetFormatPrElement);
+      }
+
+      if (defaultRowHeight != null) {
+        sheetFormatPrElement!.attributes.add(XmlAttribute(
+            XmlName('defaultRowHeight'), defaultRowHeight.toStringAsFixed(2)));
+      }
+      if (defaultColumnWidth != null) {
+        sheetFormatPrElement!.attributes.add(XmlAttribute(
+            XmlName('defaultColWidth'), defaultColumnWidth.toStringAsFixed(2)));
+      }
 
       _setColumns(sheetObject, xmlFile);
 

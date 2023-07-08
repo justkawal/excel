@@ -353,6 +353,89 @@ void main() {
       }
     });
 
+    test('test support for megred cells with borders', () async {
+      final file = './test/test_resources/megredBorders.xlsx';
+      final bytes = File(file).readAsBytesSync();
+      final excel = Excel.decodeBytes(bytes);
+      final Sheet sheetObject = excel.tables['Sheet1']!;
+
+      final borderStyles = <BorderStyle>[
+        BorderStyle.None,
+        BorderStyle.DashDot,
+        BorderStyle.DashDotDot,
+        BorderStyle.Dashed,
+        BorderStyle.Dotted,
+        BorderStyle.Double,
+        BorderStyle.Hair,
+        BorderStyle.Medium,
+        BorderStyle.MediumDashDot,
+        BorderStyle.MediumDashDotDot,
+        BorderStyle.MediumDashed,
+        BorderStyle.SlantDashDot,
+        BorderStyle.Thick,
+        BorderStyle.Thin,
+      ];
+
+      sheetObject.merge(
+          CellIndex.indexByString('B2'), CellIndex.indexByString('D4'));
+
+      for (var i = 1; i < borderStyles.length; ++i) {
+        // Loop from i = 1, as Excel does not set None type.
+        final border =
+            Border(borderStyle: borderStyles[i], borderColorHex: "FF000000");
+        final start = CellIndex.indexByString('B${(4 * i + 2)}');
+        final end = CellIndex.indexByString('D${(4 * i + 4)}');
+
+        sheetObject.merge(start, end);
+
+        sheetObject.setMergedCellStyle(
+          start,
+          CellStyle(
+            leftBorder: border,
+            rightBorder: border,
+            topBorder: border,
+            bottomBorder: border,
+          ),
+        );
+      }
+
+      for (var i = 1; i < borderStyles.length; ++i) {
+        CellIndex cellIndexStart = CellIndex.indexByString('B${(4 * i + 2)}');
+        CellIndex cellIndexEnd = CellIndex.indexByString('D${(4 * i + 4)}');
+
+        for (var j = cellIndexStart.rowIndex; j <= cellIndexEnd.rowIndex; j++) {
+          for (var k = cellIndexStart.columnIndex;
+              k <= cellIndexEnd.columnIndex;
+              k++) {
+            final cellStyle = sheetObject
+                .cell(CellIndex.indexByColumnRow(columnIndex: k, rowIndex: j))
+                .cellStyle;
+
+            final borderStyle = Border(
+              borderStyle: borderStyles[i],
+              borderColorHex: "FF000000",
+            );
+
+            if (j == cellIndexStart.rowIndex) {
+              expect(cellStyle?.topBorder, equals(borderStyle));
+            }
+
+            if (j == cellIndexEnd.rowIndex) {
+              expect(cellStyle?.bottomBorder, equals(borderStyle));
+            }
+
+            if (k == cellIndexStart.columnIndex) {
+              expect(cellStyle?.leftBorder, equals(borderStyle));
+            }
+
+            if (k == cellIndexEnd.columnIndex) {
+              expect(cellStyle?.rightBorder, equals(borderStyle));
+            }
+          }
+        }
+      }
+    });
+
     test('saving XLSX File with borders', () async {
       final file = './test/test_resources/borders.xlsx';
       final bytes = File(file).readAsBytesSync();
