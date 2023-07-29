@@ -1,6 +1,13 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [2.1.0] - 2023-03-30
+### Improved
+- Add border functionality
+### Fixed
+- Fix Header and Footer with special characters
+- Fix sheet.merge()
+
 ## [2.0.4] - 2023-03-12
 ### Improved
 - Automated Publishing.
