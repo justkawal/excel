@@ -46,8 +46,8 @@ class Excel {
 
   late String _stylesTarget;
   late String _sharedStringsTarget;
-  String get _absSharedStringsTarget{
-    if(_sharedStringsTarget.isNotEmpty && _sharedStringsTarget[0] == "/"){
+  String get _absSharedStringsTarget {
+    if (_sharedStringsTarget.isNotEmpty && _sharedStringsTarget[0] == "/") {
       return _sharedStringsTarget.substring(1);
     }
     return "xl/${_sharedStringsTarget}";

@@ -111,7 +111,7 @@ The necessary changes to be made to updateCell function in order to prevent the 
 
     for (var table in excel.tables.keys) {
       print(table); //sheet Name
-      print(excel.tables[table].maxCols);
+      print(excel.tables[table].maxColumns);
       print(excel.tables[table].maxRows);
       for (var row in excel.tables[table].rows) {
         print('$row');
@@ -145,7 +145,7 @@ Use `FilePicker` to pick files in Flutter Web. [FilePicker](https://pub.dev/pack
     var excel = Excel.decodeBytes(bytes);
     for (var table in excel.tables.keys) {
       print(table); //sheet Name
-      print(excel.tables[table].maxCols);
+      print(excel.tables[table].maxColumns);
       print(excel.tables[table].maxRows);
       for (var row in excel.tables[table].rows) {
         print('$row');
@@ -167,7 +167,7 @@ Use `FilePicker` to pick files in Flutter Web. [FilePicker](https://pub.dev/pack
 
     for (var table in excel.tables.keys) {
       print(table); //sheet Name
-      print(excel.tables[table].maxCols);
+      print(excel.tables[table].maxColumns);
       print(excel.tables[table].maxRows);
       for (var row in excel.tables[table].rows) {
         print('$row');

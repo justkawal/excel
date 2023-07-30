@@ -2,9 +2,9 @@ part of excel;
 
 // ignore: must_be_immutable
 class CellIndex extends Equatable {
-  CellIndex._({int? col, int? row}) {
-    assert(col != null && row != null);
-    this._columnIndex = col!;
+  CellIndex._({int? column, int? row}) {
+    assert(column != null && row != null);
+    this._columnIndex = column!;
     this._rowIndex = row!;
   }
 
@@ -15,7 +15,7 @@ class CellIndex extends Equatable {
   ///```
   static CellIndex indexByColumnRow({int? columnIndex, int? rowIndex}) {
     assert(columnIndex != null && rowIndex != null);
-    return CellIndex._(col: columnIndex!, row: rowIndex!);
+    return CellIndex._(column: columnIndex!, row: rowIndex!);
   }
 
   ///
@@ -25,7 +25,7 @@ class CellIndex extends Equatable {
   ///```
   static CellIndex indexByString(String cellIndex) {
     List<int> li = _cellCoordsFromCellId(cellIndex);
-    return CellIndex._(row: li[0], col: li[1]);
+    return CellIndex._(row: li[0], column: li[1]);
   }
 
   /// Avoid using it as it is very process expensive function.

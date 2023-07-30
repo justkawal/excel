@@ -85,7 +85,8 @@ class SharedString {
   String toString() {
     var buffer = StringBuffer();
     node.findAllElements('t').forEach((child) {
-      if (child.parentElement == null || child.parentElement!.name.local != 'rPh') {
+      if (child.parentElement == null ||
+          child.parentElement!.name.local != 'rPh') {
         buffer.write(Parser._parseValue(child));
       }
     });

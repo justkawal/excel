@@ -16,7 +16,7 @@ void main() {
     var file = './test/test_resources/example.xlsx';
     var bytes = File(file).readAsBytesSync();
     var excel = Excel.decodeBytes(bytes);
-    expect(excel.tables['Sheet1']!.maxCols, equals(3));
+    expect(excel.tables['Sheet1']!.maxColumns, equals(3));
     expect(excel.tables['Sheet1']!.rows[1][1]!.value.toString(),
         equals('Washington'));
   });
@@ -32,7 +32,7 @@ void main() {
       expect(excel.sheets.entries.length, equals(2));
       expect(excel.tables['Sheet1']!.rows[1][1]!.value.toString(),
           equals('Washington'));
-      expect(excel.tables['SheetTmp']!.maxCols, equals(3));
+      expect(excel.tables['SheetTmp']!.maxColumns, equals(3));
       expect(excel.tables['SheetTmp']!.rows[1][2]!.value.toString(),
           equals('Putin'));
     });
@@ -42,7 +42,7 @@ void main() {
       expect(excel.sheets.entries.length, equals(3));
       expect(excel.tables['Sheet1']!.rows[1][1]!.value.toString(),
           equals('Washington'));
-      expect(excel.tables['SheetTmp']!.maxCols, equals(3));
+      expect(excel.tables['SheetTmp']!.maxColumns, equals(3));
       expect(excel.tables['SheetTmp']!.rows[1][2]!.value.toString(),
           equals('Putin'));
       expect(excel.tables['SheetTmp2']!.rows[1][2]!.value.toString(),
@@ -55,7 +55,7 @@ void main() {
       expect(excel.tables['Sheettmp2'], equals(null));
       expect(excel.tables['Sheet1']!.rows[1][1]!.value.toString(),
           equals('Washington'));
-      expect(excel.tables['SheetTmp']!.maxCols, equals(3));
+      expect(excel.tables['SheetTmp']!.maxColumns, equals(3));
       expect(excel.tables['SheetTmp']!.rows[1][2]!.value.toString(),
           equals('Putin'));
       expect(excel.tables['SheetTmp3']!.rows[1][2]!.value.toString(),
@@ -91,7 +91,7 @@ void main() {
     expect(newExcel.sheets.entries.length, equals(1));
     expect(newExcel.tables['Sheet1']!.rows[1][1]!.value.toString(),
         equals('Washington'));
-    expect(newExcel.tables['Sheet1']!.maxCols, equals(3));
+    expect(newExcel.tables['Sheet1']!.maxColumns, equals(3));
     expect(newExcel.tables['Sheet1']!.rows[4][1]!.value.toString(),
         equals('Moscow'));
   });
@@ -353,8 +353,8 @@ void main() {
       }
     });
 
-    test('test support for megred cells with borders', () async {
-      final file = './test/test_resources/megredBorders.xlsx';
+    test('test support for merged cells with borders', () async {
+      final file = './test/test_resources/mergedBorders.xlsx';
       final bytes = File(file).readAsBytesSync();
       final excel = Excel.decodeBytes(bytes);
       final Sheet sheetObject = excel.tables['Sheet1']!;

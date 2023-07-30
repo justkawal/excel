@@ -16,7 +16,7 @@ void main(List<String> args) {
   ///
   for (var table in excel.tables.keys) {
     print(table);
-    print(excel.tables[table]!.maxCols);
+    print(excel.tables[table]!.maxColumns);
     print(excel.tables[table]!.maxRows);
     for (var row in excel.tables[table]!.rows) {
       print("${row.map((e) => e?.value)}");
@@ -118,17 +118,17 @@ void main(List<String> args) {
     print("Unable to set ${sheet.sheetName} to default sheet.");
   }
 
-  var colIterableSheet = excel['ColumnIterables'];
+  var columnIterableSheet = excel['ColumnIterables'];
 
-  var colIterables = ['A', 'B', 'C', 'D', 'E'];
-  int colIndex = 0;
+  var columnIterables = ['A', 'B', 'C', 'D', 'E'];
+  int columnIndex = 0;
 
-  colIterables.forEach((colValue) {
-    colIterableSheet.cell(CellIndex.indexByColumnRow(
-      rowIndex: colIterableSheet.maxRows,
-      columnIndex: colIndex,
+  columnIterables.forEach((columnValue) {
+    columnIterableSheet.cell(CellIndex.indexByColumnRow(
+      rowIndex: columnIterableSheet.maxRows,
+      columnIndex: columnIndex,
     ))
-      ..value = colValue;
+      ..value = columnValue;
   });
 
   // Saving the file
