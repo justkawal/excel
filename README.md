@@ -37,6 +37,15 @@
 
 Is your excel file password protected? [Protect](https://github.com/justkawal/protect.git) helps you to apply and remove password protection on your excel file.
 
+## Breaking changes from 2.x.x to 3.x.x
+
+- Renamed `getColAutoFits()` to `getColumnAutoFits()`, and changed return type to `Map<int, bool>` in `Sheet`
+- Renamed `getColWidths()` to `getColumnWidths()`, and changed return type to `Map<int, double>` in `Sheet`
+- Renamed `getColAutoFit()` to `getColumnAutoFit()` in `Sheet`
+- Renamed `getColWidth()` to `getColumnWidth()` in `Sheet`
+- Renamed `setColAutoFit()` to `setColumnAutoFit()` in `Sheet`
+- Renamed `setColWidth()` to `setColumnWidth()` in `Sheet`
+
 ## Usage
 
 ### Read XLSX File
