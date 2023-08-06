@@ -513,4 +513,34 @@ void main() {
       new Directory('./tmp').delete(recursive: true);
     });
   });
+
+  group(".xls file handling", () {
+    test("Exception when opening old .xls file", () {
+      final file = './test/test_resources/oldXLSFile.xls';
+      final bytes = File(file).readAsBytesSync();
+      try {
+        Excel.decodeBytes(bytes);
+      } catch (e) {
+        expect(e, isA<UnsupportedError>());
+        expect(
+            e.toString(),
+            equals(
+                'Unsupported operation: Excel format unsupported. Only .xlsx files are supported'));
+      }
+    });
+
+    test("Exception when opening new .xls file", () {
+      final file = './test/test_resources/newXLSFile.xls';
+      final bytes = File(file).readAsBytesSync();
+      try {
+        Excel.decodeBytes(bytes);
+      } catch (e) {
+        expect(e, isA<UnsupportedError>());
+        expect(
+            e.toString(),
+            equals(
+                'Unsupported operation: Excel format unsupported. Only .xlsx files are supported'));
+      }
+    });
+  });
 }
