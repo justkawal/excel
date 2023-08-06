@@ -11,12 +11,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Breaking Changes
 
-- Renamed getColAutoFits() to getColumnAutoFits(), and changed return type to Map<int, bool> in Sheet
-- Renamed getColWidths() to getColumnWidths(), and changed return type to Map<int, double> in Sheet
-- Renamed getColAutoFit() to getColumnAutoFit() in Sheet
-- Renamed getColWidth() to getColumnWidth() in Sheet
-- Renamed setColAutoFit() to setColumnAutoFit() in Sheet
-- Renamed setColWidth() to setColumnWidth() in Sheet
+- Renamed `getColAutoFits()` to `getColumnAutoFits()`, and changed return type to `Map<int, bool>` in `Sheet`
+- Renamed `getColWidths()` to `getColumnWidths()`, and changed return type to `Map<int, double>` in `Sheet`
+- Renamed `getColAutoFit()` to `getColumnAutoFit()` in `Sheet`
+- Renamed `getColWidth()` to `getColumnWidth()` in `Sheet`
+- Renamed `setColAutoFit()` to `setColumnAutoFit()` in `Sheet`
+- Renamed `setColWidth()` to `setColumnWidth()` in `Sheet`
 
 ### Added
 
