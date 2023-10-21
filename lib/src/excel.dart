@@ -16,7 +16,8 @@ Excel _newExcel(Archive archive) {
     case _spreasheetXlsx:
       return Excel._(archive);
     default:
-      throw UnsupportedError('Excel format unsupported.');
+      throw UnsupportedError(
+          'Excel format unsupported. Only .xlsx files are supported');
   }
 }
 
@@ -88,7 +89,12 @@ class Excel {
   }
 
   factory Excel.decodeBytes(List<int> data) {
-    return _newExcel(ZipDecoder().decodeBytes(data));
+    try {
+      return _newExcel(ZipDecoder().decodeBytes(data));
+    } catch (e) {
+      throw UnsupportedError(
+          'Excel format unsupported. Only .xlsx files are supported');
+    }
   }
 
   factory Excel.decodeBuffer(InputStream input) {
