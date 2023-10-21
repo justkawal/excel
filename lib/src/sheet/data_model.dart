@@ -9,7 +9,7 @@ class Data extends Equatable {
   late String _sheetName;
   bool _isFormula = false;
   late int _rowIndex;
-  late int _colIndex;
+  late int _columnIndex;
 
   ///
   ///It will clone the object by changing the `this` reference of previous DataObject and putting `new this` reference, with copying the values too
@@ -18,7 +18,7 @@ class Data extends Equatable {
       : this._(
           sheet,
           dataObject._rowIndex,
-          dataObject.colIndex,
+          dataObject.columnIndex,
           value_: dataObject._value,
           cellStyleVal: dataObject._cellStyle,
           isFormulaVal: dataObject._isFormula,
@@ -31,7 +31,7 @@ class Data extends Equatable {
   Data._(
     Sheet sheet,
     int row,
-    int col, {
+    int column, {
     dynamic value_,
     CellStyle? cellStyleVal,
     bool isFormulaVal = false,
@@ -44,12 +44,12 @@ class Data extends Equatable {
     _cellType = cellTypeVal;
     _sheetName = sheet.sheetName;
     _rowIndex = row;
-    _colIndex = col;
+    _columnIndex = column;
   }
 
   /// returns the newData object when called from Sheet Class
-  static Data newData(Sheet sheet, int row, int col) {
-    return Data._(sheet, row, col);
+  static Data newData(Sheet sheet, int row, int column) {
+    return Data._(sheet, row, column);
   }
 
   /// returns the cell type
@@ -68,8 +68,8 @@ class Data extends Equatable {
   }
 
   /// returns the column Index
-  int get colIndex {
-    return _colIndex;
+  int get columnIndex {
+    return _columnIndex;
   }
 
   /// returns the sheet-name
@@ -80,7 +80,7 @@ class Data extends Equatable {
   /// returns the string based cellId as A1, A2 or Z5
   CellIndex get cellIndex {
     return CellIndex.indexByColumnRow(
-        columnIndex: _colIndex, rowIndex: _rowIndex);
+        columnIndex: _columnIndex, rowIndex: _rowIndex);
   }
 
   /// Helps to set the formula
@@ -120,7 +120,7 @@ class Data extends Equatable {
   @override
   List<Object?> get props => [
         _value,
-        _colIndex,
+        _columnIndex,
         _rowIndex,
         _cellStyle,
         _sheetName,

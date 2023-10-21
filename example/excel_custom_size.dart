@@ -44,7 +44,7 @@ void main(List<String> args) {
   sheet.setColumnWidth(0, 10.0);
   sheet.setColumnWidth(1, 10.0);
   sheet.setColumnWidth(50, 10.0);
-  
+
   sheet.setRowHeight(1, 100);
 
   sheet.merge(CellIndex.indexByColumnRow(columnIndex: 0, rowIndex: 0),

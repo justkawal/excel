@@ -10,8 +10,8 @@ class Save {
     _innerCellStyle = <CellStyle>[];
   }
 
-  void _addNewCol(XmlElement cols, int min, int max, double width) {
-    cols.children.add(XmlElement(XmlName('col'), [
+  void _addNewColumn(XmlElement columns, int min, int max, double width) {
+    columns.children.add(XmlElement(XmlName('col'), [
       XmlAttribute(XmlName('min'), (min + 1).toString()),
       XmlAttribute(XmlName('max'), (max + 1).toString()),
       XmlAttribute(XmlName('width'), width.toStringAsFixed(2)),
@@ -20,12 +20,12 @@ class Save {
     ], []));
   }
 
-  double _calcAutoFitColWidth(Sheet sheet, int col) {
+  double _calcAutoFitColumnWidth(Sheet sheet, int column) {
     var maxNumOfCharacters = 0;
     sheet._sheetData.forEach((key, value) {
-      if (value.containsKey(col) && value[col]!._isFormula == false) {
+      if (value.containsKey(column) && value[column]!._isFormula == false) {
         maxNumOfCharacters =
-            max(value[col]!.value.toString().length, maxNumOfCharacters);
+            max(value[column]!.value.toString().length, maxNumOfCharacters);
       }
     });
 
@@ -142,8 +142,8 @@ class Save {
     List<_BorderSet> innerBorderSet = <_BorderSet>[];
 
     _excel._sheetMap.forEach((sheetName, sheetObject) {
-      sheetObject._sheetData.forEach((_, colMap) {
-        colMap.forEach((_, dataObject) {
+      sheetObject._sheetData.forEach((_, columnMap) {
+        columnMap.forEach((_, dataObject) {
           if (dataObject.cellStyle != null) {
             int pos = _checkPosition(_innerCellStyle, dataObject.cellStyle!);
             if (pos == -1) {
@@ -451,21 +451,21 @@ class Save {
   }
 
   void _setColumns(Sheet sheetObject, XmlDocument xmlFile) {
-    final colElements = xmlFile.findAllElements('cols');
+    final columnElements = xmlFile.findAllElements('cols');
 
-    if (sheetObject.getColWidths.isEmpty &&
-        sheetObject.getColumnAutoFit.isEmpty) {
-      if (colElements.isEmpty) {
+    if (sheetObject.getColumnWidths.isEmpty &&
+        sheetObject.getColumnAutoFits.isEmpty) {
+      if (columnElements.isEmpty) {
         return;
       }
 
-      final cols = colElements.first;
+      final columns = columnElements.first;
       final worksheet = xmlFile.findAllElements('worksheet').first;
-      worksheet.children.remove(cols);
+      worksheet.children.remove(columns);
       return;
     }
 
-    if (colElements.isEmpty) {
+    if (columnElements.isEmpty) {
       final worksheet = xmlFile.findAllElements('worksheet').first;
       final sheetData = xmlFile.findAllElements('sheetData').first;
       final index = worksheet.children.indexOf(sheetData);
@@ -473,18 +473,18 @@ class Save {
       worksheet.children.insert(index, XmlElement(XmlName('cols'), [], []));
     }
 
-    var cols = colElements.first;
+    var columns = columnElements.first;
 
-    if (cols.children.isNotEmpty) {
-      cols.children.clear();
+    if (columns.children.isNotEmpty) {
+      columns.children.clear();
     }
 
-    final autoFits = sheetObject.getColumnAutoFit;
-    final customWidths = sheetObject.getColWidths;
+    final autoFits = sheetObject.getColumnAutoFits;
+    final customWidths = sheetObject.getColumnWidths;
 
     final columnCount = max(autoFits.length, customWidths.length);
 
-    List<double> colWidths = <double>[];
+    List<double> columnWidths = <double>[];
     int min = 0;
 
     double defaultColumnWidth =
@@ -494,22 +494,22 @@ class Save {
       double width = defaultColumnWidth;
 
       if (autoFits.containsKey(index) && (!customWidths.containsKey(index))) {
-        width = _calcAutoFitColWidth(sheetObject, index);
+        width = _calcAutoFitColumnWidth(sheetObject, index);
       } else {
         if (customWidths.containsKey(index)) {
           width = customWidths[index]!;
         }
       }
 
-      colWidths.add(width);
+      columnWidths.add(width);
 
-      if (index != 0 && colWidths[index - 1] != width) {
-        _addNewCol(cols, min, index - 1, colWidths[index - 1]);
+      if (index != 0 && columnWidths[index - 1] != width) {
+        _addNewColumn(columns, min, index - 1, columnWidths[index - 1]);
         min = index;
       }
 
       if (index == (columnCount - 1)) {
-        _addNewCol(cols, index, index, width);
+        _addNewColumn(columns, index, index, width);
       }
     }
   }
@@ -529,12 +529,14 @@ class Save {
       }
       var foundRow = _createNewRow(
           _excel._sheets[sheetName]! as XmlElement, rowIndex, height);
-      for (var colIndex = 0; colIndex < sheetObject._maxCols; colIndex++) {
-        var data = sheetObject._sheetData[rowIndex]![colIndex];
+      for (var columnIndex = 0;
+          columnIndex < sheetObject._maxColumns;
+          columnIndex++) {
+        var data = sheetObject._sheetData[rowIndex]![columnIndex];
         if (data == null) {
           continue;
         }
-        _updateCell(sheetName, foundRow, colIndex, rowIndex, data.value);
+        _updateCell(sheetName, foundRow, columnIndex, rowIndex, data.value);
       }
     }
   }

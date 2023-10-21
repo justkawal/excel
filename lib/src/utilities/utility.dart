@@ -2,8 +2,8 @@ part of excel;
 
 List<String> _noCompression = <String>['mimetype', 'Thumbnails/thumbnail.png'];
 
-String getCellId(int colI, int rowI) {
-  return '${_numericToLetters(colI + 1)}${rowI + 1}';
+String getCellId(int columnIndex, int rowIndex) {
+  return '${_numericToLetters(columnIndex + 1)}${rowIndex + 1}';
 }
 
 String _isColorAppropriate(String value) {
@@ -206,8 +206,8 @@ List _isLocationChangeRequired(
 ///     `getColumnAlphabet(0); // returns A`
 ///     `getColumnAlphabet(5); // returns F`
 ///
-String getColumnAlphabet(int collIndex) {
-  return '${_numericToLetters(collIndex + 1)}';
+String getColumnAlphabet(int columnIndex) {
+  return '${_numericToLetters(columnIndex + 1)}';
 }
 
 ///
