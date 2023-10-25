@@ -10,22 +10,22 @@ class Save {
     _innerCellStyle = <CellStyle>[];
   }
 
-  void _addNewCol(XmlElement cols, int min, int max, double value) {
-    cols.children.add(XmlElement(XmlName('col'), [
+  void _addNewColumn(XmlElement columns, int min, int max, double width) {
+    columns.children.add(XmlElement(XmlName('col'), [
       XmlAttribute(XmlName('min'), (min + 1).toString()),
       XmlAttribute(XmlName('max'), (max + 1).toString()),
-      XmlAttribute(XmlName('width'), value.toStringAsFixed(2)),
+      XmlAttribute(XmlName('width'), width.toStringAsFixed(2)),
       XmlAttribute(XmlName('bestFit'), "1"),
       XmlAttribute(XmlName('customWidth'), "1"),
     ], []));
   }
 
-  double _calcAutoFitColWidth(Sheet sheet, int col) {
+  double _calcAutoFitColumnWidth(Sheet sheet, int column) {
     var maxNumOfCharacters = 0;
     sheet._sheetData.forEach((key, value) {
-      if (value.containsKey(col) && value[col]!._isFormula == false) {
+      if (value.containsKey(column) && value[column]!._isFormula == false) {
         maxNumOfCharacters =
-            max(value[col]!.value.toString().length, maxNumOfCharacters);
+            max(value[column]!.value.toString().length, maxNumOfCharacters);
       }
     });
 
@@ -75,7 +75,7 @@ class Save {
       if (value is SharedString) XmlAttribute(XmlName('t'), 's'),
     ];
 
-    if (_excel._colorChanges &&
+    if (_excel._styleChanges &&
         (_excel._sheetMap[sheet]?._sheetData != null) &&
         _excel._sheetMap[sheet]!._sheetData[rowIndex] != null &&
         _excel._sheetMap[sheet]!._sheetData[rowIndex]![columnIndex]
@@ -121,10 +121,14 @@ class Save {
     return XmlElement(XmlName('c'), attributes, children);
   }
 
-  ///
-  XmlElement _createNewRow(XmlElement table, int rowIndex) {
-    var row = XmlElement(XmlName('row'),
-        [XmlAttribute(XmlName('r'), (rowIndex + 1).toString())], []);
+  /// Create a new row in the sheet.
+  XmlElement _createNewRow(XmlElement table, int rowIndex, double? height) {
+    var row = XmlElement(XmlName('row'), [
+      XmlAttribute(XmlName('r'), (rowIndex + 1).toString()),
+      if (height != null)
+        XmlAttribute(XmlName('ht'), height.toStringAsFixed(2)),
+      if (height != null) XmlAttribute(XmlName('customHeight'), '1'),
+    ], []);
     table.children.add(row);
     return row;
   }
@@ -138,8 +142,8 @@ class Save {
     List<_BorderSet> innerBorderSet = <_BorderSet>[];
 
     _excel._sheetMap.forEach((sheetName, sheetObject) {
-      sheetObject._sheetData.forEach((_, colMap) {
-        colMap.forEach((_, dataObject) {
+      sheetObject._sheetData.forEach((_, columnMap) {
+        columnMap.forEach((_, dataObject) {
           if (dataObject.cellStyle != null) {
             int pos = _checkPosition(_innerCellStyle, dataObject.cellStyle!);
             if (pos == -1) {
@@ -421,7 +425,7 @@ class Save {
   }
 
   List<int>? _save() {
-    if (_excel._colorChanges) {
+    if (_excel._styleChanges) {
       _processStylesFile();
     }
     _setSheetElements();
@@ -446,28 +450,22 @@ class Save {
     return ZipEncoder().encode(_cloneArchive(_excel._archive));
   }
 
-  _setColumnWidth(String sheetName) {
-    final sheetObject = _excel._sheetMap[sheetName];
-    if (sheetObject == null) return;
+  void _setColumns(Sheet sheetObject, XmlDocument xmlFile) {
+    final columnElements = xmlFile.findAllElements('cols');
 
-    var xmlFile = _excel._xmlFiles[_excel._xmlSheetId[sheetName]];
-    if (xmlFile == null) return;
-
-    final colElements = xmlFile.findAllElements('cols');
-
-    if (sheetObject.getColWidths.isEmpty &&
-        sheetObject.getColAutoFits.isEmpty) {
-      if (colElements.isEmpty) {
+    if (sheetObject.getColumnWidths.isEmpty &&
+        sheetObject.getColumnAutoFits.isEmpty) {
+      if (columnElements.isEmpty) {
         return;
       }
 
-      final cols = colElements.first;
+      final columns = columnElements.first;
       final worksheet = xmlFile.findAllElements('worksheet').first;
-      worksheet.children.remove(cols);
+      worksheet.children.remove(columns);
       return;
     }
 
-    if (colElements.isEmpty) {
+    if (columnElements.isEmpty) {
       final worksheet = xmlFile.findAllElements('worksheet').first;
       final sheetData = xmlFile.findAllElements('sheetData').first;
       final index = worksheet.children.indexOf(sheetData);
@@ -475,43 +473,70 @@ class Save {
       worksheet.children.insert(index, XmlElement(XmlName('cols'), [], []));
     }
 
-    var cols = colElements.first;
+    var columns = columnElements.first;
 
-    if (cols.children.isNotEmpty) {
-      cols.children.clear();
+    if (columns.children.isNotEmpty) {
+      columns.children.clear();
     }
 
-    final autoFits = sheetObject.getColAutoFits.asMap();
-    final customWidths = sheetObject.getColWidths.asMap();
+    final autoFits = sheetObject.getColumnAutoFits;
+    final customWidths = sheetObject.getColumnWidths;
 
     final columnCount = max(autoFits.length, customWidths.length);
 
-    List<double> colWidths = <double>[];
+    List<double> columnWidths = <double>[];
     int min = 0;
 
-    for (var index = 0; index < columnCount; index++) {
-      double value = _defaultColumnWidth;
+    double defaultColumnWidth =
+        sheetObject.defaultColumnWidth ?? _excelDefaultColumnWidth;
 
-      if (autoFits.containsKey(index) &&
-          autoFits[index] == true &&
-          (!customWidths.containsKey(index) ||
-              customWidths[index] == _defaultColumnWidth)) {
-        value = _calcAutoFitColWidth(sheetObject, index);
+    for (var index = 0; index < columnCount; index++) {
+      double width = defaultColumnWidth;
+
+      if (autoFits.containsKey(index) && (!customWidths.containsKey(index))) {
+        width = _calcAutoFitColumnWidth(sheetObject, index);
       } else {
         if (customWidths.containsKey(index)) {
-          value = customWidths[index]!;
+          width = customWidths[index]!;
         }
       }
 
-      colWidths.add(value);
+      columnWidths.add(width);
 
-      if (index != 0 && colWidths[index - 1] != value) {
-        _addNewCol(cols, min, index - 1, colWidths[index - 1]);
+      if (index != 0 && columnWidths[index - 1] != width) {
+        _addNewColumn(columns, min, index - 1, columnWidths[index - 1]);
         min = index;
       }
 
       if (index == (columnCount - 1)) {
-        _addNewCol(cols, index, index, value);
+        _addNewColumn(columns, index, index, width);
+      }
+    }
+  }
+
+  void _setRows(String sheetName, Sheet sheetObject) {
+    final customHeights = sheetObject.getRowHeights;
+
+    for (var rowIndex = 0; rowIndex < sheetObject._maxRows; rowIndex++) {
+      double? height;
+
+      if (customHeights.containsKey(rowIndex)) {
+        height = customHeights[rowIndex];
+      }
+
+      if (sheetObject._sheetData[rowIndex] == null) {
+        continue;
+      }
+      var foundRow = _createNewRow(
+          _excel._sheets[sheetName]! as XmlElement, rowIndex, height);
+      for (var columnIndex = 0;
+          columnIndex < sheetObject._maxColumns;
+          columnIndex++) {
+        var data = sheetObject._sheetData[rowIndex]![columnIndex];
+        if (data == null) {
+          continue;
+        }
+        _updateCell(sheetName, foundRow, columnIndex, rowIndex, data.value);
       }
     }
   }
@@ -736,34 +761,225 @@ class Save {
     });
   }
 
-  /// Writing the value of excel cells into the separate
-  /// sharedStrings file so as to minimize the size of excel files.
-  _setSharedStrings() {
-    var uniqueCount = 0;
-    var count = 0;
+  List<int>? _save() {
+    if (_excel._colorChanges) {
+      _processStylesFile();
+    }
+    _setSheetElements();
+    if (_excel._defaultSheet != null) {
+      _setDefaultSheet(_excel._defaultSheet);
+    }
+    _setSharedStrings();
 
-    XmlElement shareString = _excel
-        ._xmlFiles['xl/${_excel._sharedStringsTarget}']!
-        .findAllElements('sst')
-        .first;
+    if (_excel._mergeChanges) {
+      _setMerge();
+    }
 
-    shareString.children.clear();
+    if (_excel._rtlChanges) {
+      _setRTL();
+    }
 
-    _excel._sharedStrings._map.forEach((string, ss) {
-      uniqueCount += 1;
-      count += ss.count;
+    for (var xmlFile in _excel._xmlFiles.keys) {
+      var xml = _excel._xmlFiles[xmlFile].toString();
+      var content = utf8.encode(xml);
+      _archiveFiles[xmlFile] = ArchiveFile(xmlFile, content.length, content);
+    }
+    return ZipEncoder().encode(_cloneArchive(_excel._archive));
+  }
 
-      shareString.children.add(string.node);
-    });
+  _setColumnWidth(String sheetName) {
+    final sheetObject = _excel._sheetMap[sheetName];
+    if (sheetObject == null) return;
 
-    [
-      ['count', '$count'],
-      ['uniqueCount', '$uniqueCount']
-    ].forEach((value) {
-      if (shareString.getAttributeNode(value[0]) == null) {
-        shareString.attributes.add(XmlAttribute(XmlName(value[0]), value[1]));
+    var xmlFile = _excel._xmlFiles[_excel._xmlSheetId[sheetName]];
+    if (xmlFile == null) return;
+
+    final colElements = xmlFile.findAllElements('cols');
+
+    if (sheetObject.getColWidths.isEmpty &&
+        sheetObject.getColAutoFits.isEmpty) {
+      if (colElements.isEmpty) {
+        return;
+      }
+
+      final cols = colElements.first;
+      final worksheet = xmlFile.findAllElements('worksheet').first;
+      worksheet.children.remove(cols);
+      return;
+    }
+
+    if (colElements.isEmpty) {
+      final worksheet = xmlFile.findAllElements('worksheet').first;
+      final sheetData = xmlFile.findAllElements('sheetData').first;
+      final index = worksheet.children.indexOf(sheetData);
+
+      worksheet.children.insert(index, XmlElement(XmlName('cols'), [], []));
+    }
+
+    var cols = colElements.first;
+
+    if (cols.children.isNotEmpty) {
+      cols.children.clear();
+    }
+
+    final autoFits = sheetObject.getColAutoFits.asMap();
+    final customWidths = sheetObject.getColWidths.asMap();
+
+    final columnCount = max(autoFits.length, customWidths.length);
+
+    List<double> colWidths = <double>[];
+    int min = 0;
+
+    for (var index = 0; index < columnCount; index++) {
+      double value = _defaultColumnWidth;
+
+      if (autoFits.containsKey(index) &&
+          autoFits[index] == true &&
+          (!customWidths.containsKey(index) ||
+              customWidths[index] == _defaultColumnWidth)) {
+        value = _calcAutoFitColWidth(sheetObject, index);
       } else {
-        shareString.getAttributeNode(value[0])!.value = value[1];
+        if (customWidths.containsKey(index)) {
+          value = customWidths[index]!;
+        }
+      }
+
+      colWidths.add(value);
+
+      if (index != 0 && colWidths[index - 1] != value) {
+        _addNewCol(cols, min, index - 1, colWidths[index - 1]);
+        min = index;
+      }
+
+      if (index == (columnCount - 1)) {
+        _addNewCol(cols, index, index, value);
+      }
+    }
+  }
+
+  bool _setDefaultSheet(String? sheetName) {
+    if (sheetName == null || _excel._xmlFiles['xl/workbook.xml'] == null) {
+      return false;
+    }
+    List<XmlElement> sheetList =
+        _excel._xmlFiles['xl/workbook.xml']!.findAllElements('sheet').toList();
+    XmlElement elementFound = XmlElement(XmlName(''));
+
+    int position = -1;
+    for (int i = 0; i < sheetList.length; i++) {
+      var _sheetName = sheetList[i].getAttribute('name');
+      if (_sheetName != null && _sheetName.toString() == sheetName) {
+        elementFound = sheetList[i];
+        position = i;
+        break;
+      }
+    }
+
+    if (position == -1) {
+      return false;
+    }
+    if (position == 0) {
+      return true;
+    }
+
+    _excel._xmlFiles['xl/workbook.xml']!
+        .findAllElements('sheets')
+        .first
+        .children
+      ..removeAt(position)
+      ..insert(0, elementFound);
+
+    String? expectedSheet = _excel._getDefaultSheet();
+
+    return expectedSheet == sheetName;
+  }
+
+  void _setHeaderFooter(String sheetName) {
+    final sheet = _excel._sheetMap[sheetName];
+    if (sheet == null) return;
+
+    final xmlFile = _excel._xmlFiles[_excel._xmlSheetId[sheetName]];
+    if (xmlFile == null) return;
+
+    final sheetXmlElement = xmlFile.findAllElements("worksheet").first;
+
+    final results = sheetXmlElement.findAllElements("headerFooter");
+    if (results.isNotEmpty) {
+      sheetXmlElement.children.remove(results.first);
+    }
+
+    if (sheet.headerFooter == null) return;
+
+    sheetXmlElement.children.add(sheet.headerFooter!.toXmlElement());
+  }
+
+  /// Writing the merged cells information into the excel properties files.
+  _setMerge() {
+    _selfCorrectSpanMap(_excel);
+    _excel._mergeChangeLook.forEach((s) {
+      if (_excel._sheetMap[s] != null &&
+          _excel._sheetMap[s]!._spanList.isNotEmpty &&
+          _excel._xmlSheetId.containsKey(s) &&
+          _excel._xmlFiles.containsKey(_excel._xmlSheetId[s])) {
+        Iterable<XmlElement>? iterMergeElement = _excel
+            ._xmlFiles[_excel._xmlSheetId[s]]
+            ?.findAllElements('mergeCells');
+        late XmlElement mergeElement;
+        if (iterMergeElement?.isNotEmpty ?? false) {
+          mergeElement = iterMergeElement!.first;
+        } else {
+          if ((_excel._xmlFiles[_excel._xmlSheetId[s]]
+                      ?.findAllElements('worksheet')
+                      .length ??
+                  0) >
+              0) {
+            int index = _excel._xmlFiles[_excel._xmlSheetId[s]]!
+                .findAllElements('worksheet')
+                .first
+                .children
+                .indexOf(_excel._xmlFiles[_excel._xmlSheetId[s]]!
+                    .findAllElements("sheetData")
+                    .first);
+            if (index == -1) {
+              _damagedExcel();
+            }
+            _excel._xmlFiles[_excel._xmlSheetId[s]]!
+                .findAllElements('worksheet')
+                .first
+                .children
+                .insert(
+                    index + 1,
+                    XmlElement(XmlName('mergeCells'),
+                        [XmlAttribute(XmlName('count'), '0')]));
+
+            mergeElement = _excel._xmlFiles[_excel._xmlSheetId[s]]!
+                .findAllElements('mergeCells')
+                .first;
+          } else {
+            _damagedExcel();
+          }
+        }
+
+        List<String> _spannedItems =
+            List<String>.from(_excel._sheetMap[s]!.spannedItems);
+
+        [
+          ['count', _spannedItems.length.toString()],
+        ].forEach((value) {
+          if (mergeElement.getAttributeNode(value[0]) == null) {
+            mergeElement.attributes
+                .add(XmlAttribute(XmlName(value[0]), value[1]));
+          } else {
+            mergeElement.getAttributeNode(value[0])!.value = value[1];
+          }
+        });
+
+        mergeElement.children.clear();
+
+        _spannedItems.forEach((value) {
+          mergeElement.children.add(XmlElement(XmlName('mergeCell'),
+              [XmlAttribute(XmlName('ref'), '$value')], []));
+        });
       }
     });
   }
@@ -773,41 +989,61 @@ class Save {
     _excel._sharedStrings = _SharedStringsMaintainer.instance;
     _excel._sharedStrings.clear();
 
-    _excel._sheetMap.forEach((sheet, value) {
+    _excel._sheetMap.forEach((sheetName, sheetObject) {
       ///
       /// Create the sheet's xml file if it does not exist.
-      if (_excel._sheets[sheet] == null) {
-        parser._createSheet(sheet);
+      if (_excel._sheets[sheetName] == null) {
+        parser._createSheet(sheetName);
       }
 
       /// Clear the previous contents of the sheet if it exists,
       /// in order to reduce the time to find and compare with the sheet rows
       /// and hence just do the work of putting the data only i.e. creating new rows
-      if (_excel._sheets[sheet]?.children.isNotEmpty ?? false) {
-        _excel._sheets[sheet]!.children.clear();
+      if (_excel._sheets[sheetName]?.children.isNotEmpty ?? false) {
+        _excel._sheets[sheetName]!.children.clear();
       }
-
-      _setColumnWidth(sheet);
 
       /// `Above function is important in order to wipe out the old contents of the sheet.`
-      for (var rowIndex = 0; rowIndex < value._maxRows; rowIndex++) {
-        if (value._sheetData[rowIndex] == null) {
-          continue;
+
+      XmlDocument? xmlFile = _excel._xmlFiles[_excel._xmlSheetId[sheetName]];
+      if (xmlFile == null) return;
+
+      // Set default column width and height for the sheet.
+      double? defaultRowHeight = sheetObject.defaultRowHeight;
+      double? defaultColumnWidth = sheetObject.defaultColumnWidth;
+
+      XmlElement worksheetElement = xmlFile.findAllElements('worksheet').first;
+
+      XmlElement? sheetFormatPrElement =
+          worksheetElement.findElements('sheetFormatPr').isNotEmpty
+              ? worksheetElement.findElements('sheetFormatPr').first
+              : null;
+
+      if (sheetFormatPrElement != null) {
+        sheetFormatPrElement.attributes.clear();
+
+        if (defaultRowHeight == null && defaultColumnWidth == null) {
+          worksheetElement.children.remove(sheetFormatPrElement);
         }
-        var foundRow =
-            _createNewRow(_excel._sheets[sheet]! as XmlElement, rowIndex);
-        for (var colIndex = 0; colIndex < value._maxCols; colIndex++) {
-          var data = value._sheetData[rowIndex]![colIndex];
-          if (data == null) {
-            continue;
-          }
-          if (data.value != null) {
-            _updateCell(sheet, foundRow, colIndex, rowIndex, data.value);
-          }
-        }
+      } else if (defaultRowHeight != null || defaultColumnWidth != null) {
+        sheetFormatPrElement = XmlElement(XmlName('sheetFormatPr'), [], []);
+        worksheetElement.children.insert(0, sheetFormatPrElement);
       }
 
-      _setHeaderFooter(sheet);
+      if (defaultRowHeight != null) {
+        sheetFormatPrElement!.attributes.add(XmlAttribute(
+            XmlName('defaultRowHeight'), defaultRowHeight.toStringAsFixed(2)));
+      }
+      if (defaultColumnWidth != null) {
+        sheetFormatPrElement!.attributes.add(XmlAttribute(
+            XmlName('defaultColWidth'), defaultColumnWidth.toStringAsFixed(2)));
+      }
+
+      _setColumns(sheetObject, xmlFile);
+
+      _setRows(sheetName, sheetObject);
+
+      _setHeaderFooter(sheetName);
     });
   }
 

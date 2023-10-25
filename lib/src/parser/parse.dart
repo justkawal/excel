@@ -20,10 +20,10 @@ class Parser {
   }
 
   _normalizeTable(Sheet sheet) {
-    if (sheet._maxRows == 0 || sheet._maxCols == 0) {
+    if (sheet._maxRows == 0 || sheet._maxColumns == 0) {
       sheet._sheetData.clear();
     }
-    sheet._countRowAndCol();
+    sheet._countRowsAndColumns();
   }
 
   _putContentXml() {
@@ -71,7 +71,7 @@ class Parser {
 
   _parseSharedStrings() {
     var sharedStrings =
-        _excel._archive.findFile('xl/${_excel._sharedStringsTarget}');
+        _excel._archive.findFile(_excel._absSharedStringsTarget);
     if (sharedStrings == null) {
       _excel._sharedStringsTarget = 'sharedStrings.xml';
 
@@ -127,10 +127,9 @@ class Parser {
 
       var content = utf8.encode(
           "<sst xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" count=\"0\" uniqueCount=\"0\"/>");
-      _excel._archive.addFile(ArchiveFile(
-          'xl/${_excel._sharedStringsTarget}', content.length, content));
-      sharedStrings =
-          _excel._archive.findFile('xl/${_excel._sharedStringsTarget}');
+      _excel._archive.addFile(
+          ArchiveFile("xl/sharedStrings.xml", content.length, content));
+      sharedStrings = _excel._archive.findFile("xl/sharedStrings.xml");
     }
     sharedStrings!.decompress();
     var document = XmlDocument.parse(utf8.decode(sharedStrings.content));
@@ -204,10 +203,10 @@ class Parser {
     // Remove those cells which are present inside the
     _excel._sheetMap.forEach((sheetName, sheetObject) {
       if (spannedCells.containsKey(sheetName)) {
-        sheetObject._sheetData.forEach((row, colMap) {
-          colMap.forEach((col, dataObject) {
-            if (!(spannedCells[sheetName].contains(getCellId(col, row)))) {
-              _excel[sheetName]._sheetData[row]?.remove(col);
+        sheetObject._sheetData.forEach((row, columnMap) {
+          columnMap.forEach((column, dataObject) {
+            if (!(spannedCells[sheetName].contains(getCellId(column, row)))) {
+              _excel[sheetName]._sheetData[row]?.remove(column);
             }
           });
         });
@@ -522,8 +521,8 @@ class Parser {
   }
 
   _parseCell(XmlElement node, Sheet sheetObject, int rowIndex, String name) {
-    int? colIndex = _getCellNumber(node);
-    if (colIndex == null) {
+    int? columnIndex = _getCellNumber(node);
+    if (columnIndex == null) {
       return;
     }
 
@@ -611,7 +610,8 @@ class Parser {
         }
     }
     sheetObject.updateCell(
-        CellIndex.indexByColumnRow(columnIndex: colIndex, rowIndex: rowIndex),
+        CellIndex.indexByColumnRow(
+            columnIndex: columnIndex, rowIndex: rowIndex),
         value,
         cellStyle: _excel._cellStyleList[s]);
   }

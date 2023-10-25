@@ -5,9 +5,12 @@ class Sheet {
   late String _sheet;
   late bool _isRTL;
   late int _maxRows;
-  late int _maxCols;
-  List<double> _colWidth = <double>[];
-  List<bool> _colAutoFit = <bool>[];
+  late int _maxColumns;
+  double? _defaultColumnWidth;
+  double? _defaultRowHeight;
+  Map<int, double> _columnWidths = {};
+  Map<int, double> _rowHeights = {};
+  Map<int, bool> _columnAutoFit = {};
   late FastList<String> _spannedItems;
   late List<_Span?> _spanList;
   late Map<int, Map<int, Data>> _sheetData;
@@ -22,9 +25,10 @@ class Sheet {
             spanL_: oldSheetObject._spanList,
             spanI_: oldSheetObject._spannedItems,
             maxRowsVal: oldSheetObject._maxRows,
-            maxColsVal: oldSheetObject._maxCols,
-            colWidthVal: oldSheetObject._colWidth,
-            colAutoFitVal: oldSheetObject._colAutoFit,
+            maxColumnsVal: oldSheetObject._maxColumns,
+            columnWidthsVal: oldSheetObject._columnWidths,
+            rowHeightsVal: oldSheetObject._rowHeights,
+            columnAutoFitVal: oldSheetObject._columnAutoFit,
             isRTLVal: oldSheetObject._isRTL,
             headerFooter: oldSheetObject._headerFooter);
 
@@ -33,10 +37,11 @@ class Sheet {
       List<_Span?>? spanL_,
       FastList<String>? spanI_,
       int? maxRowsVal,
-      int? maxColsVal,
+      int? maxColumnsVal,
       bool? isRTLVal,
-      List<double>? colWidthVal,
-      List<bool>? colAutoFitVal,
+      Map<int, double>? columnWidthsVal,
+      Map<int, double>? rowHeightsVal,
+      Map<int, bool>? columnAutoFitVal,
       HeaderFooter? headerFooter}) {
     _excel = excel;
     _sheet = sheetName;
@@ -45,7 +50,7 @@ class Sheet {
     _spannedItems = FastList<String>();
     _isRTL = false;
     _maxRows = 0;
-    _maxCols = 0;
+    _maxColumns = 0;
     _headerFooter = headerFooter;
 
     if (spanL_ != null) {
@@ -55,8 +60,8 @@ class Sheet {
     if (spanI_ != null) {
       _spannedItems = FastList<String>.from(spanI_);
     }
-    if (maxColsVal != null) {
-      _maxCols = maxColsVal;
+    if (maxColumnsVal != null) {
+      _maxColumns = maxColumnsVal;
     }
     if (maxRowsVal != null) {
       _maxRows = maxRowsVal;
@@ -65,11 +70,14 @@ class Sheet {
       _isRTL = isRTLVal;
       _excel._rtlChangeLookup = sheetName;
     }
-    if (colWidthVal != null) {
-      _colWidth = List<double>.from(colWidthVal);
+    if (columnWidthsVal != null) {
+      _columnWidths = Map<int, double>.from(columnWidthsVal);
     }
-    if (colAutoFitVal != null) {
-      _colAutoFit = List<bool>.from(colAutoFitVal);
+    if (rowHeightsVal != null) {
+      _rowHeights = Map<int, double>.from(rowHeightsVal);
+    }
+    if (columnAutoFitVal != null) {
+      _columnAutoFit = Map<int, bool>.from(columnAutoFitVal);
     }
 
     /// copy the data objects into a temp folder and then while putting it into `_sheetData` change the data objects references.
@@ -85,7 +93,7 @@ class Sheet {
         });
       });
     }
-    _countRowAndCol();
+    _countRowsAndColumns();
   }
 
   ///
@@ -107,7 +115,7 @@ class Sheet {
   /// returns the `DataObject` at position of `cellIndex`
   ///
   Data cell(CellIndex cellIndex) {
-    _checkMaxCol(cellIndex.columnIndex);
+    _checkMaxColumn(cellIndex.columnIndex);
     _checkMaxRow(cellIndex.rowIndex);
     if (cellIndex._columnIndex < 0 || cellIndex._rowIndex < 0) {
       _damagedExcel(
@@ -115,14 +123,14 @@ class Sheet {
               '${cellIndex._columnIndex < 0 ? "Column" : "Row"} Index: ${cellIndex._columnIndex < 0 ? cellIndex._columnIndex : cellIndex._rowIndex} Negative index does not exist.');
     }
 
-    /// increasing the rowCount
+    /// increasing the row count
     if (_maxRows < (cellIndex._rowIndex + 1)) {
       _maxRows = cellIndex._rowIndex + 1;
     }
 
-    /// increasing the colCount
-    if (_maxCols < (cellIndex._columnIndex + 1)) {
-      _maxCols = cellIndex._columnIndex + 1;
+    /// increasing the column count
+    if (_maxColumns < (cellIndex._columnIndex + 1)) {
+      _maxColumns = cellIndex._columnIndex + 1;
     }
 
     /// checking if the map has been already initialized or not?
@@ -158,12 +166,12 @@ class Sheet {
       return _data;
     }
 
-    if (_maxRows > 0 && maxCols > 0) {
+    if (_maxRows > 0 && maxColumns > 0) {
       _data = List.generate(_maxRows, (rowIndex) {
-        return List.generate(_maxCols, (colIndex) {
+        return List.generate(_maxColumns, (columnIndex) {
           if (_sheetData[rowIndex] != null &&
-              _sheetData[rowIndex]![colIndex] != null) {
-            return _sheetData[rowIndex]![colIndex];
+              _sheetData[rowIndex]![columnIndex] != null) {
+            return _sheetData[rowIndex]![columnIndex];
           }
           return null;
         });
@@ -196,10 +204,10 @@ class Sheet {
   /// returns `2-D dynamic List` of the sheet cell data in that range.
   ///
   List<List<Data?>?> selectRange(CellIndex start, {CellIndex? end}) {
-    _checkMaxCol(start.columnIndex);
+    _checkMaxColumn(start.columnIndex);
     _checkMaxRow(start.rowIndex);
     if (end != null) {
-      _checkMaxCol(end.columnIndex);
+      _checkMaxColumn(end.columnIndex);
       _checkMaxRow(end.rowIndex);
     }
 
@@ -226,7 +234,7 @@ class Sheet {
       var mapData = _sheetData[i];
       if (mapData != null) {
         List<Data?> row = <Data?>[];
-        for (var j = _startColumn; j <= (_endColumn ?? maxCols); j++) {
+        for (var j = _startColumn; j <= (_endColumn ?? maxColumns); j++) {
           row.add(mapData[j]);
         }
         _selectedRange.add(row);
@@ -270,16 +278,16 @@ class Sheet {
   }
 
   ///
-  /// updates count of rows and cols
+  /// updates count of rows and columns
   ///
-  _countRowAndCol() {
-    int maximumColIndex = -1, maximumRowIndex = -1;
+  _countRowsAndColumns() {
+    int maximumColumnIndex = -1, maximumRowIndex = -1;
     List<int> sortedKeys = _sheetData.keys.toList()..sort();
     sortedKeys.forEach((rowKey) {
       if (_sheetData[rowKey] != null && _sheetData[rowKey]!.isNotEmpty) {
         List<int> keys = _sheetData[rowKey]!.keys.toList()..sort();
-        if (keys.isNotEmpty && keys.last > maximumColIndex) {
-          maximumColIndex = keys.last;
+        if (keys.isNotEmpty && keys.last > maximumColumnIndex) {
+          maximumColumnIndex = keys.last;
         }
       }
     });
@@ -288,16 +296,16 @@ class Sheet {
       maximumRowIndex = sortedKeys.last;
     }
 
-    _maxCols = maximumColIndex + 1;
+    _maxColumns = maximumColumnIndex + 1;
     _maxRows = maximumRowIndex + 1;
   }
 
   ///
   /// If `sheet` exists and `columnIndex < maxColumns` then it removes column at index = `columnIndex`
   ///
-  void removeColumn(int colIndex) {
-    _checkMaxCol(colIndex);
-    if (colIndex < 0 || colIndex >= maxCols) {
+  void removeColumn(int columnIndex) {
+    _checkMaxColumn(columnIndex);
+    if (columnIndex < 0 || columnIndex >= maxColumns) {
       return;
     }
 
@@ -315,16 +323,18 @@ class Sheet {
           endColumn = spanObj.columnSpanEnd,
           endRow = spanObj.rowSpanEnd;
 
-      if (colIndex <= endColumn) {
+      if (columnIndex <= endColumn) {
         _Span newSpanObj = _Span();
-        if (colIndex < startColumn) {
+        if (columnIndex < startColumn) {
           startColumn -= 1;
         }
         endColumn -= 1;
         if (/* startColumn >= endColumn */
-            (colIndex == (endColumn + 1)) &&
-                (colIndex ==
-                    (colIndex < startColumn ? startColumn + 1 : startColumn))) {
+            (columnIndex == (endColumn + 1)) &&
+                (columnIndex ==
+                    (columnIndex < startColumn
+                        ? startColumn + 1
+                        : startColumn))) {
           _spanList[i] = null;
         } else {
           newSpanObj._start = [startRow, startColumn];
@@ -349,37 +359,35 @@ class Sheet {
     }
 
     Map<int, Map<int, Data>> _data = Map<int, Map<int, Data>>();
-    if (colIndex <= maxCols - 1) {
+    if (columnIndex <= maxColumns - 1) {
       /// do the shifting task
       List<int> sortedKeys = _sheetData.keys.toList()..sort();
       sortedKeys.forEach((rowKey) {
-        Map<int, Data> colMap = Map<int, Data>();
-        List<int> sortedColKeys = _sheetData[rowKey]!.keys.toList()..sort();
-        sortedColKeys.forEach((colKey) {
+        Map<int, Data> columnMap = Map<int, Data>();
+        List<int> sortedColumnKeys = _sheetData[rowKey]!.keys.toList()..sort();
+        sortedColumnKeys.forEach((columnKey) {
           if (_sheetData[rowKey] != null &&
-              _sheetData[rowKey]![colKey] != null) {
-            if (colKey < colIndex) {
-              colMap[colKey] = _sheetData[rowKey]![colKey]!;
+              _sheetData[rowKey]![columnKey] != null) {
+            if (columnKey < columnIndex) {
+              columnMap[columnKey] = _sheetData[rowKey]![columnKey]!;
             }
-            if (colIndex == colKey) {
-              _sheetData[rowKey]!.remove(colKey);
+            if (columnIndex == columnKey) {
+              _sheetData[rowKey]!.remove(columnKey);
             }
-            if (colIndex < colKey) {
-              colMap[colKey - 1] = _sheetData[rowKey]![colKey]!;
-              _sheetData[rowKey]!.remove(colKey);
+            if (columnIndex < columnKey) {
+              columnMap[columnKey - 1] = _sheetData[rowKey]![columnKey]!;
+              _sheetData[rowKey]!.remove(columnKey);
             }
           }
         });
-        _data[rowKey] = Map<int, Data>.from(colMap);
+        _data[rowKey] = Map<int, Data>.from(columnMap);
       });
       _sheetData = Map<int, Map<int, Data>>.from(_data);
     }
 
-    if (_maxCols - 1 <= colIndex) {
-      _maxCols -= 1;
+    if (_maxColumns - 1 <= columnIndex) {
+      _maxColumns -= 1;
     }
-
-    //_countRowAndCol();
   }
 
   ///
@@ -389,11 +397,11 @@ class Sheet {
   ///
   /// If the `sheet` does not exists then it will be created automatically.
   ///
-  void insertColumn(int colIndex) {
-    if (colIndex < 0) {
+  void insertColumn(int columnIndex) {
+    if (columnIndex < 0) {
       return;
     }
-    _checkMaxCol(colIndex);
+    _checkMaxColumn(columnIndex);
 
     bool updateSpanCell = false;
 
@@ -408,9 +416,9 @@ class Sheet {
           endColumn = spanObj.columnSpanEnd,
           endRow = spanObj.rowSpanEnd;
 
-      if (colIndex <= endColumn) {
+      if (columnIndex <= endColumn) {
         _Span newSpanObj = _Span();
-        if (colIndex <= startColumn) {
+        if (columnIndex <= startColumn) {
           startColumn += 1;
         }
         endColumn += 1;
@@ -433,29 +441,29 @@ class Sheet {
     if (_sheetData.isNotEmpty) {
       Map<int, Map<int, Data>> _data = Map<int, Map<int, Data>>();
       List<int> sortedKeys = _sheetData.keys.toList()..sort();
-      if (colIndex <= maxCols - 1) {
+      if (columnIndex <= maxColumns - 1) {
         /// do the shifting task
         sortedKeys.forEach((rowKey) {
-          Map<int, Data> colMap = Map<int, Data>();
+          Map<int, Data> columnMap = Map<int, Data>();
 
-          /// getting the cols keys in descending order so as to shifting becomes easy
-          List<int> sortedColKeys = _sheetData[rowKey]!.keys.toList()
+          /// getting the column keys in descending order so as to shifting becomes easy
+          List<int> sortedColumnKeys = _sheetData[rowKey]!.keys.toList()
             ..sort((a, b) {
               return b.compareTo(a);
             });
-          sortedColKeys.forEach((colKey) {
+          sortedColumnKeys.forEach((columnKey) {
             if (_sheetData[rowKey] != null &&
-                _sheetData[rowKey]![colKey] != null) {
-              if (colKey < colIndex) {
-                colMap[colKey] = _sheetData[rowKey]![colKey]!;
+                _sheetData[rowKey]![columnKey] != null) {
+              if (columnKey < columnIndex) {
+                columnMap[columnKey] = _sheetData[rowKey]![columnKey]!;
               }
-              if (colIndex <= colKey) {
-                colMap[colKey + 1] = _sheetData[rowKey]![colKey]!;
+              if (columnIndex <= columnKey) {
+                columnMap[columnKey + 1] = _sheetData[rowKey]![columnKey]!;
               }
             }
           });
-          colMap[colIndex] = Data.newData(this, rowKey, colIndex);
-          _data[rowKey] = Map<int, Data>.from(colMap);
+          columnMap[columnIndex] = Data.newData(this, rowKey, columnIndex);
+          _data[rowKey] = Map<int, Data>.from(columnMap);
         });
         _sheetData = Map<int, Map<int, Data>>.from(_data);
       } else {
@@ -464,21 +472,21 @@ class Sheet {
         /// and mock the user as if the 2-D list is being saved
         ///
         /// As when user calls DataObject.cells then we will output 2-D list - pretending.
-        _sheetData[sortedKeys.first]![colIndex] =
-            Data.newData(this, sortedKeys.first, colIndex);
+        _sheetData[sortedKeys.first]![columnIndex] =
+            Data.newData(this, sortedKeys.first, columnIndex);
       }
     } else {
       /// here simply just take the first row and put the columnIndex as the _sheetData was previously null
       _sheetData = Map<int, Map<int, Data>>();
-      _sheetData[0] = {colIndex: Data.newData(this, 0, colIndex)};
+      _sheetData[0] = {columnIndex: Data.newData(this, 0, columnIndex)};
     }
-    if (_maxCols - 1 <= colIndex) {
-      _maxCols += 1;
+    if (_maxColumns - 1 <= columnIndex) {
+      _maxColumns += 1;
     } else {
-      _maxCols = colIndex + 1;
+      _maxColumns = columnIndex + 1;
     }
 
-    //_countRowAndCol();
+    //_countRowsAndColumns();
   }
 
   ///
@@ -552,10 +560,10 @@ class Sheet {
         });
         _sheetData = Map<int, Map<int, Data>>.from(_data);
       }
-      //_countRowAndCol();
+      //_countRowsAndColumns();
     } else {
       _maxRows = 0;
-      _maxCols = 0;
+      _maxColumns = 0;
     }
 
     if (_maxRows - 1 <= rowIndex) {
@@ -639,7 +647,7 @@ class Sheet {
       _maxRows = rowIndex + 1;
     }
 
-    //_countRowAndCol();
+    //_countRowsAndColumns();
   }
 
   ///
@@ -657,7 +665,7 @@ class Sheet {
     if (columnIndex < 0 || rowIndex < 0) {
       return;
     }
-    _checkMaxCol(columnIndex);
+    _checkMaxColumn(columnIndex);
     _checkMaxRow(rowIndex);
 
     int newRowIndex = rowIndex, newColumnIndex = columnIndex;
@@ -676,7 +684,7 @@ class Sheet {
     /// Puts the cellStyle
     if (cellStyle != null) {
       _sheetData[newRowIndex]![newColumnIndex]!._cellStyle = cellStyle;
-      _excel._colorChanges = true;
+      _excel._styleChanges = true;
     }
   }
 
@@ -691,8 +699,8 @@ class Sheet {
         endColumn = end._columnIndex,
         endRow = end._rowIndex;
 
-    _checkMaxCol(startColumn);
-    _checkMaxCol(endColumn);
+    _checkMaxColumn(startColumn);
+    _checkMaxColumn(endColumn);
     _checkMaxRow(startRow);
     _checkMaxRow(endRow);
 
@@ -711,6 +719,10 @@ class Sheet {
     startRow = gotPosition[1];
     endColumn = gotPosition[2];
     endRow = gotPosition[3];
+
+    // Update maxColumns maxRows
+    _maxColumns = _maxColumns > endColumn ? _maxColumns : endColumn + 1;
+    _maxRows = _maxRows > endRow ? _maxRows : endRow + 1;
 
     bool getValue = true;
 
@@ -796,6 +808,89 @@ class Sheet {
       }
       _spannedItems.remove(unmergeCells);
       _excel._mergeChangeLookup = sheetName;
+    }
+  }
+
+  ///
+  /// Sets the cellStyle of the merged cells.
+  ///
+  /// It will get the merged cells only by giving the starting position of merged cells.
+  ///
+  void setMergedCellStyle(CellIndex start, CellStyle mergedCellStyle) {
+    List<List<CellIndex>> _mergedCells = spannedItems
+        .map(
+          (e) => e.split(":").map((e) => CellIndex.indexByString(e)).toList(),
+        )
+        .toList();
+
+    List<CellIndex> _startIndices = _mergedCells.map((e) => e[0]).toList();
+    List<CellIndex> _endIndices = _mergedCells.map((e) => e[1]).toList();
+
+    if (_mergedCells.isEmpty ||
+        start._columnIndex < 0 ||
+        start._rowIndex < 0 ||
+        !_startIndices.contains(start)) {
+      return;
+    }
+
+    CellIndex end = _endIndices[_startIndices.indexOf(start)];
+
+    bool hasBorder = mergedCellStyle.topBorder != Border() ||
+        mergedCellStyle.bottomBorder != Border() ||
+        mergedCellStyle.leftBorder != Border() ||
+        mergedCellStyle.rightBorder != Border() ||
+        mergedCellStyle.diagonalBorderUp ||
+        mergedCellStyle.diagonalBorderDown;
+    if (hasBorder) {
+      for (var i = start.rowIndex; i <= end.rowIndex; i++) {
+        for (var j = start.columnIndex; j <= end.columnIndex; j++) {
+          CellStyle cellStyle = mergedCellStyle.copyWith(
+            topBorderVal: Border(),
+            bottomBorderVal: Border(),
+            leftBorderVal: Border(),
+            rightBorderVal: Border(),
+            diagonalBorderUpVal: false,
+            diagonalBorderDownVal: false,
+          );
+
+          if (i == start.rowIndex) {
+            cellStyle = cellStyle.copyWith(
+              topBorderVal: mergedCellStyle.topBorder,
+            );
+          }
+          if (i == end.rowIndex) {
+            cellStyle = cellStyle.copyWith(
+              bottomBorderVal: mergedCellStyle.bottomBorder,
+            );
+          }
+          if (j == start.columnIndex) {
+            cellStyle = cellStyle.copyWith(
+              leftBorderVal: mergedCellStyle.leftBorder,
+            );
+          }
+          if (j == end.columnIndex) {
+            cellStyle = cellStyle.copyWith(
+              rightBorderVal: mergedCellStyle.rightBorder,
+            );
+          }
+
+          if (i == j ||
+              start.rowIndex == end.rowIndex ||
+              start.columnIndex == end.columnIndex) {
+            cellStyle = cellStyle.copyWith(
+              diagonalBorderUpVal: mergedCellStyle.diagonalBorderUp,
+              diagonalBorderDownVal: mergedCellStyle.diagonalBorderDown,
+            );
+          }
+
+          if (i == start.rowIndex && j == start.columnIndex) {
+            cell(start).cellStyle = cellStyle;
+          } else {
+            _putData(i, j, null);
+            _sheetData[i]![j]!.cellStyle = cellStyle;
+          }
+        }
+      }
     }
   }
 
@@ -919,7 +1014,7 @@ class Sheet {
     if (startingColumn > 0) {
       columnIndex = startingColumn;
     }
-    _checkMaxCol(columnIndex + row.length);
+    _checkMaxColumn(columnIndex + row.length);
     int rowsLength = _maxRows,
         maxIterationIndex = row.length - 1,
         currentRowPosition = 0; // position in [row] iterables
@@ -953,11 +1048,6 @@ class Sheet {
         }
       }
     }
-    //int tempo_max_col = columnIndex + row.length - 1;
-
-    //if (_maxCols - 1 < tempo_max_col) {
-    //  _maxCols = tempo_max_col + 1;
-    //}
   }
 
   ///
@@ -990,70 +1080,117 @@ class Sheet {
     _sheetData[rowIndex]![columnIndex]!._cellType =
         _getCellType(value.runtimeType);
 
-    if ((_maxCols - 1) < columnIndex) {
-      _maxCols = columnIndex + 1;
+    if ((_maxColumns - 1) < columnIndex) {
+      _maxColumns = columnIndex + 1;
     }
 
     if ((_maxRows - 1) < rowIndex) {
       _maxRows = rowIndex + 1;
     }
 
-    //_countRowAndCol();
+    //_countRowsAndColumns();
+  }
+
+  double? get defaultRowHeight => _defaultRowHeight;
+
+  double? get defaultColumnWidth => _defaultColumnWidth;
+
+  ///
+  /// returns map of auto fit columns
+  ///
+  Map<int, bool> get getColumnAutoFits => _columnAutoFit;
+
+  ///
+  /// returns map of custom width columns
+  ///
+  Map<int, double> get getColumnWidths => _columnWidths;
+
+  ///
+  /// returns map of custom height rows
+  ///
+  Map<int, double> get getRowHeights => _rowHeights;
+
+  ///
+  /// returns auto fit state of column index
+  ///
+  bool getColumnAutoFit(int columnIndex) {
+    if (_columnAutoFit.containsKey(columnIndex)) {
+      return _columnAutoFit[columnIndex]!;
+    }
+    return false;
   }
 
   ///
-  /// returns list of auto fit columns
+  /// returns width of column index
   ///
-  List<bool> get getColAutoFits {
-    return _colAutoFit;
+  double getColumnWidth(int columnIndex) {
+    if (_columnWidths.containsKey(columnIndex)) {
+      return _columnWidths[columnIndex]!;
+    }
+    return _defaultColumnWidth!;
   }
 
   ///
-  /// returns list of custom width columns
+  /// returns height of row index
   ///
-  List<double> get getColWidths {
-    return _colWidth;
+  double getRowHeight(int rowIndex) {
+    if (_rowHeights.containsKey(rowIndex)) {
+      return _rowHeights[rowIndex]!;
+    }
+    return _defaultRowHeight!;
   }
 
   ///
-  /// Get Column AutoFit
+  /// Set the default column width.
   ///
-  bool getColAutoFit(int colIndex) {
-    _checkMaxCol(colIndex);
-    return _colAutoFit[colIndex];
+  /// If both `setDefaultRowHeight` and `setDefaultColumnWidth` are not called,
+  /// then the default row height and column width will be set by Excel.
+  ///
+  /// The default row height is 15.0 and the default column width is 8.43.
+  ///
+  void setDefaultColumnWidth([double columnWidth = _excelDefaultColumnWidth]) {
+    if (columnWidth < 0) return;
+    _defaultColumnWidth = columnWidth;
   }
 
   ///
-  /// Get Column Width
+  /// Set the default row height.
   ///
-  double getColWidth(int colIndex) {
-    _checkMaxCol(colIndex);
-    return _colWidth[colIndex];
+  /// If both `setDefaultRowHeight` and `setDefaultColumnWidth` are not called,
+  /// then the default row height and column width will be set by Excel.
+  ///
+  /// The default row height is 15.0 and the default column width is 8.43.
+  ///
+  void setDefaultRowHeight([double rowHeight = _excelDefaultRowHeight]) {
+    if (rowHeight < 0) return;
+    _defaultRowHeight = rowHeight;
   }
 
   ///
   /// Set Column AutoFit
   ///
-  void setColAutoFit(int colIndex) {
-    _checkMaxCol(colIndex);
-
-    while (colIndex >= _colAutoFit.length) {
-      _colAutoFit.add(false);
-    }
-    _colAutoFit[colIndex] = true;
+  void setColumnAutoFit(int columnIndex) {
+    _checkMaxColumn(columnIndex);
+    if (columnIndex < 0) return;
+    _columnAutoFit[columnIndex] = true;
   }
 
   ///
   /// Set Column Width
   ///
-  void setColWidth(int colIndex, double colWidth) {
-    _checkMaxCol(colIndex);
-    if (colWidth < 0) return;
+  void setColumnWidth(int columnIndex, double columnWidth) {
+    _checkMaxColumn(columnIndex);
+    if (columnWidth < 0) return;
+    _columnWidths[columnIndex] = columnWidth;
+  }
 
-    while (colIndex >= _colWidth.length) {
-      _colWidth.add(_defaultColumnWidth);
-    }
-    _colWidth[colIndex] = colWidth;
+  ///
+  /// Set Row Height
+  ///
+  void setRowHeight(int rowIndex, double rowHeight) {
+    _checkMaxRow(rowIndex);
+    if (rowHeight < 0) return;
+    _rowHeights[rowIndex] = rowHeight;
   }
 
   CellType _getCellType(var type) {
@@ -1123,7 +1260,7 @@ class Sheet {
       }
     }
 
-    int rowsLength = maxRows, columnLength = maxCols;
+    int rowsLength = maxRows, columnLength = maxColumns;
     RegExp sourceRegx;
     if (source.runtimeType == RegExp) {
       sourceRegx = source;
@@ -1144,7 +1281,7 @@ class Sheet {
             _sheetData[i]![j] != null &&
             sourceRegx.hasMatch(_sheetData[i]![j]!.value.toString()) &&
             (first == -1 || first != replaceCount)) {
-          _sheetData[i]![j]!
+          _sheetData[i]![j]!.value = _sheetData[i]![j]!
               .value
               .toString()
               .replaceAll(sourceRegx, target.toString());
@@ -1195,7 +1332,7 @@ class Sheet {
         });
       }
     }
-    //_countRowAndCol();
+    //_countRowsAndColumns();
     return isNotInside;
   }
 
@@ -1230,12 +1367,12 @@ class Sheet {
   ///
   ///Check if columnIndex is not out of `Excel Column limits`.
   ///
-  _checkMaxCol(int colIndex) {
-    if (_maxCols >= 16384 || colIndex >= 16384) {
+  _checkMaxColumn(int columnIndex) {
+    if (_maxColumns >= 16384 || columnIndex >= 16384) {
       throw ArgumentError('Reached Max (16384) or (XFD) columns value.');
     }
-    if (colIndex < 0) {
-      throw ArgumentError('Negative colIndex found: $colIndex');
+    if (columnIndex < 0) {
+      throw ArgumentError('Negative columnIndex found: $columnIndex');
     }
   }
 
@@ -1299,14 +1436,14 @@ class Sheet {
     }
     if (rowIndex < _maxRows) {
       if (_sheetData[rowIndex] != null) {
-        return List.generate(_maxCols, (colIndex) {
-          if (_sheetData[rowIndex]![colIndex] != null) {
-            return _sheetData[rowIndex]![colIndex]!;
+        return List.generate(_maxColumns, (columnIndex) {
+          if (_sheetData[rowIndex]![columnIndex] != null) {
+            return _sheetData[rowIndex]![columnIndex]!;
           }
           return null;
         });
       } else {
-        return List.generate(_maxCols, (_) => null);
+        return List.generate(_maxColumns, (_) => null);
       }
     }
     return <Data?>[];
@@ -1320,10 +1457,10 @@ class Sheet {
   }
 
   ///
-  ///returns count of `cols` having data in `sheet`
+  ///returns count of `columns` having data in `sheet`
   ///
-  int get maxCols {
-    return _maxCols;
+  int get maxColumns {
+    return _maxColumns;
   }
 
   HeaderFooter? get headerFooter {

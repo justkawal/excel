@@ -85,7 +85,10 @@ class SharedString {
   String toString() {
     var buffer = StringBuffer();
     node.findAllElements('t').forEach((child) {
-      buffer.write(Parser._parseValue(child));
+      if (child.parentElement == null ||
+          child.parentElement!.name.local != 'rPh') {
+        buffer.write(Parser._parseValue(child));
+      }
     });
     return buffer.toString();
   }
@@ -94,5 +97,12 @@ class SharedString {
   int get hashCode => _hashCode;
 
   @override
-  operator ==(Object other) => other.hashCode == _hashCode;
+  operator ==(Object other) {
+    if (other.hashCode == _hashCode) {
+      if (other.toString() == toString()) {
+        return true;
+      }
+    }
+    return false;
+  }
 }

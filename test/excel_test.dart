@@ -16,7 +16,7 @@ void main() {
     var file = './test/test_resources/example.xlsx';
     var bytes = File(file).readAsBytesSync();
     var excel = Excel.decodeBytes(bytes);
-    expect(excel.tables['Sheet1']!.maxCols, equals(3));
+    expect(excel.tables['Sheet1']!.maxColumns, equals(3));
     expect(excel.tables['Sheet1']!.rows[1][1]!.value.toString(),
         equals('Washington'));
   });
@@ -32,7 +32,7 @@ void main() {
       expect(excel.sheets.entries.length, equals(2));
       expect(excel.tables['Sheet1']!.rows[1][1]!.value.toString(),
           equals('Washington'));
-      expect(excel.tables['SheetTmp']!.maxCols, equals(3));
+      expect(excel.tables['SheetTmp']!.maxColumns, equals(3));
       expect(excel.tables['SheetTmp']!.rows[1][2]!.value.toString(),
           equals('Putin'));
     });
@@ -42,7 +42,7 @@ void main() {
       expect(excel.sheets.entries.length, equals(3));
       expect(excel.tables['Sheet1']!.rows[1][1]!.value.toString(),
           equals('Washington'));
-      expect(excel.tables['SheetTmp']!.maxCols, equals(3));
+      expect(excel.tables['SheetTmp']!.maxColumns, equals(3));
       expect(excel.tables['SheetTmp']!.rows[1][2]!.value.toString(),
           equals('Putin'));
       expect(excel.tables['SheetTmp2']!.rows[1][2]!.value.toString(),
@@ -55,7 +55,7 @@ void main() {
       expect(excel.tables['Sheettmp2'], equals(null));
       expect(excel.tables['Sheet1']!.rows[1][1]!.value.toString(),
           equals('Washington'));
-      expect(excel.tables['SheetTmp']!.maxCols, equals(3));
+      expect(excel.tables['SheetTmp']!.maxColumns, equals(3));
       expect(excel.tables['SheetTmp']!.rows[1][2]!.value.toString(),
           equals('Putin'));
       expect(excel.tables['SheetTmp3']!.rows[1][2]!.value.toString(),
@@ -91,7 +91,7 @@ void main() {
     expect(newExcel.sheets.entries.length, equals(1));
     expect(newExcel.tables['Sheet1']!.rows[1][1]!.value.toString(),
         equals('Washington'));
-    expect(newExcel.tables['Sheet1']!.maxCols, equals(3));
+    expect(newExcel.tables['Sheet1']!.maxColumns, equals(3));
     expect(newExcel.tables['Sheet1']!.rows[4][1]!.value.toString(),
         equals('Moscow'));
   });
@@ -353,6 +353,89 @@ void main() {
       }
     });
 
+    test('test support for merged cells with borders', () async {
+      final file = './test/test_resources/mergedBorders.xlsx';
+      final bytes = File(file).readAsBytesSync();
+      final excel = Excel.decodeBytes(bytes);
+      final Sheet sheetObject = excel.tables['Sheet1']!;
+
+      final borderStyles = <BorderStyle>[
+        BorderStyle.None,
+        BorderStyle.DashDot,
+        BorderStyle.DashDotDot,
+        BorderStyle.Dashed,
+        BorderStyle.Dotted,
+        BorderStyle.Double,
+        BorderStyle.Hair,
+        BorderStyle.Medium,
+        BorderStyle.MediumDashDot,
+        BorderStyle.MediumDashDotDot,
+        BorderStyle.MediumDashed,
+        BorderStyle.SlantDashDot,
+        BorderStyle.Thick,
+        BorderStyle.Thin,
+      ];
+
+      sheetObject.merge(
+          CellIndex.indexByString('B2'), CellIndex.indexByString('D4'));
+
+      for (var i = 1; i < borderStyles.length; ++i) {
+        // Loop from i = 1, as Excel does not set None type.
+        final border =
+            Border(borderStyle: borderStyles[i], borderColorHex: "FF000000");
+        final start = CellIndex.indexByString('B${(4 * i + 2)}');
+        final end = CellIndex.indexByString('D${(4 * i + 4)}');
+
+        sheetObject.merge(start, end);
+
+        sheetObject.setMergedCellStyle(
+          start,
+          CellStyle(
+            leftBorder: border,
+            rightBorder: border,
+            topBorder: border,
+            bottomBorder: border,
+          ),
+        );
+      }
+
+      for (var i = 1; i < borderStyles.length; ++i) {
+        CellIndex cellIndexStart = CellIndex.indexByString('B${(4 * i + 2)}');
+        CellIndex cellIndexEnd = CellIndex.indexByString('D${(4 * i + 4)}');
+
+        for (var j = cellIndexStart.rowIndex; j <= cellIndexEnd.rowIndex; j++) {
+          for (var k = cellIndexStart.columnIndex;
+              k <= cellIndexEnd.columnIndex;
+              k++) {
+            final cellStyle = sheetObject
+                .cell(CellIndex.indexByColumnRow(columnIndex: k, rowIndex: j))
+                .cellStyle;
+
+            final borderStyle = Border(
+              borderStyle: borderStyles[i],
+              borderColorHex: "FF000000",
+            );
+
+            if (j == cellIndexStart.rowIndex) {
+              expect(cellStyle?.topBorder, equals(borderStyle));
+            }
+
+            if (j == cellIndexEnd.rowIndex) {
+              expect(cellStyle?.bottomBorder, equals(borderStyle));
+            }
+
+            if (k == cellIndexStart.columnIndex) {
+              expect(cellStyle?.leftBorder, equals(borderStyle));
+            }
+
+            if (k == cellIndexEnd.columnIndex) {
+              expect(cellStyle?.rightBorder, equals(borderStyle));
+            }
+          }
+        }
+      }
+    });
+
     test('saving XLSX File with borders', () async {
       final file = './test/test_resources/borders.xlsx';
       final bytes = File(file).readAsBytesSync();
@@ -385,6 +468,79 @@ void main() {
 
       // delete tmp folder only when test is successful (diagnosis)
       new Directory('./tmp').delete(recursive: true);
+    });
+  });
+
+  group('rPh tag', () {
+    test('Read Cell shared text without rPh elements', () {
+      var file = './test/test_resources/rphSample.xlsx';
+      var bytes = File(file).readAsBytesSync();
+      var excel = Excel.decodeBytes(bytes);
+      expect(excel.tables['Sheet1']!.rows[1][0]!.value.toString(),
+          equals('plainText'));
+      expect(excel.tables['Sheet1']!.rows[1][1]!.value.toString(),
+          equals('Hellow world'));
+      expect(excel.tables['Sheet1']!.rows[1][2]!.value.toString(),
+          equals('世界よこんにちは'));
+      expect(excel.tables['Sheet1']!.rows[2][2]!.value.toString(),
+          equals('ようこそユーザー'));
+      expect(excel.tables['Sheet1']!.rows[3][2]!.value.toString(),
+          equals('ロケール選択'));
+      expect(excel.tables['Sheet1']!.rows[4][2]!.value.toString(),
+          equals('ロケール選択'));
+    });
+
+    test('saving XLSX File without rPh elements', () async {
+      final file = './test/test_resources/rphSample.xlsx';
+      final bytes = File(file).readAsBytesSync();
+      final excel = Excel.decodeBytes(bytes);
+      excel.tables['Sheet1']!.rows[3][2]!.value = 'ロケール選択';
+
+      final outFilePath = Directory.current.path + '/tmp/rphSampleOut.xlsx';
+      final fileBytes = excel.encode();
+      if (fileBytes != null) {
+        File(outFilePath)
+          ..createSync(recursive: true)
+          ..writeAsBytesSync(fileBytes);
+      }
+
+      final newFileBytes = File(outFilePath).readAsBytesSync();
+      final newExcel = Excel.decodeBytes(newFileBytes);
+      expect(newExcel.tables['Sheet1']!.rows[3][2]!.value.toString(),
+          equals('ロケール選択'));
+
+      // delete tmp folder only when test is successful (diagnosis)
+      new Directory('./tmp').delete(recursive: true);
+    });
+  });
+
+  group(".xls file handling", () {
+    test("Exception when opening old .xls file", () {
+      final file = './test/test_resources/oldXLSFile.xls';
+      final bytes = File(file).readAsBytesSync();
+      try {
+        Excel.decodeBytes(bytes);
+      } catch (e) {
+        expect(e, isA<UnsupportedError>());
+        expect(
+            e.toString(),
+            equals(
+                'Unsupported operation: Excel format unsupported. Only .xlsx files are supported'));
+      }
+    });
+
+    test("Exception when opening new .xls file", () {
+      final file = './test/test_resources/newXLSFile.xls';
+      final bytes = File(file).readAsBytesSync();
+      try {
+        Excel.decodeBytes(bytes);
+      } catch (e) {
+        expect(e, isA<UnsupportedError>());
+        expect(
+            e.toString(),
+            equals(
+                'Unsupported operation: Excel format unsupported. Only .xlsx files are supported'));
+      }
     });
   });
 }
