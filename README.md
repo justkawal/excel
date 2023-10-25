@@ -164,7 +164,7 @@ sheetObject.removeRow(80);
 ### Cell-Style Options
 
 | key                | description                                                                                                                             |
-| ------------------ | --------------------------------------------------------------------------------------------------------------------------------------- |
+|--------------------|-----------------------------------------------------------------------------------------------------------------------------------------|
 | fontFamily         | eg. getFontFamily(`FontFamily.Arial`) or getFontFamily(`FontFamily.Comic_Sans_MS`) `There is total 182 Font Families available for now` |
 | fontSize           | specify the font-size as integer eg. fontSize = 15                                                                                      |
 | bold               | makes text bold - when set to `true`, by-default it is set to `false`                                                                   |
