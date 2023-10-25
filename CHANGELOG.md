@@ -7,6 +7,38 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.0.0] - 2023-07-30
+
+### Breaking Changes
+
+- Renamed `getColAutoFits()` to `getColumnAutoFits()`, and changed return type to `Map<int, bool>` in `Sheet`
+- Renamed `getColWidths()` to `getColumnWidths()`, and changed return type to `Map<int, double>` in `Sheet`
+- Renamed `getColAutoFit()` to `getColumnAutoFit()` in `Sheet`
+- Renamed `getColWidth()` to `getColumnWidth()` in `Sheet`
+- Renamed `setColAutoFit()` to `setColumnAutoFit()` in `Sheet`
+- Renamed `setColWidth()` to `setColumnWidth()` in `Sheet`
+
+### Added
+
+- Add setMergedCellStyle() to Sheet, allowing to set style for merged cells
+- Add setDefaultRowHeight(), setDefaultColumnWidth() to Sheet
+- Add defaultRowHeight and defaultColumnWidth properties to Sheet
+- Add getRowHeights(), getRowHeight() and setRowHeight to Sheet
+- Add pub topics
+
+### Improved
+
+- Support sharedStrings absolute path
+- Loosen up dependency constraints
+- Clean up markdown files
+- Clean up code
+
+### Fixed
+
+- Fixed many instances of missing/wrong data by comparing strings instead of hashes
+- Ignore shared text in 'rPh' element
+- Fix findAndReplace() not doing anything
+
 ## [2.1.0] - 2023-03-30
 
 ### Improved
