@@ -1,7 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
-import 'package:path/path.dart';
 
 import '../lib/excel.dart';
 
@@ -35,22 +34,28 @@ void main(List<String> args) {
         .value = getRandString();
   }
 
-  sheet.setColWidth(0, 10.0);
-  sheet.setColWidth(1, 10.0);
-  sheet.setColAutoFit(0);
-  sheet.setColAutoFit(1);
-  sheet.setColAutoFit(2);
-  sheet.setColWidth(50, 10.0);
+  sheet.setDefaultColumnWidth();
+  sheet.setDefaultRowHeight();
+
+  sheet.setColumnAutoFit(0);
+  sheet.setColumnAutoFit(1);
+  sheet.setColumnAutoFit(2);
+
+  sheet.setColumnWidth(0, 10.0);
+  sheet.setColumnWidth(1, 10.0);
+  sheet.setColumnWidth(50, 10.0);
+
+  sheet.setRowHeight(1, 100);
 
   sheet.merge(CellIndex.indexByColumnRow(columnIndex: 0, rowIndex: 0),
       CellIndex.indexByColumnRow(columnIndex: 1, rowIndex: 10));
 
-  String outputFile =
-      "/Users/igdmitrov/Downloads/excel_custom-${DateTime.now().toIso8601String()}.xlsx";
+  // Create the example excel file in the current directory
+  String outputFile = "excel_custom.xlsx";
 
   List<int>? fileBytes = excel.save();
   if (fileBytes != null) {
-    File(join(outputFile))
+    File(outputFile)
       ..createSync(recursive: true)
       ..writeAsBytesSync(fileBytes);
   }

@@ -16,13 +16,14 @@ Excel _newExcel(Archive archive) {
     case _spreasheetXlsx:
       return Excel._(archive);
     default:
-      throw UnsupportedError('Excel format unsupported.');
+      throw UnsupportedError(
+          'Excel format unsupported. Only .xlsx files are supported');
   }
 }
 
 /// Decode a excel file.
 class Excel {
-  late bool _colorChanges;
+  late bool _styleChanges;
   late bool _mergeChanges;
   late bool _rtlChanges;
 
@@ -46,12 +47,18 @@ class Excel {
 
   late String _stylesTarget;
   late String _sharedStringsTarget;
+  String get _absSharedStringsTarget {
+    if (_sharedStringsTarget.isNotEmpty && _sharedStringsTarget[0] == "/") {
+      return _sharedStringsTarget.substring(1);
+    }
+    return "xl/${_sharedStringsTarget}";
+  }
 
   String? _defaultSheet;
   late Parser parser;
 
   Excel._(Archive archive) {
-    _colorChanges = false;
+    _styleChanges = false;
     _mergeChanges = false;
     _rtlChanges = false;
     _sheets = <String, XmlNode>{};
@@ -82,7 +89,12 @@ class Excel {
   }
 
   factory Excel.decodeBytes(List<int> data) {
-    return _newExcel(ZipDecoder().decodeBytes(data));
+    try {
+      return _newExcel(ZipDecoder().decodeBytes(data));
+    } catch (e) {
+      throw UnsupportedError(
+          'Excel format unsupported. Only .xlsx files are supported');
+    }
   }
 
   factory Excel.decodeBuffer(InputStream input) {
@@ -531,7 +543,7 @@ class Excel {
     _availSheet(sheet);
 
     if (cellStyle != null) {
-      _colorChanges = true;
+      _styleChanges = true;
       _sheetMap[sheet]!.updateCell(cellIndex, value, cellStyle: cellStyle);
     } else {
       _sheetMap[sheet]!.updateCell(cellIndex, value);

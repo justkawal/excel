@@ -52,9 +52,12 @@ _selfCorrectSpanMap(Excel _excel) {
             }
           }
         }
-        _Span spanObj1 = _Span();
-        spanObj1._start = [startRow, startColumn];
-        spanObj1._end = [endRow, endColumn];
+        _Span spanObj1 = _Span(
+          rowSpanStart: startRow,
+          columnSpanStart: startColumn,
+          rowSpanEnd: endRow,
+          columnSpanEnd: endColumn,
+        );
         spanList[i] = spanObj1;
       }
       _excel._sheetMap[key]!._spanList = List<_Span?>.from(spanList);

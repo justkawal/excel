@@ -1,228 +1,164 @@
 # Excel
 
-# If you find this tool useful! Please drop a ⭐️.
+## If you find this tool useful, please drop a ⭐️
 
-  <a href='https://flutter.io'>  
-    <img src='https://img.shields.io/badge/Platform-Flutter-yellow.svg'  
-      alt='Platform' />  
-  </a> 
-  <a href='https://github.com/justkawal/excel'>  
-    <img src='https://github.com/justkawal/excel/workflows/Test/badge.svg'  
-      alt='Test' />  
-  </a> 
-   <a href='https://pub.dartlang.org/packages/excel'>  
-    <img src='https://img.shields.io/pub/v/excel.svg'  
-      alt='Pub Package' />  
-  </a>
-   <a href='https://opensource.org/licenses/MIT'>  
-    <img src='https://img.shields.io/badge/License-MIT-red.svg'  
-      alt='License: MIT' />  
-  </a>
-   <a href='https://github.com/justkawal/excel/issues'>  
-    <img src='https://img.shields.io/github/issues/justkawal/excel'  
-      alt='Issue' />  
-  </a> 
-   <a href='https://github.com/justkawal/excel/network'>  
-    <img src='https://img.shields.io/github/forks/justkawal/excel'  
-      alt='Forks' />  
-  </a> 
-   <a href='https://github.com/justkawal/excel/stargazers'>  
-    <img src='https://img.shields.io/github/stars/justkawal/excel'  
-      alt='Stars' />  
-  </a>
-  <br>
-  <br>
+<a href='https://flutter.io'>  
+  <img src='https://img.shields.io/badge/Platform-Flutter-yellow.svg'  
+    alt='Platform' />  
+</a>
+<a href='https://github.com/justkawal/excel'>  
+  <img src='https://github.com/justkawal/excel/workflows/Test/badge.svg'  
+    alt='Test' />  
+</a>
+<a href='https://pub.dartlang.org/packages/excel'>  
+  <img src='https://img.shields.io/pub/v/excel.svg'  
+    alt='Pub Package' />  
+</a>
+<a href='https://opensource.org/licenses/MIT'>  
+  <img src='https://img.shields.io/badge/License-MIT-red.svg'  
+    alt='License: MIT' />  
+</a>
+<a href='https://github.com/justkawal/excel/issues'>  
+  <img src='https://img.shields.io/github/issues/justkawal/excel'  
+    alt='Issues' />  
+</a>
+<a href='https://github.com/justkawal/excel/network'>  
+  <img src='https://img.shields.io/github/forks/justkawal/excel'  
+    alt='Forks' />  
+</a>
+<a href='https://github.com/justkawal/excel/stargazers'>  
+  <img src='https://img.shields.io/github/stars/justkawal/excel'  
+    alt='Stars' />  
+</a>
 
-### [Excel](https://www.pub.dev/packages/excel) is a flutter and dart library for reading, creating and updating excel-sheets for XLSX files.
+### [Excel](https://www.pub.dev/packages/excel) is a flutter and dart library for reading, creating and updating excel-sheets for XLSX files
 
-#### This library is [MIT](https://github.com/justkawal/excel/blob/40b8b1ed8c3c213d8911784ddd40bf97841977a1/LICENSE#L1) licensed So, it's free to use anytime, anywhere without any consent, because we believe in Open Source work.
+#### This library is [MIT](https://github.com/justkawal/excel/blob/40b8b1ed8c3c213d8911784ddd40bf97841977a1/LICENSE#L1) licensed So, it's free to use anytime, anywhere without any consent, because we believe in Open Source work
 
-# Lets Get Started
+Is your excel file password protected? [Protect](https://github.com/justkawal/protect.git) helps you to apply and remove password protection on your excel file.
 
-### 1. Depend on it
+## Breaking changes from 2.x.x to 3.x.x
 
-Add this to your package's `pubspec.yaml` file:
+- Renamed `getColAutoFits()` to `getColumnAutoFits()`, and changed return type to `Map<int, bool>` in `Sheet`
+- Renamed `getColWidths()` to `getColumnWidths()`, and changed return type to `Map<int, double>` in `Sheet`
+- Renamed `getColAutoFit()` to `getColumnAutoFit()` in `Sheet`
+- Renamed `getColWidth()` to `getColumnWidth()` in `Sheet`
+- Renamed `setColAutoFit()` to `setColumnAutoFit()` in `Sheet`
+- Renamed `setColWidth()` to `setColumnWidth()` in `Sheet`
 
-```yaml
-dependencies:
-  excel: 2.1.0
-```
-
-### 2. Install it
-
-You can install packages from the command line:
-
-with `pub`:
-
-```css
-$  dart pub add excel
-```
-
-with `Flutter`:
-
-```css
-$  flutter packages get
-```
-
-### 3. Import it
-
-Now in your `Dart` code, you can use:
-
-```dart
-    import 'package:excel/excel.dart';
-```
-
-# Usage
-
-### Breaking Changes for those moving from 1.0.8 and below ----> 1.0.9 and above versions
-
-The necessary changes to be made to updateCell function in order to prevent the code from breaking.
-
-```dart
-
-    excel.updateCell('SheetName', CellIndex.indexByString('A2'), 'Here value', backgroundColorHex: '#1AFF1A', horizontalAlign: HorizontalAlign.Right);
-
-    // Now in the above code wrap the optional arguments with CellStyle() and pass it to optional cellStyle parameter.
-    // So the resulting code will look like
-
-    excel.updateCell('SheetName', CellIndex.indexByString('A2'), 'Here value', cellStyle: CellStyle( backgroundColorHex: '#1AFF1A', horizontalAlign: HorizontalAlign.Right ) );
-
-```
-
-### Imports
-
-```dart
-    import 'dart:io';
-    import 'package:path/path.dart';
-    import 'package:excel/excel.dart';
-
-```
-
-## Password protected ? [protect](https://github.com/justkawal/protect.git)
-
-`Protect helps you to apply and remove password protection on your excel file.`
+## Usage
 
 ### Read XLSX File
 
 ```dart
-    var file = 'Path_to_pre_existing_Excel_File/excel_file.xlsx';
-    var bytes = File(file).readAsBytesSync();
-    var excel = Excel.decodeBytes(bytes);
-
-    for (var table in excel.tables.keys) {
-      print(table); //sheet Name
-      print(excel.tables[table].maxCols);
-      print(excel.tables[table].maxRows);
-      for (var row in excel.tables[table].rows) {
-        print('$row');
-      }
-    }
-
+var file = 'Path_to_pre_existing_Excel_File/excel_file.xlsx';
+var bytes = File(file).readAsBytesSync();
+var excel = Excel.decodeBytes(bytes);
+for (var table in excel.tables.keys) {
+  print(table); //sheet Name
+  print(excel.tables[table].maxColumns);
+  print(excel.tables[table].maxRows);
+  for (var row in excel.tables[table].rows) {
+    print('$row');
+  }
+}
 ```
-
-### Is your excel file password protected ?
-
-`Protect helps you to apply and remove password protection on your excel file.` [protect](https://github.com/justkawal/protect.git)
 
 ### Read XLSX in Flutter Web
 
 Use `FilePicker` to pick files in Flutter Web. [FilePicker](https://pub.dev/packages/file_picker.git)
 
 ```dart
+/// Use FilePicker to pick files in Flutter Web
 
-  /// Use FilePicker to pick files in Flutter Web
+FilePickerResult pickedFile = await FilePicker.platform.pickFiles(
+  type: FileType.custom,
+  allowedExtensions: ['xlsx'],
+  allowMultiple: false,
+);
 
-  FilePickerResult pickedFile = await FilePicker.platform.pickFiles(
-    type: FileType.custom,
-    allowedExtensions: ['xlsx'],
-    allowMultiple: false,
-  );
+/// file might be picked
 
-  /// file might be picked
-
-  if (pickedFile != null) {
-    var bytes = pickedFile.files.single.bytes;
-    var excel = Excel.decodeBytes(bytes);
-    for (var table in excel.tables.keys) {
-      print(table); //sheet Name
-      print(excel.tables[table].maxCols);
-      print(excel.tables[table].maxRows);
-      for (var row in excel.tables[table].rows) {
-        print('$row');
-      }
+if (pickedFile != null) {
+  var bytes = pickedFile.files.single.bytes;
+  var excel = Excel.decodeBytes(bytes);
+  for (var table in excel.tables.keys) {
+    print(table); //sheet Name
+    print(excel.tables[table].maxColumns);
+    print(excel.tables[table].maxRows);
+    for (var row in excel.tables[table].rows) {
+      print('$row');
     }
   }
+}
 ```
 
 ### Read XLSX from Flutter's Asset Folder
 
 ```dart
-    import 'package:flutter/services.dart' show ByteData, rootBundle;
+import 'package:flutter/services.dart' show ByteData, rootBundle;
 
-    /* Your ......other important..... code here */
+/* Your ......other important..... code here */
 
-    ByteData data = await rootBundle.load('assets/existing_excel_file.xlsx');
-    var bytes = data.buffer.asUint8List(data.offsetInBytes, data.lengthInBytes);
-    var excel = Excel.decodeBytes(bytes);
+ByteData data = await rootBundle.load('assets/existing_excel_file.xlsx');
+var bytes = data.buffer.asUint8List(data.offsetInBytes, data.lengthInBytes);
+var excel = Excel.decodeBytes(bytes);
 
-    for (var table in excel.tables.keys) {
-      print(table); //sheet Name
-      print(excel.tables[table].maxCols);
-      print(excel.tables[table].maxRows);
-      for (var row in excel.tables[table].rows) {
-        print('$row');
-      }
-    }
-
+for (var table in excel.tables.keys) {
+  print(table); //sheet Name
+  print(excel.tables[table].maxColumns);
+  print(excel.tables[table].maxRows);
+  for (var row in excel.tables[table].rows) {
+    print('$row');
+  }
+}
 ```
 
 ### Create New XLSX File
 
 ```dart
-    var excel = Excel.createExcel(); // automatically creates 1 empty sheet: Sheet1
-
+// automatically creates 1 empty sheet: Sheet1
+var excel = Excel.createExcel();
 ```
 
 ### Update Cell values
 
 ```dart
-     /*
-      * sheetObject.updateCell(cell, value, { CellStyle (Optional)});
-      * sheetObject created by calling - // Sheet sheetObject = excel['SheetName'];
-      * cell can be identified with Cell Address or by 2D array having row and column Index;
-      * Cell Style options are optional
-      */
+/*
+ * sheetObject.updateCell(cell, value, { CellStyle (Optional)});
+ * sheetObject created by calling - // Sheet sheetObject = excel['SheetName'];
+ * cell can be identified with Cell Address or by 2D array having row and column Index;
+ * Cell Style options are optional
+ */
 
-      Sheet sheetObject = excel['SheetName'];
+Sheet sheetObject = excel['SheetName'];
 
-      CellStyle cellStyle = CellStyle(backgroundColorHex: '#1AFF1A', fontFamily : getFontFamily(FontFamily.Calibri));
+CellStyle cellStyle = CellStyle(backgroundColorHex: '#1AFF1A', fontFamily :getFontFamily(FontFamily.Calibri));
 
-      cellStyle.underline = Underline.Single; // or Underline.Double
-
-
-      var cell = sheetObject.cell(CellIndex.indexByString('A1'));
-      cell.value = 8; // dynamic values support provided;
-      cell.cellStyle = cellStyle;
-
-      // printing cell-type
-      print('CellType: '+ cell.cellType.toString());
-
-      ///
-      /// Inserting and removing column and rows
-
-      // insert column at index = 8
-      sheetObject.insertColumn(8);
-
-      // remove column at index = 18
-      sheetObject.removeColumn(18);
-
-      // insert row at index = 82
-      sheetObject.insertRow(82);
-
-      // remove row at index = 80
-      sheetObject.removeRow(80);
+cellStyle.underline = Underline.Single; // or Underline.Double
 
 
+var cell = sheetObject.cell(CellIndex.indexByString('A1'));
+cell.value = 8; // dynamic values support provided;
+cell.cellStyle = cellStyle;
+
+// printing cell-type
+print('CellType: '+ cell.cellType.toString());
+
+///
+/// Inserting and removing column and rows
+
+// insert column at index = 8
+sheetObject.insertColumn(8);
+
+// remove column at index = 18
+sheetObject.removeColumn(18);
+
+// insert row at index = 82
+sheetObject.insertRow(82);
+
+// remove row at index = 80
+sheetObject.removeRow(80);
 ```
 
 ### Cell-Style Options
@@ -257,203 +193,185 @@ Each border must be a `Border` object. This object accepts two parameters : `bor
 supported styles and `borderColorHex` to change the border color.
 
 The `borderStyle` must be a value from the enumeration`BorderStyle`:
-* `BorderStyle.None`
-* `BorderStyle.DashDot`
-* `BorderStyle.DashDotDot`
-* `BorderStyle.Dashed`
-* `BorderStyle.Dotted`
-* `BorderStyle.Double`
-* `BorderStyle.Hair`
-* `BorderStyle.Medium`
-* `BorderStyle.MediumDashDot`
-* `BorderStyle.MediumDashDotDot`
-* `BorderStyle.MediumDashed`
-* `BorderStyle.SlantDashDot`
-* `BorderStyle.Thick`
-* `BorderStyle.Thin`
 
+- `BorderStyle.None`
+- `BorderStyle.DashDot`
+- `BorderStyle.DashDotDot`
+- `BorderStyle.Dashed`
+- `BorderStyle.Dotted`
+- `BorderStyle.Double`
+- `BorderStyle.Hair`
+- `BorderStyle.Medium`
+- `BorderStyle.MediumDashDot`
+- `BorderStyle.MediumDashDotDot`
+- `BorderStyle.MediumDashed`
+- `BorderStyle.SlantDashDot`
+- `BorderStyle.Thick`
+- `BorderStyle.Thin`
 
 ```dart
-     /*
-      * 
-      * Defines thin borders on the left and right of the cell, red thin border on the top
-      * and blue medium border on the bottom.
-      *
-      */
+/*
+ *
+ * Defines thin borders on the left and right of the cell, red thin border on the top
+ * and blue medium border on the bottom.
+ *
+ */
 
-      CellStyle cellStyle = CellStyle(
-        leftBorder: Border(borderStyle: BorderStyle.Thin),
-        rightBorder: Border(borderStyle: BorderStyle.Thin),
-        topBorder: Border(borderStyle: BorderStyle.Thin, borderColorHex: 'FFFF0000'),
-        bottomBorder: Border(borderStyle: BorderStyle.Medium, borderColorHex: 'FF0000FF'),
-      );
+CellStyle cellStyle = CellStyle(
+  leftBorder: Border(borderStyle: BorderStyle.Thin),
+  rightBorder: Border(borderStyle: BorderStyle.Thin),
+  topBorder: Border(borderStyle: BorderStyle.Thin, borderColorHex: 'FFFF0000'),
+  bottomBorder: Border(borderStyle: BorderStyle.Medium, borderColorHex: 'FF0000FF'),
+);
 ```
-
 
 ### Make sheet RTL
 
 ```dart
+/*
+ * set rtl to true for making sheet to right-to-left
+ * default value of rtl = false ( which means the fresh or default sheet is ltr )
+ *
+ */
 
-     /*
-      * set rtl to true for making sheet to right-to-left
-      * default value of rtl = false ( which means the fresh or default sheet is ltr )
-      *
-      */
-
-      var sheetObject = excel['SheetName'];
-      sheetObject.rtl = true;
-
+var sheetObject = excel['SheetName'];
+sheetObject.rtl = true;
 ```
 
 ### Copy sheet contents to another sheet
 
 ```dart
+/*
+ * excel.copy(String 'existingSheetName', String 'anotherSheetName');
+ * existingSheetName should exist in excel.tables.keys in order to successfully copy
+ * if anotherSheetName does not exist then it will be automatically created.
+ *
+ */
 
-     /*
-      * excel.copy(String 'existingSheetName', String 'anotherSheetName');
-      * existingSheetName should exist in excel.tables.keys in order to successfully copy
-      * if anotherSheetName does not exist then it will be automatically created.
-      *
-      */
-
-      excel.copy('existingSheetName', 'anotherSheetName');
-
+excel.copy('existingSheetName', 'anotherSheetName');
 ```
 
 ### Rename sheet
 
 ```dart
+/*
+ * excel.rename(String 'existingSheetName', String 'newSheetName');
+ * existingSheetName should exist in excel.tables.keys in order to successfully rename
+ *
+ */
 
-     /*
-      * excel.rename(String 'existingSheetName', String 'newSheetName');
-      * existingSheetName should exist in excel.tables.keys in order to successfully rename
-      *
-      */
-
-      excel.rename('existingSheetName', 'newSheetName');
-
+excel.rename('existingSheetName', 'newSheetName');
 ```
 
 ### Delete sheet
 
 ```dart
+/*
+ * excel.delete(String 'existingSheetName');
+ * (existingSheetName should exist in excel.tables.keys) and (excel.tables.keys.length >= 2), in order to successfully delete.
+ *
+ */
 
-     /*
-      * excel.delete(String 'existingSheetName');
-      * (existingSheetName should exist in excel.tables.keys) and (excel.tables.keys.length >= 2), in order to successfully delete.
-      *
-      */
-
-      excel.delete('existingSheetName');
-
+excel.delete('existingSheetName');
 ```
 
 ### Link sheet
 
 ```dart
+/*
+ * excel.link(String 'sheetName', Sheet sheetObject);
+ *
+ * Any operations performed on (object of 'sheetName') or sheetObject then the operation is performed on both.
+ * if 'sheetName' does not exist then it will be automatically created and linked with the sheetObject's operation.
+ *
+ */
 
-     /*
-      * excel.link(String 'sheetName', Sheet sheetObject);
-      *
-      * Any operations performed on (object of 'sheetName') or sheetObject then the operation is performed on both.
-      * if 'sheetName' does not exist then it will be automatically created and linked with the sheetObject's operation.
-      *
-      */
-
-      excel.link('sheetName', sheetObject);
-
+excel.link('sheetName', sheetObject);
 ```
 
 ### Un-Link sheet
 
 ```dart
+/*
+ * excel.unLink(String 'sheetName');
+ * In order to successfully unLink the 'sheetName' then it must exist in excel.tables.keys
+ *
+ */
 
-     /*
-      * excel.unLink(String 'sheetName');
-      * In order to successfully unLink the 'sheetName' then it must exist in excel.tables.keys
-      *
-      */
+excel.unLink('sheetName');
 
-      excel.unLink('sheetName');
+// After calling the above function be sure to re-make a new reference of this.
 
-      // After calling the above function be sure to re-make a new reference of this.
-
-      Sheet unlinked_sheetObject = excel['sheetName'];
-
+Sheet unlinked_sheetObject = excel['sheetName'];
 ```
 
 ### Merge Cells
 
 ```dart
-    /*
-     * sheetObject.merge(CellIndex starting_cell, CellIndex ending_cell, dynamic 'customValue');
-     * sheetObject created by calling - // Sheet sheetObject = excel['SheetName'];
-     * starting_cell and ending_cell can be identified with Cell Address or by 2D array having row and column Index;
-     * customValue is optional
-     */
+/*
+ * sheetObject.merge(CellIndex starting_cell, CellIndex ending_cell, dynamic 'customValue');
+ * sheetObject created by calling - // Sheet sheetObject = excel['SheetName'];
+ * starting_cell and ending_cell can be identified with Cell Address or by 2D array having row and column Index;
+ * customValue is optional
+ */
 
-      sheetObject.merge(CellIndex.indexByString('A1'), CellIndex.indexByString('E4'), customValue: 'Put this text after merge');
-
+sheetObject.merge(CellIndex.indexByString('A1'), CellIndex.indexByString('E4'), customValue: 'Put this text after merge');
 ```
 
 ### Get Merged Cells List
 
 ```dart
-      // Check which cells are merged
+// Check which cells are merged
 
-      sheetObject.spannedItems.forEach((cells) {
-        print('Merged:' + cells.toString());
-      });
-
+sheetObject.spannedItems.forEach((cells) {
+  print('Merged:' + cells.toString());
+});
 ```
 
 ### Un-Merge Cells
 
 ```dart
-    /*
-     * sheetObject.unMerge(cell);
-     * sheetObject created by calling - // Sheet sheetObject = excel['SheetName'];
-     * cell should be identified with string only with an example as 'A1:E4'.
-     * to check if 'A1:E4' is un-merged or not
-     * call the method excel.getMergedCells(sheet); and verify that it is not present in it.
-     */
+/*
+ * sheetObject.unMerge(cell);
+ * sheetObject created by calling - // Sheet sheetObject = excel['SheetName'];
+ * cell should be identified with string only with an example as 'A1:E4'.
+ * to check if 'A1:E4' is un-merged or not
+ * call the method excel.getMergedCells(sheet); and verify that it is not present in it.
+ */
 
-      sheetObject.unMerge('A1:E4');
-
+sheetObject.unMerge('A1:E4');
 ```
 
 ### Find and Replace
 
 ```dart
-    /*
-     * int replacedCount = sheetObject.findAndReplace(source, target);
-     * sheetObject created by calling - // Sheet sheetObject = excel['SheetName'];
-     * source is the string or ( User's Custom Pattern Matching RegExp )
-     * target is the string which is put in cells in place of source
-     *
-     * it returns the number of replacements made
-     */
+/*
+ * int replacedCount = sheetObject.findAndReplace(source, target);
+ * sheetObject created by calling - // Sheet sheetObject = excel['SheetName'];
+ * source is the string or ( User's Custom Pattern Matching RegExp )
+ * target is the string which is put in cells in place of source
+ *
+ * it returns the number of replacements made
+ */
 
-      int replacedCount = sheetObject.findAndReplace('Flutter', 'Google');
-
+int replacedCount = sheetObject.findAndReplace('Flutter', 'Google');
 ```
 
 ### Insert Row Iterables
 
 ```dart
-     /*
-      * sheetObject.insertRowIterables(list-iterables, rowIndex, iterable-options?);
-      * sheetObject created by calling - // Sheet sheetObject = excel['SheetName'];
-      * list-iterables === list of iterables which has to be put in specific row
-      * rowIndex === the row in which the iterables has to be put
-      * Iterable options are optional
-      */
+/*
+ * sheetObject.insertRowIterables(list-iterables, rowIndex, iterable-options?);
+ * sheetObject created by calling - // Sheet sheetObject = excel['SheetName'];
+ * list-iterables === list of iterables which has to be put in specific row
+ * rowIndex === the row in which the iterables has to be put
+ * Iterable options are optional
+ */
 
-      /// It will put the list-iterables in the 8th index row
-      List<String> dataList = ['Google', 'loves', 'Flutter', 'and', 'Flutter', 'loves', 'Excel'];
+/// It will put the list-iterables in the 8th index row
+List<String> dataList = ['Google', 'loves', 'Flutter', 'and', 'Flutter', 'loves', 'Excel'];
 
-      sheetObject.insertRowIterables(dataList, 8);
-
+sheetObject.insertRowIterables(dataList, 8);
 ```
 
 ### Iterable Options
@@ -466,46 +384,43 @@ The `borderStyle` must be a value from the enumeration`BorderStyle`:
 ### Append Row
 
 ```dart
-   /*
-    * sheetObject.appendRow(list-iterables);
-    * sheetObject created by calling - // Sheet sheetObject = excel['SheetName'];
-    * list-iterables === list of iterables
-    */
+/*
+ * sheetObject.appendRow(list-iterables);
+ * sheetObject created by calling - // Sheet sheetObject = excel['SheetName'];
+ * list-iterables === list of iterables
+ */
 
-     sheetObject.appendRow(['Flutter', 'till', 'Eternity']);
-
+sheetObject.appendRow(['Flutter', 'till', 'Eternity']);
 ```
 
 ### Get Default Opening Sheet
 
 ```dart
-   /*
-    * method which returns the name of the default sheet
-    * excel.getDefaultSheet();
-    */
+/*
+ * method which returns the name of the default sheet
+ * excel.getDefaultSheet();
+ */
 
-     var defaultSheet = excel.getDefaultSheet();
-     print('Default Sheet:' + defaultSheet.toString());
-
+var defaultSheet = excel.getDefaultSheet();
+print('Default Sheet:' + defaultSheet.toString());
 ```
 
 ### Set Default Opening Sheet
 
 ```dart
-   /*
-    * method which sets the name of the default sheet
-    * returns bool if successful then true else false
-    * excel.setDefaultSheet(sheet);
-    * sheet = 'SheetName'
-    */
+/*
+ * method which sets the name of the default sheet
+ * returns bool if successful then true else false
+ * excel.setDefaultSheet(sheet);
+ * sheet = 'SheetName'
+ */
 
-     var isSet = excel.setDefaultSheet(sheet);
-     if (isSet) {
-       print('$sheet is set to default sheet.');
-     } else {
-       print('Unable to set $sheet to default sheet.');
-     }
-
+var isSet = excel.setDefaultSheet(sheet);
+if (isSet) {
+  print('$sheet is set to default sheet.');
+} else {
+  print('Unable to set $sheet to default sheet.');
+}
 ```
 
 ## Saving
@@ -513,11 +428,10 @@ The `borderStyle` must be a value from the enumeration`BorderStyle`:
 ### On Flutter Web
 
 ```dart
-     // when you are in flutter web then save() downloads the excel file.
+// when you are in flutter web then save() downloads the excel file.
 
-     // Call function save() to download the file
-     var fileBytes = excel.save(fileName: 'My_Excel_File_Name.xlsx');
-
+// Call function save() to download the file
+var fileBytes = excel.save(fileName: 'My_Excel_File_Name.xlsx');
 ```
 
 ### On Android / iOS
@@ -525,17 +439,10 @@ The `borderStyle` must be a value from the enumeration`BorderStyle`:
 For getting saving directory on Android or iOS, Use: [path_provider](https://pub.dev/packages/path_provider)
 
 ```dart
-    var fileBytes = excel.save();
-    var directory = await getApplicationDocumentsDirectory();
+var fileBytes = excel.save();
+var directory = await getApplicationDocumentsDirectory();
 
-    File(join('$directory/output_file_name.xlsx'))
-      ..createSync(recursive: true)
-      ..writeAsBytesSync(fileBytes);
+File(join('$directory/output_file_name.xlsx'))
+  ..createSync(recursive: true)
+  ..writeAsBytesSync(fileBytes);
 ```
-
-## Features coming in next version
-
-On-going implementation for future:
-
-- Formulas
-- Conversion to PDF
