@@ -85,7 +85,6 @@ class Save {
         } else {
           upperLevelPos = 0;
         }
-        clone.addFile(copy);
       }
       attributes.insert(
         1,
