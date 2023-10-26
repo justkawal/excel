@@ -187,11 +187,12 @@ class Parser {
           }
           spannedCells[sheetName] = spanList;
 
-          List<int> startIndex = _cellCoordsFromCellId(startCell),
-              endIndex = _cellCoordsFromCellId(endCell);
-          _Span spanObj = _Span();
-          spanObj._start = [startIndex[0], startIndex[1]];
-          spanObj._end = [endIndex[0], endIndex[1]];
+          CellIndex startIndex = CellIndex.indexByString(startCell),
+              endIndex = CellIndex.indexByString(endCell);
+          _Span spanObj = _Span.fromCellIndex(
+            start: startIndex,
+            end: endIndex,
+          );
           if (!_excel._sheetMap[sheetName]!._spanList.contains(spanObj)) {
             _excel._sheetMap[sheetName]!._spanList.add(spanObj);
           }
