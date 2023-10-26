@@ -324,7 +324,6 @@ class Sheet {
           endRow = spanObj.rowSpanEnd;
 
       if (columnIndex <= endColumn) {
-        _Span newSpanObj = _Span();
         if (columnIndex < startColumn) {
           startColumn -= 1;
         }
@@ -337,8 +336,12 @@ class Sheet {
                         : startColumn))) {
           _spanList[i] = null;
         } else {
-          newSpanObj._start = [startRow, startColumn];
-          newSpanObj._end = [endRow, endColumn];
+          _Span newSpanObj = _Span(
+            rowSpanStart: startRow,
+            columnSpanStart: startColumn,
+            rowSpanEnd: endRow,
+            columnSpanEnd: endColumn,
+          );
           _spanList[i] = newSpanObj;
         }
         updateSpanCell = true;
@@ -417,13 +420,16 @@ class Sheet {
           endRow = spanObj.rowSpanEnd;
 
       if (columnIndex <= endColumn) {
-        _Span newSpanObj = _Span();
         if (columnIndex <= startColumn) {
           startColumn += 1;
         }
         endColumn += 1;
-        newSpanObj._start = [startRow, startColumn];
-        newSpanObj._end = [endRow, endColumn];
+        _Span newSpanObj = _Span(
+          rowSpanStart: startRow,
+          columnSpanStart: startColumn,
+          rowSpanEnd: endRow,
+          columnSpanEnd: endColumn,
+        );
         _spanList[i] = newSpanObj;
         updateSpanCell = true;
         _excel._mergeChanges = true;
@@ -511,7 +517,6 @@ class Sheet {
           endRow = spanObj.rowSpanEnd;
 
       if (rowIndex <= endRow) {
-        _Span newSpanObj = _Span();
         if (rowIndex < startRow) {
           startRow -= 1;
         }
@@ -521,8 +526,12 @@ class Sheet {
                 (rowIndex == (rowIndex < startRow ? startRow + 1 : startRow))) {
           _spanList[i] = null;
         } else {
-          newSpanObj._start = [startRow, startColumn];
-          newSpanObj._end = [endRow, endColumn];
+          _Span newSpanObj = _Span(
+            rowSpanStart: startRow,
+            columnSpanStart: startColumn,
+            rowSpanEnd: endRow,
+            columnSpanEnd: endColumn,
+          );
           _spanList[i] = newSpanObj;
         }
         updateSpanCell = true;
@@ -599,13 +608,16 @@ class Sheet {
           endRow = spanObj.rowSpanEnd;
 
       if (rowIndex <= endRow) {
-        _Span newSpanObj = _Span();
         if (rowIndex <= startRow) {
           startRow += 1;
         }
         endRow += 1;
-        newSpanObj._start = [startRow, startColumn];
-        newSpanObj._end = [endRow, endColumn];
+        _Span newSpanObj = _Span(
+          rowSpanStart: startRow,
+          columnSpanStart: startColumn,
+          rowSpanEnd: endRow,
+          columnSpanEnd: endColumn,
+        );
         _spanList[i] = newSpanObj;
         updateSpanCell = true;
         _excel._mergeChanges = true;
@@ -761,9 +773,12 @@ class Sheet {
       _spannedItems.add(sp);
     }
 
-    _Span s = _Span();
-    s._start = [startRow, startColumn];
-    s._end = [endRow, endColumn];
+    _Span s = _Span(
+      rowSpanStart: startRow,
+      columnSpanStart: startColumn,
+      rowSpanEnd: endRow,
+      columnSpanEnd: endColumn,
+    );
 
     _spanList.add(s);
     _excel._mergeChangeLookup = sheetName;
@@ -784,20 +799,18 @@ class Sheet {
       List<String> lis = unmergeCells.split(RegExp(r":"));
       if (lis.length == 2) {
         bool remove = false;
-        List<int> start, end;
-        start =
-            _cellCoordsFromCellId(lis[0]); // [x,y] => [startRow, startColumn]
-        end = _cellCoordsFromCellId(lis[1]); // [x,y] => [endRow, endColumn]
+        CellIndex start = CellIndex.indexByString(lis[0]),
+            end = CellIndex.indexByString(lis[1]);
         for (int i = 0; i < _spanList.length; i++) {
           _Span? spanObject = _spanList[i];
           if (spanObject == null) {
             continue;
           }
 
-          if (spanObject.columnSpanStart == start[1] &&
-              spanObject.rowSpanStart == start[0] &&
-              spanObject.columnSpanEnd == end[1] &&
-              spanObject.rowSpanEnd == end[0]) {
+          if (spanObject.columnSpanStart == start.columnIndex &&
+              spanObject.rowSpanStart == start.rowIndex &&
+              spanObject.columnSpanEnd == end.columnIndex &&
+              spanObject.rowSpanEnd == end.rowIndex) {
             _spanList[i] = null;
             remove = true;
           }
