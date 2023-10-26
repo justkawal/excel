@@ -24,8 +24,7 @@ class Save {
     var maxNumOfCharacters = 0;
     sheet._sheetData.forEach((key, value) {
       if (value.containsKey(column) && value[column]!._isFormula == false) {
-        maxNumOfCharacters =
-            max(value[column]!.value.toString().length, maxNumOfCharacters);
+        maxNumOfCharacters = max(value[column]!.value.toString().length, maxNumOfCharacters);
       }
     });
 
@@ -42,8 +41,7 @@ class Save {
         } else {
           var content = file.content as Uint8List;
           var compress = !_noCompression.contains(file.name);
-          copy = ArchiveFile(file.name, content.length, content)
-            ..compress = compress;
+          copy = ArchiveFile(file.name, content.length, content)..compress = compress;
         }
         clone.addFile(copy);
       }
@@ -62,8 +60,7 @@ class Save {
   } */
 
   // Manage value's type
-  XmlElement _createCell(
-      String sheet, int columnIndex, int rowIndex, dynamic value) {
+  XmlElement _createCell(String sheet, int columnIndex, int rowIndex, dynamic value) {
     if (value is SharedString) {
       _excel._sharedStrings.add(value);
     }
@@ -78,11 +75,8 @@ class Save {
     if (_excel._styleChanges &&
         (_excel._sheetMap[sheet]?._sheetData != null) &&
         _excel._sheetMap[sheet]!._sheetData[rowIndex] != null &&
-        _excel._sheetMap[sheet]!._sheetData[rowIndex]![columnIndex]
-                ?.cellStyle !=
-            null) {
-      CellStyle cellStyle = _excel
-          ._sheetMap[sheet]!._sheetData[rowIndex]![columnIndex]!.cellStyle!;
+        _excel._sheetMap[sheet]!._sheetData[rowIndex]![columnIndex]?.cellStyle != null) {
+      CellStyle cellStyle = _excel._sheetMap[sheet]!._sheetData[rowIndex]![columnIndex]!.cellStyle!;
       int upperLevelPos = _checkPosition(_excel._cellStyleList, cellStyle);
       if (upperLevelPos == -1) {
         int lowerLevelPos = _checkPosition(_innerCellStyle, cellStyle);
@@ -91,25 +85,23 @@ class Save {
         } else {
           upperLevelPos = 0;
         }
+        clone.addFile(copy);
       }
       attributes.insert(
         1,
         XmlAttribute(XmlName('s'), '$upperLevelPos'),
       );
-    } else if (_excel._cellStyleReferenced.containsKey(sheet) &&
-        _excel._cellStyleReferenced[sheet]!.containsKey(rC)) {
+    } else if (_excel._cellStyleReferenced.containsKey(sheet) && _excel._cellStyleReferenced[sheet]!.containsKey(rC)) {
       attributes.insert(
         1,
-        XmlAttribute(
-            XmlName('s'), '${_excel._cellStyleReferenced[sheet]![rC]}'),
+        XmlAttribute(XmlName('s'), '${_excel._cellStyleReferenced[sheet]![rC]}'),
       );
     }
 
     var children = value == null
         ? <XmlElement>[]
         : <XmlElement>[
-            if (value is Formula)
-              XmlElement(XmlName('f'), [], [XmlText(value.formula.toString())]),
+            if (value is Formula) XmlElement(XmlName('f'), [], [XmlText(value.formula.toString())]),
             XmlElement(XmlName('v'), [], [
               XmlText(value is SharedString
                   ? _excel._sharedStrings.indexOf(value).toString()
@@ -125,8 +117,7 @@ class Save {
   XmlElement _createNewRow(XmlElement table, int rowIndex, double? height) {
     var row = XmlElement(XmlName('row'), [
       XmlAttribute(XmlName('r'), (rowIndex + 1).toString()),
-      if (height != null)
-        XmlAttribute(XmlName('ht'), height.toStringAsFixed(2)),
+      if (height != null) XmlAttribute(XmlName('ht'), height.toStringAsFixed(2)),
       if (height != null) XmlAttribute(XmlName('customHeight'), '1'),
     ], []);
     table.children.add(row);
@@ -164,46 +155,36 @@ class Save {
           fontFamily: cellStyle.fontFamily);
 
       /// If `-1` is returned then it indicates that `_fontStyle` is not present in the `_fs`
-      if (_fontStyleIndex(_excel._fontStyleList, _fs) == -1 &&
-          _fontStyleIndex(innerFontStyle, _fs) == -1) {
+      if (_fontStyleIndex(_excel._fontStyleList, _fs) == -1 && _fontStyleIndex(innerFontStyle, _fs) == -1) {
         innerFontStyle.add(_fs);
       }
 
       /// Filling the inner usable extra list of background color
       String backgroundColor = cellStyle.backgroundColor;
-      if (!_excel._patternFill.contains(backgroundColor) &&
-          !innerPatternFill.contains(backgroundColor)) {
+      if (!_excel._patternFill.contains(backgroundColor) && !innerPatternFill.contains(backgroundColor)) {
         innerPatternFill.add(backgroundColor);
       }
 
       final _bs = _createBorderSetFromCellStyle(cellStyle);
-      if (!_excel._borderSetList.contains(_bs) &&
-          !innerBorderSet.contains(_bs)) {
+      if (!_excel._borderSetList.contains(_bs) && !innerBorderSet.contains(_bs)) {
         innerBorderSet.add(_bs);
       }
     });
 
-    XmlElement fonts =
-        _excel._xmlFiles['xl/styles.xml']!.findAllElements('fonts').first;
+    XmlElement fonts = _excel._xmlFiles['xl/styles.xml']!.findAllElements('fonts').first;
 
     var fontAttribute = fonts.getAttributeNode('count');
     if (fontAttribute != null) {
-      fontAttribute.value =
-          '${_excel._fontStyleList.length + innerFontStyle.length}';
+      fontAttribute.value = '${_excel._fontStyleList.length + innerFontStyle.length}';
     } else {
-      fonts.attributes.add(XmlAttribute(XmlName('count'),
-          '${_excel._fontStyleList.length + innerFontStyle.length}'));
+      fonts.attributes.add(XmlAttribute(XmlName('count'), '${_excel._fontStyleList.length + innerFontStyle.length}'));
     }
 
     innerFontStyle.forEach((fontStyleElement) {
       fonts.children.add(XmlElement(XmlName('font'), [], [
         /// putting color
-        if (fontStyleElement._fontColorHex != null &&
-            fontStyleElement._fontColorHex != "FF000000")
-          XmlElement(
-              XmlName('color'),
-              [XmlAttribute(XmlName('rgb'), fontStyleElement._fontColorHex!)],
-              []),
+        if (fontStyleElement._fontColorHex != null && fontStyleElement._fontColorHex != "FF000000")
+          XmlElement(XmlName('color'), [XmlAttribute(XmlName('rgb'), fontStyleElement._fontColorHex!)], []),
 
         /// putting bold
         if (fontStyleElement.isBold) XmlElement(XmlName('b'), [], []),
@@ -212,46 +193,35 @@ class Save {
         if (fontStyleElement.isItalic) XmlElement(XmlName('i'), [], []),
 
         /// putting single underline
-        if (fontStyleElement.underline != Underline.None &&
-            fontStyleElement.underline == Underline.Single)
-          XmlElement(XmlName('u'), [], []),
+        if (fontStyleElement.underline != Underline.None && fontStyleElement.underline == Underline.Single) XmlElement(XmlName('u'), [], []),
 
         /// putting double underline
         if (fontStyleElement.underline != Underline.None &&
             fontStyleElement.underline != Underline.Single &&
             fontStyleElement.underline == Underline.Double)
-          XmlElement(
-              XmlName('u'), [XmlAttribute(XmlName('val'), 'double')], []),
+          XmlElement(XmlName('u'), [XmlAttribute(XmlName('val'), 'double')], []),
 
         /// putting fontFamily
         if (fontStyleElement.fontFamily != null &&
             fontStyleElement.fontFamily!.toLowerCase().toString() != 'null' &&
             fontStyleElement.fontFamily != '' &&
             fontStyleElement.fontFamily!.isNotEmpty)
-          XmlElement(XmlName('name'), [
-            XmlAttribute(XmlName('val'), fontStyleElement.fontFamily.toString())
-          ], []),
+          XmlElement(XmlName('name'), [XmlAttribute(XmlName('val'), fontStyleElement.fontFamily.toString())], []),
 
         /// putting fontSize
-        if (fontStyleElement.fontSize != null &&
-            fontStyleElement.fontSize.toString().isNotEmpty)
-          XmlElement(XmlName('sz'), [
-            XmlAttribute(XmlName('val'), fontStyleElement.fontSize.toString())
-          ], []),
+        if (fontStyleElement.fontSize != null && fontStyleElement.fontSize.toString().isNotEmpty)
+          XmlElement(XmlName('sz'), [XmlAttribute(XmlName('val'), fontStyleElement.fontSize.toString())], []),
       ]));
     });
 
-    XmlElement fills =
-        _excel._xmlFiles['xl/styles.xml']!.findAllElements('fills').first;
+    XmlElement fills = _excel._xmlFiles['xl/styles.xml']!.findAllElements('fills').first;
 
     var fillAttribute = fills.getAttributeNode('count');
 
     if (fillAttribute != null) {
-      fillAttribute.value =
-          '${_excel._patternFill.length + innerPatternFill.length}';
+      fillAttribute.value = '${_excel._patternFill.length + innerPatternFill.length}';
     } else {
-      fills.attributes.add(XmlAttribute(XmlName('count'),
-          '${_excel._patternFill.length + innerPatternFill.length}'));
+      fills.attributes.add(XmlAttribute(XmlName('count'), '${_excel._patternFill.length + innerPatternFill.length}'));
     }
 
     innerPatternFill.forEach((color) {
@@ -261,44 +231,33 @@ class Save {
             XmlElement(XmlName('patternFill'), [
               XmlAttribute(XmlName('patternType'), 'solid')
             ], [
-              XmlElement(XmlName('fgColor'),
-                  [XmlAttribute(XmlName('rgb'), color)], []),
-              XmlElement(
-                  XmlName('bgColor'), [XmlAttribute(XmlName('rgb'), color)], [])
+              XmlElement(XmlName('fgColor'), [XmlAttribute(XmlName('rgb'), color)], []),
+              XmlElement(XmlName('bgColor'), [XmlAttribute(XmlName('rgb'), color)], [])
             ])
           ]));
-        } else if (color == "none" ||
-            color == "gray125" ||
-            color == "lightGray") {
+        } else if (color == "none" || color == "gray125" || color == "lightGray") {
           fills.children.add(XmlElement(XmlName('fill'), [], [
-            XmlElement(XmlName('patternFill'),
-                [XmlAttribute(XmlName('patternType'), color)], [])
+            XmlElement(XmlName('patternFill'), [XmlAttribute(XmlName('patternType'), color)], [])
           ]));
         }
       } else {
-        _damagedExcel(
-            text:
-                "Corrupted Styles Found. Can't process further, Open up issue in github.");
+        _damagedExcel(text: "Corrupted Styles Found. Can't process further, Open up issue in github.");
       }
     });
 
-    XmlElement borders =
-        _excel._xmlFiles['xl/styles.xml']!.findAllElements('borders').first;
+    XmlElement borders = _excel._xmlFiles['xl/styles.xml']!.findAllElements('borders').first;
     var borderAttribute = borders.getAttributeNode('count');
 
     if (borderAttribute != null) {
-      borderAttribute.value =
-          '${_excel._borderSetList.length + innerBorderSet.length}';
+      borderAttribute.value = '${_excel._borderSetList.length + innerBorderSet.length}';
     } else {
-      borders.attributes.add(XmlAttribute(XmlName('count'),
-          '${_excel._borderSetList.length + innerBorderSet.length}'));
+      borders.attributes.add(XmlAttribute(XmlName('count'), '${_excel._borderSetList.length + innerBorderSet.length}'));
     }
 
     innerBorderSet.forEach((border) {
       var borderElement = XmlElement(XmlName('border'));
       if (border.diagonalBorderDown) {
-        borderElement.attributes
-            .add(XmlAttribute(XmlName('diagonalDown'), '1'));
+        borderElement.attributes.add(XmlAttribute(XmlName('diagonalDown'), '1'));
       }
       if (border.diagonalBorderUp) {
         borderElement.attributes.add(XmlAttribute(XmlName('diagonalUp'), '1'));
@@ -320,8 +279,7 @@ class Save {
         }
         final color = borderValue.borderColorHex;
         if (color != null) {
-          element.children.add(XmlElement(
-              XmlName('color'), [XmlAttribute(XmlName('rgb'), color)]));
+          element.children.add(XmlElement(XmlName('color'), [XmlAttribute(XmlName('rgb'), color)]));
         }
         borderElement.children.add(element);
       }
@@ -329,16 +287,13 @@ class Save {
       borders.children.add(borderElement);
     });
 
-    XmlElement celx =
-        _excel._xmlFiles['xl/styles.xml']!.findAllElements('cellXfs').first;
+    XmlElement celx = _excel._xmlFiles['xl/styles.xml']!.findAllElements('cellXfs').first;
     var cellAttribute = celx.getAttributeNode('count');
 
     if (cellAttribute != null) {
-      cellAttribute.value =
-          '${_excel._cellStyleList.length + _innerCellStyle.length}';
+      cellAttribute.value = '${_excel._cellStyleList.length + _innerCellStyle.length}';
     } else {
-      celx.attributes.add(XmlAttribute(XmlName('count'),
-          '${_excel._cellStyleList.length + _innerCellStyle.length}'));
+      celx.attributes.add(XmlAttribute(XmlName('count'), '${_excel._cellStyleList.length + _innerCellStyle.length}'));
     }
 
     _innerCellStyle.forEach((cellStyle) {
@@ -356,50 +311,37 @@ class Save {
       VerticalAlign verticalAlign = cellStyle.verticalAlignment;
       int rotation = cellStyle.rotation;
       TextWrapping? textWrapping = cellStyle.wrap;
-      int backgroundIndex = innerPatternFill.indexOf(backgroundColor),
-          fontIndex = _fontStyleIndex(innerFontStyle, _fs);
+      int backgroundIndex = innerPatternFill.indexOf(backgroundColor), fontIndex = _fontStyleIndex(innerFontStyle, _fs);
       _BorderSet _bs = _createBorderSetFromCellStyle(cellStyle);
       int borderIndex = innerBorderSet.indexOf(_bs);
 
       var attributes = <XmlAttribute>[
-        XmlAttribute(XmlName('borderId'),
-            '${borderIndex == -1 ? 0 : borderIndex + _excel._borderSetList.length}'),
-        XmlAttribute(XmlName('fillId'),
-            '${backgroundIndex == -1 ? 0 : backgroundIndex + _excel._patternFill.length}'),
-        XmlAttribute(XmlName('fontId'),
-            '${fontIndex == -1 ? 0 : fontIndex + _excel._fontStyleList.length}'),
+        XmlAttribute(XmlName('borderId'), '${borderIndex == -1 ? 0 : borderIndex + _excel._borderSetList.length}'),
+        XmlAttribute(XmlName('fillId'), '${backgroundIndex == -1 ? 0 : backgroundIndex + _excel._patternFill.length}'),
+        XmlAttribute(XmlName('fontId'), '${fontIndex == -1 ? 0 : fontIndex + _excel._fontStyleList.length}'),
         XmlAttribute(XmlName('numFmtId'), '0'),
         XmlAttribute(XmlName('xfId'), '0'),
       ];
 
-      if ((_excel._patternFill.contains(backgroundColor) ||
-              innerPatternFill.contains(backgroundColor)) &&
+      if ((_excel._patternFill.contains(backgroundColor) || innerPatternFill.contains(backgroundColor)) &&
           backgroundColor != "none" &&
           backgroundColor != "gray125" &&
           backgroundColor.toLowerCase() != "lightgray") {
         attributes.add(XmlAttribute(XmlName('applyFill'), '1'));
       }
 
-      if (_fontStyleIndex(_excel._fontStyleList, _fs) != -1 &&
-          _fontStyleIndex(innerFontStyle, _fs) != -1) {
+      if (_fontStyleIndex(_excel._fontStyleList, _fs) != -1 && _fontStyleIndex(innerFontStyle, _fs) != -1) {
         attributes.add(XmlAttribute(XmlName('applyFont'), '1'));
       }
 
       var children = <XmlElement>[];
 
-      if (horizontalAlign != HorizontalAlign.Left ||
-          textWrapping != null ||
-          verticalAlign != VerticalAlign.Bottom ||
-          rotation != 0) {
+      if (horizontalAlign != HorizontalAlign.Left || textWrapping != null || verticalAlign != VerticalAlign.Bottom || rotation != 0) {
         attributes.add(XmlAttribute(XmlName('applyAlignment'), '1'));
         var childAttributes = <XmlAttribute>[];
 
         if (textWrapping != null) {
-          childAttributes.add(XmlAttribute(
-              XmlName(textWrapping == TextWrapping.Clip
-                  ? 'shrinkToFit'
-                  : 'wrapText'),
-              '1'));
+          childAttributes.add(XmlAttribute(XmlName(textWrapping == TextWrapping.Clip ? 'shrinkToFit' : 'wrapText'), '1'));
         }
 
         if (verticalAlign != VerticalAlign.Bottom) {
@@ -408,13 +350,11 @@ class Save {
         }
 
         if (horizontalAlign != HorizontalAlign.Left) {
-          String hor =
-              horizontalAlign == HorizontalAlign.Right ? 'right' : 'center';
+          String hor = horizontalAlign == HorizontalAlign.Right ? 'right' : 'center';
           childAttributes.add(XmlAttribute(XmlName('horizontal'), '$hor'));
         }
         if (rotation != 0) {
-          childAttributes
-              .add(XmlAttribute(XmlName('textRotation'), '$rotation'));
+          childAttributes.add(XmlAttribute(XmlName('textRotation'), '$rotation'));
         }
 
         children.add(XmlElement(XmlName('alignment'), childAttributes, []));
@@ -453,8 +393,7 @@ class Save {
   void _setColumns(Sheet sheetObject, XmlDocument xmlFile) {
     final columnElements = xmlFile.findAllElements('cols');
 
-    if (sheetObject.getColumnWidths.isEmpty &&
-        sheetObject.getColumnAutoFits.isEmpty) {
+    if (sheetObject.getColumnWidths.isEmpty && sheetObject.getColumnAutoFits.isEmpty) {
       if (columnElements.isEmpty) {
         return;
       }
@@ -487,8 +426,7 @@ class Save {
     List<double> columnWidths = <double>[];
     int min = 0;
 
-    double defaultColumnWidth =
-        sheetObject.defaultColumnWidth ?? _excelDefaultColumnWidth;
+    double defaultColumnWidth = sheetObject.defaultColumnWidth ?? _excelDefaultColumnWidth;
 
     for (var index = 0; index < columnCount; index++) {
       double width = defaultColumnWidth;
@@ -527,11 +465,8 @@ class Save {
       if (sheetObject._sheetData[rowIndex] == null) {
         continue;
       }
-      var foundRow = _createNewRow(
-          _excel._sheets[sheetName]! as XmlElement, rowIndex, height);
-      for (var columnIndex = 0;
-          columnIndex < sheetObject._maxColumns;
-          columnIndex++) {
+      var foundRow = _createNewRow(_excel._sheets[sheetName]! as XmlElement, rowIndex, height);
+      for (var columnIndex = 0; columnIndex < sheetObject._maxColumns; columnIndex++) {
         var data = sheetObject._sheetData[rowIndex]![columnIndex];
         if (data == null) {
           continue;
@@ -545,8 +480,7 @@ class Save {
     if (sheetName == null || _excel._xmlFiles['xl/workbook.xml'] == null) {
       return false;
     }
-    List<XmlElement> sheetList =
-        _excel._xmlFiles['xl/workbook.xml']!.findAllElements('sheet').toList();
+    List<XmlElement> sheetList = _excel._xmlFiles['xl/workbook.xml']!.findAllElements('sheet').toList();
     XmlElement elementFound = XmlElement(XmlName(''));
 
     int position = -1;
@@ -566,10 +500,7 @@ class Save {
       return true;
     }
 
-    _excel._xmlFiles['xl/workbook.xml']!
-        .findAllElements('sheets')
-        .first
-        .children
+    _excel._xmlFiles['xl/workbook.xml']!.findAllElements('sheets').first.children
       ..removeAt(position)
       ..insert(0, elementFound);
 
@@ -605,25 +536,17 @@ class Save {
           _excel._sheetMap[s]!._spanList.isNotEmpty &&
           _excel._xmlSheetId.containsKey(s) &&
           _excel._xmlFiles.containsKey(_excel._xmlSheetId[s])) {
-        Iterable<XmlElement>? iterMergeElement = _excel
-            ._xmlFiles[_excel._xmlSheetId[s]]
-            ?.findAllElements('mergeCells');
+        Iterable<XmlElement>? iterMergeElement = _excel._xmlFiles[_excel._xmlSheetId[s]]?.findAllElements('mergeCells');
         late XmlElement mergeElement;
         if (iterMergeElement?.isNotEmpty ?? false) {
           mergeElement = iterMergeElement!.first;
         } else {
-          if ((_excel._xmlFiles[_excel._xmlSheetId[s]]
-                      ?.findAllElements('worksheet')
-                      .length ??
-                  0) >
-              0) {
+          if ((_excel._xmlFiles[_excel._xmlSheetId[s]]?.findAllElements('worksheet').length ?? 0) > 0) {
             int index = _excel._xmlFiles[_excel._xmlSheetId[s]]!
                 .findAllElements('worksheet')
                 .first
                 .children
-                .indexOf(_excel._xmlFiles[_excel._xmlSheetId[s]]!
-                    .findAllElements("sheetData")
-                    .first);
+                .indexOf(_excel._xmlFiles[_excel._xmlSheetId[s]]!.findAllElements("sheetData").first);
             if (index == -1) {
               _damagedExcel();
             }
@@ -631,28 +554,21 @@ class Save {
                 .findAllElements('worksheet')
                 .first
                 .children
-                .insert(
-                    index + 1,
-                    XmlElement(XmlName('mergeCells'),
-                        [XmlAttribute(XmlName('count'), '0')]));
+                .insert(index + 1, XmlElement(XmlName('mergeCells'), [XmlAttribute(XmlName('count'), '0')]));
 
-            mergeElement = _excel._xmlFiles[_excel._xmlSheetId[s]]!
-                .findAllElements('mergeCells')
-                .first;
+            mergeElement = _excel._xmlFiles[_excel._xmlSheetId[s]]!.findAllElements('mergeCells').first;
           } else {
             _damagedExcel();
           }
         }
 
-        List<String> _spannedItems =
-            List<String>.from(_excel._sheetMap[s]!.spannedItems);
+        List<String> _spannedItems = List<String>.from(_excel._sheetMap[s]!.spannedItems);
 
         [
           ['count', _spannedItems.length.toString()],
         ].forEach((value) {
           if (mergeElement.getAttributeNode(value[0]) == null) {
-            mergeElement.attributes
-                .add(XmlAttribute(XmlName(value[0]), value[1]));
+            mergeElement.attributes.add(XmlAttribute(XmlName(value[0]), value[1]));
           } else {
             mergeElement.getAttributeNode(value[0])!.value = value[1];
           }
@@ -661,8 +577,7 @@ class Save {
         mergeElement.children.clear();
 
         _spannedItems.forEach((value) {
-          mergeElement.children.add(XmlElement(XmlName('mergeCell'),
-              [XmlAttribute(XmlName('ref'), '$value')], []));
+          mergeElement.children.add(XmlElement(XmlName('mergeCell'), [XmlAttribute(XmlName('ref'), '$value')], []));
         });
       }
     });
@@ -709,49 +624,31 @@ class Save {
   _setRTL() {
     _excel._rtlChangeLook.forEach((s) {
       var sheetObject = _excel._sheetMap[s];
-      if (sheetObject != null &&
-          _excel._xmlSheetId.containsKey(s) &&
-          _excel._xmlFiles.containsKey(_excel._xmlSheetId[s])) {
-        var itrSheetViewsRTLElement = _excel._xmlFiles[_excel._xmlSheetId[s]]
-            ?.findAllElements('sheetViews');
+      if (sheetObject != null && _excel._xmlSheetId.containsKey(s) && _excel._xmlFiles.containsKey(_excel._xmlSheetId[s])) {
+        var itrSheetViewsRTLElement = _excel._xmlFiles[_excel._xmlSheetId[s]]?.findAllElements('sheetViews');
 
         if (itrSheetViewsRTLElement?.isNotEmpty ?? false) {
-          var itrSheetViewRTLElement = _excel._xmlFiles[_excel._xmlSheetId[s]]
-              ?.findAllElements('sheetView');
+          var itrSheetViewRTLElement = _excel._xmlFiles[_excel._xmlSheetId[s]]?.findAllElements('sheetView');
 
           if (itrSheetViewRTLElement?.isNotEmpty ?? false) {
             /// clear all the children of the sheetViews here
 
-            _excel._xmlFiles[_excel._xmlSheetId[s]]
-                ?.findAllElements('sheetViews')
-                .first
-                .children
-                .clear();
+            _excel._xmlFiles[_excel._xmlSheetId[s]]?.findAllElements('sheetViews').first.children.clear();
           }
 
-          _excel._xmlFiles[_excel._xmlSheetId[s]]
-              ?.findAllElements('sheetViews')
-              .first
-              .children
-              .add(XmlElement(
+          _excel._xmlFiles[_excel._xmlSheetId[s]]?.findAllElements('sheetViews').first.children.add(XmlElement(
                 XmlName('sheetView'),
                 [
-                  if (sheetObject.isRTL)
-                    XmlAttribute(XmlName('rightToLeft'), '1'),
+                  if (sheetObject.isRTL) XmlAttribute(XmlName('rightToLeft'), '1'),
                   XmlAttribute(XmlName('workbookViewId'), '0'),
                 ],
               ));
         } else {
-          _excel._xmlFiles[_excel._xmlSheetId[s]]
-              ?.findAllElements('worksheet')
-              .first
-              .children
-              .add(XmlElement(XmlName('sheetViews'), [], [
+          _excel._xmlFiles[_excel._xmlSheetId[s]]?.findAllElements('worksheet').first.children.add(XmlElement(XmlName('sheetViews'), [], [
                 XmlElement(
                   XmlName('sheetView'),
                   [
-                    if (sheetObject.isRTL)
-                      XmlAttribute(XmlName('rightToLeft'), '1'),
+                    if (sheetObject.isRTL) XmlAttribute(XmlName('rightToLeft'), '1'),
                     XmlAttribute(XmlName('workbookViewId'), '0'),
                   ],
                 )
@@ -767,10 +664,7 @@ class Save {
     var uniqueCount = 0;
     var count = 0;
 
-    XmlElement shareString = _excel
-        ._xmlFiles['xl/${_excel._sharedStringsTarget}']!
-        .findAllElements('sst')
-        .first;
+    XmlElement shareString = _excel._xmlFiles['xl/${_excel._sharedStringsTarget}']!.findAllElements('sst').first;
 
     shareString.children.clear();
 
@@ -824,9 +718,7 @@ class Save {
       XmlElement worksheetElement = xmlFile.findAllElements('worksheet').first;
 
       XmlElement? sheetFormatPrElement =
-          worksheetElement.findElements('sheetFormatPr').isNotEmpty
-              ? worksheetElement.findElements('sheetFormatPr').first
-              : null;
+          worksheetElement.findElements('sheetFormatPr').isNotEmpty ? worksheetElement.findElements('sheetFormatPr').first : null;
 
       if (sheetFormatPrElement != null) {
         sheetFormatPrElement.attributes.clear();
@@ -840,12 +732,10 @@ class Save {
       }
 
       if (defaultRowHeight != null) {
-        sheetFormatPrElement!.attributes.add(XmlAttribute(
-            XmlName('defaultRowHeight'), defaultRowHeight.toStringAsFixed(2)));
+        sheetFormatPrElement!.attributes.add(XmlAttribute(XmlName('defaultRowHeight'), defaultRowHeight.toStringAsFixed(2)));
       }
       if (defaultColumnWidth != null) {
-        sheetFormatPrElement!.attributes.add(XmlAttribute(
-            XmlName('defaultColWidth'), defaultColumnWidth.toStringAsFixed(2)));
+        sheetFormatPrElement!.attributes.add(XmlAttribute(XmlName('defaultColWidth'), defaultColumnWidth.toStringAsFixed(2)));
       }
 
       _setColumns(sheetObject, xmlFile);
@@ -879,8 +769,7 @@ class Save {
 
     return cell;
   } */
-  XmlElement _updateCell(String sheet, XmlElement row, int columnIndex,
-      int rowIndex, dynamic value) {
+  XmlElement _updateCell(String sheet, XmlElement row, int columnIndex, int rowIndex, dynamic value) {
     var cell = _createCell(sheet, columnIndex, rowIndex, value);
     row.children.add(cell);
     return cell;

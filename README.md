@@ -164,7 +164,7 @@ sheetObject.removeRow(80);
 ### Cell-Style Options
 
 | key                | description                                                                                                                             |
-| ------------------ | --------------------------------------------------------------------------------------------------------------------------------------- |
+|--------------------|-----------------------------------------------------------------------------------------------------------------------------------------|
 | fontFamily         | eg. getFontFamily(`FontFamily.Arial`) or getFontFamily(`FontFamily.Comic_Sans_MS`) `There is total 182 Font Families available for now` |
 | fontSize           | specify the font-size as integer eg. fontSize = 15                                                                                      |
 | bold               | makes text bold - when set to `true`, by-default it is set to `false`                                                                   |
@@ -185,7 +185,6 @@ sheetObject.removeRow(80);
 | diagonalBorderDown | boolean value indicating if the diagonal "border" should be displayed on the down diagonal                                              |
 
 ### Borders
-
 Borders are defined for each side (left, right, top, and bottom) of the cell. Both diagonals (up and down) share the
 same settings. A boolean value `true` must be set to either `diagonalBorderUp` or `diagonalBorderDown` (or both) to
 display the desired diagonal.
