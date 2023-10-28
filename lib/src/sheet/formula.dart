@@ -1,11 +1,9 @@
 part of excel;
 
 class Formula {
-  late String _formula;
+  final String formula;
 
-  Formula._(String formula) {
-    this._formula = formula;
-  }
+  Formula._(this.formula);
 
   /// Helps to initiate a custom formula
   ///```
@@ -15,13 +13,8 @@ class Formula {
     return Formula._(formula);
   }
 
-  /// get Formula
-  get formula {
-    return this._formula;
-  }
-
   @override
   String toString() {
-    return this._formula;
+    return formula;
   }
 }
