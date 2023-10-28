@@ -117,20 +117,20 @@ class Sheet {
   Data cell(CellIndex cellIndex) {
     _checkMaxColumn(cellIndex.columnIndex);
     _checkMaxRow(cellIndex.rowIndex);
-    if (cellIndex._columnIndex < 0 || cellIndex._rowIndex < 0) {
+    if (cellIndex.columnIndex < 0 || cellIndex.rowIndex < 0) {
       _damagedExcel(
           text:
-              '${cellIndex._columnIndex < 0 ? "Column" : "Row"} Index: ${cellIndex._columnIndex < 0 ? cellIndex._columnIndex : cellIndex._rowIndex} Negative index does not exist.');
+              '${cellIndex.columnIndex < 0 ? "Column" : "Row"} Index: ${cellIndex.columnIndex < 0 ? cellIndex.columnIndex : cellIndex.rowIndex} Negative index does not exist.');
     }
 
     /// increasing the row count
-    if (_maxRows < (cellIndex._rowIndex + 1)) {
-      _maxRows = cellIndex._rowIndex + 1;
+    if (_maxRows < (cellIndex.rowIndex + 1)) {
+      _maxRows = cellIndex.rowIndex + 1;
     }
 
     /// increasing the column count
-    if (_maxColumns < (cellIndex._columnIndex + 1)) {
-      _maxColumns = cellIndex._columnIndex + 1;
+    if (_maxColumns < (cellIndex.columnIndex + 1)) {
+      _maxColumns = cellIndex.columnIndex + 1;
     }
 
     /// checking if the map has been already initialized or not?
@@ -140,20 +140,20 @@ class Sheet {
     } */
 
     /// if the sheetData contains the row then start putting the column
-    if (_sheetData[cellIndex._rowIndex] != null) {
-      if (_sheetData[cellIndex._rowIndex]![cellIndex._columnIndex] == null) {
-        _sheetData[cellIndex._rowIndex]![cellIndex._columnIndex] =
+    if (_sheetData[cellIndex.rowIndex] != null) {
+      if (_sheetData[cellIndex.rowIndex]![cellIndex.columnIndex] == null) {
+        _sheetData[cellIndex.rowIndex]![cellIndex.columnIndex] =
             Data.newData(this, cellIndex.rowIndex, cellIndex.columnIndex);
       }
     } else {
       /// else put the column with map showing.
-      _sheetData[cellIndex._rowIndex] = {
-        cellIndex._columnIndex:
+      _sheetData[cellIndex.rowIndex] = {
+        cellIndex.columnIndex:
             Data.newData(this, cellIndex.rowIndex, cellIndex.columnIndex)
       };
     }
 
-    return _sheetData[cellIndex._rowIndex]![cellIndex._columnIndex]!;
+    return _sheetData[cellIndex.rowIndex]![cellIndex.columnIndex]!;
   }
 
   ///
@@ -672,8 +672,8 @@ class Sheet {
   /// If `sheet` does not exist then it will be automatically created.
   ///
   void updateCell(CellIndex cellIndex, dynamic value, {CellStyle? cellStyle}) {
-    int columnIndex = cellIndex._columnIndex;
-    int rowIndex = cellIndex._rowIndex;
+    int columnIndex = cellIndex.columnIndex;
+    int rowIndex = cellIndex.rowIndex;
     if (columnIndex < 0 || rowIndex < 0) {
       return;
     }
@@ -706,10 +706,10 @@ class Sheet {
   /// If `custom value` is not defined then it will look for the very first available value in range `start` to `end` by searching row-wise from left to right.
   ///
   merge(CellIndex start, CellIndex end, {dynamic customValue}) {
-    int startColumn = start._columnIndex,
-        startRow = start._rowIndex,
-        endColumn = end._columnIndex,
-        endRow = end._rowIndex;
+    int startColumn = start.columnIndex,
+        startRow = start.rowIndex,
+        endColumn = end.columnIndex,
+        endRow = end.rowIndex;
 
     _checkMaxColumn(startColumn);
     _checkMaxColumn(endColumn);
@@ -840,8 +840,8 @@ class Sheet {
     List<CellIndex> _endIndices = _mergedCells.map((e) => e[1]).toList();
 
     if (_mergedCells.isEmpty ||
-        start._columnIndex < 0 ||
-        start._rowIndex < 0 ||
+        start.columnIndex < 0 ||
+        start.rowIndex < 0 ||
         !_startIndices.contains(start)) {
       return;
     }
@@ -911,20 +911,20 @@ class Sheet {
   /// Helps to find the interaction between the pre-existing span position and updates if with new span if there any interaction(Cross-Sectional Spanning) exists.
   ///
   List<int> _getSpanPosition(CellIndex start, CellIndex end) {
-    int startColumn = start._columnIndex,
-        startRow = start._rowIndex,
-        endColumn = end._columnIndex,
-        endRow = end._rowIndex;
+    int startColumn = start.columnIndex,
+        startRow = start.rowIndex,
+        endColumn = end.columnIndex,
+        endRow = end.rowIndex;
 
     bool remove = false;
 
     if (startRow > endRow) {
-      startRow = end._rowIndex;
-      endRow = start._rowIndex;
+      startRow = end.rowIndex;
+      endRow = start.rowIndex;
     }
     if (endColumn < startColumn) {
-      endColumn = start._columnIndex;
-      startColumn = end._columnIndex;
+      endColumn = start.columnIndex;
+      startColumn = end.columnIndex;
     }
 
     for (int i = 0; i < _spanList.length; i++) {

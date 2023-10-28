@@ -1,31 +1,26 @@
 part of excel;
 
-// ignore: must_be_immutable
 class CellIndex extends Equatable {
-  CellIndex._({int? column, int? row}) {
-    assert(column != null && row != null);
-    this._columnIndex = column!;
-    this._rowIndex = row!;
-  }
+  CellIndex._({required this.columnIndex, required this.rowIndex});
 
   ///
   ///```
   ///CellIndex.indexByColumnRow(columnIndex: 0, rowIndex: 0 ); // A1
   ///CellIndex.indexByColumnRow(columnIndex: 0, rowIndex: 1 ); // A2
   ///```
-  static CellIndex indexByColumnRow({int? columnIndex, int? rowIndex}) {
-    assert(columnIndex != null && rowIndex != null);
-    return CellIndex._(column: columnIndex!, row: rowIndex!);
+  factory CellIndex.indexByColumnRow(
+      {required int columnIndex, required int rowIndex}) {
+    return CellIndex._(columnIndex: columnIndex, rowIndex: rowIndex);
   }
 
   ///
   ///```
-  /// CellIndex.indexByColumnRow('A1'); // columnIndex: 0, rowIndex: 0
-  /// CellIndex.indexByColumnRow('A2'); // columnIndex: 0, rowIndex: 1
+  /// CellIndex.indexByString('A1'); // columnIndex: 0, rowIndex: 0
+  /// CellIndex.indexByString('A2'); // columnIndex: 0, rowIndex: 1
   ///```
-  static CellIndex indexByString(String cellIndex) {
+  factory CellIndex.indexByString(String cellIndex) {
     List<int> li = _cellCoordsFromCellId(cellIndex);
-    return CellIndex._(row: li[0], column: li[1]);
+    return CellIndex._(rowIndex: li[0], columnIndex: li[1]);
   }
 
   /// Avoid using it as it is very process expensive function.
@@ -37,18 +32,9 @@ class CellIndex extends Equatable {
     return getCellId(this.columnIndex, this.rowIndex);
   }
 
-  late int _rowIndex;
-
-  int get rowIndex {
-    return this._rowIndex;
-  }
-
-  late int _columnIndex;
-
-  int get columnIndex {
-    return this._columnIndex;
-  }
+  final int rowIndex;
+  final int columnIndex;
 
   @override
-  List<Object?> get props => [_rowIndex, _columnIndex];
+  List<Object?> get props => [rowIndex, columnIndex];
 }
