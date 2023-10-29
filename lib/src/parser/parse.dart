@@ -234,7 +234,7 @@ class Parser {
         String patternType = node.getAttribute('patternType').toString(), rgb;
         if (node.children.isNotEmpty) {
           node.findElements('fgColor').forEach((child) {
-            rgb = node.getAttribute('rgb').toString();
+            rgb = child.getAttribute('rgb').toString();
             _excel._patternFill.add(rgb);
           });
         } else {
