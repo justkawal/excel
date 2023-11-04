@@ -52,15 +52,26 @@ void main(List<String> args) {
   var sheet = excel['mySheet'];
 
   var cell = sheet.cell(CellIndex.indexByString("A1"));
-  cell.value = "Heya How are you I am fine ok goood night";
+  cell.value = TextCellValue("Heya How are you I am fine ok goood night");
   cell.cellStyle = cellStyle;
 
   var cell2 = sheet.cell(CellIndex.indexByString("E5"));
-  cell2.value = "Heya How night";
+  cell2.value = TextCellValue("Heya How night");
   cell2.cellStyle = cellStyle;
 
   /// printing cell-type
-  print("CellType: " + cell.cellType.toString());
+  print("CellType: " +
+      switch (cell.value) {
+        null => 'empty',
+        TextCellValue() => 'text',
+        FormulaCellValue() => 'Formula',
+        IntCellValue() => 'int',
+        DoubleCellValue() => 'double',
+        DateCellValue() => 'date',
+        DateTimeCellValue() => 'date+time',
+        TimeCellValue() => 'time',
+        BoolCellValue() => 'bool',
+      });
 
   ///
   ///
@@ -70,7 +81,7 @@ void main(List<String> args) {
   for (int row = 0; row < sheet.maxRows; row++) {
     sheet.row(row).forEach((Data? cell1) {
       if (cell1 != null) {
-        cell1.value = ' My custom Value ';
+        cell1.value = TextCellValue(' My custom Value ');
       }
     });
   }
@@ -78,13 +89,14 @@ void main(List<String> args) {
   excel.rename("mySheet", "myRenamedNewSheet");
 
   var sheet1 = excel['Sheet1'];
-  sheet1.cell(CellIndex.indexByString('A1')).value = 'Sheet1';
+  sheet1.cell(CellIndex.indexByString('A1')).value = TextCellValue('Sheet1');
 
   /// fromSheet should exist in order to sucessfully copy the contents
   excel.copy('Sheet1', 'newlyCopied');
 
   var sheet2 = excel['newlyCopied'];
-  sheet2.cell(CellIndex.indexByString('A1')).value = 'Newly Copied Sheet';
+  sheet2.cell(CellIndex.indexByString('A1')).value =
+      TextCellValue('Newly Copied Sheet');
 
   /// renaming the sheet
   excel.rename('oldSheetName', 'newSheetName');
@@ -99,8 +111,10 @@ void main(List<String> args) {
 
   /// appending rows and checking the time complexity of it
   Stopwatch stopwatch = Stopwatch()..start();
-  List<List<String>> list = List.generate(
-      9000, (index) => List.generate(20, (index1) => '$index $index1'));
+  List<List<TextCellValue>> list = List.generate(
+    9000,
+    (index) => List.generate(20, (index1) => TextCellValue('$index $index1')),
+  );
 
   print('list creation executed in ${stopwatch.elapsed}');
   stopwatch.reset();
@@ -109,7 +123,7 @@ void main(List<String> args) {
   });
   print('appending executed in ${stopwatch.elapsed}');
 
-  sheet.appendRow([8]);
+  sheet.appendRow([IntCellValue(8)]);
   bool isSet = excel.setDefaultSheet(sheet.sheetName);
   // isSet is bool which tells that whether the setting of default sheet is successful or not.
   if (isSet) {
@@ -128,7 +142,7 @@ void main(List<String> args) {
       rowIndex: columnIterableSheet.maxRows,
       columnIndex: columnIndex,
     ))
-      ..value = columnValue;
+      ..value = TextCellValue(columnValue);
   });
 
   // Saving the file

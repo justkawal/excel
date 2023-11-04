@@ -9,14 +9,14 @@ void main(List<String> args) {
   Sheet sh = excel['Sheet1'];
   for (int i = 0; i < 8; i++) {
     sh.cell(CellIndex.indexByColumnRow(rowIndex: 0, columnIndex: i)).value =
-        'Column $i';
+       TextCellValue('Column $i');
     //sh.cell(CellIndex.indexByColumnRow(rowIndex: 0, columnIndex: i)).cellStyle =CellStyle(bold: true);
   }
   for (int row = 1; row < 9000; row++) {
     for (int column = 0; column < 80; column++) {
       sh
           .cell(CellIndex.indexByColumnRow(rowIndex: row, columnIndex: column))
-          .value = '$row$column value';
+          .value = TextCellValue('$row$column value');
     }
   }
   print('Generating executed in ${stopwatch.elapsed}');

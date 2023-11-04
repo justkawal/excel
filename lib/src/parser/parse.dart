@@ -10,7 +10,7 @@ class Parser {
     this._worksheetTargets = <String, String>{};
   }
 
-  _startParsing() {
+  void _startParsing() {
     _putContentXml();
     _parseRelations();
     _parseStyles(_excel._stylesTarget);
@@ -19,14 +19,14 @@ class Parser {
     _parseMergedCells();
   }
 
-  _normalizeTable(Sheet sheet) {
+  void _normalizeTable(Sheet sheet) {
     if (sheet._maxRows == 0 || sheet._maxColumns == 0) {
       sheet._sheetData.clear();
     }
     sheet._countRowsAndColumns();
   }
 
-  _putContentXml() {
+  void _putContentXml() {
     var file = _excel._archive.findFile("[Content_Types].xml");
 
     if (file == null) {
@@ -37,7 +37,7 @@ class Parser {
         XmlDocument.parse(utf8.decode(file.content));
   }
 
-  _parseRelations() {
+  void _parseRelations() {
     var relations = _excel._archive.findFile('xl/_rels/workbook.xml.rels');
     if (relations != null) {
       relations.decompress();
@@ -69,7 +69,7 @@ class Parser {
     }
   }
 
-  _parseSharedStrings() {
+  void _parseSharedStrings() {
     var sharedStrings =
         _excel._archive.findFile(_excel._absSharedStringsTarget);
     if (sharedStrings == null) {
@@ -140,12 +140,12 @@ class Parser {
     });
   }
 
-  _parseSharedString(XmlElement node) {
+  void _parseSharedString(XmlElement node) {
     final sharedString = SharedString(node: node);
     _excel._sharedStrings.add(sharedString);
   }
 
-  _parseContent({bool run = true}) {
+  void _parseContent({bool run = true}) {
     var workbook = _excel._archive.findFile('xl/workbook.xml');
     if (workbook == null) {
       _damagedExcel();
@@ -166,7 +166,7 @@ class Parser {
     });
   }
 
-  _parseMergedCells() {
+  void _parseMergedCells() {
     Map spannedCells = <String, List<String>>{};
     _excel._sheets.forEach((sheetName, node) {
       _excel._availSheet(sheetName);
@@ -216,7 +216,7 @@ class Parser {
   }
 
   // Reading the styles from the excel file.
-  _parseStyles(String _stylesTarget) {
+  void _parseStyles(String _stylesTarget) {
     var styles = _excel._archive.findFile('xl/$_stylesTarget');
     if (styles != null) {
       styles.decompress();
@@ -231,10 +231,10 @@ class Parser {
       Iterable<XmlElement> fontList = document.findAllElements('font');
 
       document.findAllElements('patternFill').forEach((node) {
-        String patternType = node.getAttribute('patternType').toString(), rgb;
+        String patternType = node.getAttribute('patternType') ?? '', rgb;
         if (node.children.isNotEmpty) {
           node.findElements('fgColor').forEach((child) {
-            rgb = child.getAttribute('rgb').toString();
+            rgb = child.getAttribute('rgb') ?? '';
             _excel._patternFill.add(rgb);
           });
         } else {
@@ -292,9 +292,24 @@ class Parser {
         _excel._borderSetList.add(borderSet);
       });
 
+      document.findAllElements('numFmts').forEach((node1) {
+        node1.findAllElements('numFmt').forEach((node) {
+          final numFmtId = int.parse(node.getAttribute('numFmtId')!);
+          final formatCode = node.getAttribute('formatCode')!;
+          if (numFmtId < 164) {
+            throw Exception(
+                'custom numFmtId starts at 164 but found a value of $numFmtId');
+          }
+
+          _excel._numFormats
+              .add(numFmtId, NumFormat.custom(formatCode: formatCode));
+        });
+      });
+
       document.findAllElements('cellXfs').forEach((node1) {
         node1.findAllElements('xf').forEach((node) {
-          _excel._numFormats.add(_getFontIndex(node, 'numFmtId'));
+          final numFmtId = _getFontIndex(node, 'numFmtId');
+          _excel._numFmtIds.add(numFmtId);
 
           String fontColor = "FF000000", backgroundColor = "none";
           String? fontFamily;
@@ -411,6 +426,12 @@ class Parser {
             });
           }
 
+          var numFormat = _excel._numFormats.getByNumFmtId(numFmtId);
+          if (numFormat == null) {
+            assert(false, 'missing numFmt for ${numFmtId}');
+            numFormat = NumFormat.standard_0;
+          }
+
           CellStyle cellStyle = CellStyle(
             fontColorHex: fontColor,
             fontFamily: fontFamily,
@@ -430,6 +451,7 @@ class Parser {
             diagonalBorder: borderSet?.diagonalBorder,
             diagonalBorderUp: borderSet?.diagonalBorderUp ?? false,
             diagonalBorderDown: borderSet?.diagonalBorderDown ?? false,
+            numberFormat: numFormat,
           );
 
           _excel._cellStyleList.add(cellStyle);
@@ -469,7 +491,7 @@ class Parser {
     return 0;
   }
 
-  _parseTable(XmlElement node) {
+  void _parseTable(XmlElement node) {
     var name = node.getAttribute('name')!;
     var target = _worksheetTargets[node.getAttribute('r:id')];
 
@@ -521,7 +543,8 @@ class Parser {
     });
   }
 
-  _parseCell(XmlElement node, Sheet sheetObject, int rowIndex, String name) {
+  void _parseCell(
+      XmlElement node, Sheet sheetObject, int rowIndex, String name) {
     int? columnIndex = _getCellNumber(node);
     if (columnIndex == null) {
       return;
@@ -543,81 +566,69 @@ class Parser {
       }
     }
 
-    if (node.children.isEmpty) {
-      return;
-    }
-
-    dynamic value;
+    CellValue? value;
     String? type = node.getAttribute('t');
 
     switch (type) {
       // sharedString
       case 's':
-        value = _excel._sharedStrings
+        final sharedString = _excel._sharedStrings
             .value(int.parse(_parseValue(node.findElements('v').first)));
+        value = TextCellValue(sharedString!.stringValue);
         break;
       // boolean
       case 'b':
-        value = _parseValue(node.findElements('v').first) == '1';
+        value = BoolCellValue(_parseValue(node.findElements('v').first) == '1');
         break;
       // error
       case 'e':
       // formula
       case 'str':
-        value = _parseValue(node.findElements('v').first);
+        value = FormulaCellValue(_parseValue(node.findElements('v').first));
         break;
       // inline string
       case 'inlineStr':
         // <c r='B2' t='inlineStr'>
         // <is><t>Dartonico</t></is>
         // </c>
-        value = _parseValue(node.findAllElements('t').first);
+        value = TextCellValue(_parseValue(node.findAllElements('t').first));
         break;
       // number
       case 'n':
       default:
-        var valueNode = node.findElements('v');
         var formulaNode = node.findElements('f');
-        var content = valueNode.first;
         if (formulaNode.isNotEmpty) {
-          value = Formula.custom(_parseValue(formulaNode.first).toString());
+          value = FormulaCellValue(_parseValue(formulaNode.first).toString());
         } else {
-          if (s1 != null) {
-            var fmtId = _excel._numFormats[s];
-            // date
-            if (((fmtId >= 14) && (fmtId <= 17)) ||
-                (fmtId == 22) ||
-                (fmtId == 164)) {
-              var delta = num.parse(_parseValue(content)) * 24 * 3600 * 1000;
-              var date = DateTime(1899, 12, 30);
-              value = date
-                  .add(Duration(milliseconds: delta.toInt()))
-                  .toIso8601String();
-              // time
-            } else if (((fmtId >= 18) && (fmtId <= 21)) ||
-                ((fmtId >= 45) && (fmtId <= 47))) {
-              var delta = num.parse(_parseValue(content)) * 24 * 3600 * 1000;
-              var date = DateTime(0);
-              date = date.add(Duration(milliseconds: delta.toInt()));
-              value =
-                  '${_twoDigits(date.hour)}:${_twoDigits(date.minute)}:${_twoDigits(date.second)}';
-              // number
+          final vNode = node.findElements('v').firstOrNull;
+          if (vNode == null) {
+            value = null;
+          } else if (s1 != null) {
+            final v = _parseValue(vNode);
+            var numFmtId = _excel._numFmtIds[s];
+            final numFormat = _excel._numFormats.getByNumFmtId(numFmtId);
+            if (numFormat == null) {
+              assert(
+                  false, 'found no number format spec for numFmtId $numFmtId');
+              value = NumFormat.defaultNumeric.read(v);
             } else {
-              value = num.parse(_parseValue(content));
+              value = numFormat.read(v);
             }
           } else {
-            value = num.parse(_parseValue(content));
+            final v = _parseValue(vNode);
+            value = NumFormat.defaultNumeric.read(v);
           }
         }
     }
+
     sheetObject.updateCell(
-        CellIndex.indexByColumnRow(
-            columnIndex: columnIndex, rowIndex: rowIndex),
-        value,
-        cellStyle: _excel._cellStyleList[s]);
+      CellIndex.indexByColumnRow(columnIndex: columnIndex, rowIndex: rowIndex),
+      value,
+      cellStyle: _excel._cellStyleList[s],
+    );
   }
 
-  static _parseValue(XmlElement node) {
+  static String _parseValue(XmlElement node) {
     var buffer = StringBuffer();
 
     node.children.forEach((child) {
@@ -646,7 +657,7 @@ class Parser {
   ///Creates the sheet with name `newSheet` as file output and then adds it to the archive directory.
   ///
   ///
-  _createSheet(String newSheet) {
+  void _createSheet(String newSheet) {
     /*
     List<XmlNode> list = _excel._xmlFiles['xl/workbook.xml']
         .findAllElements('sheets')

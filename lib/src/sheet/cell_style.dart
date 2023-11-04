@@ -3,7 +3,8 @@ part of excel;
 /// Styling class for cells
 // ignore: must_be_immutable
 class CellStyle extends Equatable {
-  String _fontColorHex = 'FF000000', _backgroundColorHex = 'none';
+  String _fontColorHex = 'FF000000';
+  String _backgroundColorHex = 'none';
   String? _fontFamily;
   HorizontalAlign _horizontalAlign = HorizontalAlign.Left;
   VerticalAlign _verticalAlign = VerticalAlign.Bottom;
@@ -12,13 +13,14 @@ class CellStyle extends Equatable {
   Underline _underline = Underline.None;
   int? _fontSize;
   int _rotation = 0;
-  late Border _leftBorder;
-  late Border _rightBorder;
-  late Border _topBorder;
-  late Border _bottomBorder;
-  late Border _diagonalBorder;
+  Border _leftBorder;
+  Border _rightBorder;
+  Border _topBorder;
+  Border _bottomBorder;
+  Border _diagonalBorder;
   bool _diagonalBorderUp = false;
   bool _diagonalBorderDown = false;
+  NumFormat numberFormat;
 
   CellStyle({
     String fontColorHex = 'FF000000',
@@ -39,41 +41,24 @@ class CellStyle extends Equatable {
     Border? diagonalBorder,
     bool diagonalBorderUp = false,
     bool diagonalBorderDown = false,
-  }) {
-    _textWrapping = textWrapping;
-
-    _bold = bold;
-
-    _fontSize = fontSize;
-
-    _italic = italic;
-
-    _fontFamily = fontFamily;
-
-    _rotation = rotation;
-
-    _fontColorHex = _isColorAppropriate(fontColorHex);
-
-    _backgroundColorHex = _isColorAppropriate(backgroundColorHex);
-
-    _verticalAlign = verticalAlign;
-
-    _horizontalAlign = horizontalAlign;
-
-    _leftBorder = leftBorder ?? Border();
-
-    _rightBorder = rightBorder ?? Border();
-
-    _topBorder = topBorder ?? Border();
-
-    _bottomBorder = bottomBorder ?? Border();
-
-    _diagonalBorder = diagonalBorder ?? Border();
-
-    _diagonalBorderUp = diagonalBorderUp;
-
-    _diagonalBorderDown = diagonalBorderDown;
-  }
+    this.numberFormat = NumFormat.standard_0,
+  })  : _textWrapping = textWrapping,
+        _bold = bold,
+        _fontSize = fontSize,
+        _italic = italic,
+        _fontFamily = fontFamily,
+        _rotation = rotation,
+        _fontColorHex = _isColorAppropriate(fontColorHex),
+        _backgroundColorHex = _isColorAppropriate(backgroundColorHex),
+        _verticalAlign = verticalAlign,
+        _horizontalAlign = horizontalAlign,
+        _leftBorder = leftBorder ?? Border(),
+        _rightBorder = rightBorder ?? Border(),
+        _topBorder = topBorder ?? Border(),
+        _bottomBorder = bottomBorder ?? Border(),
+        _diagonalBorder = diagonalBorder ?? Border(),
+        _diagonalBorderUp = diagonalBorderUp,
+        _diagonalBorderDown = diagonalBorderDown;
 
   CellStyle copyWith({
     String? fontColorHexVal,
@@ -94,6 +79,7 @@ class CellStyle extends Equatable {
     Border? diagonalBorderVal,
     bool? diagonalBorderUpVal,
     bool? diagonalBorderDownVal,
+    NumFormat? numberFormat,
   }) {
     return CellStyle(
       fontColorHex: fontColorHexVal ?? this._fontColorHex,
@@ -114,6 +100,7 @@ class CellStyle extends Equatable {
       diagonalBorder: diagonalBorderVal ?? this._diagonalBorder,
       diagonalBorderUp: diagonalBorderUpVal ?? this._diagonalBorderUp,
       diagonalBorderDown: diagonalBorderDownVal ?? this._diagonalBorderDown,
+      numberFormat: numberFormat ?? this.numberFormat,
     );
   }
 
@@ -361,5 +348,6 @@ class CellStyle extends Equatable {
         _diagonalBorder,
         _diagonalBorderUp,
         _diagonalBorderDown,
+        numberFormat,
       ];
 }

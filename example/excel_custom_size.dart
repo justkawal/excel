@@ -11,27 +11,27 @@ void main(List<String> args) {
   for (var row = 0; row < 100; row++) {
     sheet
         .cell(CellIndex.indexByColumnRow(columnIndex: 0, rowIndex: row))
-        .value = getRandString();
+        .value = TextCellValue(getRandString());
 
     sheet
         .cell(CellIndex.indexByColumnRow(columnIndex: 1, rowIndex: row))
-        .value = getRandString();
+        .value = TextCellValue(getRandString());
 
     sheet
         .cell(CellIndex.indexByColumnRow(columnIndex: 2, rowIndex: row))
-        .value = getRandString();
+        .value = TextCellValue(getRandString());
 
     sheet
         .cell(CellIndex.indexByColumnRow(columnIndex: 4, rowIndex: row))
-        .value = getRandString();
+        .value = TextCellValue(getRandString());
 
     sheet
         .cell(CellIndex.indexByColumnRow(columnIndex: 7, rowIndex: row))
-        .value = getRandString();
+        .value = TextCellValue(getRandString());
 
     sheet
         .cell(CellIndex.indexByColumnRow(columnIndex: 50, rowIndex: row))
-        .value = getRandString();
+        .value = TextCellValue(getRandString());
   }
 
   sheet.setDefaultColumnWidth();
