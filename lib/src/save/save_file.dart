@@ -423,7 +423,6 @@ class Save {
     final columnCount = max(autoFits.length, customWidths.length);
 
     List<double> columnWidths = <double>[];
-    int min = 0;
 
     double defaultColumnWidth = sheetObject.defaultColumnWidth ?? _excelDefaultColumnWidth;
 
