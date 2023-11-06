@@ -81,7 +81,7 @@ for (var table in excel.tables.keys) {
           print('  int: ${value.value}');
           print('  format: ${numFormat}');
         case BoolCellValue():
-          print('  bool: ${value.value ? 'YES!!' : 'NO..' )}');
+          print('  bool: ${value.value ? 'YES!!' : 'NO..' }');
           print('  format: ${numFormat}');
         case DoubleCellValue():
           print('  double: ${value.value}');
