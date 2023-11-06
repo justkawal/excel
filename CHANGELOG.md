@@ -11,6 +11,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - `CellIndex.indexByColumnRow()` now requires non-null integers of row index and column index
 
+## [4.0.0] - ???
+
+### Breaking Changes
+
+- Renamed `Formula` to `FormulaCellValue`
+- Cells value now represented by the sealed class `CellValue` instead of `dynamic`. Subtypes are `TextCellValue` `FormulaCellValue`, `IntCellValue`, `DoubleCellValue`, `DateCellValue`, `TextCellValue`, `BoolCellValue`, `TimeCellValue`, `DateTimeCellValue` and they allow for exhaustive switch (see [Dart Docs (sealed class modifier)](https://dart.dev/language/class-modifiers#sealed)).
+
+### Added
+
+- Added support for date, time and date-time values
+- Added support for custom number formats
+- Strict typing for cell values (that allow for exhaustive switch statements)
+
+### Fixed
+
+- Issue where seamingly random values are converted to a date iso8601 string, caused by incorrect interpretation of numFmtId=164
+
+
 ## [3.0.0] - 2023-07-30
 
 ### Breaking Changes
