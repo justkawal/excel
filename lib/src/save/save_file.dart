@@ -439,15 +439,7 @@ class Save {
       }
 
       columnWidths.add(width);
-
-      if (index != 0 && columnWidths[index - 1] != width) {
-        _addNewColumn(columns, min, index - 1, columnWidths[index - 1]);
-        min = index;
-      }
-
-      if (index == (columnCount - 1)) {
-        _addNewColumn(columns, index, index, width);
-      }
+      _addNewColumn(columns, index, index, width);
     }
   }
 
