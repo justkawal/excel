@@ -37,7 +37,7 @@
 
 Is your excel file password protected? [Protect](https://github.com/justkawal/protect.git) helps you to apply and remove password protection on your excel file.
 
-## Breaking changes from 4.x.x to 4.x.x
+## Breaking changes from 3.x.x to 4.x.x
 
 - Renamed `Formula` to `FormulaCellValue`
 - Cells value now represented by the sealed class `CellValue` instead of `dynamic`. Subtypes are `TextCellValue` `FormulaCellValue`, `IntCellValue`, `DoubleCellValue`, `DateCellValue`, `TextCellValue`, `BoolCellValue`, `TimeCellValue`, `DateTimeCellValue` and they allow for exhaustive switch (see [Dart Docs (sealed class modifier)](https://dart.dev/language/class-modifiers#sealed)).
@@ -81,7 +81,7 @@ for (var table in excel.tables.keys) {
           print('  int: ${value.value}');
           print('  format: ${numFormat}');
         case BoolCellValue():
-          print('  bool: ${value.value ? 'YES!' : 'NO :(' )}');
+          print('  bool: ${value.value ? 'YES!!' : 'NO..' )}');
           print('  format: ${numFormat}');
         case DoubleCellValue():
           print('  double: ${value.value}');
@@ -181,20 +181,24 @@ cell.value = IntCellValue(8);
 cell.value = BoolCellValue(true);
 cell.value = DoubleCellValue(13.37);
 cell.value = DateCellValue(year: 2023, month: 4, day: 20);
-cell.value = TimeCellValue(hour: 20, minute: 15);
-cell.value = DateTimeCellValue(year: 2023, month: 4, day: 20, hour: 15, minute: 44, second: 13);
+cell.value = TimeCellValue(hour: 20, minute: 15, second: 5, millisecond: ...);
+cell.value = DateTimeCellValue(year: 2023, month: 4, day: 20, hour: 15, ...);
 cell.cellStyle = cellStyle;
 
 // setting the number style
 cell.cellStyle = (cell.cellStyle ?? CellStyle()).copyWith(
-  /// for DateCellValue, TimeCellValue and DateTimeCellValue use:
-  numberFormat: CustomDateTimeNumFormat(''), 
 
   /// for IntCellValue, DoubleCellValue and BoolCellValue use; 
-  numberFormat: CustomNumericNumFormat(), 
+  numberFormat: CustomNumericNumFormat('#,##0.00 \\m\\²'),
+
+  /// for DateCellValue and DateTimeCellValue use:
+  numberFormat: CustomDateTimeNumFormat('m/d/yy h:mm'),
+
+  /// for TimeCellValue use:
+  numberFormat: CustomDateTimeNumFormat('mm:ss'),
 
   /// a builtin format for dates
-  numberFormat: NumFormat.standard_14, 
+  numberFormat: NumFormat.standard_14,
   
   /// a builtin format that uses a red text color for negative numbers
   numberFormat: NumFormat.standard_38,
@@ -202,7 +206,8 @@ cell.cellStyle = (cell.cellStyle ?? CellStyle()).copyWith(
   // The numberFormat changes automatially if you set a CellValue that 
   // does not work with the numberFormat set previously. So in case you
   // want to set a new value, e.g. from a date to a decimal number, 
-  // make sure you first set the new value and then the number format).
+  // make sure you set the new value first and then your custom
+  // numberFormat).
 );
 
 
