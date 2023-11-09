@@ -17,6 +17,9 @@ part 'src/excel.dart';
 /// sharedStrigns
 part 'src/sharedStrings/shared_strings.dart';
 
+/// Number Format
+part 'src/number_format/num_format.dart';
+
 /// Utilities
 part 'src/utilities/span.dart';
 part 'src/utilities/fast_list.dart';
@@ -33,7 +36,6 @@ part 'src/parser/parse.dart';
 part 'src/sheet/sheet.dart';
 part 'src/sheet/font_family.dart';
 part 'src/sheet/data_model.dart';
-part 'src/sheet/formula.dart';
 part 'src/sheet/cell_index.dart';
 part 'src/sheet/cell_style.dart';
 part 'src/sheet/font_style.dart';

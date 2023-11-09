@@ -26,17 +26,6 @@ enum HorizontalAlign {
 }
 
 ///
-///`Cell Type`
-///
-enum CellType {
-  String,
-  int,
-  Formula,
-  double,
-  bool,
-}
-
-///
 ///`Underline`
 ///
 enum Underline {

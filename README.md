@@ -37,6 +37,11 @@
 
 Is your excel file password protected? [Protect](https://github.com/justkawal/protect.git) helps you to apply and remove password protection on your excel file.
 
+## Breaking changes from 3.x.x to 4.x.x
+
+- Renamed `Formula` to `FormulaCellValue`
+- Cells value now represented by the sealed class `CellValue` instead of `dynamic`. Subtypes are `TextCellValue` `FormulaCellValue`, `IntCellValue`, `DoubleCellValue`, `DateCellValue`, `TextCellValue`, `BoolCellValue`, `TimeCellValue`, `DateTimeCellValue` and they allow for exhaustive switch (see [Dart Docs (sealed class modifier)](https://dart.dev/language/class-modifiers#sealed)).
+
 ## Breaking changes from 2.x.x to 3.x.x
 
 - Renamed `getColAutoFits()` to `getColumnAutoFits()`, and changed return type to `Map<int, bool>` in `Sheet`
@@ -59,7 +64,38 @@ for (var table in excel.tables.keys) {
   print(excel.tables[table].maxColumns);
   print(excel.tables[table].maxRows);
   for (var row in excel.tables[table].rows) {
-    print('$row');
+    for (var cell in row) {
+      print('cell ${cell.rowIndex}/${cell.columnIndex}');
+      final value = cell.value;
+      final numFormat = cell.cellStyle?.numberFormat ?? NumFormat.standard_0;
+      switch(value){
+        case null:
+          print('  empty cell');
+          print('  format: ${numFormat}');
+        case TextCellValue():
+          print('  text: ${value.value}');
+        case FormulaCellValue():
+          print('  formula: ${value.formula}');
+          print('  format: ${numFormat}');
+        case IntCellValue():
+          print('  int: ${value.value}');
+          print('  format: ${numFormat}');
+        case BoolCellValue():
+          print('  bool: ${value.value ? 'YES!!' : 'NO..' }');
+          print('  format: ${numFormat}');
+        case DoubleCellValue():
+          print('  double: ${value.value}');
+          print('  format: ${numFormat}');
+        case DateCellValue():
+          print('  date: ${value.year} ${value.month} ${value.day} (${value.asDateTimeLocal()})');
+        case TimeCellValue():
+          print('  time: ${value.hour} ${value.minute} ... (${value.asDuration()})');
+        case DateTimeCellValue():
+          print('  date with time: ${value.year} ${value.month} ${value.day} ${value.hour} ... (${value.asDateTimeLocal()})');
+      }
+
+      print('$row');
+    }
   }
 }
 ```
@@ -139,11 +175,54 @@ cellStyle.underline = Underline.Single; // or Underline.Double
 
 
 var cell = sheetObject.cell(CellIndex.indexByString('A1'));
-cell.value = 8; // dynamic values support provided;
+cell.value = null; // removing any value
+cell.value = TextCellValue('Some Text');
+cell.value = IntCellValue(8);
+cell.value = BoolCellValue(true);
+cell.value = DoubleCellValue(13.37);
+cell.value = DateCellValue(year: 2023, month: 4, day: 20);
+cell.value = TimeCellValue(hour: 20, minute: 15, second: 5, millisecond: ...);
+cell.value = DateTimeCellValue(year: 2023, month: 4, day: 20, hour: 15, ...);
 cell.cellStyle = cellStyle;
 
+// setting the number style
+cell.cellStyle = (cell.cellStyle ?? CellStyle()).copyWith(
+
+  /// for IntCellValue, DoubleCellValue and BoolCellValue use; 
+  numberFormat: CustomNumericNumFormat('#,##0.00 \\m\\²'),
+
+  /// for DateCellValue and DateTimeCellValue use:
+  numberFormat: CustomDateTimeNumFormat('m/d/yy h:mm'),
+
+  /// for TimeCellValue use:
+  numberFormat: CustomDateTimeNumFormat('mm:ss'),
+
+  /// a builtin format for dates
+  numberFormat: NumFormat.standard_14,
+  
+  /// a builtin format that uses a red text color for negative numbers
+  numberFormat: NumFormat.standard_38,
+
+  // The numberFormat changes automatially if you set a CellValue that 
+  // does not work with the numberFormat set previously. So in case you
+  // want to set a new value, e.g. from a date to a decimal number, 
+  // make sure you set the new value first and then your custom
+  // numberFormat).
+);
+
+
 // printing cell-type
-print('CellType: '+ cell.cellType.toString());
+print('CellType: ' + switch(cell.value) {
+  null => 'empty cell',
+  TextCellValue() => 'text',
+  FormulaCellValue() => 'formula',
+  IntCellValue() => 'int',
+  BoolCellValue() => 'bool',
+  DoubleCellValue() => 'double',
+  DateCellValue() => 'date',
+  TimeCellValue => 'time',
+  DateTimeCellValue => 'date with time',
+});
 
 ///
 /// Inserting and removing column and rows
@@ -183,6 +262,7 @@ sheetObject.removeRow(80);
 | diagonalBorder     | the diagonal "border" of the cell                                                                                                       |
 | diagonalBorderUp   | boolean value indicating if the diagonal "border" should be displayed on the up diagonal                                                |
 | diagonalBorderDown | boolean value indicating if the diagonal "border" should be displayed on the down diagonal                                              |
+| numberFormat       | a subtype of ```NumFormat``` to style the CellValue displayed, use default formats such as ```NumFormat.standard_34``` or create your own using ```CustomNumericNumFormat('#,##0.00 \\m\\²')``` ```CustomDateTimeNumFormat('m/d/yy h:mm')```  ```CustomTimeNumFormat('mm:ss')``` |
 
 ### Borders
 Borders are defined for each side (left, right, top, and bottom) of the cell. Both diagonals (up and down) share the
@@ -309,13 +389,13 @@ Sheet unlinked_sheetObject = excel['sheetName'];
 
 ```dart
 /*
- * sheetObject.merge(CellIndex starting_cell, CellIndex ending_cell, dynamic 'customValue');
+ * sheetObject.merge(CellIndex starting_cell, CellIndex ending_cell, TextCellValue('customValue'));
  * sheetObject created by calling - // Sheet sheetObject = excel['SheetName'];
  * starting_cell and ending_cell can be identified with Cell Address or by 2D array having row and column Index;
  * customValue is optional
  */
 
-sheetObject.merge(CellIndex.indexByString('A1'), CellIndex.indexByString('E4'), customValue: 'Put this text after merge');
+sheetObject.merge(CellIndex.indexByString('A1'), CellIndex.indexByString('E4'), customValue: TextCellValue('Put this text after merge'));
 ```
 
 ### Get Merged Cells List
@@ -369,7 +449,7 @@ int replacedCount = sheetObject.findAndReplace('Flutter', 'Google');
  */
 
 /// It will put the list-iterables in the 8th index row
-List<String> dataList = ['Google', 'loves', 'Flutter', 'and', 'Flutter', 'loves', 'Excel'];
+List<CellValue> dataList = [TextCellValue('Google'), TextCellValue('loves'), TextCellValue('Flutter'), TextCellValue('and'), TextCellValue('Flutter'), TextCellValue('loves'), TextCellValue('Excel')];
 
 sheetObject.insertRowIterables(dataList, 8);
 ```
@@ -390,7 +470,7 @@ sheetObject.insertRowIterables(dataList, 8);
  * list-iterables === list of iterables
  */
 
-sheetObject.appendRow(['Flutter', 'till', 'Eternity']);
+sheetObject.appendRow([TextCellValue('Flutter'), TextCellValue('till'), TextCellValue('Eternity')]);
 ```
 
 ### Get Default Opening Sheet

@@ -19,7 +19,7 @@ void main(List<String> args) {
 
   sheet.updateCell(
     CellIndex.indexByColumnRow(columnIndex: 1, rowIndex: 1),
-    "Merged cell border",
+    TextCellValue("Merged cell border"),
   );
 
   sheet.setMergedCellStyle(
@@ -50,7 +50,7 @@ void main(List<String> args) {
 
   sheet.updateCell(
     CellIndex.indexByColumnRow(columnIndex: 0, rowIndex: 1),
-    "Normal border",
+    TextCellValue("Normal border"),
     cellStyle: CellStyle(
       fontSize: 25,
       topBorder: border,

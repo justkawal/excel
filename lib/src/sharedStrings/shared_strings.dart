@@ -1,20 +1,16 @@
 part of excel;
 
 class _SharedStringsMaintainer {
-  static final instance = _SharedStringsMaintainer._();
+  late Map<SharedString, _IndexingHolder> _map =
+      <SharedString, _IndexingHolder>{};
+  late List<SharedString> _list = <SharedString>[];
+  late int _index = 0;
 
-  late Map<SharedString, _IndexingHolder> _map;
-  late List<SharedString> _list;
-  late int _index;
+  _SharedStringsMaintainer._();
 
-  factory _SharedStringsMaintainer._() {
-    return _SharedStringsMaintainer();
-  }
-
-  _SharedStringsMaintainer() {
-    _map = <SharedString, _IndexingHolder>{};
-    _list = <SharedString>[];
-    _index = 0;
+  SharedString? tryFind(String val) {
+    assert(val.isNotEmpty);
+    return _list.firstWhereOrNull((e) => e.matches(val));
   }
 
   SharedString addFromString(String val) {
@@ -83,6 +79,12 @@ class SharedString {
 
   @override
   String toString() {
+    assert(false,
+        'prefer stringValue over SharedString.toString() in development');
+    return stringValue;
+  }
+
+  String get stringValue {
     var buffer = StringBuffer();
     node.findAllElements('t').forEach((child) {
       if (child.parentElement == null ||
@@ -98,11 +100,12 @@ class SharedString {
 
   @override
   operator ==(Object other) {
-    if (other.hashCode == _hashCode) {
-      if (other.toString() == toString()) {
-        return true;
-      }
-    }
-    return false;
+    return other is SharedString &&
+        other.hashCode == _hashCode &&
+        other.stringValue == stringValue;
+  }
+
+  bool matches(String value) {
+    return value.isNotEmpty && value == stringValue;
   }
 }

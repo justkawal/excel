@@ -40,7 +40,8 @@ class Excel {
   late List<String> _mergeChangeLook;
   late List<String> _rtlChangeLook;
   late List<_FontStyle> _fontStyleList;
-  late List<int> _numFormats;
+  late List<int> _numFmtIds;
+  late NumFormatMaintainer _numFormats = NumFormatMaintainer();
   late List<_BorderSet> _borderSetList;
 
   late _SharedStringsMaintainer _sharedStrings;
@@ -71,13 +72,12 @@ class Excel {
     _mergeChangeLook = <String>[];
     _rtlChangeLook = <String>[];
     _fontStyleList = <_FontStyle>[];
-    _numFormats = <int>[];
+    _numFmtIds = <int>[];
     _stylesTarget = '';
     _sharedStringsTarget = '';
 
     _archive = archive;
-    _sharedStrings = _SharedStringsMaintainer.instance;
-    _sharedStrings.ensureReinitialize();
+    _sharedStrings = _SharedStringsMaintainer._();
     parser = Parser._(this);
     parser._startParsing();
   }
@@ -89,12 +89,14 @@ class Excel {
   }
 
   factory Excel.decodeBytes(List<int> data) {
+    final Archive archive;
     try {
-      return _newExcel(ZipDecoder().decodeBytes(data));
+      archive = ZipDecoder().decodeBytes(data);
     } catch (e) {
       throw UnsupportedError(
           'Excel format unsupported. Only .xlsx files are supported');
     }
+    return _newExcel(archive);
   }
 
   factory Excel.decodeBuffer(InputStream input) {
@@ -252,8 +254,8 @@ class Excel {
     ///
     /// remove from `_xmlSheetId`.
     if (_xmlSheetId[sheet] != null) {
-      String sheetId1 = "worksheets" +
-              _xmlSheetId[sheet].toString().split('worksheets')[1].toString(),
+      String sheetId1 =
+              "worksheets" + _xmlSheetId[sheet]!.split('worksheets')[1],
           sheetId2 = _xmlSheetId[sheet]!;
 
       _xmlFiles['xl/_rels/workbook.xml.rels']
@@ -261,7 +263,7 @@ class Excel {
           .children
           .removeWhere((_sheetName) {
         return _sheetName.getAttribute('Target') != null &&
-            _sheetName.getAttribute('Target').toString() == sheetId1;
+            _sheetName.getAttribute('Target') == sheetId1;
       });
 
       _xmlFiles['[Content_Types].xml']
@@ -269,14 +271,13 @@ class Excel {
           .children
           .removeWhere((_sheetName) {
         return _sheetName.getAttribute('PartName') != null &&
-            _sheetName.getAttribute('PartName').toString() == '/' + sheetId2;
+            _sheetName.getAttribute('PartName') == '/' + sheetId2;
       });
 
       ///
       /// Remove from the `_archive` also
       _archive.files.removeWhere((file) {
-        return file.name.toLowerCase() ==
-            _xmlSheetId[sheet].toString().toLowerCase();
+        return file.name.toLowerCase() == _xmlSheetId[sheet]?.toLowerCase();
       });
 
       ///
@@ -374,7 +375,7 @@ class Excel {
     if (_sheet != null) {
       var defaultSheet = _sheet.getAttribute('name');
       if (defaultSheet != null) {
-        return defaultSheet.toString();
+        return defaultSheet;
       } else {
         _damagedExcel(
             text: 'Excel sheet corrupted!! Try creating new excel file.');
@@ -447,7 +448,7 @@ class Excel {
   ///
   ///If `sheet` does not exist then it will be automatically created.
   ///
-  void appendRow(String sheet, List<dynamic> row) {
+  void appendRow(String sheet, List<CellValue?> row) {
     if (row.isEmpty) {
       return;
     }
@@ -467,7 +468,7 @@ class Excel {
   ///
   ///[overwriteMergedCells] when set to [false] puts the cell value to next unique cell available by putting the value in merged cells only once and jumps to next unique cell.
   ///
-  void insertRowIterables(String sheet, List<dynamic> row, int rowIndex,
+  void insertRowIterables(String sheet, List<CellValue?> row, int rowIndex,
       {int startingColumn = 0, bool overwriteMergedCells = true}) {
     if (rowIndex < 0) {
       return;
@@ -481,7 +482,7 @@ class Excel {
   ///
   ///Returns the `count` of replaced `source` with `target`
   ///
-  ///`source` is dynamic which allows you to pass your custom `RegExp` providing more control over it.
+  ///`source` is Pattern which allows you to pass your custom `RegExp` or a `String` providing more control over it.
   ///
   ///optional argument `first` is used to replace the number of first earlier occurrences
   ///
@@ -498,7 +499,7 @@ class Excel {
   ///
   ///Other `options` are used to `narrow down` the `starting and ending ranges of cells`.
   ///
-  int findAndReplace(String sheet, dynamic source, dynamic target,
+  int findAndReplace(String sheet, Pattern source, dynamic target,
       {int first = -1,
       int startingRow = -1,
       int endingRow = -1,
@@ -538,16 +539,11 @@ class Excel {
   ///
   ///If `sheet` does not exist then it will be automatically created.
   ///
-  void updateCell(String sheet, CellIndex cellIndex, dynamic value,
+  void updateCell(String sheet, CellIndex cellIndex, CellValue? value,
       {CellStyle? cellStyle}) {
     _availSheet(sheet);
 
-    if (cellStyle != null) {
-      _styleChanges = true;
-      _sheetMap[sheet]!.updateCell(cellIndex, value, cellStyle: cellStyle);
-    } else {
-      _sheetMap[sheet]!.updateCell(cellIndex, value);
-    }
+    _sheetMap[sheet]!.updateCell(cellIndex, value, cellStyle: cellStyle);
   }
 
   ///
@@ -558,7 +554,7 @@ class Excel {
   ///If `sheet` does not exist then it will be automatically created.
   ///
   void merge(String sheet, CellIndex start, CellIndex end,
-      {dynamic customValue}) {
+      {CellValue? customValue}) {
     _availSheet(sheet);
     _sheetMap[sheet]!.merge(start, end, customValue: customValue);
   }

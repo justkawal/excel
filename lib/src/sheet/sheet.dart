@@ -671,7 +671,8 @@ class Sheet {
   ///
   /// If `sheet` does not exist then it will be automatically created.
   ///
-  void updateCell(CellIndex cellIndex, dynamic value, {CellStyle? cellStyle}) {
+  void updateCell(CellIndex cellIndex, CellValue? value,
+      {CellStyle? cellStyle}) {
     int columnIndex = cellIndex.columnIndex;
     int rowIndex = cellIndex.rowIndex;
     if (columnIndex < 0 || rowIndex < 0) {
@@ -693,6 +694,24 @@ class Sheet {
     /// Puts Data
     _putData(newRowIndex, newColumnIndex, value);
 
+    // check if the numberFormat works with the value provided
+    // otherwise fall back to the default for this value type
+    if (cellStyle != null) {
+      final numberFormat = cellStyle.numberFormat;
+      if (!numberFormat.accepts(value)) {
+        cellStyle =
+            cellStyle.copyWith(numberFormat: NumFormat.defaultFor(value));
+      }
+    } else {
+      final cellStyleBefore =
+          _sheetData[cellIndex.rowIndex]?[cellIndex.columnIndex]?.cellStyle;
+      if (cellStyleBefore != null &&
+          !cellStyleBefore.numberFormat.accepts(value)) {
+        cellStyle = cellStyleBefore.copyWith(
+            numberFormat: NumFormat.defaultFor(value));
+      }
+    }
+
     /// Puts the cellStyle
     if (cellStyle != null) {
       _sheetData[newRowIndex]![newColumnIndex]!._cellStyle = cellStyle;
@@ -705,7 +724,7 @@ class Sheet {
   ///
   /// If `custom value` is not defined then it will look for the very first available value in range `start` to `end` by searching row-wise from left to right.
   ///
-  merge(CellIndex start, CellIndex end, {dynamic customValue}) {
+  void merge(CellIndex start, CellIndex end, {CellValue? customValue}) {
     int startColumn = start.columnIndex,
         startRow = start.rowIndex,
         endColumn = end.columnIndex,
@@ -740,12 +759,7 @@ class Sheet {
 
     Data value = Data.newData(this, startRow, startColumn);
     if (customValue != null) {
-      if (customValue is String) {
-        final sharedString = _excel._sharedStrings.addFromString(customValue);
-        value._value = sharedString;
-      } else {
-        value._value = customValue;
-      }
+      value._value = customValue;
       getValue = false;
     }
 
@@ -792,7 +806,7 @@ class Sheet {
   ///        var cellToUnMerge = "A1:A2";
   ///        excel.unMerge(sheet, cellToUnMerge);
   ///
-  unMerge(String unmergeCells) {
+  void unMerge(String unmergeCells) {
     if (_spannedItems.isNotEmpty &&
         _spanList.isNotEmpty &&
         _spannedItems.contains(unmergeCells)) {
@@ -961,7 +975,7 @@ class Sheet {
   ///
   /// Appends [row] iterables just post the last filled `rowIndex`.
   ///
-  appendRow(List<dynamic> row) {
+  void appendRow(List<CellValue?> row) {
     int targetRow = maxRows;
     insertRowIterables(row, targetRow);
   }
@@ -1016,7 +1030,7 @@ class Sheet {
   ///
   /// [overwriteMergedCells] when set to [false] puts the cell value in next unique cell available and putting the value in merged cells only once.
   ///
-  insertRowIterables(List<dynamic> row, int rowIndex,
+  void insertRowIterables(List<CellValue?> row, int rowIndex,
       {int startingColumn = 0, bool overwriteMergedCells = true}) {
     if (row.isEmpty || rowIndex < 0) {
       return;
@@ -1066,32 +1080,17 @@ class Sheet {
   ///
   /// Internal function for putting the data in `_sheetData`.
   ///
-  _putData(int rowIndex, int columnIndex, dynamic value) {
-    if (_sheetData[rowIndex] != null) {
-      if (_sheetData[rowIndex]![columnIndex] == null) {
-        _sheetData[rowIndex]![columnIndex] =
-            Data.newData(this, rowIndex, columnIndex);
-      }
-    } else {
-      _sheetData[rowIndex] = {
-        columnIndex: Data.newData(this, rowIndex, columnIndex)
-      };
+  void _putData(int rowIndex, int columnIndex, CellValue? value) {
+    var row = _sheetData[rowIndex];
+    if (row == null) {
+      _sheetData[rowIndex] = row = {};
+    }
+    var cell = row[columnIndex];
+    if (cell == null) {
+      row[columnIndex] = cell = Data.newData(this, rowIndex, columnIndex);
     }
 
-    if (value is String) {
-      final sharedString = _excel._sharedStrings.addFromString(value);
-      _sheetData[rowIndex]![columnIndex]!._value = sharedString;
-    } else {
-      _sheetData[rowIndex]![columnIndex]!._value = value;
-    }
-
-    /// Sets value of `isFormula` to true if this is `instance of Formula`.
-    _sheetData[rowIndex]![columnIndex]!._isFormula =
-        value is Formula || value.runtimeType == Formula;
-
-    /// Sets type of the Data to `_cellType`
-    _sheetData[rowIndex]![columnIndex]!._cellType =
-        _getCellType(value.runtimeType);
+    cell._value = value;
 
     if ((_maxColumns - 1) < columnIndex) {
       _maxColumns = columnIndex + 1;
@@ -1206,25 +1205,10 @@ class Sheet {
     _rowHeights[rowIndex] = rowHeight;
   }
 
-  CellType _getCellType(var type) {
-    switch (type) {
-      case int:
-        return CellType.int;
-      case double:
-        return CellType.double;
-      case bool:
-        return CellType.bool;
-      case Formula:
-        return CellType.Formula;
-      default:
-        return CellType.String;
-    }
-  }
-
   ///
   ///Returns the `count` of replaced `source` with `target`
   ///
-  ///`source` is dynamic which allows you to pass your custom `RegExp` providing more control over it.
+  ///`source` is Pattern which allows you to pass your custom `RegExp` or a simple `String` providing more control over it.
   ///
   ///optional argument `first` is used to replace the number of first earlier occurrences
   ///
@@ -1241,7 +1225,7 @@ class Sheet {
   ///
   ///Other `options` are used to `narrow down` the `starting and ending ranges of cells`.
   ///
-  int findAndReplace(dynamic source, dynamic target,
+  int findAndReplace(Pattern source, String target,
       {int first = -1,
       int startingRow = -1,
       int endingRow = -1,
@@ -1274,12 +1258,6 @@ class Sheet {
     }
 
     int rowsLength = maxRows, columnLength = maxColumns;
-    RegExp sourceRegx;
-    if (source.runtimeType == RegExp) {
-      sourceRegx = source;
-    } else {
-      sourceRegx = RegExp(source.toString());
-    }
 
     for (int i = _startingRow; i < rowsLength; i++) {
       if (_endingRow != -1 && i > _endingRow) {
@@ -1289,18 +1267,18 @@ class Sheet {
         if (_endingColumn != -1 && j > _endingColumn) {
           break;
         }
-        if (_sheetData.isNotEmpty &&
-            _sheetData[i] != null &&
-            _sheetData[i]![j] != null &&
-            sourceRegx.hasMatch(_sheetData[i]![j]!.value.toString()) &&
-            (first == -1 || first != replaceCount)) {
-          _sheetData[i]![j]!.value = _sheetData[i]![j]!
-              .value
-              .toString()
-              .replaceAll(sourceRegx, target.toString());
-
-          replaceCount += 1;
+        final sourceData = _sheetData[i]?[j]?.value;
+        if (sourceData is! TextCellValue) {
+          continue;
         }
+        final result = sourceData.value.replaceAllMapped(source, (match) {
+          if (first == -1 || first != replaceCount) {
+            ++replaceCount;
+            return match.input.replaceRange(match.start, match.end, target);
+          }
+          return match.input;
+        });
+        _sheetData[i]![j]!.value = TextCellValue(result);
       }
     }
 
@@ -1380,7 +1358,7 @@ class Sheet {
   ///
   ///Check if columnIndex is not out of `Excel Column limits`.
   ///
-  _checkMaxColumn(int columnIndex) {
+  void _checkMaxColumn(int columnIndex) {
     if (_maxColumns >= 16384 || columnIndex >= 16384) {
       throw ArgumentError('Reached Max (16384) or (XFD) columns value.');
     }
@@ -1392,7 +1370,7 @@ class Sheet {
   ///
   ///Check if rowIndex is not out of `Excel Row limits`.
   ///
-  _checkMaxRow(int rowIndex) {
+  void _checkMaxRow(int rowIndex) {
     if (_maxRows >= 1048576 || rowIndex >= 1048576) {
       throw ArgumentError('Reached Max (1048576) rows value.');
     }
@@ -1429,7 +1407,7 @@ class Sheet {
   ///
   ///Cleans the `_SpanList` by removing the indexes where null value exists.
   ///
-  _cleanUpSpanMap() {
+  void _cleanUpSpanMap() {
     if (_spanList.isNotEmpty) {
       _spanList.removeWhere((value) {
         return value == null;
