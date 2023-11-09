@@ -326,7 +326,7 @@ void main() {
         equals('Moscow'));
   });
 
-  test('Saving XLSX File with superscript', () async {
+  test('Saving XLSX File with superscript', () {
     var file = './test/test_resources/superscriptExample.xlsx';
     var bytes = File(file).readAsBytesSync();
     var excel = Excel.decodeBytes(bytes);
@@ -411,7 +411,7 @@ void main() {
     expect(newCount!.value, "15");
   });
 
-  test('Saving XLSX File with superscript', () async {
+  test('Saving XLSX File with superscript', () {
     var file = './test/test_resources/superscriptExample.xlsx';
     var bytes = File(file).readAsBytesSync();
     var excel = Excel.decodeBytes(bytes);
@@ -586,7 +586,7 @@ void main() {
       }
     });
 
-    test('test support for merged cells with borders', () async {
+    test('test support for merged cells with borders', () {
       final file = './test/test_resources/mergedBorders.xlsx';
       final bytes = File(file).readAsBytesSync();
       final excel = Excel.decodeBytes(bytes);
@@ -669,7 +669,7 @@ void main() {
       }
     });
 
-    test('saving XLSX File with borders', () async {
+    test('saving XLSX File with borders', () {
       final file = './test/test_resources/borders.xlsx';
       final bytes = File(file).readAsBytesSync();
       final excel = Excel.decodeBytes(bytes);
@@ -723,7 +723,7 @@ void main() {
           equals('ロケール選択'));
     });
 
-    test('saving XLSX File without rPh elements', () async {
+    test('saving XLSX File without rPh elements', () {
       final file = './test/test_resources/rphSample.xlsx';
       final bytes = File(file).readAsBytesSync();
       final excel = Excel.decodeBytes(bytes);
