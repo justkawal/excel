@@ -686,9 +686,7 @@ class Sheet {
     /// Check if this is lying in merged-cell cross-section
     /// If yes then get the starting position of merged cells
     if (_spanList.isNotEmpty) {
-      List updatedPosition = _isInsideSpanning(rowIndex, columnIndex);
-      newRowIndex = updatedPosition[0];
-      newColumnIndex = updatedPosition[1];
+      (newRowIndex, newColumnIndex) = _isInsideSpanning(rowIndex, columnIndex);
     }
 
     /// Puts Data
@@ -707,8 +705,8 @@ class Sheet {
           _sheetData[cellIndex.rowIndex]?[cellIndex.columnIndex]?.cellStyle;
       if (cellStyleBefore != null &&
           !cellStyleBefore.numberFormat.accepts(value)) {
-        cellStyle = cellStyleBefore.copyWith(
-            numberFormat: NumFormat.defaultFor(value));
+        cellStyle =
+            cellStyleBefore.copyWith(numberFormat: NumFormat.defaultFor(value));
       }
     }
 
@@ -947,15 +945,14 @@ class Sheet {
         continue;
       }
 
-      List locationChange = _isLocationChangeRequired(
+      final locationChange = _isLocationChangeRequired(
           startColumn, startRow, endColumn, endRow, spanObj);
-      List<int> gotPosition = locationChange[1];
 
-      if (locationChange[0]) {
-        startColumn = gotPosition[0];
-        startRow = gotPosition[1];
-        endColumn = gotPosition[2];
-        endRow = gotPosition[3];
+      if (locationChange.$1) {
+        startColumn = locationChange.$2.$1;
+        startRow = locationChange.$2.$2;
+        endColumn = locationChange.$2.$3;
+        endRow = locationChange.$2.$4;
         String sp = getSpanCellId(spanObj.columnSpanStart, spanObj.rowSpanStart,
             spanObj.columnSpanEnd, spanObj.rowSpanEnd);
         if (_spannedItems.contains(sp)) {
@@ -1333,7 +1330,8 @@ class Sheet {
   ///If it exist then the very first index of than spanned cells is returned in order to point to the starting cell
   ///otherwise the parameters are returned back.
   ///
-  List<int> _isInsideSpanning(int rowIndex, int columnIndex) {
+  (int newRowIndex, int newColumnIndex) _isInsideSpanning(
+      int rowIndex, int columnIndex) {
     int newRowIndex = rowIndex, newColumnIndex = columnIndex;
 
     for (int i = 0; i < _spanList.length; i++) {
@@ -1352,7 +1350,7 @@ class Sheet {
       }
     }
 
-    return [newRowIndex, newColumnIndex];
+    return (newRowIndex, newColumnIndex);
   }
 
   ///

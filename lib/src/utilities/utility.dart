@@ -142,7 +142,10 @@ String getSpanCellId(int startColumn, int startRow, int endColumn, int endRow) {
 ///
 ///returns updated SpanObject location as there might be cross-sectional interaction between the two spanning objects.
 ///
-List _isLocationChangeRequired(
+(
+  bool changeValue,
+  (int startColumn, int startRow, int endColumn, int endRow)
+) _isLocationChangeRequired(
     int startColumn, int startRow, int endColumn, int endRow, _Span spanObj) {
   bool changeValue = (
           // Overlapping checker
@@ -194,10 +197,7 @@ List _isLocationChangeRequired(
     }
   }
 
-  return List.from([
-    changeValue,
-    [startColumn, startRow, endColumn, endRow]
-  ]);
+  return (changeValue, (startColumn, startRow, endColumn, endRow));
 }
 
 ///
