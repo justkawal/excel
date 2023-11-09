@@ -622,7 +622,7 @@ class Parser {
 
     node.children.forEach((child) {
       if (child is XmlText) {
-        buffer.write(_normalizeNewLine(child.text));
+        buffer.write(_normalizeNewLine(child.value));
       }
     });
 

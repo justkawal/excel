@@ -84,12 +84,12 @@ class HeaderFooter {
             headerFooterElement.getAttribute("differentOddEven")?.parseBool(),
         scaleWithDoc:
             headerFooterElement.getAttribute("scaleWithDoc")?.parseBool(),
-        evenHeader: headerFooterElement.getElement("evenHeader")?.text,
-        evenFooter: headerFooterElement.getElement("evenFooter")?.text,
-        firstHeader: headerFooterElement.getElement("firstHeader")?.text,
-        firstFooter: headerFooterElement.getElement("firstFooter")?.text,
-        oddFooter: headerFooterElement.getElement("oddFooter")?.text,
-        oddHeader: headerFooterElement.getElement("oddHeader")?.text);
+        evenHeader: headerFooterElement.getElement("evenHeader")?.innerText,
+        evenFooter: headerFooterElement.getElement("evenFooter")?.innerText,
+        firstHeader: headerFooterElement.getElement("firstHeader")?.innerText,
+        firstFooter: headerFooterElement.getElement("firstFooter")?.innerText,
+        oddFooter: headerFooterElement.getElement("oddFooter")?.innerText,
+        oddHeader: headerFooterElement.getElement("oddHeader")?.innerText);
   }
 }
 
