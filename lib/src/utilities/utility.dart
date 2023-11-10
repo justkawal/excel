@@ -1,6 +1,6 @@
 part of excel;
 
-List<String> _noCompression = <String>['mimetype', 'Thumbnails/thumbnail.png'];
+final List<String> _noCompression = <String>['mimetype', 'Thumbnails/thumbnail.png'];
 
 String getCellId(int columnIndex, int rowIndex) {
   return '${_numericToLetters(columnIndex + 1)}${rowIndex + 1}';
@@ -47,7 +47,7 @@ int? _getCellNumber(XmlElement cell) {
   if (r == null) {
     return null;
   }
-  return _cellCoordsFromCellId(r)[1];
+  return _cellCoordsFromCellId(r).$2;
 }
 
 int? _getRowNumber(XmlElement row) {
@@ -111,17 +111,17 @@ String _normalizeNewLine(String text) {
 ///
 ///It is useful to convert CellId to Indexing.
 ///
-List<int> _cellCoordsFromCellId(String cellId) {
+(int x, int y) _cellCoordsFromCellId(String cellId) {
   var letters = cellId.runes.map(_letterOnly);
   var lettersPart = utf8.decode(letters.where((rune) {
     return rune > 0;
   }).toList(growable: false));
   var numericsPart = cellId.substring(lettersPart.length);
 
-  return [
+  return (
     int.parse(numericsPart) - 1,
     lettersToNumeric(lettersPart) - 1
-  ]; // [x , y]
+  ); // [x , y]
 }
 
 ///
@@ -207,7 +207,7 @@ String getSpanCellId(int startColumn, int startRow, int endColumn, int endRow) {
 ///     `getColumnAlphabet(5); // returns F`
 ///
 String getColumnAlphabet(int columnIndex) {
-  return '${_numericToLetters(columnIndex + 1)}';
+  return _numericToLetters(columnIndex + 1);
 }
 
 ///
@@ -217,7 +217,7 @@ String getColumnAlphabet(int columnIndex) {
 ///    `getColumnAlphabet("F"); // returns 5`
 ///
 int getColumnIndex(String columnAlphabet) {
-  return _cellCoordsFromCellId('${columnAlphabet}')[1];
+  return _cellCoordsFromCellId(columnAlphabet).$2;
 }
 
 ///

@@ -445,15 +445,15 @@ class Sheet {
     }
 
     if (_sheetData.isNotEmpty) {
-      Map<int, Map<int, Data>> _data = Map<int, Map<int, Data>>();
-      List<int> sortedKeys = _sheetData.keys.toList()..sort();
+      final Map<int, Map<int, Data>> _data = Map<int, Map<int, Data>>();
+      final List<int> sortedKeys = _sheetData.keys.toList()..sort();
       if (columnIndex <= maxColumns - 1) {
         /// do the shifting task
         sortedKeys.forEach((rowKey) {
-          Map<int, Data> columnMap = Map<int, Data>();
+          final Map<int, Data> columnMap = Map<int, Data>();
 
           /// getting the column keys in descending order so as to shifting becomes easy
-          List<int> sortedColumnKeys = _sheetData[rowKey]!.keys.toList()
+          final List<int> sortedColumnKeys = _sheetData[rowKey]!.keys.toList()
             ..sort((a, b) {
               return b.compareTo(a);
             });
@@ -507,7 +507,7 @@ class Sheet {
     bool updateSpanCell = false;
 
     for (int i = 0; i < _spanList.length; i++) {
-      _Span? spanObj = _spanList[i];
+      final _Span? spanObj = _spanList[i];
       if (spanObj == null) {
         continue;
       }
@@ -526,7 +526,7 @@ class Sheet {
                 (rowIndex == (rowIndex < startRow ? startRow + 1 : startRow))) {
           _spanList[i] = null;
         } else {
-          _Span newSpanObj = _Span(
+          final _Span newSpanObj = _Span(
             rowSpanStart: startRow,
             columnSpanStart: startColumn,
             rowSpanEnd: endRow,
@@ -538,7 +538,7 @@ class Sheet {
         _excel._mergeChanges = true;
       }
       if (_spanList[i] != null) {
-        String rc = getSpanCellId(startColumn, startRow, endColumn, endRow);
+        final String rc = getSpanCellId(startColumn, startRow, endColumn, endRow);
         if (!_spannedItems.contains(rc)) {
           _spannedItems.add(rc);
         }
@@ -551,10 +551,10 @@ class Sheet {
     }
 
     if (_sheetData.isNotEmpty) {
-      Map<int, Map<int, Data>> _data = Map<int, Map<int, Data>>();
+      final Map<int, Map<int, Data>> _data = Map<int, Map<int, Data>>();
       if (rowIndex <= maxRows - 1) {
         /// do the shifting task
-        List<int> sortedKeys = _sheetData.keys.toList()..sort();
+        final List<int> sortedKeys = _sheetData.keys.toList()..sort();
         sortedKeys.forEach((rowKey) {
           if (rowKey < rowIndex && _sheetData[rowKey] != null) {
             _data[rowKey] = Map<int, Data>.from(_sheetData[rowKey]!);
@@ -598,7 +598,7 @@ class Sheet {
 
     _spannedItems = FastList<String>();
     for (int i = 0; i < _spanList.length; i++) {
-      _Span? spanObj = _spanList[i];
+      final _Span? spanObj = _spanList[i];
       if (spanObj == null) {
         continue;
       }
@@ -612,7 +612,7 @@ class Sheet {
           startRow += 1;
         }
         endRow += 1;
-        _Span newSpanObj = _Span(
+        final _Span newSpanObj = _Span(
           rowSpanStart: startRow,
           columnSpanStart: startColumn,
           rowSpanEnd: endRow,

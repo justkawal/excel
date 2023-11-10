@@ -1,6 +1,6 @@
 import 'dart:html' as html;
 
-// A wrapper to save the
+// A wrapper to save the excel file in browser
 class SavingHelper {
   static List<int>? saveFile(List<int>? val, String fileName) {
     final blob = html.Blob([val]);
