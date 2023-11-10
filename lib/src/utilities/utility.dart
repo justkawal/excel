@@ -1,6 +1,9 @@
 part of excel;
 
-final List<String> _noCompression = <String>['mimetype', 'Thumbnails/thumbnail.png'];
+final List<String> _noCompression = <String>[
+  'mimetype',
+  'Thumbnails/thumbnail.png'
+];
 
 String getCellId(int columnIndex, int rowIndex) {
   return '${_numericToLetters(columnIndex + 1)}${rowIndex + 1}';

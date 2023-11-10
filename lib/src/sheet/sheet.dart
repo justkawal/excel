@@ -538,7 +538,8 @@ class Sheet {
         _excel._mergeChanges = true;
       }
       if (_spanList[i] != null) {
-        final String rc = getSpanCellId(startColumn, startRow, endColumn, endRow);
+        final String rc =
+            getSpanCellId(startColumn, startRow, endColumn, endRow);
         if (!_spannedItems.contains(rc)) {
           _spannedItems.add(rc);
         }
