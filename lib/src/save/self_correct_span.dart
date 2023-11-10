@@ -24,30 +24,27 @@ _selfCorrectSpanMap(Excel _excel) {
             continue;
           }
 
-          List locationChange = _isLocationChangeRequired(
+          final locationChange = _isLocationChangeRequired(
               startColumn, startRow, endColumn, endRow, spanObj);
-          List<int> gotPosition = locationChange[1];
-
-          if (locationChange[0]) {
-            startColumn = gotPosition[0];
-            startRow = gotPosition[1];
-            endColumn = gotPosition[2];
-            endRow = gotPosition[3];
+          if (locationChange.$1) {
+            startColumn = locationChange.$2.$1;
+            startRow = locationChange.$2.$2;
+            endColumn = locationChange.$2.$3;
+            endRow = locationChange.$2.$4;
             spanList[j] = null;
           } else {
-            List locationChange2 = _isLocationChangeRequired(
+            final locationChange2 = _isLocationChangeRequired(
                 spanObj.columnSpanStart,
                 spanObj.rowSpanStart,
                 spanObj.columnSpanEnd,
                 spanObj.rowSpanEnd,
                 checkerPos);
-            List<int> gotPosition2 = locationChange2[1];
 
-            if (locationChange2[0]) {
-              startColumn = gotPosition2[0];
-              startRow = gotPosition2[1];
-              endColumn = gotPosition2[2];
-              endRow = gotPosition2[3];
+            if (locationChange2.$1) {
+              startColumn = locationChange2.$2.$1;
+              startRow = locationChange2.$2.$2;
+              endColumn = locationChange2.$2.$3;
+              endRow = locationChange2.$2.$4;
               spanList[j] = null;
             }
           }

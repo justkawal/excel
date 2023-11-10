@@ -445,15 +445,15 @@ class Sheet {
     }
 
     if (_sheetData.isNotEmpty) {
-      Map<int, Map<int, Data>> _data = Map<int, Map<int, Data>>();
-      List<int> sortedKeys = _sheetData.keys.toList()..sort();
+      final Map<int, Map<int, Data>> _data = Map<int, Map<int, Data>>();
+      final List<int> sortedKeys = _sheetData.keys.toList()..sort();
       if (columnIndex <= maxColumns - 1) {
         /// do the shifting task
         sortedKeys.forEach((rowKey) {
-          Map<int, Data> columnMap = Map<int, Data>();
+          final Map<int, Data> columnMap = Map<int, Data>();
 
           /// getting the column keys in descending order so as to shifting becomes easy
-          List<int> sortedColumnKeys = _sheetData[rowKey]!.keys.toList()
+          final List<int> sortedColumnKeys = _sheetData[rowKey]!.keys.toList()
             ..sort((a, b) {
               return b.compareTo(a);
             });
@@ -507,7 +507,7 @@ class Sheet {
     bool updateSpanCell = false;
 
     for (int i = 0; i < _spanList.length; i++) {
-      _Span? spanObj = _spanList[i];
+      final _Span? spanObj = _spanList[i];
       if (spanObj == null) {
         continue;
       }
@@ -526,7 +526,7 @@ class Sheet {
                 (rowIndex == (rowIndex < startRow ? startRow + 1 : startRow))) {
           _spanList[i] = null;
         } else {
-          _Span newSpanObj = _Span(
+          final _Span newSpanObj = _Span(
             rowSpanStart: startRow,
             columnSpanStart: startColumn,
             rowSpanEnd: endRow,
@@ -538,7 +538,8 @@ class Sheet {
         _excel._mergeChanges = true;
       }
       if (_spanList[i] != null) {
-        String rc = getSpanCellId(startColumn, startRow, endColumn, endRow);
+        final String rc =
+            getSpanCellId(startColumn, startRow, endColumn, endRow);
         if (!_spannedItems.contains(rc)) {
           _spannedItems.add(rc);
         }
@@ -551,10 +552,10 @@ class Sheet {
     }
 
     if (_sheetData.isNotEmpty) {
-      Map<int, Map<int, Data>> _data = Map<int, Map<int, Data>>();
+      final Map<int, Map<int, Data>> _data = Map<int, Map<int, Data>>();
       if (rowIndex <= maxRows - 1) {
         /// do the shifting task
-        List<int> sortedKeys = _sheetData.keys.toList()..sort();
+        final List<int> sortedKeys = _sheetData.keys.toList()..sort();
         sortedKeys.forEach((rowKey) {
           if (rowKey < rowIndex && _sheetData[rowKey] != null) {
             _data[rowKey] = Map<int, Data>.from(_sheetData[rowKey]!);
@@ -598,7 +599,7 @@ class Sheet {
 
     _spannedItems = FastList<String>();
     for (int i = 0; i < _spanList.length; i++) {
-      _Span? spanObj = _spanList[i];
+      final _Span? spanObj = _spanList[i];
       if (spanObj == null) {
         continue;
       }
@@ -612,7 +613,7 @@ class Sheet {
           startRow += 1;
         }
         endRow += 1;
-        _Span newSpanObj = _Span(
+        final _Span newSpanObj = _Span(
           rowSpanStart: startRow,
           columnSpanStart: startColumn,
           rowSpanEnd: endRow,
@@ -686,9 +687,7 @@ class Sheet {
     /// Check if this is lying in merged-cell cross-section
     /// If yes then get the starting position of merged cells
     if (_spanList.isNotEmpty) {
-      List updatedPosition = _isInsideSpanning(rowIndex, columnIndex);
-      newRowIndex = updatedPosition[0];
-      newColumnIndex = updatedPosition[1];
+      (newRowIndex, newColumnIndex) = _isInsideSpanning(rowIndex, columnIndex);
     }
 
     /// Puts Data
@@ -707,8 +706,8 @@ class Sheet {
           _sheetData[cellIndex.rowIndex]?[cellIndex.columnIndex]?.cellStyle;
       if (cellStyleBefore != null &&
           !cellStyleBefore.numberFormat.accepts(value)) {
-        cellStyle = cellStyleBefore.copyWith(
-            numberFormat: NumFormat.defaultFor(value));
+        cellStyle =
+            cellStyleBefore.copyWith(numberFormat: NumFormat.defaultFor(value));
       }
     }
 
@@ -947,15 +946,14 @@ class Sheet {
         continue;
       }
 
-      List locationChange = _isLocationChangeRequired(
+      final locationChange = _isLocationChangeRequired(
           startColumn, startRow, endColumn, endRow, spanObj);
-      List<int> gotPosition = locationChange[1];
 
-      if (locationChange[0]) {
-        startColumn = gotPosition[0];
-        startRow = gotPosition[1];
-        endColumn = gotPosition[2];
-        endRow = gotPosition[3];
+      if (locationChange.$1) {
+        startColumn = locationChange.$2.$1;
+        startRow = locationChange.$2.$2;
+        endColumn = locationChange.$2.$3;
+        endRow = locationChange.$2.$4;
         String sp = getSpanCellId(spanObj.columnSpanStart, spanObj.rowSpanStart,
             spanObj.columnSpanEnd, spanObj.rowSpanEnd);
         if (_spannedItems.contains(sp)) {
@@ -1333,7 +1331,8 @@ class Sheet {
   ///If it exist then the very first index of than spanned cells is returned in order to point to the starting cell
   ///otherwise the parameters are returned back.
   ///
-  List<int> _isInsideSpanning(int rowIndex, int columnIndex) {
+  (int newRowIndex, int newColumnIndex) _isInsideSpanning(
+      int rowIndex, int columnIndex) {
     int newRowIndex = rowIndex, newColumnIndex = columnIndex;
 
     for (int i = 0; i < _spanList.length; i++) {
@@ -1352,7 +1351,7 @@ class Sheet {
       }
     }
 
-    return [newRowIndex, newColumnIndex];
+    return (newRowIndex, newColumnIndex);
   }
 
   ///

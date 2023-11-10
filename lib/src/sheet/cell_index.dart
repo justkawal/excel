@@ -19,8 +19,8 @@ class CellIndex extends Equatable {
   /// CellIndex.indexByString('A2'); // columnIndex: 0, rowIndex: 1
   ///```
   factory CellIndex.indexByString(String cellIndex) {
-    List<int> li = _cellCoordsFromCellId(cellIndex);
-    return CellIndex._(rowIndex: li[0], columnIndex: li[1]);
+    final coords = _cellCoordsFromCellId(cellIndex);
+    return CellIndex._(rowIndex: coords.$1, columnIndex: coords.$2);
   }
 
   /// Avoid using it as it is very process expensive function.

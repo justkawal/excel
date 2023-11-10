@@ -13,8 +13,7 @@ class NumFormatMaintainer {
   static const int _firstCustomFmtId = 164;
   int _nextFmtId = _firstCustomFmtId;
   Map<int, NumFormat> _map = {..._standardNumFormats};
-  Map<NumFormat, int> _inverseMap =
-      _createInverseMap(_standardNumFormats);
+  Map<NumFormat, int> _inverseMap = _createInverseMap(_standardNumFormats);
 
   void add(int numFmtId, CustomNumFormat format) {
     if (_map.containsKey(numFmtId)) {
@@ -501,8 +500,7 @@ sealed class TimeNumFormat extends NumFormat {
       };
 }
 
-class StandardTimeNumFormat extends TimeNumFormat
-    implements StandardNumFormat {
+class StandardTimeNumFormat extends TimeNumFormat implements StandardNumFormat {
   final int numFmtId;
 
   const StandardTimeNumFormat._({
@@ -516,8 +514,7 @@ class StandardTimeNumFormat extends TimeNumFormat
   }
 }
 
-class CustomTimeNumFormat extends TimeNumFormat
-    implements CustomNumFormat {
+class CustomTimeNumFormat extends TimeNumFormat implements CustomNumFormat {
   const CustomTimeNumFormat({
     required super.formatCode,
   });
