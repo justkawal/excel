@@ -1,16 +1,16 @@
 part of excel;
 
 class _SharedStringsMaintainer {
-  late Map<SharedString, _IndexingHolder> _map =
+  final Map<SharedString, _IndexingHolder> _map =
       <SharedString, _IndexingHolder>{};
-  late List<SharedString> _list = <SharedString>[];
-  late int _index = 0;
+  final Map<String, SharedString> _mapString = <String, SharedString>{};
+  final List<SharedString> _list = <SharedString>[];
+  int _index = 0;
 
   _SharedStringsMaintainer._();
 
   SharedString? tryFind(String val) {
-    assert(val.isNotEmpty);
-    return _list.firstWhereOrNull((e) => e.matches(val));
+    return _mapString[val];
   }
 
   SharedString addFromString(String val) {
@@ -20,18 +20,17 @@ class _SharedStringsMaintainer {
           [XmlAttribute(XmlName("space", "xml"), "preserve")], [XmlText(val)]),
     ]));
 
-    add(newSharedString);
+    add(newSharedString, val);
     return newSharedString;
   }
 
-  void add(SharedString val) {
-    if (_map[val] == null) {
-      _map[val] = _IndexingHolder(_index);
+  void add(SharedString val, String key) {
+    _map[val]?.increaseCount();
+    _map.putIfAbsent(val, () {
+      _mapString[key] = val;
       _list.add(val);
-      _index += 1;
-    } else {
-      _map[val]!.increaseCount();
-    }
+      return _IndexingHolder(_index++);
+    });
   }
 
   int indexOf(SharedString val) {
@@ -48,14 +47,9 @@ class _SharedStringsMaintainer {
 
   void clear() {
     _index = 0;
-    _list = <SharedString>[];
-    _map = <SharedString, _IndexingHolder>{};
-  }
-
-  void ensureReinitialize() {
-    _map = <SharedString, _IndexingHolder>{};
-    _list = <SharedString>[];
-    _index = 0;
+    _list.clear();
+    _map.clear();
+    _mapString.clear();
   }
 }
 

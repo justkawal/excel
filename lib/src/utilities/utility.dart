@@ -83,7 +83,7 @@ String _numericToLetters(int number) {
 
   while (number != 0) {
     // Set remainder from 1..26
-    var remainder = number % 26;
+    var remainder = number & 0x1F; // Equivalent to number % 26
 
     if (remainder == 0) {
       remainder = 26;
@@ -95,9 +95,10 @@ String _numericToLetters(int number) {
     // Accumulate the column letters, right to left.
     letters = letter + letters;
 
-    // Get the next order of magnitude.
-    number = (number - 1) ~/ 26;
+    // Get the next order of magnitude using bit shift.
+    number = (number - 1) >> 5; // Equivalent to (number - 1) ~/ 26
   }
+
   return letters;
 }
 
