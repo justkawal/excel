@@ -12,8 +12,8 @@ void main(List<String> args) {
         TextCellValue('Column $i');
     //sh.cell(CellIndex.indexByColumnRow(rowIndex: 0, columnIndex: i)).cellStyle =CellStyle(bold: true);
   }
-  for (int row = 1; row < 9000; row++) {
-    for (int column = 0; column < 80; column++) {
+  for (int row = 1; row < 1000; row++) {
+    for (int column = 0; column < 1000; column++) {
       sh
           .cell(CellIndex.indexByColumnRow(rowIndex: row, columnIndex: column))
           .value = TextCellValue('$row$column value');

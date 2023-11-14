@@ -69,7 +69,7 @@ class Save {
     if (value is TextCellValue) {
       sharedString = _excel._sharedStrings.tryFind(value.value);
       if (sharedString != null) {
-        _excel._sharedStrings.add(sharedString);
+        _excel._sharedStrings.add(sharedString, value.value);
       } else {
         sharedString = _excel._sharedStrings.addFromString(value.value);
       }
