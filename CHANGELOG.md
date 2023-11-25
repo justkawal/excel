@@ -11,7 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - `CellIndex.indexByColumnRow()` now requires non-null integers of row index and column index
 
-## [4.0.0] - ???
+## [4.0.0] - 2023-11-25
 
 ### Breaking Changes
 
@@ -27,6 +27,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - Issue where seamingly random values are converted to a date iso8601 string, caused by incorrect interpretation of numFmtId=164
+- Fixed corrupt excel file when writing large datasets with improvements in shared_strings
 
 
 ## [3.0.0] - 2023-07-30
