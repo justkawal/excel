@@ -33,7 +33,6 @@
 - [PayPal](https://paypal.me/justkawal)
 
 ## Road-map (Major Update: `5.0.0`: By March, 2024): ( Already started 🤝 )
- - 🔜 Resolve nearly all issues.
  - ➕ Formulas and Calculations
  - 💾 Support Multiple Data type efficiently
  - 📈 Charts
