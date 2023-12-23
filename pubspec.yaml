@@ -6,11 +6,8 @@ topics:
   - excel
   - office
   - storage
-  - xlsx
-  - spreadsheet
-  - microsoft-office
   - sheets
-  - microsoft-excel
+  - spreadsheet
 
 environment:
   sdk: ">=3.0.0 <4.0.0"
