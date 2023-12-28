@@ -595,10 +595,11 @@ class Save {
     final autoFits = sheetObject.getColumnAutoFits;
     final customWidths = sheetObject.getColumnWidths;
 
-    final columnCount = max(autoFits.length, customWidths.length);
+    final columnCount = max(
+        autoFits.isEmpty ? 0 : autoFits.keys.reduce(max) + 1,
+        customWidths.isEmpty ? 0 : customWidths.keys.reduce(max) + 1);
 
     List<double> columnWidths = <double>[];
-    int min = 0;
 
     double defaultColumnWidth =
         sheetObject.defaultColumnWidth ?? _excelDefaultColumnWidth;
@@ -616,14 +617,7 @@ class Save {
 
       columnWidths.add(width);
 
-      if (index != 0 && columnWidths[index - 1] != width) {
-        _addNewColumn(columns, min, index - 1, columnWidths[index - 1]);
-        min = index;
-      }
-
-      if (index == (columnCount - 1)) {
-        _addNewColumn(columns, index, index, width);
-      }
+      _addNewColumn(columns, index, index, width);
     }
   }
 
