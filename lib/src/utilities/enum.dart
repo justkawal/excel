@@ -33,3 +33,8 @@ enum Underline {
   Single,
   Double,
 }
+
+///
+///enum for setting `font scheme`
+///
+enum FontScheme { Unset, Major, Minor }

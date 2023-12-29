@@ -313,6 +313,7 @@ class Parser {
 
           String fontColor = "FF000000", backgroundColor = "none";
           String? fontFamily;
+          FontScheme fontScheme = FontScheme.Unset;
           _BorderSet? borderSet;
 
           int fontSize = 12;
@@ -371,10 +372,18 @@ class Parser {
               fontFamily = _family;
             }
 
+            /// Checking for font Scheme
+            var _scheme = _nodeChildren(font, 'scheme', attribute: 'val');
+            if (_scheme != null) {
+              fontScheme =
+                  _scheme == "major" ? FontScheme.Major : FontScheme.Minor;
+            }
+
             _fontStyle.isBold = isBold;
             _fontStyle.isItalic = isItalic;
             _fontStyle.fontSize = fontSize;
             _fontStyle.fontFamily = fontFamily;
+            _fontStyle.fontScheme = fontScheme;
             _fontStyle._fontColorHex = fontColor;
           }
 

@@ -5,6 +5,7 @@ part of excel;
 class _FontStyle extends Equatable {
   String? _fontColorHex = 'FF000000';
   String? _fontFamily;
+  FontScheme _fontScheme = FontScheme.Unset;
   bool _bold = false, _italic = false;
   Underline _underline = Underline.None;
   int? _fontSize;
@@ -13,6 +14,7 @@ class _FontStyle extends Equatable {
       {String? fontColorHex = 'FF000000',
       int? fontSize,
       String? fontFamily,
+      FontScheme fontScheme = FontScheme.Unset,
       bool bold = false,
       Underline underline = Underline.None,
       bool italic = false}) {
@@ -23,6 +25,8 @@ class _FontStyle extends Equatable {
     _italic = italic;
 
     _fontFamily = fontFamily;
+
+    _fontScheme = fontScheme;
 
     _underline = underline;
 
@@ -55,6 +59,18 @@ class _FontStyle extends Equatable {
   /// `Set FontFamily`
   set fontFamily(String? family) {
     _fontFamily = family;
+  }
+
+  ///`Get FontScheme`
+  ///
+  FontScheme get fontScheme {
+    return _fontScheme;
+  }
+
+  ///`Set FontScheme`
+  ///
+  set fontScheme(FontScheme scheme) {
+    _fontScheme = scheme;
   }
 
   /// Get Font Size

@@ -216,7 +216,8 @@ class Save {
           fontColorHex: cellStyle.fontColor,
           underline: cellStyle.underline,
           fontSize: cellStyle.fontSize,
-          fontFamily: cellStyle.fontFamily);
+          fontFamily: cellStyle.fontFamily,
+          fontScheme: cellStyle.fontScheme);
 
       /// If `-1` is returned then it indicates that `_fontStyle` is not present in the `_fs`
       if (_fontStyleIndex(_excel._fontStyleList, _fs) == -1 &&
@@ -285,6 +286,17 @@ class Save {
             fontStyleElement.fontFamily!.isNotEmpty)
           XmlElement(XmlName('name'), [
             XmlAttribute(XmlName('val'), fontStyleElement.fontFamily.toString())
+          ], []),
+
+        /// putting fontScheme
+        if (fontStyleElement.fontScheme != FontScheme.Unset)
+          XmlElement(XmlName('scheme'), [
+            XmlAttribute(
+                XmlName('val'),
+                switch (fontStyleElement.fontScheme) {
+                  FontScheme.Major => "major",
+                  _ => "minor"
+                })
           ], []),
 
         /// putting fontSize

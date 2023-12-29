@@ -6,6 +6,7 @@ class CellStyle extends Equatable {
   String _fontColorHex = 'FF000000';
   String _backgroundColorHex = 'none';
   String? _fontFamily;
+  FontScheme _fontScheme;
   HorizontalAlign _horizontalAlign = HorizontalAlign.Left;
   VerticalAlign _verticalAlign = VerticalAlign.Bottom;
   TextWrapping? _textWrapping;
@@ -27,6 +28,7 @@ class CellStyle extends Equatable {
     String backgroundColorHex = 'none',
     int? fontSize,
     String? fontFamily,
+    FontScheme? fontScheme,
     HorizontalAlign horizontalAlign = HorizontalAlign.Left,
     VerticalAlign verticalAlign = VerticalAlign.Bottom,
     TextWrapping? textWrapping,
@@ -47,6 +49,7 @@ class CellStyle extends Equatable {
         _fontSize = fontSize,
         _italic = italic,
         _fontFamily = fontFamily,
+        _fontScheme = fontScheme ?? FontScheme.Unset,
         _rotation = rotation,
         _fontColorHex = _isColorAppropriate(fontColorHex),
         _backgroundColorHex = _isColorAppropriate(backgroundColorHex),
@@ -64,6 +67,7 @@ class CellStyle extends Equatable {
     String? fontColorHexVal,
     String? backgroundColorHexVal,
     String? fontFamilyVal,
+    FontScheme? fontSchemeVal,
     HorizontalAlign? horizontalAlignVal,
     VerticalAlign? verticalAlignVal,
     TextWrapping? textWrappingVal,
@@ -85,6 +89,7 @@ class CellStyle extends Equatable {
       fontColorHex: fontColorHexVal ?? this._fontColorHex,
       backgroundColorHex: backgroundColorHexVal ?? this._backgroundColorHex,
       fontFamily: fontFamilyVal ?? this._fontFamily,
+      fontScheme: fontSchemeVal ?? this._fontScheme,
       horizontalAlign: horizontalAlignVal ?? this._horizontalAlign,
       verticalAlign: verticalAlignVal ?? this._verticalAlign,
       textWrapping: textWrappingVal ?? this._textWrapping,
@@ -174,6 +179,18 @@ class CellStyle extends Equatable {
   ///
   set fontFamily(String? family) {
     _fontFamily = family;
+  }
+
+  ///`Get FontScheme`
+  ///
+  FontScheme get fontScheme {
+    return _fontScheme;
+  }
+
+  ///`Set FontScheme`
+  ///
+  set fontScheme(FontScheme scheme) {
+    _fontScheme = scheme;
   }
 
   ///Get Font Size
@@ -336,6 +353,7 @@ class CellStyle extends Equatable {
         _underline,
         _fontSize,
         _fontFamily,
+        _fontScheme,
         _textWrapping,
         _verticalAlign,
         _horizontalAlign,
