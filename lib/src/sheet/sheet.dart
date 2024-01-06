@@ -1089,6 +1089,12 @@ class Sheet {
     }
 
     cell._value = value;
+    
+    if (value.runtimeType == DateCellValue) {
+      cell._cellStyle = CellStyle(numberFormat: NumFormat.defaultDate);
+    } else {
+      cell._cellStyle = CellStyle();
+    }
 
     if ((_maxColumns - 1) < columnIndex) {
       _maxColumns = columnIndex + 1;
