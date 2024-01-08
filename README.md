@@ -27,12 +27,11 @@
 
 ### [Excel](https://www.pub.dev/packages/excel) is a flutter and dart library for reading, creating and updating excel-sheets for XLSX files.
 
-## Open Source, Open Hearts: Your Donations helps keep this Project Alive!! ❤️❤️
-### Your Donations helps to maintain this library. (Thank you, for your support!!)
+### Your Donations helps keep this Project Alive!! ❤️❤️
 - [Ko-fi](http://ko-fi.com/kawal)
 - [PayPal](https://paypal.me/justkawal)
 
-## Road-map (Major Update: `5.0.0`: By March, 2024): ( Already started 🤝 )
+## Road-map:
  - ➕ Formulas and Calculations
  - 💾 Support Multiple Data type efficiently
  - 📈 Charts
