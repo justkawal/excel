@@ -213,7 +213,7 @@ void main() {
       expect(b6.value, equals(null));
       expect(
         b6.cellStyle?.numberFormat,
-        equals(NumFormat.defaultDate),
+        equals(NumFormat.standard_0),
       );
 
       final b7 = sheet.cell(CellIndex.indexByString('B7'));
