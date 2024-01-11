@@ -198,8 +198,8 @@ void main() {
       final b4 = sheet.cell(CellIndex.indexByString('B4'));
       expect(b4.value, equals(DoubleCellValue(13.37)));
       expect(
-        b4.cellStyle?.numberFormat ?? NumFormat.standard_2,
-        equals(NumFormat.standard_2),
+        b4.cellStyle?.numberFormat ?? NumFormat.defaultFloat,
+        equals(NumFormat.defaultFloat),
       );
 
       final b5 = sheet.cell(CellIndex.indexByString('B5'));
