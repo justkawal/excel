@@ -55,7 +55,8 @@ class NumFormatMaintainer {
 sealed class NumFormat {
   final String formatCode;
 
-  static const defaultNumeric = standard_0;
+  static const defaultNumeric = standard_1;
+  static const defaultFloat = standard_2;
   static const defaultBool = standard_0;
   static const defaultDate = standard_14;
   static const defaultTime = standard_20;
@@ -163,12 +164,9 @@ sealed class NumFormat {
   bool accepts(CellValue? value);
 
   static NumFormat defaultFor(CellValue? value) => switch (value) {
-        null ||
-        FormulaCellValue() ||
-        IntCellValue() ||
-        DoubleCellValue() ||
-        TextCellValue() =>
-          NumFormat.standard_0,
+        null || FormulaCellValue() || TextCellValue() => NumFormat.standard_0,
+        IntCellValue() => NumFormat.defaultNumeric,
+        DoubleCellValue() => NumFormat.defaultFloat,
         DateCellValue() => NumFormat.defaultDate,
         BoolCellValue() => NumFormat.defaultBool,
         TimeCellValue() => NumFormat.defaultTime,

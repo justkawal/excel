@@ -123,7 +123,17 @@ void main(List<String> args) {
   });
   print('appending executed in ${stopwatch.elapsed}');
 
-  sheet.appendRow([IntCellValue(8)]);
+  sheet.appendRow([
+    IntCellValue(8),
+    DoubleCellValue(999.62221),
+    DateCellValue(
+      year: DateTime.now().year,
+      month: DateTime.now().month,
+      day: DateTime.now().day,
+    ),
+    DateTimeCellValue.fromDateTime(DateTime.now()),
+  ]);
+
   bool isSet = excel.setDefaultSheet(sheet.sheetName);
   // isSet is bool which tells that whether the setting of default sheet is successful or not.
   if (isSet) {
