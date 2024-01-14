@@ -16,8 +16,7 @@ Excel _newExcel(Archive archive) {
     case _spreasheetXlsx:
       return Excel._(archive);
     default:
-      throw UnsupportedError(
-          'Excel format unsupported. Only .xlsx files are supported');
+      throw UnsupportedError('Excel format unsupported. Only .xlsx files are supported');
   }
 }
 
@@ -93,8 +92,7 @@ class Excel {
     try {
       archive = ZipDecoder().decodeBytes(data);
     } catch (e) {
-      throw UnsupportedError(
-          'Excel format unsupported. Only .xlsx files are supported');
+      throw UnsupportedError('Excel format unsupported. Only .xlsx files are supported');
     }
     return _newExcel(archive);
   }
@@ -157,8 +155,7 @@ class Excel {
       _sheetMap[sheet1] = _sheetMap[existingSheetObject.sheetName]!;
 
       if (_cellStyleReferenced[existingSheetObject.sheetName] != null) {
-        _cellStyleReferenced[sheet1] = Map<String, int>.from(
-            _cellStyleReferenced[existingSheetObject.sheetName]!);
+        _cellStyleReferenced[sheet1] = Map<String, int>.from(_cellStyleReferenced[existingSheetObject.sheetName]!);
       }
     }
   }
@@ -188,8 +185,7 @@ class Excel {
       this[toSheet] = this[fromSheet];
     }
     if (_cellStyleReferenced[fromSheet] != null) {
-      _cellStyleReferenced[toSheet] =
-          Map<String, int>.from(_cellStyleReferenced[fromSheet]!);
+      _cellStyleReferenced[toSheet] = Map<String, int>.from(_cellStyleReferenced[fromSheet]!);
     }
   }
 
@@ -254,31 +250,25 @@ class Excel {
     ///
     /// remove from `_xmlSheetId`.
     if (_xmlSheetId[sheet] != null) {
-      String sheetId1 =
-              "worksheets" + _xmlSheetId[sheet]!.split('worksheets')[1],
-          sheetId2 = _xmlSheetId[sheet]!;
+      String sheetId1 = "worksheets" + _xmlSheetId[sheet]!.split('worksheets')[1], sheetId2 = _xmlSheetId[sheet]!;
 
-      _xmlFiles['xl/_rels/workbook.xml.rels']
-          ?.rootElement
-          .children
-          .removeWhere((_sheetName) {
-        return _sheetName.getAttribute('Target') != null &&
-            _sheetName.getAttribute('Target') == sheetId1;
+      _xmlFiles['xl/_rels/workbook.xml.rels']?.rootElement.children.removeWhere((_sheetName) {
+        return _sheetName.getAttribute('Target') != null && _sheetName.getAttribute('Target') == sheetId1;
       });
 
-      _xmlFiles['[Content_Types].xml']
-          ?.rootElement
-          .children
-          .removeWhere((_sheetName) {
-        return _sheetName.getAttribute('PartName') != null &&
-            _sheetName.getAttribute('PartName') == '/' + sheetId2;
+      _xmlFiles['[Content_Types].xml']?.rootElement.children.removeWhere((_sheetName) {
+        return _sheetName.getAttribute('PartName') != null && _sheetName.getAttribute('PartName') == '/' + sheetId2;
       });
 
       ///
       /// Remove from the `_archive` also
-      _archive.files.removeWhere((file) {
-        return file.name.toLowerCase() == _xmlSheetId[sheet]?.toLowerCase();
-      });
+      final sheetName = _xmlSheetId[sheet];
+      if (sheetName != null) {
+        final archive = _archive.findFile(sheetName);
+        if (archive != null) {
+          _archive.removeFile(archive);
+        }
+      }
 
       ///
       /// Also remove from the _xmlFiles list as we might want to create this sheet again from new starting.
@@ -295,13 +285,8 @@ class Excel {
       ///
       /// Remove from `xl/workbook.xml`
       ///
-      _xmlFiles['xl/workbook.xml']
-          ?.findAllElements('sheets')
-          .first
-          .children
-          .removeWhere((element) {
-        return element.getAttribute('name') != null &&
-            element.getAttribute('name').toString() == sheet;
+      _xmlFiles['xl/workbook.xml']?.findAllElements('sheets').first.children.removeWhere((element) {
+        return element.getAttribute('name') != null && element.getAttribute('name').toString() == sheet;
       });
 
       _sheets.remove(sheet);
@@ -365,8 +350,7 @@ class Excel {
   ///Internal function which returns the defaultSheet-Name by reading from `workbook.xml`
   ///
   String? _getDefaultSheet() {
-    Iterable<XmlElement>? elements =
-        _xmlFiles['xl/workbook.xml']?.findAllElements('sheet');
+    Iterable<XmlElement>? elements = _xmlFiles['xl/workbook.xml']?.findAllElements('sheet');
     XmlElement? _sheet;
     if (elements?.isNotEmpty ?? false) {
       _sheet = elements?.first;
@@ -377,8 +361,7 @@ class Excel {
       if (defaultSheet != null) {
         return defaultSheet;
       } else {
-        _damagedExcel(
-            text: 'Excel sheet corrupted!! Try creating new excel file.');
+        _damagedExcel(text: 'Excel sheet corrupted!! Try creating new excel file.');
       }
     }
     return null;
@@ -474,9 +457,8 @@ class Excel {
       return;
     }
     _availSheet(sheet);
-    _sheetMap['$sheet']!.insertRowIterables(row, rowIndex,
-        startingColumn: startingColumn,
-        overwriteMergedCells: overwriteMergedCells);
+    _sheetMap['$sheet']!
+        .insertRowIterables(row, rowIndex, startingColumn: startingColumn, overwriteMergedCells: overwriteMergedCells);
   }
 
   ///
@@ -500,11 +482,7 @@ class Excel {
   ///Other `options` are used to `narrow down` the `starting and ending ranges of cells`.
   ///
   int findAndReplace(String sheet, Pattern source, dynamic target,
-      {int first = -1,
-      int startingRow = -1,
-      int endingRow = -1,
-      int startingColumn = -1,
-      int endingColumn = -1}) {
+      {int first = -1, int startingRow = -1, int endingRow = -1, int startingColumn = -1, int endingColumn = -1}) {
     int replaceCount = 0;
     if (_sheetMap[sheet] == null) return replaceCount;
 
@@ -539,8 +517,7 @@ class Excel {
   ///
   ///If `sheet` does not exist then it will be automatically created.
   ///
-  void updateCell(String sheet, CellIndex cellIndex, CellValue? value,
-      {CellStyle? cellStyle}) {
+  void updateCell(String sheet, CellIndex cellIndex, CellValue? value, {CellStyle? cellStyle}) {
     _availSheet(sheet);
 
     _sheetMap[sheet]!.updateCell(cellIndex, value, cellStyle: cellStyle);
@@ -553,8 +530,7 @@ class Excel {
   ///
   ///If `sheet` does not exist then it will be automatically created.
   ///
-  void merge(String sheet, CellIndex start, CellIndex end,
-      {CellValue? customValue}) {
+  void merge(String sheet, CellIndex start, CellIndex end, {CellValue? customValue}) {
     _availSheet(sheet);
     _sheetMap[sheet]!.merge(start, end, customValue: customValue);
   }
@@ -563,8 +539,7 @@ class Excel {
   ///returns an Iterable of `cell-Id` for the previously merged cell-Ids.
   ///
   List<String> getMergedCells(String sheet) {
-    return List<String>.from(
-        _sheetMap[sheet] != null ? _sheetMap[sheet]!.spannedItems : <String>[]);
+    return List<String>.from(_sheetMap[sheet] != null ? _sheetMap[sheet]!.spannedItems : <String>[]);
   }
 
   ///
