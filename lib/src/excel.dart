@@ -276,15 +276,29 @@ class Excel {
 
       ///
       /// Remove from the `_archive` also
-      _archive.files.removeWhere((file) {
-        return file.name.toLowerCase() == _xmlSheetId[sheet]?.toLowerCase();
-      });
+      // _archive.files.removeWhere((file) {
+      //   return file.name.toLowerCase() == _xmlSheetId[sheet]?.toLowerCase();
+      // });
 
       ///
       /// Also remove from the _xmlFiles list as we might want to create this sheet again from new starting.
       if (_xmlFiles[_xmlSheetId[sheet]] != null) {
         _xmlFiles.remove(_xmlSheetId[sheet]);
       }
+
+      final _archiveFiles = <String, ArchiveFile>{};
+
+      for (var xmlFile in _xmlFiles.keys) {
+        var xml = _xmlFiles[xmlFile].toString();
+        var content = utf8.encode(xml);
+        _archiveFiles[xmlFile] = ArchiveFile(xmlFile, content.length, content);
+      }
+
+      _archive = cloneArchive(
+        _archive,
+        _archiveFiles,
+        excludedFile: _xmlSheetId[sheet]?.toLowerCase(),
+      );
 
       _xmlSheetId.remove(sheet);
     }
