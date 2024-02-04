@@ -294,7 +294,7 @@ class Excel {
         _archiveFiles[xmlFile] = ArchiveFile(xmlFile, content.length, content);
       }
 
-      _archive = cloneArchive(
+      _archive = _cloneArchive(
         _archive,
         _archiveFiles,
         excludedFile: _xmlSheetId[sheet]?.toLowerCase(),

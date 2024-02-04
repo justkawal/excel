@@ -1,6 +1,6 @@
 part of excel;
 
-Archive cloneArchive(
+Archive _cloneArchive(
   Archive archive,
   Map<String, ArchiveFile> _archiveFiles, {
   String? excludedFile,
