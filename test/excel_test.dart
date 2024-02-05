@@ -803,11 +803,13 @@ void main() {
         for (var row = 0; row < data.length; row++) {
           for (var column = 0; column < data[row].length; column++) {
             element.updateCell(
-                element.getDefaultSheet()!,
-                CellIndex.indexByColumnRow(columnIndex: column, rowIndex: row),
-                IntCellValue(data[row][column]),
-                cellStyle: CellStyle()
-                  ..backgroundColor = (ExcelColor.values..shuffle()).first);
+              element.getDefaultSheet()!,
+              CellIndex.indexByColumnRow(columnIndex: column, rowIndex: row),
+              IntCellValue(data[row][column]),
+              cellStyle: CellStyle()
+                ..backgroundColor = (ExcelColor.values..shuffle()).first
+                ..fontColor = (ExcelColor.values..shuffle()).first,
+            );
           }
         }
 
