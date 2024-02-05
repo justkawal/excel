@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+import 'dart:math';
 import 'package:archive/archive.dart';
 import 'package:excel/excel.dart';
 import 'package:test/test.dart';
@@ -777,6 +778,53 @@ void main() {
             equals(
                 'Unsupported operation: Excel format unsupported. Only .xlsx files are supported'));
       }
+    });
+
+    test('Sheet Remove and Rename Operations', () {
+      final List<Excel> excelFiles =
+          List<Excel>.generate(5, (_) => Excel.createExcel());
+
+      final List<List<int>> data = List<List<int>>.generate(
+          5,
+          (x) => List<int>.generate(5, (i) {
+                var j = x * i;
+                var k = x + i;
+                return Random().nextBool() ? j : k;
+              }));
+
+      const newName = 'Sheet1Replacement';
+
+      const defaultSheetName = 'Sheet1';
+
+      excelFiles.forEach((element) {
+        expect(element.getDefaultSheet()!, defaultSheetName);
+        for (var row = 0; row < data.length; row++) {
+          for (var column = 0; column < data[row].length; column++) {
+            element.updateCell(
+                element.getDefaultSheet()!,
+                CellIndex.indexByColumnRow(columnIndex: column, rowIndex: row),
+                IntCellValue(data[row][column]),
+                cellStyle: CellStyle()
+                  ..backgroundColor = (ExcelColor.values..shuffle()).first);
+          }
+        }
+
+        if (Random().nextBool()) {
+          /// Rename test
+          element.rename(element.getDefaultSheet()!, newName);
+          expect(element.getDefaultSheet(), null);
+          element.setDefaultSheet(newName);
+          expect(element.getDefaultSheet(), newName);
+        } else {
+          /// Remove test
+          element.copy(element.getDefaultSheet()!, newName);
+          expect(element.getDefaultSheet()!, defaultSheetName);
+          element.delete(element.getDefaultSheet()!);
+          expect(element.getDefaultSheet(), null);
+          element.setDefaultSheet(newName);
+          expect(element.getDefaultSheet()!, newName);
+        }
+      });
     });
   });
 }
