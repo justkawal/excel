@@ -3,7 +3,7 @@ part of excel;
 /// Styling class for cells
 // ignore: must_be_immutable
 class _FontStyle extends Equatable {
-  String? _fontColorHex = 'FF000000';
+  ExcelColor? _fontColorHex = ExcelColor.black;
   String? _fontFamily;
   FontScheme _fontScheme = FontScheme.Unset;
   bool _bold = false, _italic = false;
@@ -11,7 +11,7 @@ class _FontStyle extends Equatable {
   int? _fontSize;
 
   _FontStyle(
-      {String? fontColorHex = 'FF000000',
+      {ExcelColor? fontColorHex = ExcelColor.black,
       int? fontSize,
       String? fontFamily,
       FontScheme fontScheme = FontScheme.Unset,
@@ -31,23 +31,23 @@ class _FontStyle extends Equatable {
     _underline = underline;
 
     if (fontColorHex != null) {
-      _fontColorHex = _isColorAppropriate(fontColorHex);
+      _fontColorHex = _isColorAppropriate(fontColorHex.colorHex).excelColor;
     } else {
-      _fontColorHex = 'FF000000';
+      _fontColorHex = ExcelColor.black;
     }
   }
 
   /// Get Font Color
-  String get fontColor {
-    return _fontColorHex ?? 'FF000000';
+  ExcelColor get fontColor {
+    return _fontColorHex ?? ExcelColor.black;
   }
 
   /// Set Font Color
-  set fontColor(String? fontColorHex) {
+  set fontColor(ExcelColor? fontColorHex) {
     if (fontColorHex != null) {
-      _fontColorHex = _isColorAppropriate(fontColorHex);
+      _fontColorHex = _isColorAppropriate(fontColorHex.colorHex).excelColor;
     } else {
-      _fontColorHex = 'FF000000';
+      _fontColorHex = ExcelColor.black;
     }
   }
 

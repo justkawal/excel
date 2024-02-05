@@ -3,8 +3,8 @@ part of excel;
 /// Styling class for cells
 // ignore: must_be_immutable
 class CellStyle extends Equatable {
-  String _fontColorHex = 'FF000000';
-  String _backgroundColorHex = 'none';
+  String _fontColorHex = ExcelColor.black.colorHex;
+  String _backgroundColorHex = ExcelColor.none.colorHex;
   String? _fontFamily;
   FontScheme _fontScheme;
   HorizontalAlign _horizontalAlign = HorizontalAlign.Left;
@@ -24,8 +24,8 @@ class CellStyle extends Equatable {
   NumFormat numberFormat;
 
   CellStyle({
-    String fontColorHex = 'FF000000',
-    String backgroundColorHex = 'none',
+    ExcelColor fontColorHex = ExcelColor.black,
+    ExcelColor backgroundColorHex = ExcelColor.none,
     int? fontSize,
     String? fontFamily,
     FontScheme? fontScheme,
@@ -51,8 +51,8 @@ class CellStyle extends Equatable {
         _fontFamily = fontFamily,
         _fontScheme = fontScheme ?? FontScheme.Unset,
         _rotation = rotation,
-        _fontColorHex = _isColorAppropriate(fontColorHex),
-        _backgroundColorHex = _isColorAppropriate(backgroundColorHex),
+        _fontColorHex = _isColorAppropriate(fontColorHex.colorHex),
+        _backgroundColorHex = _isColorAppropriate(backgroundColorHex.colorHex),
         _verticalAlign = verticalAlign,
         _horizontalAlign = horizontalAlign,
         _leftBorder = leftBorder ?? Border(),
@@ -64,8 +64,8 @@ class CellStyle extends Equatable {
         _diagonalBorderDown = diagonalBorderDown;
 
   CellStyle copyWith({
-    String? fontColorHexVal,
-    String? backgroundColorHexVal,
+    ExcelColor? fontColorHexVal,
+    ExcelColor? backgroundColorHexVal,
     String? fontFamilyVal,
     FontScheme? fontSchemeVal,
     HorizontalAlign? horizontalAlignVal,
@@ -86,8 +86,9 @@ class CellStyle extends Equatable {
     NumFormat? numberFormat,
   }) {
     return CellStyle(
-      fontColorHex: fontColorHexVal ?? this._fontColorHex,
-      backgroundColorHex: backgroundColorHexVal ?? this._backgroundColorHex,
+      fontColorHex: fontColorHexVal ?? this._fontColorHex.excelColor,
+      backgroundColorHex:
+          backgroundColorHexVal ?? this._backgroundColorHex.excelColor,
       fontFamily: fontFamilyVal ?? this._fontFamily,
       fontScheme: fontSchemeVal ?? this._fontScheme,
       horizontalAlign: horizontalAlignVal ?? this._horizontalAlign,
@@ -111,26 +112,26 @@ class CellStyle extends Equatable {
 
   ///Get Font Color
   ///
-  String get fontColor {
-    return _fontColorHex;
+  ExcelColor get fontColor {
+    return _fontColorHex.excelColor;
   }
 
   ///Set Font Color
   ///
-  set fontColor(String fontColorHex) {
-    _fontColorHex = _isColorAppropriate(fontColorHex);
+  set fontColor(ExcelColor fontColorHex) {
+    _fontColorHex = _isColorAppropriate(fontColorHex.colorHex);
   }
 
   ///Get Background Color
   ///
-  String get backgroundColor {
-    return _backgroundColorHex;
+  ExcelColor get backgroundColor {
+    return _backgroundColorHex.excelColor;
   }
 
   ///Set Background Color
   ///
-  set backgroundColor(String backgroundColorHex) {
-    _backgroundColorHex = _isColorAppropriate(backgroundColorHex);
+  set backgroundColor(ExcelColor backgroundColorHex) {
+    _backgroundColorHex = _isColorAppropriate(backgroundColorHex.colorHex);
   }
 
   ///Get Horizontal Alignment

@@ -33,25 +33,6 @@ class Save {
     return ((maxNumOfCharacters * 7.0 + 9.0) / 7.0 * 256).truncate() / 256;
   }
 
-  Archive _cloneArchive(Archive archive) {
-    var clone = Archive();
-    archive.files.forEach((file) {
-      if (file.isFile) {
-        ArchiveFile copy;
-        if (_archiveFiles.containsKey(file.name)) {
-          copy = _archiveFiles[file.name]!;
-        } else {
-          var content = file.content as Uint8List;
-          var compress = !_noCompression.contains(file.name);
-          copy = ArchiveFile(file.name, content.length, content)
-            ..compress = compress;
-        }
-        clone.addFile(copy);
-      }
-    });
-    return clone;
-  }
-
   /*   XmlElement _replaceCell(String sheet, XmlElement row, XmlElement lastCell,
       int columnIndex, int rowIndex, CellValue? value) {
     var index = lastCell == null ? 0 : row.children.indexOf(lastCell);
@@ -122,7 +103,7 @@ class Save {
         final String v = switch (numberFormat) {
           NumericNumFormat() => numberFormat.writeInt(value),
           _ => throw Exception(
-              '${numberFormat} does not work for ${value.runtimeType}'),
+              '$numberFormat does not work for ${value.runtimeType}'),
         };
         children = [
           XmlElement(XmlName('v'), [], [XmlText(v)]),
@@ -131,7 +112,7 @@ class Save {
         final String v = switch (numberFormat) {
           NumericNumFormat() => numberFormat.writeDouble(value),
           _ => throw Exception(
-              '${numberFormat} does not work for ${value.runtimeType}'),
+              '$numberFormat does not work for ${value.runtimeType}'),
         };
         children = [
           XmlElement(XmlName('v'), [], [XmlText(v)]),
@@ -140,7 +121,7 @@ class Save {
         final String v = switch (numberFormat) {
           DateTimeNumFormat() => numberFormat.writeDateTime(value),
           _ => throw Exception(
-              '${numberFormat} does not work for ${value.runtimeType}'),
+              '$numberFormat does not work for ${value.runtimeType}'),
         };
         children = [
           XmlElement(XmlName('v'), [], [XmlText(v)]),
@@ -149,7 +130,7 @@ class Save {
         final String v = switch (numberFormat) {
           DateTimeNumFormat() => numberFormat.writeDate(value),
           _ => throw Exception(
-              '${numberFormat} does not work for ${value.runtimeType}'),
+              '$numberFormat does not work for ${value.runtimeType}'),
         };
         children = [
           XmlElement(XmlName('v'), [], [XmlText(v)]),
@@ -158,7 +139,7 @@ class Save {
         final String v = switch (numberFormat) {
           TimeNumFormat() => numberFormat.writeTime(value),
           _ => throw Exception(
-              '${numberFormat} does not work for ${value.runtimeType}'),
+              '$numberFormat does not work for ${value.runtimeType}'),
         };
         children = [
           XmlElement(XmlName('v'), [], [XmlText(v)]),
@@ -226,7 +207,7 @@ class Save {
       }
 
       /// Filling the inner usable extra list of background color
-      String backgroundColor = cellStyle.backgroundColor;
+      String backgroundColor = cellStyle.backgroundColor.colorHex;
       if (!_excel._patternFill.contains(backgroundColor) &&
           !innerPatternFill.contains(backgroundColor)) {
         innerPatternFill.add(backgroundColor);
@@ -255,11 +236,11 @@ class Save {
       fonts.children.add(XmlElement(XmlName('font'), [], [
         /// putting color
         if (fontStyleElement._fontColorHex != null &&
-            fontStyleElement._fontColorHex != "FF000000")
-          XmlElement(
-              XmlName('color'),
-              [XmlAttribute(XmlName('rgb'), fontStyleElement._fontColorHex!)],
-              []),
+            fontStyleElement._fontColorHex!.colorHex != "FF000000")
+          XmlElement(XmlName('color'), [
+            XmlAttribute(
+                XmlName('rgb'), fontStyleElement._fontColorHex!.colorHex)
+          ], []),
 
         /// putting bold
         if (fontStyleElement.isBold) XmlElement(XmlName('b'), [], []),
@@ -410,7 +391,7 @@ class Save {
     }
 
     _innerCellStyle.forEach((cellStyle) {
-      String backgroundColor = cellStyle.backgroundColor;
+      String backgroundColor = cellStyle.backgroundColor.colorHex;
 
       _FontStyle _fs = _FontStyle(
           bold: cellStyle.isBold,
@@ -572,7 +553,7 @@ class Save {
       var content = utf8.encode(xml);
       _archiveFiles[xmlFile] = ArchiveFile(xmlFile, content.length, content);
     }
-    return ZipEncoder().encode(_cloneArchive(_excel._archive));
+    return ZipEncoder().encode(_cloneArchive(_excel._archive, _archiveFiles));
   }
 
   void _setColumns(Sheet sheetObject, XmlDocument xmlFile) {

@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+import 'dart:math';
 import 'package:archive/archive.dart';
 import 'package:excel/excel.dart';
 import 'package:test/test.dart';
@@ -513,8 +514,9 @@ void main() {
 
       final borderEmpty = Border();
       final borderMedium = Border(borderStyle: BorderStyle.Medium);
-      final borderMediumRed =
-          Border(borderStyle: BorderStyle.Medium, borderColorHex: 'FFFF0000');
+      final borderMediumRed = Border(
+          borderStyle: BorderStyle.Medium,
+          borderColorHex: 'FFFF0000'.excelColor);
       final borderHair = Border(borderStyle: BorderStyle.Hair);
       final borderDouble = Border(borderStyle: BorderStyle.Double);
 
@@ -614,8 +616,9 @@ void main() {
 
       for (var i = 1; i < borderStyles.length; ++i) {
         // Loop from i = 1, as Excel does not set None type.
-        final border =
-            Border(borderStyle: borderStyles[i], borderColorHex: "FF000000");
+        final border = Border(
+            borderStyle: borderStyles[i],
+            borderColorHex: "FF000000".excelColor);
         final start = CellIndex.indexByString('B${(4 * i + 2)}');
         final end = CellIndex.indexByString('D${(4 * i + 4)}');
 
@@ -646,7 +649,7 @@ void main() {
 
             final borderStyle = Border(
               borderStyle: borderStyles[i],
-              borderColorHex: "FF000000",
+              borderColorHex: "FF000000".excelColor,
             );
 
             if (j == cellIndexStart.rowIndex) {
@@ -688,8 +691,9 @@ void main() {
 
       final borderEmpty = Border();
       final borderMedium = Border(borderStyle: BorderStyle.Medium);
-      final borderMediumRed =
-          Border(borderStyle: BorderStyle.Medium, borderColorHex: 'FFFF0000');
+      final borderMediumRed = Border(
+          borderStyle: BorderStyle.Medium,
+          borderColorHex: 'FFFF0000'.excelColor);
 
       final Sheet sheetObject = newExcel.tables['Sheet1']!;
       final cellStyleB1 =
@@ -774,6 +778,63 @@ void main() {
             equals(
                 'Unsupported operation: Excel format unsupported. Only .xlsx files are supported'));
       }
+    });
+
+    test('Sheet Remove and Rename Operations', () {
+      final List<Excel> excelFiles =
+          List<Excel>.generate(5, (_) => Excel.createExcel());
+
+      final List<List<int>> data = List<List<int>>.generate(
+          5,
+          (x) => List<int>.generate(5, (i) {
+                var j = x * i;
+                var k = x + i;
+                return Random().nextBool() ? j : k;
+              }));
+
+      const newName = 'Sheet1Replacement';
+
+      const defaultSheetName = 'Sheet1';
+
+      num count = 1;
+
+      excelFiles.forEach((element) {
+        expect(element.getDefaultSheet()!, defaultSheetName);
+        for (var row = 0; row < data.length; row++) {
+          for (var column = 0; column < data[row].length; column++) {
+            element.updateCell(
+              element.getDefaultSheet()!,
+              CellIndex.indexByColumnRow(columnIndex: column, rowIndex: row),
+              IntCellValue(data[row][column]),
+              cellStyle: CellStyle()
+                ..backgroundColor = (ExcelColor.values..shuffle()).first
+                ..fontColor = (ExcelColor.values..shuffle()).first,
+            );
+          }
+        }
+
+        if (Random().nextBool()) {
+          /// Rename test
+          element.rename(element.getDefaultSheet()!, newName);
+          expect(element.getDefaultSheet(), null);
+          element.setDefaultSheet(newName);
+          expect(element.getDefaultSheet(), newName);
+        } else {
+          /// Remove test
+          element.copy(element.getDefaultSheet()!, newName);
+          expect(element.getDefaultSheet()!, defaultSheetName);
+          element.delete(element.getDefaultSheet()!);
+          expect(element.getDefaultSheet(), null);
+          element.setDefaultSheet(newName);
+          expect(element.getDefaultSheet()!, newName);
+        }
+
+        File('test/test_resources/excel_default_sheet_removed_$count.xlsx')
+          ..createSync()
+          ..writeAsBytesSync(element.encode()!);
+
+        count++;
+      });
     });
   });
 }

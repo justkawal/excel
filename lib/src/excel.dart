@@ -275,16 +275,24 @@ class Excel {
       });
 
       ///
-      /// Remove from the `_archive` also
-      _archive.files.removeWhere((file) {
-        return file.name.toLowerCase() == _xmlSheetId[sheet]?.toLowerCase();
-      });
-
-      ///
       /// Also remove from the _xmlFiles list as we might want to create this sheet again from new starting.
       if (_xmlFiles[_xmlSheetId[sheet]] != null) {
         _xmlFiles.remove(_xmlSheetId[sheet]);
       }
+
+      ///
+      /// Maybe overkill and unsafe to do this, but works for now especially
+      /// delete or renaming default sheet name (`Sheet1`),
+      /// another safer method preferred
+      _archive = _cloneArchive(
+        _archive,
+        _xmlFiles.map((k, v) {
+          final encode = utf8.encode(v.toString());
+          final value = ArchiveFile(k, encode.length, encode);
+          return MapEntry(k, value);
+        }),
+        excludedFile: _xmlSheetId[sheet],
+      );
 
       _xmlSheetId.remove(sheet);
     }
