@@ -796,6 +796,8 @@ void main() {
 
       const defaultSheetName = 'Sheet1';
 
+      num count = 1;
+
       excelFiles.forEach((element) {
         expect(element.getDefaultSheet()!, defaultSheetName);
         for (var row = 0; row < data.length; row++) {
@@ -824,6 +826,12 @@ void main() {
           element.setDefaultSheet(newName);
           expect(element.getDefaultSheet()!, newName);
         }
+
+        File('test/test_resources/excel_default_sheet_removed_$count.xlsx')
+          ..createSync()
+          ..writeAsBytesSync(element.encode()!);
+
+        count++;
       });
     });
   });
