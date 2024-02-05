@@ -4,49 +4,59 @@ import 'package:excel/excel.dart';
 
 void main() {
   final excel = Excel.createExcel();
-  int count = 0;
+
   const defaultSheetName = 'Sheet1';
   const testSheetToKeep = 'Sheet To Keep';
   const testSheetToKeepRename = 'Rename Of Sheet To Keep';
-  const testSheetToRemove = 'Sheet To Remove';
-  (List<List<dynamic>>.generate(3, (_) => List<int>.generate(3, (i) => i + 1))
-        ..insert(0, [
-          'A',
-          'B',
-          'C',
-        ]))
-      .forEach((el) {
-    excel.insertRowIterables(
+
+  var listDynamic = (List<List<dynamic>>.generate(
+      5, (_) => List<int>.generate(5, (i) => i + 1))
+    ..insert(0, [
+      'A',
+      'B',
+      'C',
+      'D',
+      'E',
+    ]));
+
+  for (var row = 0; row < listDynamic.length; row++) {
+    for (var column = 0; column < listDynamic[row].length; column++) {
+      final cellIndex = CellIndex.indexByColumnRow(
+        columnIndex: column,
+        rowIndex: row,
+      );
+      var colorList = List.of(ExcelColor.values);
+      final border = Border(
+          borderColorHex: (colorList..shuffle()).first,
+          borderStyle: BorderStyle.Thin);
+
+      final string = listDynamic[row][column].toString();
+
+      var cellValue = int.tryParse(string) != null
+          ? IntCellValue(int.parse(string))
+          : TextCellValue(string);
+
+      excel.updateCell(
         testSheetToKeep,
-        el.map((e) {
-          final string = e.toString();
-          return int.tryParse(string) != null
-              ? IntCellValue(int.parse(string))
-              : TextCellValue(string);
-        }).toList(),
-        count);
-    excel.insertRowIterables(
-        testSheetToRemove,
-        el.map((e) {
-          final string = e.toString();
-          return int.tryParse(string) != null
-              ? IntCellValue(int.parse(string))
-              : TextCellValue(string);
-        }).toList(),
-        count);
-    count++;
-  });
+        cellIndex,
+        cellValue,
+        cellStyle: CellStyle()
+          ..backgroundColor = (colorList..shuffle()).first
+          ..topBorder = border
+          ..bottomBorder = border
+          ..leftBorder = border
+          ..rightBorder = border
+          ..fontColor = (colorList..shuffle()).first
+          ..fontFamily = 'Arial',
+      );
+    }
+  }
 
   ///
   assert(excel.sheets.keys.contains(defaultSheetName));
   assert(excel.getDefaultSheet() == defaultSheetName);
   excel.delete(excel.getDefaultSheet()!);
   assert(!excel.sheets.keys.contains(defaultSheetName));
-
-  ///
-  assert(excel.sheets.keys.contains(testSheetToRemove));
-  excel.delete(testSheetToRemove);
-  assert(!excel.sheets.keys.contains(testSheetToRemove));
 
   ///
   excel.rename(testSheetToKeep, testSheetToKeepRename);

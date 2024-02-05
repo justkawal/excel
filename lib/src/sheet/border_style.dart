@@ -4,10 +4,11 @@ class Border extends Equatable {
   late final BorderStyle? borderStyle;
   late final String? borderColorHex;
 
-  Border({BorderStyle? borderStyle, String? borderColorHex}) {
+  Border({BorderStyle? borderStyle, ExcelColor? borderColorHex}) {
     this.borderStyle = borderStyle == BorderStyle.None ? null : borderStyle;
-    this.borderColorHex =
-        borderColorHex != null ? _isColorAppropriate(borderColorHex) : null;
+    this.borderColorHex = borderColorHex != null
+        ? _isColorAppropriate(borderColorHex.colorHex)
+        : null;
   }
 
   @override

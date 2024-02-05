@@ -13,7 +13,7 @@ void main(List<String> args) {
       CellIndex.indexByColumnRow(columnIndex: 5, rowIndex: 10));
 
   Border border = Border(
-    borderColorHex: "#FF000000",
+    borderColorHex: "#FF000000".excelColor,
     borderStyle: BorderStyle.Thin,
   );
 

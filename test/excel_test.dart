@@ -513,8 +513,9 @@ void main() {
 
       final borderEmpty = Border();
       final borderMedium = Border(borderStyle: BorderStyle.Medium);
-      final borderMediumRed =
-          Border(borderStyle: BorderStyle.Medium, borderColorHex: 'FFFF0000');
+      final borderMediumRed = Border(
+          borderStyle: BorderStyle.Medium,
+          borderColorHex: 'FFFF0000'.excelColor);
       final borderHair = Border(borderStyle: BorderStyle.Hair);
       final borderDouble = Border(borderStyle: BorderStyle.Double);
 
@@ -614,8 +615,9 @@ void main() {
 
       for (var i = 1; i < borderStyles.length; ++i) {
         // Loop from i = 1, as Excel does not set None type.
-        final border =
-            Border(borderStyle: borderStyles[i], borderColorHex: "FF000000");
+        final border = Border(
+            borderStyle: borderStyles[i],
+            borderColorHex: "FF000000".excelColor);
         final start = CellIndex.indexByString('B${(4 * i + 2)}');
         final end = CellIndex.indexByString('D${(4 * i + 4)}');
 
@@ -646,7 +648,7 @@ void main() {
 
             final borderStyle = Border(
               borderStyle: borderStyles[i],
-              borderColorHex: "FF000000",
+              borderColorHex: "FF000000".excelColor,
             );
 
             if (j == cellIndexStart.rowIndex) {
@@ -688,8 +690,9 @@ void main() {
 
       final borderEmpty = Border();
       final borderMedium = Border(borderStyle: BorderStyle.Medium);
-      final borderMediumRed =
-          Border(borderStyle: BorderStyle.Medium, borderColorHex: 'FFFF0000');
+      final borderMediumRed = Border(
+          borderStyle: BorderStyle.Medium,
+          borderColorHex: 'FFFF0000'.excelColor);
 
       final Sheet sheetObject = newExcel.tables['Sheet1']!;
       final cellStyleB1 =

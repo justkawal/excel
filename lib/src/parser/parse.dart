@@ -276,8 +276,9 @@ class Parser {
             borderColorHex = color?.getAttribute('rgb')?.trim();
           } on StateError catch (_) {}
 
-          borderElements[elementName] =
-              Border(borderStyle: borderStyle, borderColorHex: borderColorHex);
+          borderElements[elementName] = Border(
+              borderStyle: borderStyle,
+              borderColorHex: borderColorHex?.excelColor);
         }
 
         final borderSet = _BorderSet(
@@ -311,7 +312,8 @@ class Parser {
           final numFmtId = _getFontIndex(node, 'numFmtId');
           _excel._numFmtIds.add(numFmtId);
 
-          String fontColor = "FF000000", backgroundColor = "none";
+          String fontColor = ExcelColor.black.colorHex,
+              backgroundColor = ExcelColor.none.colorHex;
           String? fontFamily;
           FontScheme fontScheme = FontScheme.Unset;
           _BorderSet? borderSet;
@@ -384,7 +386,7 @@ class Parser {
             _fontStyle.fontSize = fontSize;
             _fontStyle.fontFamily = fontFamily;
             _fontStyle.fontScheme = fontScheme;
-            _fontStyle._fontColorHex = fontColor;
+            _fontStyle._fontColorHex = fontColor.excelColor;
           }
 
           /// If `-1` is returned then it indicates that `_fontStyle` is not present in the `_fontStyleList`
@@ -437,18 +439,21 @@ class Parser {
 
           var numFormat = _excel._numFormats.getByNumFmtId(numFmtId);
           if (numFormat == null) {
-            assert(false, 'missing numFmt for ${numFmtId}');
+            assert(false, 'missing numFmt for $numFmtId');
             numFormat = NumFormat.standard_0;
           }
 
           CellStyle cellStyle = CellStyle(
-            fontColorHex: fontColor,
+            fontColorHex: fontColor.excelColor,
             fontFamily: fontFamily,
             fontSize: fontSize,
             bold: isBold,
             italic: isItalic,
             underline: underline,
-            backgroundColorHex: backgroundColor,
+            backgroundColorHex:
+                backgroundColor == 'none' || backgroundColor.isEmpty
+                    ? ExcelColor.none
+                    : backgroundColor.excelColor,
             horizontalAlign: horizontalAlign,
             verticalAlign: verticalAlign,
             textWrapping: textWrapping,
@@ -719,7 +724,7 @@ class Parser {
         .add(XmlElement(XmlName('Relationship'), <XmlAttribute>[
           XmlAttribute(XmlName('Id'), 'rId$ridNumber'),
           XmlAttribute(XmlName('Type'), '$_relationships/worksheet'),
-          XmlAttribute(XmlName('Target'), 'worksheets/sheet${sheetNumber}.xml'),
+          XmlAttribute(XmlName('Target'), 'worksheets/sheet$sheetNumber.xml'),
         ]));
 
     if (!_rId.contains('rId$ridNumber')) {
@@ -735,25 +740,25 @@ class Parser {
           <XmlAttribute>[
             XmlAttribute(XmlName('state'), 'visible'),
             XmlAttribute(XmlName('name'), newSheet),
-            XmlAttribute(XmlName('sheetId'), '${sheetNumber}'),
+            XmlAttribute(XmlName('sheetId'), '$sheetNumber'),
             XmlAttribute(XmlName('r:id'), 'rId$ridNumber')
           ],
         ));
 
-    _worksheetTargets['rId$ridNumber'] = 'worksheets/sheet${sheetNumber}.xml';
+    _worksheetTargets['rId$ridNumber'] = 'worksheets/sheet$sheetNumber.xml';
 
     var content = utf8.encode(
         "<worksheet xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\" xmlns:mc=\"http://schemas.openxmlformats.org/markup-compatibility/2006\" mc:Ignorable=\"x14ac xr xr2 xr3\" xmlns:x14ac=\"http://schemas.microsoft.com/office/spreadsheetml/2009/9/ac\" xmlns:xr=\"http://schemas.microsoft.com/office/spreadsheetml/2014/revision\" xmlns:xr2=\"http://schemas.microsoft.com/office/spreadsheetml/2015/revision2\" xmlns:xr3=\"http://schemas.microsoft.com/office/spreadsheetml/2016/revision3\"> <dimension ref=\"A1\"/> <sheetViews> <sheetView workbookViewId=\"0\"/> </sheetViews> <sheetData/> <pageMargins left=\"0.7\" right=\"0.7\" top=\"0.75\" bottom=\"0.75\" header=\"0.3\" footer=\"0.3\"/> </worksheet>");
 
     _excel._archive.addFile(ArchiveFile(
-        'xl/worksheets/sheet${sheetNumber}.xml', content.length, content));
+        'xl/worksheets/sheet$sheetNumber.xml', content.length, content));
     var _newSheet =
-        _excel._archive.findFile('xl/worksheets/sheet${sheetNumber}.xml');
+        _excel._archive.findFile('xl/worksheets/sheet$sheetNumber.xml');
 
     _newSheet!.decompress();
     var document = XmlDocument.parse(utf8.decode(_newSheet.content));
-    _excel._xmlFiles['xl/worksheets/sheet${sheetNumber}.xml'] = document;
-    _excel._xmlSheetId[newSheet] = 'xl/worksheets/sheet${sheetNumber}.xml';
+    _excel._xmlFiles['xl/worksheets/sheet$sheetNumber.xml'] = document;
+    _excel._xmlSheetId[newSheet] = 'xl/worksheets/sheet$sheetNumber.xml';
 
     _excel._xmlFiles['[Content_Types].xml']
         ?.findAllElements('Types')
@@ -765,7 +770,7 @@ class Parser {
             XmlAttribute(XmlName('ContentType'),
                 'application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml'),
             XmlAttribute(
-                XmlName('PartName'), '/xl/worksheets/sheet${sheetNumber}.xml'),
+                XmlName('PartName'), '/xl/worksheets/sheet$sheetNumber.xml'),
           ],
         ));
     if (_excel._xmlFiles['xl/workbook.xml'] != null) {

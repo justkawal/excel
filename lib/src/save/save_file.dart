@@ -103,7 +103,7 @@ class Save {
         final String v = switch (numberFormat) {
           NumericNumFormat() => numberFormat.writeInt(value),
           _ => throw Exception(
-              '${numberFormat} does not work for ${value.runtimeType}'),
+              '$numberFormat does not work for ${value.runtimeType}'),
         };
         children = [
           XmlElement(XmlName('v'), [], [XmlText(v)]),
@@ -112,7 +112,7 @@ class Save {
         final String v = switch (numberFormat) {
           NumericNumFormat() => numberFormat.writeDouble(value),
           _ => throw Exception(
-              '${numberFormat} does not work for ${value.runtimeType}'),
+              '$numberFormat does not work for ${value.runtimeType}'),
         };
         children = [
           XmlElement(XmlName('v'), [], [XmlText(v)]),
@@ -121,7 +121,7 @@ class Save {
         final String v = switch (numberFormat) {
           DateTimeNumFormat() => numberFormat.writeDateTime(value),
           _ => throw Exception(
-              '${numberFormat} does not work for ${value.runtimeType}'),
+              '$numberFormat does not work for ${value.runtimeType}'),
         };
         children = [
           XmlElement(XmlName('v'), [], [XmlText(v)]),
@@ -130,7 +130,7 @@ class Save {
         final String v = switch (numberFormat) {
           DateTimeNumFormat() => numberFormat.writeDate(value),
           _ => throw Exception(
-              '${numberFormat} does not work for ${value.runtimeType}'),
+              '$numberFormat does not work for ${value.runtimeType}'),
         };
         children = [
           XmlElement(XmlName('v'), [], [XmlText(v)]),
@@ -139,7 +139,7 @@ class Save {
         final String v = switch (numberFormat) {
           TimeNumFormat() => numberFormat.writeTime(value),
           _ => throw Exception(
-              '${numberFormat} does not work for ${value.runtimeType}'),
+              '$numberFormat does not work for ${value.runtimeType}'),
         };
         children = [
           XmlElement(XmlName('v'), [], [XmlText(v)]),
@@ -207,7 +207,7 @@ class Save {
       }
 
       /// Filling the inner usable extra list of background color
-      String backgroundColor = cellStyle.backgroundColor;
+      String backgroundColor = cellStyle.backgroundColor.colorHex;
       if (!_excel._patternFill.contains(backgroundColor) &&
           !innerPatternFill.contains(backgroundColor)) {
         innerPatternFill.add(backgroundColor);
@@ -236,11 +236,11 @@ class Save {
       fonts.children.add(XmlElement(XmlName('font'), [], [
         /// putting color
         if (fontStyleElement._fontColorHex != null &&
-            fontStyleElement._fontColorHex != "FF000000")
-          XmlElement(
-              XmlName('color'),
-              [XmlAttribute(XmlName('rgb'), fontStyleElement._fontColorHex!)],
-              []),
+            fontStyleElement._fontColorHex!.colorHex != "FF000000")
+          XmlElement(XmlName('color'), [
+            XmlAttribute(
+                XmlName('rgb'), fontStyleElement._fontColorHex!.colorHex)
+          ], []),
 
         /// putting bold
         if (fontStyleElement.isBold) XmlElement(XmlName('b'), [], []),
@@ -391,7 +391,7 @@ class Save {
     }
 
     _innerCellStyle.forEach((cellStyle) {
-      String backgroundColor = cellStyle.backgroundColor;
+      String backgroundColor = cellStyle.backgroundColor.colorHex;
 
       _FontStyle _fs = _FontStyle(
           bold: cellStyle.isBold,

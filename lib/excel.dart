@@ -27,6 +27,7 @@ part 'src/utilities/utility.dart';
 part 'src/utilities/constants.dart';
 part 'src/utilities/enum.dart';
 part 'src/utilities/archive.dart';
+part 'src/utilities/colors.dart';
 
 /// Save
 part 'src/save/save_file.dart';
