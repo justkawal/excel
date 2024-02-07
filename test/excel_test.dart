@@ -791,8 +791,6 @@ void main() {
 
       const defaultSheetName = 'Sheet1';
 
-      num count = 1;
-
       final backgroundColor =
           ExcelColor.values.where((e) => e.type == ColorType.material).toList();
       final fontColor =
@@ -855,12 +853,6 @@ void main() {
             ], everyElement(borderColor[column].colorHex));
           }
         }
-
-        File('test/test_resources/excel_default_sheet_removed_$count.xlsx')
-          ..createSync()
-          ..writeAsBytesSync(element.encode()!);
-
-        count++;
       });
     });
   });
