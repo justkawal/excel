@@ -787,6 +787,7 @@ void main() {
       final List<List<int>> data = List<List<int>>.generate(
           5, (x) => List<int>.generate(5, (i) => (x + 1) * (i + 1)));
 
+
       const newName = 'Sheet1Replacement';
 
       const defaultSheetName = 'Sheet1';
@@ -799,14 +800,17 @@ void main() {
           .where((e) => e.type == ColorType.materialAccent)
           .toList();
 
+
       excelFiles.forEach((element) {
         expect(element.getDefaultSheet()!, defaultSheetName);
         for (var row = 0; row < data.length; row++) {
           for (var column = 0; column < data[row].length; column++) {
+
             final border = Border(
               borderColorHex: borderColor[column],
               borderStyle: BorderStyle.Thin,
             );
+
             element.updateCell(
               element.getDefaultSheet()!,
               CellIndex.indexByColumnRow(columnIndex: column, rowIndex: row),
@@ -818,6 +822,7 @@ void main() {
                 ..rightBorder = border
                 ..backgroundColor = backgroundColor[row]
                 ..fontColor = fontColor[column],
+
             );
           }
         }

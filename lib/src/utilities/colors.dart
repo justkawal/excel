@@ -77,12 +77,15 @@ extension StringExt on String {
   ExcelColor get excelColor => this == 'none'
       ? ExcelColor.none
       : _assertHexString(this)
+
           ? ExcelColor.valuesAsMap[this] ?? ExcelColor._(this)
+
           : ExcelColor.black;
 }
 
 /// Copying from Flutter Material Color
 class ExcelColor extends Equatable {
+
   const ExcelColor._(this._color, [this._name, this._type]);
 
   final String _color;
@@ -101,6 +104,7 @@ class ExcelColor extends Equatable {
 
   String? get name => _name;
 
+
   /// Warning! Highly unsafe method.
   /// Can break your excel file if you do not know what you are doing
   factory ExcelColor.fromInt(int colorIntValue) =>
@@ -111,7 +115,9 @@ class ExcelColor extends Equatable {
   factory ExcelColor.fromHexString(String colorHexValue) =>
       ExcelColor._(colorHexValue);
 
+
   static const none = ExcelColor._('none');
+
 
   static const black = ExcelColor._('FF000000', 'black', ColorType.color);
   static const black12 = ExcelColor._('1F000000', 'black12', ColorType.color);
@@ -187,112 +193,96 @@ class ExcelColor extends Equatable {
       ExcelColor._('FF607D8B', 'blueGrey', ColorType.material);
   static const redAccent100 =
       ExcelColor._('FFFF8A80', 'redAccent100', ColorType.materialAccent);
-
   static const redAccent400 =
       ExcelColor._('FFFF1744', 'redAccent400', ColorType.materialAccent);
   static const redAccent700 =
       ExcelColor._('FFD50000', 'redAccent700', ColorType.materialAccent);
   static const pinkAccent100 =
       ExcelColor._('FFFF80AB', 'pinkAccent100', ColorType.materialAccent);
-
   static const pinkAccent400 =
       ExcelColor._('FFF50057', 'pinkAccent400', ColorType.materialAccent);
   static const pinkAccent700 =
       ExcelColor._('FFC51162', 'pinkAccent700', ColorType.materialAccent);
   static const purpleAccent100 =
       ExcelColor._('FFEA80FC', 'purpleAccent100', ColorType.materialAccent);
-
   static const purpleAccent400 =
       ExcelColor._('FFD500F9', 'purpleAccent400', ColorType.materialAccent);
   static const purpleAccent700 =
       ExcelColor._('FFAA00FF', 'purpleAccent700', ColorType.materialAccent);
   static const deepPurpleAccent100 =
       ExcelColor._('FFB388FF', 'deepPurpleAccent100', ColorType.materialAccent);
-
   static const deepPurpleAccent400 =
       ExcelColor._('FF651FFF', 'deepPurpleAccent400', ColorType.materialAccent);
   static const deepPurpleAccent700 =
       ExcelColor._('FF6200EA', 'deepPurpleAccent700', ColorType.materialAccent);
   static const indigoAccent100 =
       ExcelColor._('FF8C9EFF', 'indigoAccent100', ColorType.materialAccent);
-
   static const indigoAccent400 =
       ExcelColor._('FF3D5AFE', 'indigoAccent400', ColorType.materialAccent);
   static const indigoAccent700 =
       ExcelColor._('FF304FFE', 'indigoAccent700', ColorType.materialAccent);
   static const blueAccent100 =
       ExcelColor._('FF82B1FF', 'blueAccent100', ColorType.materialAccent);
-
   static const blueAccent400 =
       ExcelColor._('FF2979FF', 'blueAccent400', ColorType.materialAccent);
   static const blueAccent700 =
       ExcelColor._('FF2962FF', 'blueAccent700', ColorType.materialAccent);
   static const lightBlueAccent100 =
       ExcelColor._('FF80D8FF', 'lightBlueAccent100', ColorType.materialAccent);
-
   static const lightBlueAccent400 =
       ExcelColor._('FF00B0FF', 'lightBlueAccent400', ColorType.materialAccent);
   static const lightBlueAccent700 =
       ExcelColor._('FF0091EA', 'lightBlueAccent700', ColorType.materialAccent);
   static const cyanAccent100 =
       ExcelColor._('FF84FFFF', 'cyanAccent100', ColorType.materialAccent);
-
   static const cyanAccent400 =
       ExcelColor._('FF00E5FF', 'cyanAccent400', ColorType.materialAccent);
   static const cyanAccent700 =
       ExcelColor._('FF00B8D4', 'cyanAccent700', ColorType.materialAccent);
   static const tealAccent100 =
       ExcelColor._('FFA7FFEB', 'tealAccent100', ColorType.materialAccent);
-
   static const tealAccent400 =
       ExcelColor._('FF1DE9B6', 'tealAccent400', ColorType.materialAccent);
   static const tealAccent700 =
       ExcelColor._('FF00BFA5', 'tealAccent700', ColorType.materialAccent);
   static const greenAccent100 =
       ExcelColor._('FFB9F6CA', 'greenAccent100', ColorType.materialAccent);
-
   static const greenAccent400 =
       ExcelColor._('FF00E676', 'greenAccent400', ColorType.materialAccent);
   static const greenAccent700 =
       ExcelColor._('FF00C853', 'greenAccent700', ColorType.materialAccent);
   static const lightGreenAccent100 =
       ExcelColor._('FFCCFF90', 'lightGreenAccent100', ColorType.materialAccent);
-
   static const lightGreenAccent400 =
       ExcelColor._('FF76FF03', 'lightGreenAccent400', ColorType.materialAccent);
   static const lightGreenAccent700 =
       ExcelColor._('FF64DD17', 'lightGreenAccent700', ColorType.materialAccent);
   static const limeAccent100 =
       ExcelColor._('FFF4FF81', 'limeAccent100', ColorType.materialAccent);
-
   static const limeAccent400 =
       ExcelColor._('FFC6FF00', 'limeAccent400', ColorType.materialAccent);
   static const limeAccent700 =
       ExcelColor._('FFAEEA00', 'limeAccent700', ColorType.materialAccent);
   static const yellowAccent100 =
       ExcelColor._('FFFFFF8D', 'yellowAccent100', ColorType.materialAccent);
-
   static const yellowAccent400 =
       ExcelColor._('FFFFEA00', 'yellowAccent400', ColorType.materialAccent);
   static const yellowAccent700 =
       ExcelColor._('FFFFD600', 'yellowAccent700', ColorType.materialAccent);
   static const amberAccent100 =
       ExcelColor._('FFFFE57F', 'amberAccent100', ColorType.materialAccent);
-
   static const amberAccent400 =
       ExcelColor._('FFFFC400', 'amberAccent400', ColorType.materialAccent);
   static const amberAccent700 =
       ExcelColor._('FFFFAB00', 'amberAccent700', ColorType.materialAccent);
   static const orangeAccent100 =
       ExcelColor._('FFFFD180', 'orangeAccent100', ColorType.materialAccent);
-
   static const orangeAccent400 =
       ExcelColor._('FFFF9100', 'orangeAccent400', ColorType.materialAccent);
   static const orangeAccent700 =
       ExcelColor._('FFFF6D00', 'orangeAccent700', ColorType.materialAccent);
   static const deepOrangeAccent100 =
       ExcelColor._('FFFF9E80', 'deepOrangeAccent100', ColorType.materialAccent);
-
   static const deepOrangeAccent400 =
       ExcelColor._('FFFF3D00', 'deepOrangeAccent400', ColorType.materialAccent);
   static const deepOrangeAccent700 =
@@ -906,7 +896,6 @@ class ExcelColor extends Equatable {
 
   static Map<String, ExcelColor> get valuesAsMap =>
       values.asMap().map((_, v) => MapEntry(v.colorHex, v));
-
   @override
   List<Object?> get props => [
         _name,
