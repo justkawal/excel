@@ -77,31 +77,25 @@ extension StringExt on String {
   ExcelColor get excelColor => this == 'none'
       ? ExcelColor.none
       : _assertHexString(this)
-          ? ExcelColor._(this)
+          ? ExcelColor.valuesAsMap[this] ?? ExcelColor._(this)
           : ExcelColor.black;
 }
 
 /// Copying from Flutter Material Color
 class ExcelColor extends Equatable {
-  const ExcelColor._([this._color, this._name, this._type]);
+  const ExcelColor._(this._color, [this._name, this._type]);
 
-  final String? _color;
+  final String _color;
   final String? _name;
   final ColorType? _type;
 
-  /// Return 'none' if [_color] is null, [black] if not match
-  String get colorHex => _color == null
-      ? 'none'
-      : _assertHexString(_color!)
-          ? _color!
-          : black.colorHex;
+  /// Return 'none' if [_color] is null, [black] if not match for safety
+  String get colorHex =>
+      _assertHexString(_color) || _color == 'none' ? _color : black.colorHex;
 
-  /// Return [black] if [_color] is null and not match
-  int? get colorInt => _color == null
-      ? null
-      : _assertHexString(_color!)
-          ? _hexadecimalToDecimal(_color!)
-          : null;
+  /// Return [black] if [_color] is not match for safety
+  int get colorInt =>
+      _assertHexString(_color) ? _hexadecimalToDecimal(_color) : black.colorInt;
 
   ColorType? get type => _type;
 
@@ -117,7 +111,7 @@ class ExcelColor extends Equatable {
   factory ExcelColor.fromHexString(String colorHexValue) =>
       ExcelColor._(colorHexValue);
 
-  static const none = ExcelColor._();
+  static const none = ExcelColor._('none');
 
   static const black = ExcelColor._('FF000000', 'black', ColorType.color);
   static const black12 = ExcelColor._('1F000000', 'black12', ColorType.color);
@@ -909,6 +903,9 @@ class ExcelColor extends Equatable {
         blueGrey800,
         blueGrey900,
       ];
+
+  static Map<String, ExcelColor> get valuesAsMap =>
+      values.asMap().map((_, v) => MapEntry(v.colorHex, v));
 
   @override
   List<Object?> get props => [

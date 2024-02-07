@@ -785,12 +785,7 @@ void main() {
           List<Excel>.generate(5, (_) => Excel.createExcel());
 
       final List<List<int>> data = List<List<int>>.generate(
-          5,
-          (x) => List<int>.generate(5, (i) {
-                var j = x * i;
-                var k = x + i;
-                return Random().nextBool() ? j : k;
-              }));
+          5, (x) => List<int>.generate(5, (i) => (x + 1) * (i + 1)));
 
       const newName = 'Sheet1Replacement';
 
@@ -798,17 +793,33 @@ void main() {
 
       num count = 1;
 
+      final backgroundColor =
+          ExcelColor.values.where((e) => e.type == ColorType.material).toList();
+      final fontColor =
+          ExcelColor.values.where((e) => e.type == ColorType.color).toList();
+      final borderColor = ExcelColor.values
+          .where((e) => e.type == ColorType.materialAccent)
+          .toList();
+
       excelFiles.forEach((element) {
         expect(element.getDefaultSheet()!, defaultSheetName);
         for (var row = 0; row < data.length; row++) {
           for (var column = 0; column < data[row].length; column++) {
+            final border = Border(
+              borderColorHex: borderColor[column],
+              borderStyle: BorderStyle.Thin,
+            );
             element.updateCell(
               element.getDefaultSheet()!,
               CellIndex.indexByColumnRow(columnIndex: column, rowIndex: row),
               IntCellValue(data[row][column]),
               cellStyle: CellStyle()
-                ..backgroundColor = (ExcelColor.values..shuffle()).first
-                ..fontColor = (ExcelColor.values..shuffle()).first,
+                ..bottomBorder = border
+                ..topBorder = border
+                ..leftBorder = border
+                ..rightBorder = border
+                ..backgroundColor = backgroundColor[row]
+                ..fontColor = fontColor[column],
             );
           }
         }
@@ -827,6 +838,22 @@ void main() {
           expect(element.getDefaultSheet(), null);
           element.setDefaultSheet(newName);
           expect(element.getDefaultSheet()!, newName);
+        }
+
+        expect(element.tables.length, 1);
+
+        for (var row = 0; row < data.length; row++) {
+          for (var column = 0; column < data[row].length; column++) {
+            var cell = element.tables[newName]?.rows[row][column];
+            expect(cell?.cellStyle?.backgroundColor, backgroundColor[row]);
+            expect(cell?.cellStyle?.fontColor, fontColor[column]);
+            expect([
+              cell?.cellStyle?.bottomBorder.borderColorHex,
+              cell?.cellStyle?.topBorder.borderColorHex,
+              cell?.cellStyle?.leftBorder.borderColorHex,
+              cell?.cellStyle?.rightBorder.borderColorHex,
+            ], everyElement(borderColor[column].colorHex));
+          }
         }
 
         File('test/test_resources/excel_default_sheet_removed_$count.xlsx')
