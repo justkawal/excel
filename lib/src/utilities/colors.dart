@@ -77,31 +77,33 @@ extension StringExt on String {
   ExcelColor get excelColor => this == 'none'
       ? ExcelColor.none
       : _assertHexString(this)
-          ? ExcelColor._(this)
+
+          ? ExcelColor.valuesAsMap[this] ?? ExcelColor._(this)
+
           : ExcelColor.black;
 }
 
 /// Copying from Flutter Material Color
 class ExcelColor extends Equatable {
-  const ExcelColor._([this._color, this._name, this._type]);
 
-  final String? _color;
+  const ExcelColor._(this._color, [this._name, this._type]);
+
+  final String _color;
   final String? _name;
   final ColorType? _type;
 
-  /// Return 'none' if [_color] is null, [black] if not match
-  String get colorHex => _color == null
-      ? 'none'
-      : _assertHexString(_color!)
-          ? _color!
-          : black.colorHex;
+  /// Return 'none' if [_color] is null, [black] if not match for safety
+  String get colorHex =>
+      _assertHexString(_color) || _color == 'none' ? _color : black.colorHex;
 
-  /// Return [black] if [_color] is null and not match
-  int get colorInt => _color == null
-      ? 0xFF000000
-      : _assertHexString(_color!)
-          ? _hexadecimalToDecimal(_color!)
-          : 0xFF000000;
+  /// Return [black] if [_color] is not match for safety
+  int get colorInt =>
+      _assertHexString(_color) ? _hexadecimalToDecimal(_color) : black.colorInt;
+
+  ColorType? get type => _type;
+
+  String? get name => _name;
+
 
   /// Warning! Highly unsafe method.
   /// Can break your excel file if you do not know what you are doing
@@ -113,7 +115,9 @@ class ExcelColor extends Equatable {
   factory ExcelColor.fromHexString(String colorHexValue) =>
       ExcelColor._(colorHexValue);
 
-  static const none = ExcelColor._();
+
+  static const none = ExcelColor._('none');
+
 
   static const black = ExcelColor._('FF000000', 'black', ColorType.color);
   static const black12 = ExcelColor._('1F000000', 'black12', ColorType.color);
@@ -189,128 +193,96 @@ class ExcelColor extends Equatable {
       ExcelColor._('FF607D8B', 'blueGrey', ColorType.material);
   static const redAccent100 =
       ExcelColor._('FFFF8A80', 'redAccent100', ColorType.materialAccent);
-  static const redAccent200 =
-      ExcelColor._('FFFF5252', 'redAccent200', ColorType.materialAccent);
   static const redAccent400 =
       ExcelColor._('FFFF1744', 'redAccent400', ColorType.materialAccent);
   static const redAccent700 =
       ExcelColor._('FFD50000', 'redAccent700', ColorType.materialAccent);
   static const pinkAccent100 =
       ExcelColor._('FFFF80AB', 'pinkAccent100', ColorType.materialAccent);
-  static const pinkAccent200 =
-      ExcelColor._('FFFF4081', 'pinkAccent200', ColorType.materialAccent);
   static const pinkAccent400 =
       ExcelColor._('FFF50057', 'pinkAccent400', ColorType.materialAccent);
   static const pinkAccent700 =
       ExcelColor._('FFC51162', 'pinkAccent700', ColorType.materialAccent);
   static const purpleAccent100 =
       ExcelColor._('FFEA80FC', 'purpleAccent100', ColorType.materialAccent);
-  static const purpleAccent200 =
-      ExcelColor._('FFE040FB', 'purpleAccent200', ColorType.materialAccent);
   static const purpleAccent400 =
       ExcelColor._('FFD500F9', 'purpleAccent400', ColorType.materialAccent);
   static const purpleAccent700 =
       ExcelColor._('FFAA00FF', 'purpleAccent700', ColorType.materialAccent);
   static const deepPurpleAccent100 =
       ExcelColor._('FFB388FF', 'deepPurpleAccent100', ColorType.materialAccent);
-  static const deepPurpleAccent200 =
-      ExcelColor._('FF7C4DFF', 'deepPurpleAccent200', ColorType.materialAccent);
   static const deepPurpleAccent400 =
       ExcelColor._('FF651FFF', 'deepPurpleAccent400', ColorType.materialAccent);
   static const deepPurpleAccent700 =
       ExcelColor._('FF6200EA', 'deepPurpleAccent700', ColorType.materialAccent);
   static const indigoAccent100 =
       ExcelColor._('FF8C9EFF', 'indigoAccent100', ColorType.materialAccent);
-  static const indigoAccent200 =
-      ExcelColor._('FF536DFE', 'indigoAccent200', ColorType.materialAccent);
   static const indigoAccent400 =
       ExcelColor._('FF3D5AFE', 'indigoAccent400', ColorType.materialAccent);
   static const indigoAccent700 =
       ExcelColor._('FF304FFE', 'indigoAccent700', ColorType.materialAccent);
   static const blueAccent100 =
       ExcelColor._('FF82B1FF', 'blueAccent100', ColorType.materialAccent);
-  static const blueAccent200 =
-      ExcelColor._('FF448AFF', 'blueAccent200', ColorType.materialAccent);
   static const blueAccent400 =
       ExcelColor._('FF2979FF', 'blueAccent400', ColorType.materialAccent);
   static const blueAccent700 =
       ExcelColor._('FF2962FF', 'blueAccent700', ColorType.materialAccent);
   static const lightBlueAccent100 =
       ExcelColor._('FF80D8FF', 'lightBlueAccent100', ColorType.materialAccent);
-  static const lightBlueAccent200 =
-      ExcelColor._('FF40C4FF', 'lightBlueAccent200', ColorType.materialAccent);
   static const lightBlueAccent400 =
       ExcelColor._('FF00B0FF', 'lightBlueAccent400', ColorType.materialAccent);
   static const lightBlueAccent700 =
       ExcelColor._('FF0091EA', 'lightBlueAccent700', ColorType.materialAccent);
   static const cyanAccent100 =
       ExcelColor._('FF84FFFF', 'cyanAccent100', ColorType.materialAccent);
-  static const cyanAccent200 =
-      ExcelColor._('FF18FFFF', 'cyanAccent200', ColorType.materialAccent);
   static const cyanAccent400 =
       ExcelColor._('FF00E5FF', 'cyanAccent400', ColorType.materialAccent);
   static const cyanAccent700 =
       ExcelColor._('FF00B8D4', 'cyanAccent700', ColorType.materialAccent);
   static const tealAccent100 =
       ExcelColor._('FFA7FFEB', 'tealAccent100', ColorType.materialAccent);
-  static const tealAccent200 =
-      ExcelColor._('FF64FFDA', 'tealAccent200', ColorType.materialAccent);
   static const tealAccent400 =
       ExcelColor._('FF1DE9B6', 'tealAccent400', ColorType.materialAccent);
   static const tealAccent700 =
       ExcelColor._('FF00BFA5', 'tealAccent700', ColorType.materialAccent);
   static const greenAccent100 =
       ExcelColor._('FFB9F6CA', 'greenAccent100', ColorType.materialAccent);
-  static const greenAccent200 =
-      ExcelColor._('FF69F0AE', 'greenAccent200', ColorType.materialAccent);
   static const greenAccent400 =
       ExcelColor._('FF00E676', 'greenAccent400', ColorType.materialAccent);
   static const greenAccent700 =
       ExcelColor._('FF00C853', 'greenAccent700', ColorType.materialAccent);
   static const lightGreenAccent100 =
       ExcelColor._('FFCCFF90', 'lightGreenAccent100', ColorType.materialAccent);
-  static const lightGreenAccent200 =
-      ExcelColor._('FFB2FF59', 'lightGreenAccent200', ColorType.materialAccent);
   static const lightGreenAccent400 =
       ExcelColor._('FF76FF03', 'lightGreenAccent400', ColorType.materialAccent);
   static const lightGreenAccent700 =
       ExcelColor._('FF64DD17', 'lightGreenAccent700', ColorType.materialAccent);
   static const limeAccent100 =
       ExcelColor._('FFF4FF81', 'limeAccent100', ColorType.materialAccent);
-  static const limeAccent200 =
-      ExcelColor._('FFEEFF41', 'limeAccent200', ColorType.materialAccent);
   static const limeAccent400 =
       ExcelColor._('FFC6FF00', 'limeAccent400', ColorType.materialAccent);
   static const limeAccent700 =
       ExcelColor._('FFAEEA00', 'limeAccent700', ColorType.materialAccent);
   static const yellowAccent100 =
       ExcelColor._('FFFFFF8D', 'yellowAccent100', ColorType.materialAccent);
-  static const yellowAccent200 =
-      ExcelColor._('FFFFFF00', 'yellowAccent200', ColorType.materialAccent);
   static const yellowAccent400 =
       ExcelColor._('FFFFEA00', 'yellowAccent400', ColorType.materialAccent);
   static const yellowAccent700 =
       ExcelColor._('FFFFD600', 'yellowAccent700', ColorType.materialAccent);
   static const amberAccent100 =
       ExcelColor._('FFFFE57F', 'amberAccent100', ColorType.materialAccent);
-  static const amberAccent200 =
-      ExcelColor._('FFFFD740', 'amberAccent200', ColorType.materialAccent);
   static const amberAccent400 =
       ExcelColor._('FFFFC400', 'amberAccent400', ColorType.materialAccent);
   static const amberAccent700 =
       ExcelColor._('FFFFAB00', 'amberAccent700', ColorType.materialAccent);
   static const orangeAccent100 =
       ExcelColor._('FFFFD180', 'orangeAccent100', ColorType.materialAccent);
-  static const orangeAccent200 =
-      ExcelColor._('FFFFAB40', 'orangeAccent200', ColorType.materialAccent);
   static const orangeAccent400 =
       ExcelColor._('FFFF9100', 'orangeAccent400', ColorType.materialAccent);
   static const orangeAccent700 =
       ExcelColor._('FFFF6D00', 'orangeAccent700', ColorType.materialAccent);
   static const deepOrangeAccent100 =
       ExcelColor._('FFFF9E80', 'deepOrangeAccent100', ColorType.materialAccent);
-  static const deepOrangeAccent200 =
-      ExcelColor._('FFFF6E40', 'deepOrangeAccent200', ColorType.materialAccent);
   static const deepOrangeAccent400 =
       ExcelColor._('FFFF3D00', 'deepOrangeAccent400', ColorType.materialAccent);
   static const deepOrangeAccent700 =
@@ -320,7 +292,6 @@ class ExcelColor extends Equatable {
   static const red200 = ExcelColor._('FFEF9A9A', 'red200', ColorType.material);
   static const red300 = ExcelColor._('FFE57373', 'red300', ColorType.material);
   static const red400 = ExcelColor._('FFEF5350', 'red400', ColorType.material);
-  static const red500 = ExcelColor._('FFF44336', 'red500', ColorType.material);
   static const red600 = ExcelColor._('FFE53935', 'red600', ColorType.material);
   static const red700 = ExcelColor._('FFD32F2F', 'red700', ColorType.material);
   static const red800 = ExcelColor._('FFC62828', 'red800', ColorType.material);
@@ -334,8 +305,6 @@ class ExcelColor extends Equatable {
       ExcelColor._('FFF06292', 'pink300', ColorType.material);
   static const pink400 =
       ExcelColor._('FFEC407A', 'pink400', ColorType.material);
-  static const pink500 =
-      ExcelColor._('FFE91E63', 'pink500', ColorType.material);
   static const pink600 =
       ExcelColor._('FFD81B60', 'pink600', ColorType.material);
   static const pink700 =
@@ -354,8 +323,6 @@ class ExcelColor extends Equatable {
       ExcelColor._('FFBA68C8', 'purple300', ColorType.material);
   static const purple400 =
       ExcelColor._('FFAB47BC', 'purple400', ColorType.material);
-  static const purple500 =
-      ExcelColor._('FF9C27B0', 'purple500', ColorType.material);
   static const purple600 =
       ExcelColor._('FF8E24AA', 'purple600', ColorType.material);
   static const purple700 =
@@ -374,8 +341,6 @@ class ExcelColor extends Equatable {
       ExcelColor._('FF9575CD', 'deepPurple300', ColorType.material);
   static const deepPurple400 =
       ExcelColor._('FF7E57C2', 'deepPurple400', ColorType.material);
-  static const deepPurple500 =
-      ExcelColor._('FF673AB7', 'deepPurple500', ColorType.material);
   static const deepPurple600 =
       ExcelColor._('FF5E35B1', 'deepPurple600', ColorType.material);
   static const deepPurple700 =
@@ -394,8 +359,6 @@ class ExcelColor extends Equatable {
       ExcelColor._('FF7986CB', 'indigo300', ColorType.material);
   static const indigo400 =
       ExcelColor._('FF5C6BC0', 'indigo400', ColorType.material);
-  static const indigo500 =
-      ExcelColor._('FF3F51B5', 'indigo500', ColorType.material);
   static const indigo600 =
       ExcelColor._('FF3949AB', 'indigo600', ColorType.material);
   static const indigo700 =
@@ -413,8 +376,6 @@ class ExcelColor extends Equatable {
       ExcelColor._('FF64B5F6', 'blue300', ColorType.material);
   static const blue400 =
       ExcelColor._('FF42A5F5', 'blue400', ColorType.material);
-  static const blue500 =
-      ExcelColor._('FF2196F3', 'blue500', ColorType.material);
   static const blue600 =
       ExcelColor._('FF1E88E5', 'blue600', ColorType.material);
   static const blue700 =
@@ -433,8 +394,6 @@ class ExcelColor extends Equatable {
       ExcelColor._('FF4FC3F7', 'lightBlue300', ColorType.material);
   static const lightBlue400 =
       ExcelColor._('FF29B6F6', 'lightBlue400', ColorType.material);
-  static const lightBlue500 =
-      ExcelColor._('FF03A9F4', 'lightBlue500', ColorType.material);
   static const lightBlue600 =
       ExcelColor._('FF039BE5', 'lightBlue600', ColorType.material);
   static const lightBlue700 =
@@ -452,8 +411,6 @@ class ExcelColor extends Equatable {
       ExcelColor._('FF4DD0E1', 'cyan300', ColorType.material);
   static const cyan400 =
       ExcelColor._('FF26C6DA', 'cyan400', ColorType.material);
-  static const cyan500 =
-      ExcelColor._('FF00BCD4', 'cyan500', ColorType.material);
   static const cyan600 =
       ExcelColor._('FF00ACC1', 'cyan600', ColorType.material);
   static const cyan700 =
@@ -471,8 +428,6 @@ class ExcelColor extends Equatable {
       ExcelColor._('FF4DB6AC', 'teal300', ColorType.material);
   static const teal400 =
       ExcelColor._('FF26A69A', 'teal400', ColorType.material);
-  static const teal500 =
-      ExcelColor._('FF009688', 'teal500', ColorType.material);
   static const teal600 =
       ExcelColor._('FF00897B', 'teal600', ColorType.material);
   static const teal700 =
@@ -491,8 +446,6 @@ class ExcelColor extends Equatable {
       ExcelColor._('FF81C784', 'green300', ColorType.material);
   static const green400 =
       ExcelColor._('FF66BB6A', 'green400', ColorType.material);
-  static const green500 =
-      ExcelColor._('FF4CAF50', 'green500', ColorType.material);
   static const green600 =
       ExcelColor._('FF43A047', 'green600', ColorType.material);
   static const green700 =
@@ -511,8 +464,6 @@ class ExcelColor extends Equatable {
       ExcelColor._('FFAED581', 'lightGreen300', ColorType.material);
   static const lightGreen400 =
       ExcelColor._('FF9CCC65', 'lightGreen400', ColorType.material);
-  static const lightGreen500 =
-      ExcelColor._('FF8BC34A', 'lightGreen500', ColorType.material);
   static const lightGreen600 =
       ExcelColor._('FF7CB342', 'lightGreen600', ColorType.material);
   static const lightGreen700 =
@@ -530,8 +481,6 @@ class ExcelColor extends Equatable {
       ExcelColor._('FFDCE775', 'lime300', ColorType.material);
   static const lime400 =
       ExcelColor._('FFD4E157', 'lime400', ColorType.material);
-  static const lime500 =
-      ExcelColor._('FFCDDC39', 'lime500', ColorType.material);
   static const lime600 =
       ExcelColor._('FFC0CA33', 'lime600', ColorType.material);
   static const lime700 =
@@ -550,8 +499,6 @@ class ExcelColor extends Equatable {
       ExcelColor._('FFFFF176', 'yellow300', ColorType.material);
   static const yellow400 =
       ExcelColor._('FFFFEE58', 'yellow400', ColorType.material);
-  static const yellow500 =
-      ExcelColor._('FFFFEB3B', 'yellow500', ColorType.material);
   static const yellow600 =
       ExcelColor._('FFFDD835', 'yellow600', ColorType.material);
   static const yellow700 =
@@ -570,8 +517,6 @@ class ExcelColor extends Equatable {
       ExcelColor._('FFFFD54F', 'amber300', ColorType.material);
   static const amber400 =
       ExcelColor._('FFFFCA28', 'amber400', ColorType.material);
-  static const amber500 =
-      ExcelColor._('FFFFC107', 'amber500', ColorType.material);
   static const amber600 =
       ExcelColor._('FFFFB300', 'amber600', ColorType.material);
   static const amber700 =
@@ -590,8 +535,6 @@ class ExcelColor extends Equatable {
       ExcelColor._('FFFFB74D', 'orange300', ColorType.material);
   static const orange400 =
       ExcelColor._('FFFFA726', 'orange400', ColorType.material);
-  static const orange500 =
-      ExcelColor._('FFFF9800', 'orange500', ColorType.material);
   static const orange600 =
       ExcelColor._('FFFB8C00', 'orange600', ColorType.material);
   static const orange700 =
@@ -610,8 +553,6 @@ class ExcelColor extends Equatable {
       ExcelColor._('FFFF8A65', 'deepOrange300', ColorType.material);
   static const deepOrange400 =
       ExcelColor._('FFFF7043', 'deepOrange400', ColorType.material);
-  static const deepOrange500 =
-      ExcelColor._('FFFF5722', 'deepOrange500', ColorType.material);
   static const deepOrange600 =
       ExcelColor._('FFF4511E', 'deepOrange600', ColorType.material);
   static const deepOrange700 =
@@ -630,8 +571,6 @@ class ExcelColor extends Equatable {
       ExcelColor._('FFA1887F', 'brown300', ColorType.material);
   static const brown400 =
       ExcelColor._('FF8D6E63', 'brown400', ColorType.material);
-  static const brown500 =
-      ExcelColor._('FF795548', 'brown500', ColorType.material);
   static const brown600 =
       ExcelColor._('FF6D4C41', 'brown600', ColorType.material);
   static const brown700 =
@@ -651,8 +590,6 @@ class ExcelColor extends Equatable {
       ExcelColor._('FFD6D6D6', 'grey350', ColorType.material);
   static const grey400 =
       ExcelColor._('FFBDBDBD', 'grey400', ColorType.material);
-  static const grey500 =
-      ExcelColor._('FF9E9E9E', 'grey500', ColorType.material);
   static const grey600 =
       ExcelColor._('FF757575', 'grey600', ColorType.material);
   static const grey700 =
@@ -673,8 +610,6 @@ class ExcelColor extends Equatable {
       ExcelColor._('FF90A4AE', 'blueGrey300', ColorType.material);
   static const blueGrey400 =
       ExcelColor._('FF78909C', 'blueGrey400', ColorType.material);
-  static const blueGrey500 =
-      ExcelColor._('FF607D8B', 'blueGrey500', ColorType.material);
   static const blueGrey600 =
       ExcelColor._('FF546E7A', 'blueGrey600', ColorType.material);
   static const blueGrey700 =
@@ -737,67 +672,51 @@ class ExcelColor extends Equatable {
         grey,
         blueGrey,
         redAccent100,
-        redAccent200,
         redAccent400,
         redAccent700,
         pinkAccent100,
-        pinkAccent200,
         pinkAccent400,
         pinkAccent700,
         purpleAccent100,
-        purpleAccent200,
         purpleAccent400,
         purpleAccent700,
         deepPurpleAccent100,
-        deepPurpleAccent200,
         deepPurpleAccent400,
         deepPurpleAccent700,
         indigoAccent100,
-        indigoAccent200,
         indigoAccent400,
         indigoAccent700,
         blueAccent100,
-        blueAccent200,
         blueAccent400,
         blueAccent700,
         lightBlueAccent100,
-        lightBlueAccent200,
         lightBlueAccent400,
         lightBlueAccent700,
         cyanAccent100,
-        cyanAccent200,
         cyanAccent400,
         cyanAccent700,
         tealAccent100,
-        tealAccent200,
         tealAccent400,
         tealAccent700,
         greenAccent100,
-        greenAccent200,
         greenAccent400,
         greenAccent700,
         lightGreenAccent100,
-        lightGreenAccent200,
         lightGreenAccent400,
         lightGreenAccent700,
         limeAccent100,
-        limeAccent200,
         limeAccent400,
         limeAccent700,
         yellowAccent100,
-        yellowAccent200,
         yellowAccent400,
         yellowAccent700,
         amberAccent100,
-        amberAccent200,
         amberAccent400,
         amberAccent700,
         orangeAccent100,
-        orangeAccent200,
         orangeAccent400,
         orangeAccent700,
         deepOrangeAccent100,
-        deepOrangeAccent200,
         deepOrangeAccent400,
         deepOrangeAccent700,
         red50,
@@ -805,7 +724,6 @@ class ExcelColor extends Equatable {
         red200,
         red300,
         red400,
-        red500,
         red600,
         red700,
         red800,
@@ -815,7 +733,6 @@ class ExcelColor extends Equatable {
         pink200,
         pink300,
         pink400,
-        pink500,
         pink600,
         pink700,
         pink800,
@@ -825,7 +742,6 @@ class ExcelColor extends Equatable {
         purple200,
         purple300,
         purple400,
-        purple500,
         purple600,
         purple700,
         purple800,
@@ -835,7 +751,6 @@ class ExcelColor extends Equatable {
         deepPurple200,
         deepPurple300,
         deepPurple400,
-        deepPurple500,
         deepPurple600,
         deepPurple700,
         deepPurple800,
@@ -845,7 +760,6 @@ class ExcelColor extends Equatable {
         indigo200,
         indigo300,
         indigo400,
-        indigo500,
         indigo600,
         indigo700,
         indigo800,
@@ -855,7 +769,6 @@ class ExcelColor extends Equatable {
         blue200,
         blue300,
         blue400,
-        blue500,
         blue600,
         blue700,
         blue800,
@@ -865,7 +778,6 @@ class ExcelColor extends Equatable {
         lightBlue200,
         lightBlue300,
         lightBlue400,
-        lightBlue500,
         lightBlue600,
         lightBlue700,
         lightBlue800,
@@ -875,7 +787,6 @@ class ExcelColor extends Equatable {
         cyan200,
         cyan300,
         cyan400,
-        cyan500,
         cyan600,
         cyan700,
         cyan800,
@@ -885,7 +796,6 @@ class ExcelColor extends Equatable {
         teal200,
         teal300,
         teal400,
-        teal500,
         teal600,
         teal700,
         teal800,
@@ -895,7 +805,6 @@ class ExcelColor extends Equatable {
         green200,
         green300,
         green400,
-        green500,
         green600,
         green700,
         green800,
@@ -905,7 +814,6 @@ class ExcelColor extends Equatable {
         lightGreen200,
         lightGreen300,
         lightGreen400,
-        lightGreen500,
         lightGreen600,
         lightGreen700,
         lightGreen800,
@@ -915,7 +823,6 @@ class ExcelColor extends Equatable {
         lime200,
         lime300,
         lime400,
-        lime500,
         lime600,
         lime700,
         lime800,
@@ -925,7 +832,6 @@ class ExcelColor extends Equatable {
         yellow200,
         yellow300,
         yellow400,
-        yellow500,
         yellow600,
         yellow700,
         yellow800,
@@ -935,7 +841,6 @@ class ExcelColor extends Equatable {
         amber200,
         amber300,
         amber400,
-        amber500,
         amber600,
         amber700,
         amber800,
@@ -945,7 +850,6 @@ class ExcelColor extends Equatable {
         orange200,
         orange300,
         orange400,
-        orange500,
         orange600,
         orange700,
         orange800,
@@ -955,7 +859,6 @@ class ExcelColor extends Equatable {
         deepOrange200,
         deepOrange300,
         deepOrange400,
-        deepOrange500,
         deepOrange600,
         deepOrange700,
         deepOrange800,
@@ -965,7 +868,6 @@ class ExcelColor extends Equatable {
         brown200,
         brown300,
         brown400,
-        brown500,
         brown600,
         brown700,
         brown800,
@@ -976,7 +878,6 @@ class ExcelColor extends Equatable {
         grey300,
         grey350,
         grey400,
-        grey500,
         grey600,
         grey700,
         grey800,
@@ -987,13 +888,14 @@ class ExcelColor extends Equatable {
         blueGrey200,
         blueGrey300,
         blueGrey400,
-        blueGrey500,
         blueGrey600,
         blueGrey700,
         blueGrey800,
         blueGrey900,
       ];
 
+  static Map<String, ExcelColor> get valuesAsMap =>
+      values.asMap().map((_, v) => MapEntry(v.colorHex, v));
   @override
   List<Object?> get props => [
         _name,
