@@ -137,7 +137,7 @@ class IntCellValue extends CellValue {
 
   @override
   String toString() {
-    return value.toString();
+    return '$value';
   }
 
   @override
@@ -156,7 +156,7 @@ class DoubleCellValue extends CellValue {
 
   @override
   String toString() {
-    return value.toString();
+    return '$value';
   }
 
   @override
