@@ -239,7 +239,32 @@ void main() {
       );
     }
   });
+  test('Testing customNumFormats', () {
+    var excel = Excel.createExcel();
+    var sheet = excel['Sheet1'];
+    final format1 = CustomNumericNumFormat(formatCode: r'0.00%');
+    final format2 = CustomNumericNumFormat(formatCode: r'#,##0.00');
+    final styleA1 = CellStyle(
+      numberFormat: format1,
+    );
+    final styleB1 = CellStyle(
+      numberFormat: format2,
+    );
 
+    sheet.updateCell(CellIndex.indexByString('A1'), DoubleCellValue(0.15),
+        cellStyle: styleA1);
+    sheet.updateCell(
+        CellIndex.indexByString('B1'), DoubleCellValue(123456.789), cellStyle: styleB1);
+    final bytes = excel.encode();
+    final excel2 = Excel.decodeBytes(bytes!);
+    final sheet2 = excel2['Sheet1'];
+    final a1_2 = sheet2.cell(CellIndex.indexByString('A1'));
+    final b1_2 = sheet2.cell(CellIndex.indexByString('B1'));
+    expect(a1_2.cellStyle?.numberFormat, equals(format1));
+    expect(a1_2.value, equals(DoubleCellValue(0.15)));
+    expect(b1_2.cellStyle?.numberFormat, equals(format2));
+    expect(b1_2.value, equals(DoubleCellValue(123456.789)));
+  });
   group('Sheet Operations', () {
     var file = './test/test_resources/example.xlsx';
     var bytes = File(file).readAsBytesSync();
@@ -787,7 +812,6 @@ void main() {
       final List<List<int>> data = List<List<int>>.generate(
           5, (x) => List<int>.generate(5, (i) => (x + 1) * (i + 1)));
 
-
       const newName = 'Sheet1Replacement';
 
       const defaultSheetName = 'Sheet1';
@@ -800,12 +824,10 @@ void main() {
           .where((e) => e.type == ColorType.materialAccent)
           .toList();
 
-
       excelFiles.forEach((element) {
         expect(element.getDefaultSheet()!, defaultSheetName);
         for (var row = 0; row < data.length; row++) {
           for (var column = 0; column < data[row].length; column++) {
-
             final border = Border(
               borderColorHex: borderColor[column],
               borderStyle: BorderStyle.Thin,
@@ -822,7 +844,6 @@ void main() {
                 ..rightBorder = border
                 ..backgroundColor = backgroundColor[row]
                 ..fontColor = fontColor[column],
-
             );
           }
         }
