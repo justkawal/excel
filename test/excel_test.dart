@@ -253,8 +253,8 @@ void main() {
 
     sheet.updateCell(CellIndex.indexByString('A1'), DoubleCellValue(0.15),
         cellStyle: styleA1);
-    sheet.updateCell(
-        CellIndex.indexByString('B1'), DoubleCellValue(123456.789), cellStyle: styleB1);
+    sheet.updateCell(CellIndex.indexByString('B1'), DoubleCellValue(123456.789),
+        cellStyle: styleB1);
     final bytes = excel.encode();
     final excel2 = Excel.decodeBytes(bytes!);
     final sheet2 = excel2['Sheet1'];

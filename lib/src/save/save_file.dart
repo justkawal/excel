@@ -497,9 +497,13 @@ class Save {
       int count;
       if (numFmtsElement == null) {
         numFmtsElement = XmlElement(XmlName('numFmts'));
-        ///FIX: if no default numFormats were added in styles.xml - customNumFormats were added in wrong place, 
-        styleSheet.findElements('styleSheet').first.children
-            .insert(0,numFmtsElement);
+
+        ///FIX: if no default numFormats were added in styles.xml - customNumFormats were added in wrong place,
+        styleSheet
+            .findElements('styleSheet')
+            .first
+            .children
+            .insert(0, numFmtsElement);
         // styleSheet.children.insert(0, numFmtsElement);
       }
       count = int.parse(numFmtsElement.getAttribute('count') ?? '0');
