@@ -77,15 +77,12 @@ extension StringExt on String {
   ExcelColor get excelColor => this == 'none'
       ? ExcelColor.none
       : _assertHexString(this)
-
           ? ExcelColor.valuesAsMap[this] ?? ExcelColor._(this)
-
           : ExcelColor.black;
 }
 
 /// Copying from Flutter Material Color
 class ExcelColor extends Equatable {
-
   const ExcelColor._(this._color, [this._name, this._type]);
 
   final String _color;
@@ -104,7 +101,6 @@ class ExcelColor extends Equatable {
 
   String? get name => _name;
 
-
   /// Warning! Highly unsafe method.
   /// Can break your excel file if you do not know what you are doing
   factory ExcelColor.fromInt(int colorIntValue) =>
@@ -115,9 +111,7 @@ class ExcelColor extends Equatable {
   factory ExcelColor.fromHexString(String colorHexValue) =>
       ExcelColor._(colorHexValue);
 
-
   static const none = ExcelColor._('none');
-
 
   static const black = ExcelColor._('FF000000', 'black', ColorType.color);
   static const black12 = ExcelColor._('1F000000', 'black12', ColorType.color);
