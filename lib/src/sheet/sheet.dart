@@ -1090,9 +1090,9 @@ class Sheet {
 
     cell._value = value;
     cell._cellStyle = CellStyle(numberFormat: NumFormat.defaultFor(value));
-    // if (cell._cellStyle != NumFormat.standard_0) {
-    //   _excel._styleChanges = true;
-    // }
+    if (cell._cellStyle != NumFormat.standard_0) {
+      _excel._styleChanges = true;
+    }
 
     if ((_maxColumns - 1) < columnIndex) {
       _maxColumns = columnIndex + 1;
