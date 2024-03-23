@@ -647,6 +647,9 @@ class Sheet {
           }
           if (rowIndex <= rowKey) {
             _data[rowKey + 1] = _sheetData[rowKey]!;
+            _data[rowKey + 1]!.forEach((key, value) {
+              value._rowIndex++;
+            });
           }
         });
       }
@@ -655,9 +658,9 @@ class Sheet {
     _sheetData = Map<int, Map<int, Data>>.from(_data);
 
     if (_maxRows - 1 <= rowIndex) {
-      _maxRows += 1;
-    } else {
       _maxRows = rowIndex + 1;
+    } else {
+      _maxRows += 1;
     }
 
     //_countRowsAndColumns();
