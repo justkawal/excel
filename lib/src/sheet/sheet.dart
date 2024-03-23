@@ -647,6 +647,9 @@ class Sheet {
           }
           if (rowIndex <= rowKey) {
             _data[rowKey + 1] = _sheetData[rowKey]!;
+            _data[rowKey + 1]!.forEach((key, value) {
+              value._rowIndex++;
+            });
           }
         });
       }
