@@ -1028,8 +1028,12 @@ class Sheet {
   ///
   /// [overwriteMergedCells] when set to [false] puts the cell value in next unique cell available and putting the value in merged cells only once.
   ///
-  void insertRowIterables(List<CellValue?> row, int rowIndex,
-      {int startingColumn = 0, bool overwriteMergedCells = true}) {
+  void insertRowIterables(
+    List<CellValue?> row,
+    int rowIndex, {
+    int startingColumn = 0,
+    bool overwriteMergedCells = true,
+  }) {
     if (row.isEmpty || rowIndex < 0) {
       return;
     }
