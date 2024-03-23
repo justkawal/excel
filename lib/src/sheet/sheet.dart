@@ -1052,9 +1052,7 @@ class Sheet {
       // Normally iterating and putting the data present in the [row] as we are on the last index.
 
       while (currentRowPosition <= maxIterationIndex) {
-        _putData(rowIndex, columnIndex, row[currentRowPosition]);
-        currentRowPosition++;
-        columnIndex++;
+        _putData(rowIndex, columnIndex++, row[currentRowPosition++]);
       }
     } else {
       // expensive function as per time complexity
@@ -1063,15 +1061,12 @@ class Sheet {
 
       if (_spanObjectsList.isEmpty) {
         while (currentRowPosition <= maxIterationIndex) {
-          _putData(rowIndex, columnIndex, row[currentRowPosition]);
-          currentRowPosition++;
-          columnIndex++;
+          _putData(rowIndex, columnIndex++, row[currentRowPosition++]);
         }
       } else {
         while (currentRowPosition <= maxIterationIndex) {
           if (_isInsideSpanObject(_spanObjectsList, columnIndex, rowIndex)) {
-            _putData(rowIndex, columnIndex, row[currentRowPosition]);
-            currentRowPosition++;
+            _putData(rowIndex, columnIndex, row[currentRowPosition++]);
           }
           columnIndex++;
         }
