@@ -401,25 +401,44 @@ void main() {
     // delete tmp folder
     new Directory('./tmp').delete(recursive: true);
     expect(newExcel.sheets.entries.length, equals(1));
-    expect(
-        newExcel.tables['Sheet1']!.rows[0][0]!.value.toString(), equals('8'));
     expect(newExcel.tables['Sheet1']!.maxColumns, equals(5));
+    expect(newExcel.tables['Sheet1']!.rows[0][0]!.value, equals(IntCellValue(8)));
     expect(
         newExcel.tables['Sheet1']!.rows[0][0]!.cellStyle?.numberFormat
             .toString(),
         equals(NumFormat.defaultNumeric.toString()));
+    expect(newExcel.tables['Sheet1']!.rows[0][1]!.value,
+        DoubleCellValue(999.62221));
     expect(
         newExcel.tables['Sheet1']!.rows[0][1]!.cellStyle?.numberFormat
             .toString(),
         equals(NumFormat.defaultFloat.toString()));
+    expect(newExcel.tables['Sheet1']!.rows[0][2]!.value,
+        DateCellValue(year: 2023, month: 4, day: 20));
     expect(
         newExcel.tables['Sheet1']!.rows[0][2]!.cellStyle?.numberFormat
             .toString(),
         equals(NumFormat.defaultDate.toString()));
     expect(
+        newExcel.tables['Sheet1']!.rows[0][3]!.value,
+        DateTimeCellValue(
+          year: 2023,
+          month: 4,
+          day: 20,
+          hour: 15,
+          minute: 44,
+          second: 13,
+        ));
+    expect(
         newExcel.tables['Sheet1']!.rows[0][3]!.cellStyle?.numberFormat
             .toString(),
         equals(NumFormat.defaultDateTime.toString()));
+    expect(
+        newExcel.tables['Sheet1']!.rows[0][4]!.value, TextCellValue('value'));
+    expect(
+        newExcel.tables['Sheet1']!.rows[0][4]!.cellStyle?.numberFormat
+            .toString(),
+        equals(NumFormat.standard_0.toString()));
   });
 
   test('Saving XLSX File with superscript', () {
