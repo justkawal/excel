@@ -87,8 +87,16 @@ void main() {
     );
     expect(
       excel.tables['Sheet1']?.rows[6][1]?.value,
-      equals(DateTimeCellValue(
-          year: 2023, month: 4, day: 20, hour: 15, minute: 44, second: 13)),
+      equals(
+        DateTimeCellValue(
+          year: 2023,
+          month: 4,
+          day: 20,
+          hour: 15,
+          minute: 44,
+          second: 13,
+        ),
+      ),
     );
     expect(
       excel.tables['Sheet1']?.rows[7][1]?.value,
@@ -131,7 +139,13 @@ void main() {
     expect(
       excel.tables['Sheet1']?.rows[6][1]?.value,
       equals(DateTimeCellValue(
-          year: 2023, month: 4, day: 20, hour: 15, minute: 44, second: 13)),
+        year: 2023,
+        month: 4,
+        day: 20,
+        hour: 15,
+        minute: 44,
+        second: 13,
+      )),
     );
     expect(
       excel.tables['Sheet1']?.rows[7][1]?.value,
@@ -350,6 +364,81 @@ void main() {
     expect(newExcel.tables['Sheet1']!.maxColumns, equals(3));
     expect(newExcel.tables['Sheet1']!.rows[4][1]!.value.toString(),
         equals('Moscow'));
+  });
+
+  test('Saving XLSX File with appendRow', () {
+    var excel = Excel.createExcel();
+    var sheet = excel['Sheet1'];
+
+    sheet.appendRow([
+      IntCellValue(8),
+      DoubleCellValue(999.62221),
+      DateCellValue(year: 2023, month: 4, day: 20),
+      DateTimeCellValue(
+        year: 2023,
+        month: 4,
+        day: 20,
+        hour: 15,
+        minute: 44,
+        second: 13,
+      ),
+      TextCellValue('value'),
+    ]);
+
+    //stopwatch.reset();
+    List<int>? fileBytes = excel.save();
+    //print('saving executed in ${stopwatch.elapsed}');
+    if (fileBytes != null) {
+      File(Directory.current.path + '/tmp/exampleOut.xlsx')
+        ..createSync(recursive: true)
+        ..writeAsBytesSync(fileBytes);
+    }
+
+    var newFile = './tmp/exampleOut.xlsx';
+    var newFileBytes = File(newFile).readAsBytesSync();
+    var newExcel = Excel.decodeBytes(newFileBytes);
+
+    // delete tmp folder
+    new Directory('./tmp').delete(recursive: true);
+    expect(newExcel.sheets.entries.length, equals(1));
+    expect(newExcel.tables['Sheet1']!.maxColumns, equals(5));
+    expect(newExcel.tables['Sheet1']!.rows[0][0]!.value, equals(IntCellValue(8)));
+    expect(
+        newExcel.tables['Sheet1']!.rows[0][0]!.cellStyle?.numberFormat
+            .toString(),
+        equals(NumFormat.defaultNumeric.toString()));
+    expect(newExcel.tables['Sheet1']!.rows[0][1]!.value,
+        DoubleCellValue(999.62221));
+    expect(
+        newExcel.tables['Sheet1']!.rows[0][1]!.cellStyle?.numberFormat
+            .toString(),
+        equals(NumFormat.defaultFloat.toString()));
+    expect(newExcel.tables['Sheet1']!.rows[0][2]!.value,
+        DateCellValue(year: 2023, month: 4, day: 20));
+    expect(
+        newExcel.tables['Sheet1']!.rows[0][2]!.cellStyle?.numberFormat
+            .toString(),
+        equals(NumFormat.defaultDate.toString()));
+    expect(
+        newExcel.tables['Sheet1']!.rows[0][3]!.value,
+        DateTimeCellValue(
+          year: 2023,
+          month: 4,
+          day: 20,
+          hour: 15,
+          minute: 44,
+          second: 13,
+        ));
+    expect(
+        newExcel.tables['Sheet1']!.rows[0][3]!.cellStyle?.numberFormat
+            .toString(),
+        equals(NumFormat.defaultDateTime.toString()));
+    expect(
+        newExcel.tables['Sheet1']!.rows[0][4]!.value, TextCellValue('value'));
+    expect(
+        newExcel.tables['Sheet1']!.rows[0][4]!.cellStyle?.numberFormat
+            .toString(),
+        equals(NumFormat.standard_0.toString()));
   });
 
   test('Saving XLSX File with superscript', () {

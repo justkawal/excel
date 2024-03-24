@@ -1031,8 +1031,12 @@ class Sheet {
   ///
   /// [overwriteMergedCells] when set to [false] puts the cell value in next unique cell available and putting the value in merged cells only once.
   ///
-  void insertRowIterables(List<CellValue?> row, int rowIndex,
-      {int startingColumn = 0, bool overwriteMergedCells = true}) {
+  void insertRowIterables(
+    List<CellValue?> row,
+    int rowIndex, {
+    int startingColumn = 0,
+    bool overwriteMergedCells = true,
+  }) {
     if (row.isEmpty || rowIndex < 0) {
       return;
     }
@@ -1051,9 +1055,7 @@ class Sheet {
       // Normally iterating and putting the data present in the [row] as we are on the last index.
 
       while (currentRowPosition <= maxIterationIndex) {
-        _putData(rowIndex, columnIndex, row[currentRowPosition]);
-        currentRowPosition++;
-        columnIndex++;
+        _putData(rowIndex, columnIndex++, row[currentRowPosition++]);
       }
     } else {
       // expensive function as per time complexity
@@ -1062,15 +1064,12 @@ class Sheet {
 
       if (_spanObjectsList.isEmpty) {
         while (currentRowPosition <= maxIterationIndex) {
-          _putData(rowIndex, columnIndex, row[currentRowPosition]);
-          currentRowPosition++;
-          columnIndex++;
+          _putData(rowIndex, columnIndex++, row[currentRowPosition++]);
         }
       } else {
         while (currentRowPosition <= maxIterationIndex) {
           if (_isInsideSpanObject(_spanObjectsList, columnIndex, rowIndex)) {
-            _putData(rowIndex, columnIndex, row[currentRowPosition]);
-            currentRowPosition++;
+            _putData(rowIndex, columnIndex, row[currentRowPosition++]);
           }
           columnIndex++;
         }
@@ -1093,6 +1092,9 @@ class Sheet {
 
     cell._value = value;
     cell._cellStyle = CellStyle(numberFormat: NumFormat.defaultFor(value));
+    if (cell._cellStyle != NumFormat.standard_0) {
+      _excel._styleChanges = true;
+    }
 
     if ((_maxColumns - 1) < columnIndex) {
       _maxColumns = columnIndex + 1;
