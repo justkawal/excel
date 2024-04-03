@@ -560,12 +560,8 @@ class Sheet {
           if (rowKey < rowIndex && _sheetData[rowKey] != null) {
             _data[rowKey] = Map<int, Data>.from(_sheetData[rowKey]!);
           }
-          if (rowIndex == rowKey && _sheetData[rowKey] != null) {
-            _sheetData.remove(rowKey);
-          }
           if (rowIndex < rowKey && _sheetData[rowKey] != null) {
             _data[rowKey - 1] = Map<int, Data>.from(_sheetData[rowKey]!);
-            _sheetData.remove(rowKey);
           }
         });
         _sheetData = Map<int, Map<int, Data>>.from(_data);
