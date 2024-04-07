@@ -166,18 +166,25 @@ class Parser {
     });
   }
 
+  /// Parses and processes merged cells within the spreadsheet.
+  ///
+  /// This method identifies merged cell regions in each sheet of the spreadsheet
+  /// and handles them accordingly. It removes all cells within a merged cell region
+  /// except for the top-left cell, preserving its content.
   void _parseMergedCells() {
     Map spannedCells = <String, List<String>>{};
     _excel._sheets.forEach((sheetName, node) {
       _excel._availSheet(sheetName);
-      XmlElement elementNode = node as XmlElement;
+      XmlElement sheetDataNode = node as XmlElement;
       List spanList = <String>[];
+      final sheet = _excel._sheetMap[sheetName]!;
 
-      elementNode.findAllElements('mergeCell').forEach((elemen) {
-        String? ref = elemen.getAttribute('ref');
+      final worksheetNode = sheetDataNode.parent;
+      worksheetNode!.findAllElements('mergeCell').forEach((element) {
+        String? ref = element.getAttribute('ref');
         if (ref != null && ref.contains(':') && ref.split(':').length == 2) {
-          if (!_excel._sheetMap[sheetName]!._spannedItems.contains(ref)) {
-            _excel._sheetMap[sheetName]!._spannedItems.add(ref);
+          if (!sheet._spannedItems.contains(ref)) {
+            sheet._spannedItems.add(ref);
           }
 
           String startCell = ref.split(':')[0], endCell = ref.split(':')[1];
@@ -193,26 +200,43 @@ class Parser {
             start: startIndex,
             end: endIndex,
           );
-          if (!_excel._sheetMap[sheetName]!._spanList.contains(spanObj)) {
-            _excel._sheetMap[sheetName]!._spanList.add(spanObj);
+          if (!sheet._spanList.contains(spanObj)) {
+            sheet._spanList.add(spanObj);
+
+            _deleteAllButTopLeftCellsOfSpanObj(spanObj, sheet);
           }
           _excel._mergeChangeLookup = sheetName;
         }
       });
     });
+  }
 
-    // Remove those cells which are present inside the
-    _excel._sheetMap.forEach((sheetName, sheetObject) {
-      if (spannedCells.containsKey(sheetName)) {
-        sheetObject._sheetData.forEach((row, columnMap) {
-          columnMap.forEach((column, dataObject) {
-            if (!(spannedCells[sheetName].contains(getCellId(column, row)))) {
-              _excel[sheetName]._sheetData[row]?.remove(column);
-            }
-          });
-        });
+  /// Deletes all cells within the span of the given [_Span] object
+  /// except for the top-left cell.
+  ///
+  /// This method is used internally by [_parseMergedCells] to remove
+  /// cells within merged cell regions.
+  ///
+  /// Parameters:
+  ///   - [spanObj]: The span object representing the merged cell region.
+  ///   - [sheet]: The sheet object from which cells are to be removed.
+  void _deleteAllButTopLeftCellsOfSpanObj(_Span spanObj, Sheet sheet) {
+    final columnSpanStart = spanObj.columnSpanStart;
+    final columnSpanEnd = spanObj.columnSpanEnd;
+    final rowSpanStart = spanObj.rowSpanStart;
+    final rowSpanEnd = spanObj.rowSpanEnd;
+
+    for (var columnI = columnSpanStart; columnI <= columnSpanEnd; columnI++) {
+      for (var rowI = rowSpanStart; rowI <= rowSpanEnd; rowI++) {
+        bool isTopLeftCellThatShouldNotBeDeleted =
+            columnI == columnSpanStart && rowI == rowSpanStart;
+
+        if (isTopLeftCellThatShouldNotBeDeleted) {
+          continue;
+        }
+        sheet._removeCell(rowI, columnI);
       }
-    });
+    }
   }
 
   // Reading the styles from the excel file.

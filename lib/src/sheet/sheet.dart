@@ -96,6 +96,30 @@ class Sheet {
     _countRowsAndColumns();
   }
 
+  /// Removes a cell from the specified [rowIndex] and [columnIndex].
+  ///
+  /// If the specified [rowIndex] or [columnIndex] does not exist,
+  /// no action is taken.
+  ///
+  /// If the removal of the cell results in an empty row, the entire row is removed.
+  ///
+  /// Parameters:
+  ///   - [rowIndex]: The index of the row from which to remove the cell.
+  ///   - [columnIndex]: The index of the column from which to remove the cell.
+  ///
+  /// Example:
+  /// ```dart
+  /// final sheet = Spreadsheet();
+  /// sheet.removeCell(1, 2);
+  /// ```
+  void _removeCell(int rowIndex, int columnIndex) {
+    _sheetData[rowIndex]?.remove(columnIndex);
+    final rowIsEmptyAfterRemovalOfCell = _sheetData[rowIndex]?.isEmpty == true;
+    if (rowIsEmptyAfterRemovalOfCell) {
+      _sheetData.remove(rowIndex);
+    }
+  }
+
   ///
   /// returns `true` is this sheet is `right-to-left` other-wise `false`
   ///
