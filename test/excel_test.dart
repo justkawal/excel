@@ -971,4 +971,61 @@ void main() {
       });
     });
   });
+
+  group('Spanned Items', () {
+    test("read spanned items", () {
+      var file = './test/test_resources/spannedItemExample.xlsx';
+      var bytes = File(file).readAsBytesSync();
+      var excel = Excel.decodeBytes(bytes);
+
+      Sheet? sheet = excel.tables["Spanned Items"]!;
+
+      testSpannedItemsSheetValues(Sheet sheet) {
+        final cells =
+            sheet.rows.expand((r) => r.where((c) => c != null)).toList();
+
+        expect(cells[0]?.value, equals(TextCellValue('spanned item A1:B1')));
+        expect(cells[0]?.cellIndex,
+            equals(CellIndex.indexByColumnRow(columnIndex: 0, rowIndex: 0)));
+
+        expect(cells[1]?.value, equals(TextCellValue('spanned item A2:A3')));
+        expect(cells[1]?.cellIndex,
+            equals(CellIndex.indexByColumnRow(columnIndex: 0, rowIndex: 1)));
+
+        expect(cells[2]?.value, equals(TextCellValue('spanned item A4:B5')));
+        expect(cells[2]?.cellIndex,
+            equals(CellIndex.indexByColumnRow(columnIndex: 0, rowIndex: 3)));
+      }
+
+      testSpannedItemsList(Sheet sheet) {
+        List<String> spannedItems = sheet.spannedItems;
+
+        expect(spannedItems[0], equals('A1:B1'));
+        expect(spannedItems[1], equals('A2:A3'));
+        expect(spannedItems[2], equals('A4:B5'));
+      }
+
+      testSpannedItemsList(sheet);
+
+      testSpannedItemsSheetValues(sheet);
+
+      var fileBytes = excel.encode();
+      if (fileBytes != null) {
+        File(Directory.current.path + '/tmp/spannedItemExampleOut.xlsx')
+          ..createSync(recursive: true)
+          ..writeAsBytesSync(fileBytes);
+      }
+      var newFile = './tmp/spannedItemExampleOut.xlsx';
+      var newFileBytes = File(newFile).readAsBytesSync();
+      var newExcel = Excel.decodeBytes(newFileBytes);
+      // delete tmp folder
+      new Directory('./tmp').delete(recursive: true);
+
+      Sheet? newSheet = newExcel.tables["Spanned Items"]!;
+
+      testSpannedItemsList(newSheet);
+
+      testSpannedItemsSheetValues(newSheet);
+    });
+  });
 }
