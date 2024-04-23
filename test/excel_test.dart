@@ -18,8 +18,7 @@ void main() {
     var bytes = File(file).readAsBytesSync();
     var excel = Excel.decodeBytes(bytes);
     expect(excel.tables['Sheet1']!.maxColumns, equals(3));
-    expect(excel.tables['Sheet1']!.rows[1][1]!.value.toString(),
-        equals('Washington'));
+    expect(excel.tables['Sheet1']!.rows[1][1]!.value.toString(), equals('Washington'));
   });
 
   test('Cell Data-Types from Microsoft Excel 365 Destkop', () {
@@ -44,8 +43,7 @@ void main() {
     );
     expect(
       excel.tables['Tabelle1']?.rows[6][1]?.value,
-      equals(DateTimeCellValue(
-          year: 2023, month: 4, day: 20, hour: 15, minute: 44, second: 13)),
+      equals(DateTimeCellValue(year: 2023, month: 4, day: 20, hour: 15, minute: 44, second: 13)),
     );
     expect(
       excel.tables['Tabelle1']?.rows[7][1]?.value,
@@ -265,10 +263,8 @@ void main() {
       numberFormat: format2,
     );
 
-    sheet.updateCell(CellIndex.indexByString('A1'), DoubleCellValue(0.15),
-        cellStyle: styleA1);
-    sheet.updateCell(CellIndex.indexByString('B1'), DoubleCellValue(123456.789),
-        cellStyle: styleB1);
+    sheet.updateCell(CellIndex.indexByString('A1'), DoubleCellValue(0.15), cellStyle: styleA1);
+    sheet.updateCell(CellIndex.indexByString('B1'), DoubleCellValue(123456.789), cellStyle: styleB1);
     final bytes = excel.encode();
     final excel2 = Excel.decodeBytes(bytes!);
     final sheet2 = excel2['Sheet1'];
@@ -285,55 +281,38 @@ void main() {
     Excel excel = Excel.decodeBytes(bytes);
     test('create Sheet', () {
       Sheet sheetObject = excel['SheetTmp'];
-      sheetObject.insertRowIterables([
-        TextCellValue('Country'),
-        TextCellValue('Capital'),
-        TextCellValue('Head')
-      ], 0);
-      sheetObject.insertRowIterables([
-        TextCellValue('Russia'),
-        TextCellValue('Moscow'),
-        TextCellValue('Putin')
-      ], 1);
+      sheetObject.insertRowIterables([TextCellValue('Country'), TextCellValue('Capital'), TextCellValue('Head')], 0);
+      sheetObject.insertRowIterables([TextCellValue('Russia'), TextCellValue('Moscow'), TextCellValue('Putin')], 1);
       expect(excel.sheets.entries.length, equals(2));
-      expect(excel.tables['Sheet1']!.rows[1][1]!.value.toString(),
-          equals('Washington'));
+      expect(excel.tables['Sheet1']!.rows[1][1]!.value.toString(), equals('Washington'));
       expect(excel.tables['SheetTmp']!.maxColumns, equals(3));
-      expect(excel.tables['SheetTmp']!.rows[1][2]!.value.toString(),
-          equals('Putin'));
+      expect(excel.tables['SheetTmp']!.rows[1][2]!.value.toString(), equals('Putin'));
     });
 
     test('copy Sheet', () {
       excel.copy('SheetTmp', 'SheetTmp2');
       expect(excel.sheets.entries.length, equals(3));
-      expect(excel.tables['Sheet1']!.rows[1][1]!.value.toString(),
-          equals('Washington'));
+      expect(excel.tables['Sheet1']!.rows[1][1]!.value.toString(), equals('Washington'));
       expect(excel.tables['SheetTmp']!.maxColumns, equals(3));
-      expect(excel.tables['SheetTmp']!.rows[1][2]!.value.toString(),
-          equals('Putin'));
-      expect(excel.tables['SheetTmp2']!.rows[1][2]!.value.toString(),
-          equals('Putin'));
+      expect(excel.tables['SheetTmp']!.rows[1][2]!.value.toString(), equals('Putin'));
+      expect(excel.tables['SheetTmp2']!.rows[1][2]!.value.toString(), equals('Putin'));
     });
 
     test('rename Sheet', () {
       excel.rename('SheetTmp2', 'SheetTmp3');
       expect(excel.sheets.entries.length, equals(3));
       expect(excel.tables['Sheettmp2'], equals(null));
-      expect(excel.tables['Sheet1']!.rows[1][1]!.value.toString(),
-          equals('Washington'));
+      expect(excel.tables['Sheet1']!.rows[1][1]!.value.toString(), equals('Washington'));
       expect(excel.tables['SheetTmp']!.maxColumns, equals(3));
-      expect(excel.tables['SheetTmp']!.rows[1][2]!.value.toString(),
-          equals('Putin'));
-      expect(excel.tables['SheetTmp3']!.rows[1][2]!.value.toString(),
-          equals('Putin'));
+      expect(excel.tables['SheetTmp']!.rows[1][2]!.value.toString(), equals('Putin'));
+      expect(excel.tables['SheetTmp3']!.rows[1][2]!.value.toString(), equals('Putin'));
     });
 
     test('delete Sheet', () {
       excel.delete('SheetTmp3');
       excel.delete('SheetTmp');
       expect(excel.sheets.entries.length, equals(1));
-      expect(excel.tables['Sheet1']!.rows[1][1]!.value.toString(),
-          equals('Washington'));
+      expect(excel.tables['Sheet1']!.rows[1][1]!.value.toString(), equals('Washington'));
     });
   });
 
@@ -342,11 +321,7 @@ void main() {
     var bytes = File(file).readAsBytesSync();
     var excel = Excel.decodeBytes(bytes);
     Sheet? sheetObject = excel.tables['Sheet1']!;
-    sheetObject.insertRowIterables([
-      TextCellValue('Russia'),
-      TextCellValue('Moscow'),
-      TextCellValue('Putin')
-    ], 4);
+    sheetObject.insertRowIterables([TextCellValue('Russia'), TextCellValue('Moscow'), TextCellValue('Putin')], 4);
     var fileBytes = excel.encode();
     if (fileBytes != null) {
       File(Directory.current.path + '/tmp/exampleOut.xlsx')
@@ -359,11 +334,9 @@ void main() {
     // delete tmp folder
     new Directory('./tmp').delete(recursive: true);
     expect(newExcel.sheets.entries.length, equals(1));
-    expect(newExcel.tables['Sheet1']!.rows[1][1]!.value.toString(),
-        equals('Washington'));
+    expect(newExcel.tables['Sheet1']!.rows[1][1]!.value.toString(), equals('Washington'));
     expect(newExcel.tables['Sheet1']!.maxColumns, equals(3));
-    expect(newExcel.tables['Sheet1']!.rows[4][1]!.value.toString(),
-        equals('Moscow'));
+    expect(newExcel.tables['Sheet1']!.rows[4][1]!.value.toString(), equals('Moscow'));
   });
 
   test('Saving XLSX File with appendRow', () {
@@ -403,22 +376,11 @@ void main() {
     expect(newExcel.sheets.entries.length, equals(1));
     expect(newExcel.tables['Sheet1']!.maxColumns, equals(5));
     expect(newExcel.tables['Sheet1']!.rows[0][0]!.value, equals(IntCellValue(8)));
-    expect(
-        newExcel.tables['Sheet1']!.rows[0][0]!.cellStyle?.numberFormat
-            .toString(),
-        equals(NumFormat.defaultNumeric.toString()));
-    expect(newExcel.tables['Sheet1']!.rows[0][1]!.value,
-        DoubleCellValue(999.62221));
-    expect(
-        newExcel.tables['Sheet1']!.rows[0][1]!.cellStyle?.numberFormat
-            .toString(),
-        equals(NumFormat.defaultFloat.toString()));
-    expect(newExcel.tables['Sheet1']!.rows[0][2]!.value,
-        DateCellValue(year: 2023, month: 4, day: 20));
-    expect(
-        newExcel.tables['Sheet1']!.rows[0][2]!.cellStyle?.numberFormat
-            .toString(),
-        equals(NumFormat.defaultDate.toString()));
+    expect(newExcel.tables['Sheet1']!.rows[0][0]!.cellStyle?.numberFormat.toString(), equals(NumFormat.defaultNumeric.toString()));
+    expect(newExcel.tables['Sheet1']!.rows[0][1]!.value, DoubleCellValue(999.62221));
+    expect(newExcel.tables['Sheet1']!.rows[0][1]!.cellStyle?.numberFormat.toString(), equals(NumFormat.defaultFloat.toString()));
+    expect(newExcel.tables['Sheet1']!.rows[0][2]!.value, DateCellValue(year: 2023, month: 4, day: 20));
+    expect(newExcel.tables['Sheet1']!.rows[0][2]!.cellStyle?.numberFormat.toString(), equals(NumFormat.defaultDate.toString()));
     expect(
         newExcel.tables['Sheet1']!.rows[0][3]!.value,
         DateTimeCellValue(
@@ -429,16 +391,9 @@ void main() {
           minute: 44,
           second: 13,
         ));
-    expect(
-        newExcel.tables['Sheet1']!.rows[0][3]!.cellStyle?.numberFormat
-            .toString(),
-        equals(NumFormat.defaultDateTime.toString()));
-    expect(
-        newExcel.tables['Sheet1']!.rows[0][4]!.value, TextCellValue('value'));
-    expect(
-        newExcel.tables['Sheet1']!.rows[0][4]!.cellStyle?.numberFormat
-            .toString(),
-        equals(NumFormat.standard_0.toString()));
+    expect(newExcel.tables['Sheet1']!.rows[0][3]!.cellStyle?.numberFormat.toString(), equals(NumFormat.defaultDateTime.toString()));
+    expect(newExcel.tables['Sheet1']!.rows[0][4]!.value, TextCellValue('value'));
+    expect(newExcel.tables['Sheet1']!.rows[0][4]!.cellStyle?.numberFormat.toString(), equals(NumFormat.standard_0.toString()));
   });
 
   test('Saving XLSX File with superscript', () {
@@ -459,41 +414,25 @@ void main() {
     new Directory('./tmp').delete(recursive: true);
     expect(newExcel.sheets.entries.length, equals(1));
 
-    expect(newExcel.tables['Sheet1']!.rows[0][0]!.value.toString(),
-        equals('Text and superscript text'));
-    expect(newExcel.tables['Sheet1']!.rows[1][0]!.value.toString(),
-        equals('Text and superscript text'));
-    expect(newExcel.tables['Sheet1']!.rows[2][0]!.value.toString(),
-        equals('Text in A3'));
+    expect(newExcel.tables['Sheet1']!.rows[0][0]!.value.toString(), equals('Text and superscript text'));
+    expect(newExcel.tables['Sheet1']!.rows[1][0]!.value.toString(), equals('Text and superscript text'));
+    expect(newExcel.tables['Sheet1']!.rows[2][0]!.value.toString(), equals('Text in A3'));
   });
 
-  test(
-      'Add already shared strings and make sure that they are reused by checking increased usage count but equal unique count',
-      () {
+  test('Add already shared strings and make sure that they are reused by checking increased usage count but equal unique count', () {
     var file = './test/test_resources/example.xlsx';
     var bytes = File(file).readAsBytesSync();
     var archive = ZipDecoder().decodeBytes(bytes);
     var sharedStringsArchive = archive.findFile('xl/sharedStrings.xml')!;
 
-    var oldSharedStringsDocument =
-        XmlDocument.parse(utf8.decode(sharedStringsArchive.content));
-    var oldCount = oldSharedStringsDocument
-        .findAllElements('sst')
-        .first
-        .getAttributeNode("count");
-    var oldUniqueCount = oldSharedStringsDocument
-        .findAllElements('sst')
-        .first
-        .getAttributeNode("uniqueCount");
+    var oldSharedStringsDocument = XmlDocument.parse(utf8.decode(sharedStringsArchive.content));
+    var oldCount = oldSharedStringsDocument.findAllElements('sst').first.getAttributeNode("count");
+    var oldUniqueCount = oldSharedStringsDocument.findAllElements('sst').first.getAttributeNode("uniqueCount");
 
     var excel = Excel.decodeBytes(bytes);
 
     Sheet? sheetObject = excel.tables['Sheet1']!;
-    sheetObject.insertRowIterables([
-      TextCellValue('ISRAEL'),
-      TextCellValue('Jerusalem'),
-      TextCellValue('Benjamin Netanyahu')
-    ], 4);
+    sheetObject.insertRowIterables([TextCellValue('ISRAEL'), TextCellValue('Jerusalem'), TextCellValue('Benjamin Netanyahu')], 4);
     var fileBytes = excel.encode();
     if (fileBytes != null) {
       File(Directory.current.path + '/tmp/exampleOut.xlsx')
@@ -507,16 +446,9 @@ void main() {
     var newArchive = ZipDecoder().decodeBytes(newFileBytes);
     var newSharedStringsArchive = newArchive.findFile('xl/sharedStrings.xml')!;
 
-    var newSharedStringsDocument =
-        XmlDocument.parse(utf8.decode(newSharedStringsArchive.content));
-    var newCount = newSharedStringsDocument
-        .findAllElements('sst')
-        .first
-        .getAttributeNode("count");
-    var newUniqueCount = newSharedStringsDocument
-        .findAllElements('sst')
-        .first
-        .getAttributeNode("uniqueCount");
+    var newSharedStringsDocument = XmlDocument.parse(utf8.decode(newSharedStringsArchive.content));
+    var newCount = newSharedStringsDocument.findAllElements('sst').first.getAttributeNode("count");
+    var newUniqueCount = newSharedStringsDocument.findAllElements('sst').first.getAttributeNode("uniqueCount");
 
     // delete tmp folder
     new Directory('./tmp').delete(recursive: true);
@@ -544,12 +476,9 @@ void main() {
     new Directory('./tmp').delete(recursive: true);
     expect(newExcel.sheets.entries.length, equals(1));
 
-    expect(newExcel.tables['Sheet1']!.rows[0][0]!.value.toString(),
-        equals('Text and superscript text'));
-    expect(newExcel.tables['Sheet1']!.rows[1][0]!.value.toString(),
-        equals('Text and superscript text'));
-    expect(newExcel.tables['Sheet1']!.rows[2][0]!.value.toString(),
-        equals('Text in A3'));
+    expect(newExcel.tables['Sheet1']!.rows[0][0]!.value.toString(), equals('Text and superscript text'));
+    expect(newExcel.tables['Sheet1']!.rows[1][0]!.value.toString(), equals('Text and superscript text'));
+    expect(newExcel.tables['Sheet1']!.rows[2][0]!.value.toString(), equals('Text in A3'));
   });
 
   group('Header/Footer', () {
@@ -571,10 +500,8 @@ void main() {
       var newFile = './tmp/exampleOut.xlsx';
       var newFileBytes = File(newFile).readAsBytesSync();
       var newExcel = Excel.decodeBytes(newFileBytes);
-      expect(
-          newExcel.tables['Sheet1']!.headerFooter!.oddHeader!, equals('Foo'));
-      expect(
-          newExcel.tables['Sheet1']!.headerFooter!.oddFooter!, equals('Bar'));
+      expect(newExcel.tables['Sheet1']!.headerFooter!.oddHeader!, equals('Foo'));
+      expect(newExcel.tables['Sheet1']!.headerFooter!.oddFooter!, equals('Bar'));
 
       // delete tmp folder only when test is successful (diagnosis)
       new Directory('./tmp').delete(recursive: true);
@@ -628,14 +555,11 @@ void main() {
 
       final borderEmpty = Border();
       final borderMedium = Border(borderStyle: BorderStyle.Medium);
-      final borderMediumRed = Border(
-          borderStyle: BorderStyle.Medium,
-          borderColorHex: 'FFFF0000'.excelColor);
+      final borderMediumRed = Border(borderStyle: BorderStyle.Medium, borderColorHex: 'FFFF0000'.excelColor);
       final borderHair = Border(borderStyle: BorderStyle.Hair);
       final borderDouble = Border(borderStyle: BorderStyle.Double);
 
-      final cellStyleA1 =
-          sheetObject.cell(CellIndex.indexByString('A1')).cellStyle;
+      final cellStyleA1 = sheetObject.cell(CellIndex.indexByString('A1')).cellStyle;
       expect(cellStyleA1?.leftBorder, equals(borderMedium));
       expect(cellStyleA1?.rightBorder, equals(borderMedium));
       expect(cellStyleA1?.topBorder, anyOf(isNull, equals(borderEmpty)));
@@ -644,21 +568,18 @@ void main() {
       expect(cellStyleA1?.diagonalBorderUp, isFalse);
       expect(cellStyleA1?.diagonalBorderDown, isFalse);
 
-      final cellStyleB3 =
-          sheetObject.cell(CellIndex.indexByString('B3')).cellStyle;
+      final cellStyleB3 = sheetObject.cell(CellIndex.indexByString('B3')).cellStyle;
       expect(cellStyleB3?.leftBorder, equals(borderMedium));
       expect(cellStyleB3?.rightBorder, equals(borderMedium));
       expect(cellStyleB3?.topBorder, equals(borderHair));
       expect(cellStyleB3?.bottomBorder, equals(borderHair));
 
-      final cellStyleA5 =
-          sheetObject.cell(CellIndex.indexByString('A5')).cellStyle;
+      final cellStyleA5 = sheetObject.cell(CellIndex.indexByString('A5')).cellStyle;
       expect(cellStyleA5?.diagonalBorder, equals(borderDouble));
       expect(cellStyleA5?.diagonalBorderUp, isFalse);
       expect(cellStyleA5?.diagonalBorderDown, isTrue);
 
-      final cellStyleC5 =
-          sheetObject.cell(CellIndex.indexByString('C5')).cellStyle;
+      final cellStyleC5 = sheetObject.cell(CellIndex.indexByString('C5')).cellStyle;
       expect(cellStyleC5?.diagonalBorder, equals(borderDouble));
       expect(cellStyleC5?.diagonalBorderUp, isTrue);
       expect(cellStyleC5?.diagonalBorderDown, isFalse);
@@ -691,9 +612,7 @@ void main() {
         // Loop from i = 1, as Excel does not set None type.
         final border = Border(borderStyle: borderStyles[i]);
 
-        final cellStyle = sheetObject
-            .cell(CellIndex.indexByString('B${2 * (i + 1)}'))
-            .cellStyle;
+        final cellStyle = sheetObject.cell(CellIndex.indexByString('B${2 * (i + 1)}')).cellStyle;
 
         expect(cellStyle?.leftBorder, equals(border));
         expect(cellStyle?.rightBorder, equals(border));
@@ -725,14 +644,11 @@ void main() {
         BorderStyle.Thin,
       ];
 
-      sheetObject.merge(
-          CellIndex.indexByString('B2'), CellIndex.indexByString('D4'));
+      sheetObject.merge(CellIndex.indexByString('B2'), CellIndex.indexByString('D4'));
 
       for (var i = 1; i < borderStyles.length; ++i) {
         // Loop from i = 1, as Excel does not set None type.
-        final border = Border(
-            borderStyle: borderStyles[i],
-            borderColorHex: "FF000000".excelColor);
+        final border = Border(borderStyle: borderStyles[i], borderColorHex: "FF000000".excelColor);
         final start = CellIndex.indexByString('B${(4 * i + 2)}');
         final end = CellIndex.indexByString('D${(4 * i + 4)}');
 
@@ -754,12 +670,8 @@ void main() {
         CellIndex cellIndexEnd = CellIndex.indexByString('D${(4 * i + 4)}');
 
         for (var j = cellIndexStart.rowIndex; j <= cellIndexEnd.rowIndex; j++) {
-          for (var k = cellIndexStart.columnIndex;
-              k <= cellIndexEnd.columnIndex;
-              k++) {
-            final cellStyle = sheetObject
-                .cell(CellIndex.indexByColumnRow(columnIndex: k, rowIndex: j))
-                .cellStyle;
+          for (var k = cellIndexStart.columnIndex; k <= cellIndexEnd.columnIndex; k++) {
+            final cellStyle = sheetObject.cell(CellIndex.indexByColumnRow(columnIndex: k, rowIndex: j)).cellStyle;
 
             final borderStyle = Border(
               borderStyle: borderStyles[i],
@@ -805,13 +717,10 @@ void main() {
 
       final borderEmpty = Border();
       final borderMedium = Border(borderStyle: BorderStyle.Medium);
-      final borderMediumRed = Border(
-          borderStyle: BorderStyle.Medium,
-          borderColorHex: 'FFFF0000'.excelColor);
+      final borderMediumRed = Border(borderStyle: BorderStyle.Medium, borderColorHex: 'FFFF0000'.excelColor);
 
       final Sheet sheetObject = newExcel.tables['Sheet1']!;
-      final cellStyleB1 =
-          sheetObject.cell(CellIndex.indexByString('B1')).cellStyle;
+      final cellStyleB1 = sheetObject.cell(CellIndex.indexByString('B1')).cellStyle;
       expect(cellStyleB1?.leftBorder, equals(borderMedium));
       expect(cellStyleB1?.rightBorder, equals(borderMedium));
       expect(cellStyleB1?.topBorder, equals(borderEmpty));
@@ -827,18 +736,12 @@ void main() {
       var file = './test/test_resources/rphSample.xlsx';
       var bytes = File(file).readAsBytesSync();
       var excel = Excel.decodeBytes(bytes);
-      expect(excel.tables['Sheet1']!.rows[1][0]!.value.toString(),
-          equals('plainText'));
-      expect(excel.tables['Sheet1']!.rows[1][1]!.value.toString(),
-          equals('Hellow world'));
-      expect(excel.tables['Sheet1']!.rows[1][2]!.value.toString(),
-          equals('世界よこんにちは'));
-      expect(excel.tables['Sheet1']!.rows[2][2]!.value.toString(),
-          equals('ようこそユーザー'));
-      expect(excel.tables['Sheet1']!.rows[3][2]!.value.toString(),
-          equals('ロケール選択'));
-      expect(excel.tables['Sheet1']!.rows[4][2]!.value.toString(),
-          equals('ロケール選択'));
+      expect(excel.tables['Sheet1']!.rows[1][0]!.value.toString(), equals('plainText'));
+      expect(excel.tables['Sheet1']!.rows[1][1]!.value.toString(), equals('Hellow world'));
+      expect(excel.tables['Sheet1']!.rows[1][2]!.value.toString(), equals('世界よこんにちは'));
+      expect(excel.tables['Sheet1']!.rows[2][2]!.value.toString(), equals('ようこそユーザー'));
+      expect(excel.tables['Sheet1']!.rows[3][2]!.value.toString(), equals('ロケール選択'));
+      expect(excel.tables['Sheet1']!.rows[4][2]!.value.toString(), equals('ロケール選択'));
     });
 
     test('saving XLSX File without rPh elements', () {
@@ -857,8 +760,7 @@ void main() {
 
       final newFileBytes = File(outFilePath).readAsBytesSync();
       final newExcel = Excel.decodeBytes(newFileBytes);
-      expect(newExcel.tables['Sheet1']!.rows[3][2]!.value.toString(),
-          equals('ロケール選択'));
+      expect(newExcel.tables['Sheet1']!.rows[3][2]!.value.toString(), equals('ロケール選択'));
 
       // delete tmp folder only when test is successful (diagnosis)
       new Directory('./tmp').delete(recursive: true);
@@ -873,10 +775,7 @@ void main() {
         Excel.decodeBytes(bytes);
       } catch (e) {
         expect(e, isA<UnsupportedError>());
-        expect(
-            e.toString(),
-            equals(
-                'Unsupported operation: Excel format unsupported. Only .xlsx files are supported'));
+        expect(e.toString(), equals('Unsupported operation: Excel format unsupported. Only .xlsx files are supported'));
       }
     });
 
@@ -887,31 +786,22 @@ void main() {
         Excel.decodeBytes(bytes);
       } catch (e) {
         expect(e, isA<UnsupportedError>());
-        expect(
-            e.toString(),
-            equals(
-                'Unsupported operation: Excel format unsupported. Only .xlsx files are supported'));
+        expect(e.toString(), equals('Unsupported operation: Excel format unsupported. Only .xlsx files are supported'));
       }
     });
 
     test('Sheet Remove and Rename Operations', () {
-      final List<Excel> excelFiles =
-          List<Excel>.generate(5, (_) => Excel.createExcel());
+      final List<Excel> excelFiles = List<Excel>.generate(5, (_) => Excel.createExcel());
 
-      final List<List<int>> data = List<List<int>>.generate(
-          5, (x) => List<int>.generate(5, (i) => (x + 1) * (i + 1)));
+      final List<List<int>> data = List<List<int>>.generate(5, (x) => List<int>.generate(5, (i) => (x + 1) * (i + 1)));
 
       const newName = 'Sheet1Replacement';
 
       const defaultSheetName = 'Sheet1';
 
-      final backgroundColor =
-          ExcelColor.values.where((e) => e.type == ColorType.material).toList();
-      final fontColor =
-          ExcelColor.values.where((e) => e.type == ColorType.color).toList();
-      final borderColor = ExcelColor.values
-          .where((e) => e.type == ColorType.materialAccent)
-          .toList();
+      final backgroundColor = ExcelColor.values.where((e) => e.type == ColorType.material).toList();
+      final fontColor = ExcelColor.values.where((e) => e.type == ColorType.color).toList();
+      final borderColor = ExcelColor.values.where((e) => e.type == ColorType.materialAccent).toList();
 
       excelFiles.forEach((element) {
         expect(element.getDefaultSheet()!, defaultSheetName);
@@ -981,20 +871,16 @@ void main() {
       Sheet? sheet = excel.tables["Spanned Items"]!;
 
       testSpannedItemsSheetValues(Sheet sheet) {
-        final cells =
-            sheet.rows.expand((r) => r.where((c) => c != null)).toList();
+        final cells = sheet.rows.expand((r) => r.where((c) => c != null)).toList();
 
         expect(cells[0]?.value, equals(TextCellValue('spanned item A1:B1')));
-        expect(cells[0]?.cellIndex,
-            equals(CellIndex.indexByColumnRow(columnIndex: 0, rowIndex: 0)));
+        expect(cells[0]?.cellIndex, equals(CellIndex.indexByColumnRow(columnIndex: 0, rowIndex: 0)));
 
         expect(cells[1]?.value, equals(TextCellValue('spanned item A2:A3')));
-        expect(cells[1]?.cellIndex,
-            equals(CellIndex.indexByColumnRow(columnIndex: 0, rowIndex: 1)));
+        expect(cells[1]?.cellIndex, equals(CellIndex.indexByColumnRow(columnIndex: 0, rowIndex: 1)));
 
         expect(cells[2]?.value, equals(TextCellValue('spanned item A4:B5')));
-        expect(cells[2]?.cellIndex,
-            equals(CellIndex.indexByColumnRow(columnIndex: 0, rowIndex: 3)));
+        expect(cells[2]?.cellIndex, equals(CellIndex.indexByColumnRow(columnIndex: 0, rowIndex: 3)));
       }
 
       testSpannedItemsList(Sheet sheet) {
@@ -1027,5 +913,28 @@ void main() {
 
       testSpannedItemsSheetValues(newSheet);
     });
+  });
+
+  test('Parse column width row height', () {
+    var file = './test/test_resources/columnWidthRowHeight.xlsx';
+    var bytes = File(file).readAsBytesSync();
+    var excel = Excel.decodeBytes(bytes);
+    Sheet? sheetObject = excel.tables['Sheet1']!;
+
+    // should 20 with a litle bit of tolerance
+    expect(sheetObject.defaultColumnWidth, greaterThan(18));
+    expect(sheetObject.defaultColumnWidth, lessThan(22));
+
+    // should 20 with a litle bit of tolerance
+    expect(sheetObject.defaultRowHeight, greaterThan(18));
+    expect(sheetObject.defaultRowHeight, lessThan(22));
+
+    // should 40 with a litle bit of tolerance
+    expect(sheetObject.getColumnWidth(1), greaterThan(38));
+    expect(sheetObject.getColumnWidth(1), lessThan(42));
+
+    // should 40 with a litle bit of tolerance
+    expect(sheetObject.getRowHeight(1), greaterThan(38));
+    expect(sheetObject.getRowHeight(1), lessThan(42));
   });
 }

@@ -778,8 +778,6 @@ class Parser {
 
         // both values valid ?
         if (defaultColWidth != null && defaultRowHeight != null) {
-          print("defaultColWidth $defaultColWidth");
-          print("defaultRowHeight $defaultRowHeight");
           sheetObject._defaultColumnWidth = defaultColWidth;
           sheetObject._defaultRowHeight = defaultRowHeight;
         }
@@ -800,7 +798,6 @@ class Parser {
         if (colAttribute != null && widthAttribute != null) {
           int? col = int.tryParse(colAttribute);
           double? width = double.tryParse(widthAttribute);
-          print("custom colum width ${col.toString()} ${width.toString()}");
           if (col != null && width != null) {
             col -= 1; // first col in _columnWidths is index 0
             if (col >= 0) {
@@ -823,7 +820,6 @@ class Parser {
         if (rowAttribute != null && heightAttribute != null) {
           int? row = int.tryParse(rowAttribute);
           double? height = double.tryParse(heightAttribute);
-          print("custom row height ${row.toString()} ${height.toString()}");
           if (row != null && height != null) {
             row -= 1; // first col in _rowHeights is index 0
             if (row >= 0) {
