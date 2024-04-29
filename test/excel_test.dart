@@ -1036,19 +1036,19 @@ void main() {
     var excel = Excel.decodeBytes(bytes);
     Sheet? sheetObject = excel.tables['Sheet1']!;
 
-    // should 20 with a litle bit of tolerance
+    // should 20 with a litle bit of tolerance.
     expect(sheetObject.defaultColumnWidth, greaterThan(18));
     expect(sheetObject.defaultColumnWidth, lessThan(22));
 
-    // should 20 with a litle bit of tolerance
+    // should 20 with a litle bit of tolerance.
     expect(sheetObject.defaultRowHeight, greaterThan(18));
     expect(sheetObject.defaultRowHeight, lessThan(22));
 
-    // should 40 with a litle bit of tolerance
+    // should 40 with a litle bit of tolerance.
     expect(sheetObject.getColumnWidth(1), greaterThan(38));
     expect(sheetObject.getColumnWidth(1), lessThan(42));
 
-    // should 40 with a litle bit of tolerance
+    // should 40 with a litle bit of tolerance.
     expect(sheetObject.getRowHeight(1), greaterThan(38));
     expect(sheetObject.getRowHeight(1), lessThan(42));
   });
