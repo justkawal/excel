@@ -561,6 +561,7 @@ class Parser {
     });
 
     _parseHeaderFooter(worksheet, sheetObject);
+    _parseColWidthsRowHeights(worksheet, sheetObject);
 
     _excel._sheets[name] = sheet;
 
@@ -810,5 +811,84 @@ class Parser {
     final headerFooterElement = results.first;
 
     sheetObject.headerFooter = HeaderFooter.fromXmlElement(headerFooterElement);
+  }
+
+  void _parseColWidthsRowHeights(XmlElement worksheet, Sheet sheetObject) {
+    /* parse default column width and default row height
+      example XML content
+      <sheetFormatPr baseColWidth="10" defaultColWidth="26.33203125" defaultRowHeight="13" x14ac:dyDescent="0.15" />
+    */
+    Iterable<XmlElement> results;
+    results = worksheet.findAllElements("sheetFormatPr");
+    if (results.isNotEmpty) {
+      results.forEach((element) {
+        double? defaultColWidth;
+        double? defaultRowHeight;
+        // default column width
+        String? widthAttribute = element.getAttribute("defaultColWidth");
+        if (widthAttribute != null) {
+          defaultColWidth = double.tryParse(widthAttribute);
+        }
+        // default row height
+        String? rowHeightAttribute = element.getAttribute("defaultRowHeight");
+        if (rowHeightAttribute != null) {
+          defaultRowHeight = double.tryParse(rowHeightAttribute);
+        }
+
+        // both values valid ?
+        if (defaultColWidth != null && defaultRowHeight != null) {
+          sheetObject._defaultColumnWidth = defaultColWidth;
+          sheetObject._defaultRowHeight = defaultRowHeight;
+        }
+      });
+    }
+
+    /* parse custom column height
+      example XML content
+      <col min="2" max="2" width="71.83203125" customWidth="1"/>, 
+      <col min="4" max="4" width="26.5" customWidth="1"/>, 
+      <col min="6" max="6" width="31.33203125" customWidth="1"/>
+    */
+    results = worksheet.findAllElements("col");
+    if (results.isNotEmpty) {
+      results.forEach((element) {
+        String? colAttribute =
+            element.getAttribute("min"); // i think min refers to the column
+        String? widthAttribute = element.getAttribute("width");
+        if (colAttribute != null && widthAttribute != null) {
+          int? col = int.tryParse(colAttribute);
+          double? width = double.tryParse(widthAttribute);
+          if (col != null && width != null) {
+            col -= 1; // first col in _columnWidths is index 0
+            if (col >= 0) {
+              sheetObject._columnWidths[col] = width;
+            }
+          }
+        }
+      });
+    }
+
+    /* parse custom row height
+      example XML content
+      <row r="1" spans="1:2" ht="44" customHeight="1" x14ac:dyDescent="0.15">
+    */
+    results = worksheet.findAllElements("row");
+    if (results.isNotEmpty) {
+      results.forEach((element) {
+        String? rowAttribute =
+            element.getAttribute("r"); // i think min refers to the column
+        String? heightAttribute = element.getAttribute("ht");
+        if (rowAttribute != null && heightAttribute != null) {
+          int? row = int.tryParse(rowAttribute);
+          double? height = double.tryParse(heightAttribute);
+          if (row != null && height != null) {
+            row -= 1; // first col in _rowHeights is index 0
+            if (row >= 0) {
+              sheetObject._rowHeights[row] = height;
+            }
+          }
+        }
+      });
+    }
   }
 }

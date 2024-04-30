@@ -402,7 +402,8 @@ void main() {
     new Directory('./tmp').delete(recursive: true);
     expect(newExcel.sheets.entries.length, equals(1));
     expect(newExcel.tables['Sheet1']!.maxColumns, equals(5));
-    expect(newExcel.tables['Sheet1']!.rows[0][0]!.value, equals(IntCellValue(8)));
+    expect(
+        newExcel.tables['Sheet1']!.rows[0][0]!.value, equals(IntCellValue(8)));
     expect(
         newExcel.tables['Sheet1']!.rows[0][0]!.cellStyle?.numberFormat
             .toString(),
@@ -1027,5 +1028,28 @@ void main() {
 
       testSpannedItemsSheetValues(newSheet);
     });
+  });
+
+  test('Parse column width row height', () {
+    var file = './test/test_resources/columnWidthRowHeight.xlsx';
+    var bytes = File(file).readAsBytesSync();
+    var excel = Excel.decodeBytes(bytes);
+    Sheet? sheetObject = excel.tables['Sheet1']!;
+
+    // should 20 with a litle bit of tolerance.
+    expect(sheetObject.defaultColumnWidth, greaterThan(18));
+    expect(sheetObject.defaultColumnWidth, lessThan(22));
+
+    // should 20 with a litle bit of tolerance.
+    expect(sheetObject.defaultRowHeight, greaterThan(18));
+    expect(sheetObject.defaultRowHeight, lessThan(22));
+
+    // should 40 with a litle bit of tolerance.
+    expect(sheetObject.getColumnWidth(1), greaterThan(38));
+    expect(sheetObject.getColumnWidth(1), lessThan(42));
+
+    // should 40 with a litle bit of tolerance.
+    expect(sheetObject.getRowHeight(1), greaterThan(38));
+    expect(sheetObject.getRowHeight(1), lessThan(42));
   });
 }
