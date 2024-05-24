@@ -48,11 +48,11 @@ class Save {
       CellValue? value, NumFormat? numberFormat) {
     SharedString? sharedString;
     if (value is TextCellValue) {
-      sharedString = _excel._sharedStrings.tryFind(value.value);
+      sharedString = _excel._sharedStrings.tryFind(value.toString());
       if (sharedString != null) {
-        _excel._sharedStrings.add(sharedString, value.value);
+        _excel._sharedStrings.add(sharedString, value.toString());
       } else {
-        sharedString = _excel._sharedStrings.addFromString(value.value);
+        sharedString = _excel._sharedStrings.addFromString(value.toString());
       }
     }
 
