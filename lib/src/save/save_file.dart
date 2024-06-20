@@ -2,13 +2,11 @@ part of excel;
 
 class Save {
   final Excel _excel;
-  late Map<String, ArchiveFile> _archiveFiles;
-  late List<CellStyle> _innerCellStyle;
+  final Map<String, ArchiveFile> _archiveFiles = {};
+  final List<CellStyle> _innerCellStyle = [];
   final Parser parser;
-  Save._(this._excel, this.parser) {
-    _archiveFiles = <String, ArchiveFile>{};
-    _innerCellStyle = <CellStyle>[];
-  }
+
+  Save._(this._excel, this.parser);
 
   void _addNewColumn(XmlElement columns, int min, int max, double width) {
     columns.children.add(XmlElement(XmlName('col'), [
@@ -172,7 +170,7 @@ class Save {
   /// Writing Font Color in [xl/styles.xml] from the Cells of the sheets.
 
   void _processStylesFile() {
-    _innerCellStyle = <CellStyle>[];
+    _innerCellStyle.clear();
     List<String> innerPatternFill = <String>[];
     List<_FontStyle> innerFontStyle = <_FontStyle>[];
     List<_BorderSet> innerBorderSet = <_BorderSet>[];
