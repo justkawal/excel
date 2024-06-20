@@ -1,20 +1,20 @@
 part of excel;
 
 class Sheet {
-  late Excel _excel;
-  late String _sheet;
-  late bool _isRTL;
-  late int _maxRows;
-  late int _maxColumns;
+  final Excel _excel;
+  final String _sheet;
+  bool _isRTL = false;
+  int _maxRows = 0;
+  int _maxColumns = 0;
   double? _defaultColumnWidth;
   double? _defaultRowHeight;
   Map<int, double> _columnWidths = {};
   Map<int, double> _rowHeights = {};
   Map<int, bool> _columnAutoFit = {};
-  late FastList<String> _spannedItems;
-  late List<_Span?> _spanList;
-  late Map<int, Map<int, Data>> _sheetData;
-  late HeaderFooter? _headerFooter;
+  FastList<String> _spannedItems = FastList<String>();
+  List<_Span?> _spanList = [];
+  Map<int, Map<int, Data>> _sheetData = {};
+  HeaderFooter? _headerFooter;
 
   ///
   /// It will clone the object by changing the `this` reference of previous oldSheetObject and putting `new this` reference, with copying the values too
@@ -32,7 +32,7 @@ class Sheet {
             isRTLVal: oldSheetObject._isRTL,
             headerFooter: oldSheetObject._headerFooter);
 
-  Sheet._(Excel excel, String sheetName,
+  Sheet._(this._excel, this._sheet,
       {Map<int, Map<int, Data>>? sh,
       List<_Span?>? spanL_,
       FastList<String>? spanI_,
@@ -43,14 +43,6 @@ class Sheet {
       Map<int, double>? rowHeightsVal,
       Map<int, bool>? columnAutoFitVal,
       HeaderFooter? headerFooter}) {
-    _excel = excel;
-    _sheet = sheetName;
-    _sheetData = <int, Map<int, Data>>{};
-    _spanList = <_Span?>[];
-    _spannedItems = FastList<String>();
-    _isRTL = false;
-    _maxRows = 0;
-    _maxColumns = 0;
     _headerFooter = headerFooter;
 
     if (spanL_ != null) {

@@ -1,15 +1,14 @@
 part of excel;
 
 class Border extends Equatable {
-  late final BorderStyle? borderStyle;
-  late final String? borderColorHex;
+  final BorderStyle? borderStyle;
+  final String? borderColorHex;
 
-  Border({BorderStyle? borderStyle, ExcelColor? borderColorHex}) {
-    this.borderStyle = borderStyle == BorderStyle.None ? null : borderStyle;
-    this.borderColorHex = borderColorHex != null
-        ? _isColorAppropriate(borderColorHex.colorHex)
-        : null;
-  }
+  Border({BorderStyle? borderStyle, ExcelColor? borderColorHex})
+      : borderStyle = borderStyle == BorderStyle.None ? null : borderStyle,
+        borderColorHex = borderColorHex != null
+            ? _isColorAppropriate(borderColorHex.colorHex)
+            : null;
 
   @override
   String toString() {
@@ -24,13 +23,13 @@ class Border extends Equatable {
 }
 
 class _BorderSet extends Equatable {
-  late final Border leftBorder;
-  late final Border rightBorder;
-  late final Border topBorder;
-  late final Border bottomBorder;
-  late final Border diagonalBorder;
-  late final bool diagonalBorderUp;
-  late final bool diagonalBorderDown;
+  final Border leftBorder;
+  final Border rightBorder;
+  final Border topBorder;
+  final Border bottomBorder;
+  final Border diagonalBorder;
+  final bool diagonalBorderUp;
+  final bool diagonalBorderDown;
 
   _BorderSet({
     required this.leftBorder,

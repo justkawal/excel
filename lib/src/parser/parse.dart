@@ -1,14 +1,11 @@
 part of excel;
 
 class Parser {
-  late Excel _excel;
-  late List<String> _rId;
-  late Map<String, String> _worksheetTargets;
-  Parser._(Excel excel) {
-    this._excel = excel;
-    this._rId = <String>[];
-    this._worksheetTargets = <String, String>{};
-  }
+  final Excel _excel;
+  final List<String> _rId = [];
+  final Map<String, String> _worksheetTargets = {};
+
+  Parser._(this._excel);
 
   void _startParsing() {
     _putContentXml();
