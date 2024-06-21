@@ -211,13 +211,14 @@ class DateCellValue extends CellValue {
 }
 
 class TextCellValue extends CellValue {
-  final String value;
+  final TextSpan value;
 
-  const TextCellValue(this.value);
+  TextCellValue(String text) : value = TextSpan(text: text);
+  TextCellValue.span(this.value);
 
   @override
   String toString() {
-    return value;
+    return value.toString();
   }
 
   @override
