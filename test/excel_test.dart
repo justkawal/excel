@@ -558,7 +558,7 @@ void main() {
       var file = './test/test_resources/example.xlsx';
       var bytes = File(file).readAsBytesSync();
       var excel = Excel.decodeBytes(bytes);
-      Sheet? sheetObject = excel.tables['Sheet1']!;
+      Sheet sheetObject = excel.tables['Sheet1']!;
 
       sheetObject.headerFooter!.oddHeader = "Foo";
       sheetObject.headerFooter!.oddFooter = "Bar";
