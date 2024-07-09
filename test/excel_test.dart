@@ -823,6 +823,36 @@ void main() {
     });
   });
 
+  group('Cell Style', () {
+    test('read file with rich text', () {
+      final file = './test/test_resources/richText.xlsx';
+      final bytes = File(file).readAsBytesSync();
+      final excel = Excel.decodeBytes(bytes);
+      final Sheet sheetObject = excel.tables['Sheet1']!;
+      final redHex = 'FFFF0000';
+      final blueHex = 'FF2A6099';
+
+      final cellA1 = sheetObject.cell(CellIndex.indexByString('A1')).value
+          as TextCellValue;
+      expect(cellA1.value.children![0].style!.fontSize, 12);
+      expect(cellA1.value.children![0].style!.fontColor.colorHex, redHex);
+      expect(cellA1.value.children![1].style!.fontSize, 10);
+      expect(cellA1.value.children![1].style!.fontColor.colorHex, blueHex);
+
+      final cellA2 = sheetObject.cell(CellIndex.indexByString('A2')).value
+          as TextCellValue;
+      expect(cellA2.value.children![0].style!.isBold, true);
+      expect(cellA2.value.children![0].style!.isItalic, false);
+      expect(cellA2.value.children![1].style!.isBold, false);
+      expect(cellA2.value.children![1].style!.isItalic, true);
+
+      final cellA3 = sheetObject.cell(CellIndex.indexByString('A3')).value
+          as TextCellValue;
+      expect(cellA3.value.children![0].style!.fontFamily, "Skia");
+      expect(cellA3.value.children![1].style!.fontFamily, "Arial");
+    });
+  });
+
   group('rPh tag', () {
     test('Read Cell shared text without rPh elements', () {
       var file = './test/test_resources/rphSample.xlsx';

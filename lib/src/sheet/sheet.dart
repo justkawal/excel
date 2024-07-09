@@ -1287,7 +1287,8 @@ class Sheet {
         if (sourceData is! TextCellValue) {
           continue;
         }
-        final result = sourceData.value.replaceAllMapped(source, (match) {
+        final result =
+            sourceData.value.toString().replaceAllMapped(source, (match) {
           if (first == -1 || first != replaceCount) {
             ++replaceCount;
             return match.input.replaceRange(match.start, match.end, target);
