@@ -269,7 +269,7 @@ class TimeCellValue extends CellValue {
         assert(microsecond <= 1000 && microsecond >= 0);
 
   /// [fractionOfDay]=1.0 is 24 hours, 0.5 is 12 hours and so on.
-  factory TimeCellValue.fromFractionOfDay(double fractionOfDay) {
+  factory TimeCellValue.fromFractionOfDay(num fractionOfDay) {
     var duration =
         Duration(milliseconds: (fractionOfDay * 24 * 3600 * 1000).round());
     return TimeCellValue.fromDuration(duration);

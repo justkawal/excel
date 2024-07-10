@@ -362,10 +362,11 @@ sealed class DateTimeNumFormat extends NumFormat {
         microsecond: 0,
       );
     }
-    if (v.startsWith('0.')) {
-      return TimeCellValue.fromFractionOfDay(double.parse(v));
+    final value = num.parse(v);
+    if (value < 1) {
+      return TimeCellValue.fromFractionOfDay(value);
     }
-    var delta = num.parse(v) * 24 * 3600 * 1000;
+    var delta = value * 24 * 3600 * 1000;
     var dateOffset = DateTime.utc(1899, 12, 30);
     final utcDate = dateOffset.add(Duration(milliseconds: delta.round()));
     if (!v.contains('.') || v.endsWith('.0')) {
@@ -446,8 +447,9 @@ sealed class TimeNumFormat extends NumFormat {
         microsecond: 0,
       );
     }
-    if (v.startsWith('0.')) {
-      var delta = num.parse(v) * 24 * 3600 * 1000;
+    var value = num.parse(v);
+    if (value < 1) {
+      var delta = value * 24 * 3600 * 1000;
       final time = Duration(milliseconds: delta.round());
       final date = DateTime.utc(0).add(time);
       return TimeCellValue(
@@ -458,7 +460,7 @@ sealed class TimeNumFormat extends NumFormat {
         microsecond: date.microsecond,
       );
     }
-    var delta = num.parse(v) * 24 * 3600 * 1000;
+    var delta = value * 24 * 3600 * 1000;
     var dateOffset = DateTime.utc(1899, 12, 30);
     final utcDate = dateOffset.add(Duration(milliseconds: delta.round()));
     if (!v.contains('.') || v.endsWith('.0')) {
