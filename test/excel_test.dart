@@ -63,6 +63,10 @@ void main() {
       excel.tables['Tabelle1']?.rows[10][1]?.value,
       equals(DoubleCellValue(0.05)),
     );
+    expect(
+      excel.tables['Tabelle1']?.rows[11][1]?.value,
+      equals(TimeCellValue(hour: 2, minute: 20, second: 10)),
+    );
   });
 
   test('Cell Data-Types from Google Spreadsheet', () {
@@ -253,6 +257,7 @@ void main() {
       );
     }
   });
+
   test('Testing customNumFormats', () {
     var excel = Excel.createExcel();
     var sheet = excel['Sheet1'];
@@ -279,6 +284,7 @@ void main() {
     expect(b1_2.cellStyle?.numberFormat, equals(format2));
     expect(b1_2.value, equals(DoubleCellValue(123456.789)));
   });
+
   group('Sheet Operations', () {
     var file = './test/test_resources/example.xlsx';
     var bytes = File(file).readAsBytesSync();
