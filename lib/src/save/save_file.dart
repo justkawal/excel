@@ -59,6 +59,7 @@ class Save {
     var attributes = <XmlAttribute>[
       XmlAttribute(XmlName('r'), rC),
       if (value is TextCellValue) XmlAttribute(XmlName('t'), 's'),
+      if (value is BoolCellValue) XmlAttribute(XmlName('t'), 'b'),
     ];
 
     final cellStyle =
@@ -149,7 +150,9 @@ class Save {
           ]),
         ];
       case BoolCellValue():
-        children = [];
+        children = [
+          XmlElement(XmlName('v'), [], [XmlText(value.value ? '1' : '0')]),
+        ];
     }
 
     return XmlElement(XmlName('c'), attributes, children);
