@@ -280,7 +280,7 @@ class Parser {
         for (var elementName in borderElementNamesList) {
           XmlElement? element;
           try {
-            element = node.findElements(elementName).single;
+            element = node.findElements(elementName).singleOrNull;
           } on StateError catch (_) {
             // Either there is no element, or there are too many ones.
             // Silently ignore this element.
