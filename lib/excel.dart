@@ -6,6 +6,9 @@ import 'dart:typed_data';
 import 'package:archive/archive.dart';
 import 'package:collection/collection.dart';
 import 'package:equatable/equatable.dart';
+import 'package:excel/src/models/image_to_cell_model.dart';
+import 'package:excel/src/models/relations_targets_models.dart';
+import 'package:path/path.dart';
 import 'package:xml/xml.dart';
 import 'src/web_helper/client_save_excel.dart'
     if (dart.library.html) 'src/web_helper/web_save_excel_browser.dart'

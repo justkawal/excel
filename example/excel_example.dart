@@ -71,6 +71,7 @@ void main(List<String> args) {
         DateTimeCellValue() => 'date+time',
         TimeCellValue() => 'time',
         BoolCellValue() => 'bool',
+        ImageCellValue() => 'image',
       });
 
   ///

@@ -153,6 +153,9 @@ class Save {
         children = [
           XmlElement(XmlName('v'), [], [XmlText(value.value ? '1' : '0')]),
         ];
+      case ImageCellValue():
+        // TODO: Handle this case.
+        throw "Image writing not implemented";
     }
 
     return XmlElement(XmlName('c'), attributes, children);
@@ -487,7 +490,7 @@ class Save {
           }
           return MapEntry<int, CustomNumFormat>(e.key, format);
         })
-        .whereNotNull()
+        .nonNulls
         .sorted((a, b) => a.key.compareTo(b.key));
 
     if (customNumberFormats.isNotEmpty) {
