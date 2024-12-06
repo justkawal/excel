@@ -166,17 +166,26 @@ class Parser {
     final comments = _parseComments(_excel._archive);
 
     // Store comments in the appropriate data structure
-    for (final entry in comments.entries) {
-      final cellRef = entry.key;
+    for (final sheetEntry in comments.entries) {
+      final sheetName = sheetEntry.key;
+      final sheetComments = sheetEntry.value;
 
-      // Iterate through all sheets
-      for (final sheetName in _excel._sheetMap.keys) {
+      // Iterate through all comments for the sheet
+      for (final entry in sheetComments.entries) {
+        final cellRef = entry.key;
+        final comment = entry.value;
+
         final sheet = _excel._sheetMap[sheetName];
-        final cell = sheet?._getCell(cellRef);
-        if (cell != null) {
-          cell._comment = entry.value;
-          break; // Exit the loop once the comment is found and assigned
+        var cell = sheet?._getCell(cellRef);
+        if (cell == null) {
+          // Create a new Data object if there is no value, but there is a comment
+          final cellIndex = CellIndex.indexByString(cellRef);
+          cell =
+              Data.newData(sheet!, cellIndex.rowIndex, cellIndex.columnIndex);
+          sheet._sheetData[cellIndex.rowIndex] ??= {};
+          sheet._sheetData[cellIndex.rowIndex]![cellIndex.columnIndex] = cell;
         }
+        cell._comment = comment;
       }
     }
   }
@@ -694,25 +703,70 @@ class Parser {
     return buffer.toString();
   }
 
-  Map<String, String> _parseComments(Archive archive) {
-    final comments = <String, String>{};
-    final commentsFile = archive.files.firstWhere(
-      (file) => file.name == 'xl/comments1.xml',
-      orElse: () => ArchiveFile('', 0, []), // Return an empty ArchiveFile
-    );
+  /// Returns the comments for each sheet in the workbook.
+  ///
+  /// Extracted from the comments sheet from the workbook.
+  Map<String, Map<String, String>> _parseComments(Archive archive) {
+    final comments = <String, Map<String, String>>{};
+    final sheetNames = _getSheetNames(archive);
 
-    if (commentsFile.name.isNotEmpty) {
-      final document = XmlDocument.parse(utf8.decode(commentsFile.content));
-      for (final comment in document.findAllElements('comment')) {
-        final ref = comment.getAttribute('ref');
-        final text = comment.findElements('text').first.innerText;
-        if (ref != null) {
-          comments[ref] = text;
+    for (final sheetName in sheetNames) {
+      final sheetComments = <String, String>{};
+      final commentsFile = _getCommentsFileForSheet(archive, sheetName);
+
+      if (commentsFile != null && commentsFile.name.isNotEmpty) {
+        final document = XmlDocument.parse(utf8.decode(commentsFile.content));
+        for (final comment in document.findAllElements('comment')) {
+          final ref = comment.getAttribute('ref');
+          final text = comment.findElements('text').first.innerText;
+          if (ref != null) {
+            sheetComments[ref] = text;
+          }
         }
+      }
+
+      if (sheetComments.isNotEmpty) {
+        comments[sheetName] = sheetComments;
       }
     }
 
     return comments;
+  }
+
+  /// Returns the names of the sheets in the workbook.
+  ///
+  /// The names are extracted from the workbook.xml file.
+  List<String> _getSheetNames(Archive archive) {
+    final sheetNames = <String>[];
+    final workbookFile = archive.files.firstWhere(
+      (file) => file.name == 'xl/workbook.xml',
+      orElse: () => ArchiveFile('', 0, []), // Return an empty ArchiveFile
+    );
+
+    if (workbookFile.name.isNotEmpty) {
+      final document = XmlDocument.parse(utf8.decode(workbookFile.content));
+      for (final sheet in document.findAllElements('sheet')) {
+        final name = sheet.getAttribute('name');
+        if (name != null) {
+          sheetNames.add(name);
+        }
+      }
+    }
+
+    return sheetNames;
+  }
+
+  /// Returns the comments file for the given [sheetName].
+  ///
+  /// The [sheetName] is used to determine the index of the sheet in the workbook
+  ArchiveFile? _getCommentsFileForSheet(Archive archive, String sheetName) {
+    final sheetIndex = _getSheetNames(archive).indexOf(sheetName) + 1;
+    final commentsFileName = 'xl/comments$sheetIndex.xml';
+
+    return archive.files.firstWhere(
+      (file) => file.name == commentsFileName,
+      orElse: () => ArchiveFile('', 0, []), // Return an empty ArchiveFile
+    );
   }
 
   int _getAvailableRid() {
