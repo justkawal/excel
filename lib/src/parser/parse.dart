@@ -168,12 +168,15 @@ class Parser {
     // Store comments in the appropriate data structure
     for (final entry in comments.entries) {
       final cellRef = entry.key;
-      final sheetName =
-          'Sheet1'; // Adjust this if you need to handle multiple sheets
-      final sheet = _excel._sheetMap[sheetName];
-      final cell = sheet?._getCell(cellRef);
-      if (cell != null) {
-        cell._comment = entry.value;
+
+      // Iterate through all sheets
+      for (final sheetName in _excel._sheetMap.keys) {
+        final sheet = _excel._sheetMap[sheetName];
+        final cell = sheet?._getCell(cellRef);
+        if (cell != null) {
+          cell._comment = entry.value;
+          break; // Exit the loop once the comment is found and assigned
+        }
       }
     }
   }
