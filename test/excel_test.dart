@@ -1088,4 +1088,31 @@ void main() {
     expect(sheetObject.getRowHeight(1), greaterThan(38));
     expect(sheetObject.getRowHeight(1), lessThan(42));
   });
+
+  test('Read cell comments and values', () {
+    var file = './test/test_resources/comments.xlsx';
+    var bytes = File(file).readAsBytesSync();
+    var excel = Excel.decodeBytes(bytes);
+
+    // Read the comment and value from cell A2
+    var cellA2 = excel['Sheet1'].cell(CellIndex.indexByString('A2'));
+    var commentA2 = cellA2.comment;
+    var valueA2 = cellA2.value;
+    expect(commentA2, 'This is a random sample comment');
+    expect(valueA2.toString(), 'Value 2');
+
+    // Read the comment and value from cell A3
+    var cellA3 = excel['Sheet1'].cell(CellIndex.indexByString('A3'));
+    var commentA3 = cellA3.comment;
+    var valueA3 = cellA3.value;
+    expect(commentA3, 'Another comment');
+    expect(valueA3.toString(), 'Value 3');
+
+    // Read the comment and value from cell A5
+    var cellA5 = excel['Sheet1'].cell(CellIndex.indexByString('A5'));
+    var commentA5 = cellA5.comment;
+    var valueA5 = cellA5.value;
+    expect(commentA5, 'Comment with different font and size');
+    expect(valueA5.toString(), 'Value 5');
+  });
 }

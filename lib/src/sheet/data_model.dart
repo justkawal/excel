@@ -4,6 +4,7 @@ part of excel;
 class Data extends Equatable {
   CellStyle? _cellStyle;
   CellValue? _value;
+  String? _comment;
   Sheet _sheet;
   String _sheetName;
   int _rowIndex;
@@ -18,6 +19,7 @@ class Data extends Equatable {
           dataObject._rowIndex,
           dataObject.columnIndex,
           value: dataObject._value,
+          comment: dataObject._comment,
           cellStyleVal: dataObject._cellStyle,
         );
 
@@ -32,12 +34,14 @@ class Data extends Equatable {
     NumFormat? numberFormat,
     CellStyle? cellStyleVal,
     bool isFormulaVal = false,
+    String? comment,
   })  : _sheet = sheet,
         _value = value,
         _cellStyle = cellStyleVal,
         _sheetName = sheet.sheetName,
         _rowIndex = row,
-        _columnIndex = column;
+        _columnIndex = column,
+        _comment = comment;
 
   /// returns the newData object when called from Sheet Class
   static Data newData(Sheet sheet, int row, int column) {
@@ -97,6 +101,11 @@ class Data extends Equatable {
     _cellStyle = _;
   }
 
+  /// returns the comment stored in this cell;
+  ///
+  /// It will return `null` if no comment is stored in this cell.
+  String? get comment => _comment;
+
   @override
   List<Object?> get props => [
         _value,
@@ -104,6 +113,7 @@ class Data extends Equatable {
         _rowIndex,
         _cellStyle,
         _sheetName,
+        _comment,
       ];
 }
 

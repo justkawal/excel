@@ -161,6 +161,21 @@ class Parser {
         }
       }
     });
+
+    // Parse comments
+    final comments = _parseComments(_excel._archive);
+
+    // Store comments in the appropriate data structure
+    for (final entry in comments.entries) {
+      final cellRef = entry.key;
+      final sheetName =
+          'Sheet1'; // Adjust this if you need to handle multiple sheets
+      final sheet = _excel._sheetMap[sheetName];
+      final cell = sheet?._getCell(cellRef);
+      if (cell != null) {
+        cell._comment = entry.value;
+      }
+    }
   }
 
   /// Parses and processes merged cells within the spreadsheet.
@@ -674,6 +689,27 @@ class Parser {
     });
 
     return buffer.toString();
+  }
+
+  Map<String, String> _parseComments(Archive archive) {
+    final comments = <String, String>{};
+    final commentsFile = archive.files.firstWhere(
+      (file) => file.name == 'xl/comments1.xml',
+      orElse: () => ArchiveFile('', 0, []), // Return an empty ArchiveFile
+    );
+
+    if (commentsFile.name.isNotEmpty) {
+      final document = XmlDocument.parse(utf8.decode(commentsFile.content));
+      for (final comment in document.findAllElements('comment')) {
+        final ref = comment.getAttribute('ref');
+        final text = comment.findElements('text').first.innerText;
+        if (ref != null) {
+          comments[ref] = text;
+        }
+      }
+    }
+
+    return comments;
   }
 
   int _getAvailableRid() {
