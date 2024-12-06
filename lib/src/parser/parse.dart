@@ -708,7 +708,7 @@ class Parser {
   /// Extracted from the comments sheet from the workbook.
   Map<String, Map<String, String>> _parseComments(Archive archive) {
     final comments = <String, Map<String, String>>{};
-    final sheetNames = _getSheetNames(archive);
+    final sheetNames = _excel._sheetMap.keys.toList();
 
     for (final sheetName in sheetNames) {
       final sheetComments = <String, String>{};
@@ -733,34 +733,11 @@ class Parser {
     return comments;
   }
 
-  /// Returns the names of the sheets in the workbook.
-  ///
-  /// The names are extracted from the workbook.xml file.
-  List<String> _getSheetNames(Archive archive) {
-    final sheetNames = <String>[];
-    final workbookFile = archive.files.firstWhere(
-      (file) => file.name == 'xl/workbook.xml',
-      orElse: () => ArchiveFile('', 0, []), // Return an empty ArchiveFile
-    );
-
-    if (workbookFile.name.isNotEmpty) {
-      final document = XmlDocument.parse(utf8.decode(workbookFile.content));
-      for (final sheet in document.findAllElements('sheet')) {
-        final name = sheet.getAttribute('name');
-        if (name != null) {
-          sheetNames.add(name);
-        }
-      }
-    }
-
-    return sheetNames;
-  }
-
   /// Returns the comments file for the given [sheetName].
   ///
   /// The [sheetName] is used to determine the index of the sheet in the workbook
   ArchiveFile? _getCommentsFileForSheet(Archive archive, String sheetName) {
-    final sheetIndex = _getSheetNames(archive).indexOf(sheetName) + 1;
+    final sheetIndex = _excel._sheetMap.keys.toList().indexOf(sheetName) + 1;
     final commentsFileName = 'xl/comments$sheetIndex.xml';
 
     return archive.files.firstWhere(
