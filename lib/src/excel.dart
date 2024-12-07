@@ -517,6 +517,23 @@ class Excel {
     }
   }
 
+  /// Returns a map of sheet names and their visibility status.
+  Map<String, String> getSheetVisibility() {
+    Map<String, String> sheetVisibility = {};
+
+    Iterable<XmlElement>? elements =
+        _xmlFiles['xl/workbook.xml']?.findAllElements('sheet');
+    if (elements != null) {
+      for (var element in elements) {
+        String name = element.getAttribute('name') ?? 'Unknown';
+        String state = element.getAttribute('state') ?? 'visible';
+        sheetVisibility[name] = state;
+      }
+    }
+
+    return sheetVisibility;
+  }
+
   ///
   ///Updates the contents of `sheet` of the `cellIndex: CellIndex.indexByColumnRow(0, 0);` where indexing starts from 0
   ///

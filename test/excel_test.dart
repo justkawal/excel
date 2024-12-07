@@ -1205,4 +1205,22 @@ void main() {
     expect(commentE5AnotherSheet, null);
     expect(valueE5AnotherSheet.toString(), '5 Value');
   });
+
+  test('Check sheet visibility', () {
+    var file = './test/test_resources/hidden_sheets.xlsx';
+    var bytes = File(file).readAsBytesSync();
+    var excel = Excel.decodeBytes(bytes);
+    // Get the visibility status of sheets
+    Map<String, String> sheetVisibility = excel.getSheetVisibility();
+
+    // Expected visibility status
+    Map<String, String> expectedVisibility = {
+      'Sheet1': 'visible',
+      'Sheet2': 'hidden',
+      'Sheet3': 'visible',
+    };
+
+    // Check if the visibility status matches the expected values
+    expect(sheetVisibility, equals(expectedVisibility));
+  });
 }
