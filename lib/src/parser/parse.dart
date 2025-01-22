@@ -461,8 +461,14 @@ class Parser {
 
           var numFormat = _excel._numFormats.getByNumFmtId(numFmtId);
           if (numFormat == null) {
-            assert(false, 'missing numFmt for $numFmtId');
-            numFormat = NumFormat.standard_0;
+            numFormat = _excel._numFormats.getByNumFmtId(numFmtId + 164);
+            if (numFormat == null) {
+              assert(false, 'missing numFmt for $numFmtId');
+              numFormat = NumFormat.standard_0;
+            } else {
+              _excel._numFmtIds.remove(numFmtId);
+              _excel._numFmtIds.add(numFmtId + 164);
+            }
           }
 
           CellStyle cellStyle = CellStyle(
