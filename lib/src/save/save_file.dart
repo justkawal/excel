@@ -1018,33 +1018,4 @@ class Save {
         diagonalBorderUp: cellStyle.diagonalBorderUp,
         diagonalBorderDown: cellStyle.diagonalBorderDown,
       );
-
-  int _getAvailableRid(String sheetRelsPath) {
-    final allRids = <int>[];
-
-    // Check existing relationships in all rels files
-    <String, ArchiveFile>{
-      ..._archiveFiles,
-      ...Map.fromEntries(
-        _excel._archive.map((it) => MapEntry(it.name, it)),
-      ),
-    }.forEach((path, archiveFile) {
-      if (path.endsWith('.rels')) {
-        final content = utf8.decode(archiveFile.content);
-        if (content.isNotEmpty) {
-          final doc = XmlDocument.parse(content);
-          final rIds = doc
-              .findAllElements('Relationship')
-              .map((e) => e.getAttribute('Id'))
-              .whereType<String>()
-              .where((id) => id.startsWith('rId'))
-              .map((id) => int.parse(id.substring(3)));
-          allRids.addAll(rIds);
-        }
-      }
-    });
-
-    // Get the next available rId
-    return allRids.isEmpty ? 1 : (allRids.reduce(max) + 1);
-  }
 }
