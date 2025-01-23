@@ -41,6 +41,11 @@ Iterable<XmlElement> _findRows(XmlElement table) {
   return table.findElements('row');
 }
 
+Iterable<XmlElement> _findDrawings(XmlElement table) {
+  var drawings = table.findAllElements('drawing');
+  return drawings;
+}
+
 Iterable<XmlElement> _findCells(XmlElement row) {
   return row.findElements('c');
 }

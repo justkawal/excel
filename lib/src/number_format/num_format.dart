@@ -164,6 +164,7 @@ sealed class NumFormat {
   bool accepts(CellValue? value);
 
   static NumFormat defaultFor(CellValue? value) => switch (value) {
+        ImageCellValue() => NumFormat.standard_0,
         null || FormulaCellValue() || TextCellValue() => NumFormat.standard_0,
         IntCellValue() => NumFormat.defaultNumeric,
         DoubleCellValue() => NumFormat.defaultFloat,
@@ -313,6 +314,7 @@ class StandardNumericNumFormat extends NumericNumFormat
         DateCellValue() => false,
         TimeCellValue() => false,
         DateTimeCellValue() => false,
+        ImageCellValue() => false,
       };
 
   @override
@@ -338,6 +340,7 @@ class CustomNumericNumFormat extends NumericNumFormat
         DateCellValue() => false,
         TimeCellValue() => false,
         DateTimeCellValue() => false,
+        ImageCellValue() => false,
       };
 
   @override
@@ -401,6 +404,7 @@ sealed class DateTimeNumFormat extends NumFormat {
         DateCellValue() => true,
         DateTimeCellValue() => true,
         TimeCellValue() => false,
+        ImageCellValue() => false,
       };
 }
 
@@ -500,6 +504,7 @@ sealed class TimeNumFormat extends NumFormat {
         DateCellValue() => false,
         DateTimeCellValue() => false,
         TimeCellValue() => true,
+        ImageCellValue() => false,
       };
 }
 

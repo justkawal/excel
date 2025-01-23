@@ -281,9 +281,9 @@ class Parser {
           XmlElement? element;
           try {
             element = node.findElements(elementName).single;
-          } on StateError catch (_) {
-            // Either there is no element, or there are too many ones.
-            // Silently ignore this element.
+          } on StateError {
+            // Either there is no element or there are too many ones.
+            // Continue with empty border silently
           }
 
           final borderStyleAttribute = element?.getAttribute('style')?.trim();
@@ -557,6 +557,10 @@ class Parser {
       _parseRow(child, sheetObject, name);
     });
 
+    _findDrawings(worksheet).forEach((child) {
+      _parseDrawing(child, sheetObject, name);
+    });
+
     _parseHeaderFooter(worksheet, sheetObject);
     _parseColWidthsRowHeights(worksheet, sheetObject);
 
@@ -568,7 +572,7 @@ class Parser {
     _normalizeTable(sheetObject);
   }
 
-  _parseRow(XmlElement node, Sheet sheetObject, String name) {
+  void _parseRow(XmlElement node, Sheet sheetObject, String name) {
     var rowIndex = (_getRowNumber(node) ?? -1) - 1;
     if (rowIndex < 0) {
       return;
@@ -577,6 +581,15 @@ class Parser {
     _findCells(node).forEach((child) {
       _parseCell(child, sheetObject, rowIndex, name);
     });
+  }
+
+  void _parseDrawing(XmlElement node, Sheet sheetObject, String name) {
+    if (node.name.local == 'drawing') {
+      final rId = node.getAttribute('r:id');
+      if (rId != null) {
+        _parseImageCell(node, sheetObject, rId, name);
+      }
+    }
   }
 
   void _parseCell(
@@ -694,7 +707,7 @@ class Parser {
   ///
   ///
   void _createSheet(String newSheet) {
-    /*
+/*
     List<XmlNode> list = _excel._xmlFiles['xl/workbook.xml']
         .findAllElements('sheets')
         .first
@@ -811,7 +824,7 @@ class Parser {
   }
 
   void _parseColWidthsRowHeights(XmlElement worksheet, Sheet sheetObject) {
-    /* parse default column width and default row height
+/* parse default column width and default row height
       example XML content
       <sheetFormatPr baseColWidth="10" defaultColWidth="26.33203125" defaultRowHeight="13" x14ac:dyDescent="0.15" />
     */
@@ -821,18 +834,18 @@ class Parser {
       results.forEach((element) {
         double? defaultColWidth;
         double? defaultRowHeight;
-        // default column width
+// default column width
         String? widthAttribute = element.getAttribute("defaultColWidth");
         if (widthAttribute != null) {
           defaultColWidth = double.tryParse(widthAttribute);
         }
-        // default row height
+// default row height
         String? rowHeightAttribute = element.getAttribute("defaultRowHeight");
         if (rowHeightAttribute != null) {
           defaultRowHeight = double.tryParse(rowHeightAttribute);
         }
 
-        // both values valid ?
+// both values valid ?
         if (defaultColWidth != null && defaultRowHeight != null) {
           sheetObject._defaultColumnWidth = defaultColWidth;
           sheetObject._defaultRowHeight = defaultRowHeight;
@@ -840,10 +853,10 @@ class Parser {
       });
     }
 
-    /* parse custom column height
+/* parse custom column height
       example XML content
-      <col min="2" max="2" width="71.83203125" customWidth="1"/>, 
-      <col min="4" max="4" width="26.5" customWidth="1"/>, 
+      <col min="2" max="2" width="71.83203125" customWidth="1"/>,
+      <col min="4" max="4" width="26.5" customWidth="1"/>,
       <col min="6" max="6" width="31.33203125" customWidth="1"/>
     */
     results = worksheet.findAllElements("col");
@@ -865,7 +878,7 @@ class Parser {
       });
     }
 
-    /* parse custom row height
+/* parse custom row height
       example XML content
       <row r="1" spans="1:2" ht="44" customHeight="1" x14ac:dyDescent="0.15">
     */
@@ -886,6 +899,134 @@ class Parser {
           }
         }
       });
+    }
+  }
+
+  void _parseImageCell(XmlElement node, Sheet sheet, String rId, String name) {
+    final sheetRelsPath =
+        'xl/worksheets/_rels/${sheet.sheetName.toLowerCase()}.xml.rels';
+    final sheetRels = _excel._archive.findFile(sheetRelsPath);
+    if (sheetRels == null) {
+      return;
+    }
+
+    final sheetRelsContent = utf8.decode(sheetRels.content);
+
+    final drawingPath = XmlDocument.parse(sheetRelsContent)
+        .findAllElements('Relationship')
+        .firstWhere((e) => e.getAttribute('Id') == rId)
+        .getAttribute('Target')
+        ?.replaceAll('../', '');
+    if (drawingPath == null) {
+      return;
+    }
+
+// Parse drawing XML to get image details
+    final drawing = _excel._archive.findFile('xl/$drawingPath');
+    if (drawing == null) return;
+
+    final drawingContent = utf8.decode(drawing.content);
+    final doc = XmlDocument.parse(drawingContent);
+
+    final anchors = doc.findAllElements('xdr:oneCellAnchor');
+
+    if (anchors.isEmpty) {
+      return;
+    }
+
+// Find the blip element that references the image
+    for (final anchor in anchors) {
+// Get cell reference from 'from' element
+      final from = anchor.findElements('xdr:from').firstOrNull;
+      if (from == null) {
+        continue;
+      }
+
+      final cellColumnIndex = int.tryParse(
+          from.findElements('xdr:col').firstOrNull?.innerText ?? '');
+      final rowIndex = int.tryParse(
+          from.findElements('xdr:row').firstOrNull?.innerText ?? '');
+
+      if (cellColumnIndex == null || rowIndex == null) {
+        continue;
+      }
+
+// Extract image information
+      final blip = anchor.findAllElements('a:blip').firstOrNull;
+      if (blip == null) {
+        continue;
+      }
+
+      final imageRId = blip.getAttribute('r:embed');
+      if (imageRId == null) {
+        continue;
+      }
+
+// Get image dimensions
+      final ext = anchor.findAllElements('xdr:ext').firstOrNull ??
+          anchor.findAllElements('a:ext').firstOrNull;
+      int? width, height;
+      if (ext != null) {
+        width = (int.tryParse(ext.getAttribute('cx') ?? '') ?? 0) ~/
+            9525; // Convert EMUs to pixels
+        height = (int.tryParse(ext.getAttribute('cy') ?? '') ?? 0) ~/ 9525;
+      }
+
+// Get image path from drawing relationships
+      final drawingRelsPath =
+          'xl/drawings/_rels/${drawingPath.split('/').last}.rels';
+      final drawingRels = _excel._archive.findFile(drawingRelsPath);
+      if (drawingRels == null) {
+        continue;
+      }
+
+      final relationships = XmlDocument.parse(utf8.decode(drawingRels.content))
+          .findAllElements('Relationship');
+
+      final relationship = relationships
+          .where((e) => e.getAttribute('Id') == imageRId)
+          .firstOrNull;
+
+      if (relationship == null) {
+        continue;
+      }
+
+      final imagePath = relationship.getAttribute('Target');
+      if (imagePath == null) {
+        continue;
+      }
+
+// Get the image data
+      final normalizedImagePath = imagePath.startsWith('../')
+          ? 'xl/${imagePath.substring(3)}'
+          : 'xl/media/$imagePath';
+
+      final imageFile = _excel._archive.findFile(normalizedImagePath);
+      if (imageFile == null) {
+        continue;
+      }
+
+// Determine image format from path
+      final format = imagePath.split('.').last.toLowerCase();
+      if (!['png', 'jpg', 'jpeg', 'gif'].contains(format)) {
+        continue;
+      }
+
+// Create ImageCellValue
+      final imageCellValue = ImageCellValue(
+        bytes: imageFile.content,
+        format: format,
+        width: width,
+        height: height,
+      );
+
+// Update the cell with the image
+      sheet.updateCell(
+        CellIndex.indexByColumnRow(
+            columnIndex: cellColumnIndex, rowIndex: rowIndex),
+        imageCellValue,
+      );
+      return;
     }
   }
 }

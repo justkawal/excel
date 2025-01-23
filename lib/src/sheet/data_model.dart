@@ -409,3 +409,55 @@ class DateTimeCellValue extends CellValue {
         other.microsecond == microsecond;
   }
 }
+
+/// Represents an image in an Excel cell
+class ImageCellValue extends CellValue {
+  /// The raw bytes of the image
+  final List<int> bytes;
+  
+  /// The image format (e.g. 'png', 'jpeg')
+  final String format;
+  
+  /// Optional width in pixels
+  final int? width;
+  
+  /// Optional height in pixels  
+  final int? height;
+
+  const ImageCellValue({
+    required this.bytes,
+    required this.format,
+    this.width,
+    this.height,
+  });
+
+  /// Create from a file path
+  static Future<ImageCellValue> fromFile(String path, {int? width, int? height}) async {
+    final file = File(path);
+    final bytes = await file.readAsBytes();
+    final format = path.split('.').last.toLowerCase();
+    return ImageCellValue(
+      bytes: bytes,
+      format: format,
+      width: width,
+      height: height,
+    );
+  }
+
+  @override
+  String toString() {
+    return '[Image: $format ${width ?? 'auto'}x${height ?? 'auto'}]';
+  }
+
+  @override
+  int get hashCode => Object.hash(runtimeType, bytes, format, width, height);
+
+  @override
+  operator ==(Object other) {
+    return other is ImageCellValue &&
+        const ListEquality().equals(other.bytes, bytes) &&
+        other.format == format &&
+        other.width == width &&
+        other.height == height;
+  }
+}

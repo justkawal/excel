@@ -41,9 +41,242 @@ class Save {
     return cell;
   } */
 
-  // Manage value's type
+  XmlElement _createImageCell(
+      String sheet, int columnIndex, int rowIndex, ImageCellValue image) {
+    // Validate inputs
+    if (columnIndex < 0 || rowIndex < 0) {
+      throw ArgumentError('Column and row indices must be non-negative');
+    }
+
+    if (!['png', 'jpg', 'jpeg', 'gif'].contains(image.format.toLowerCase())) {
+      throw ArgumentError(
+          'Unsupported image format: ${image.format}. Supported formats are: png, jpg, jpeg, gif');
+    }
+
+    if (image.bytes.isEmpty) {
+      throw ArgumentError('Image bytes cannot be empty');
+    }
+
+    final worksheetPath = _excel._xmlSheetId[sheet]!;
+    final worksheet = _excel._xmlFiles[worksheetPath]!;
+    final sheetData = worksheet.findAllElements('sheetData').first;
+    final sheetName = worksheetPath.split('/').last;
+    final sheetRelsPath = 'xl/worksheets/_rels/$sheetName.rels';
+    final rId = _getAvailableRid(sheetRelsPath);
+    // Check for existing drawing element
+    final existingDrawingElement =
+        worksheet.findAllElements('drawing').firstOrNull;
+    final drawingRId =
+        existingDrawingElement?.getAttribute('r:id') ?? 'rId$rId';
+    final drawingNumber = existingDrawingElement != null
+        //should instead remove all non-digit characters and parse that
+        ? int.parse(drawingRId.replaceAll(RegExp(r'\D'), ''))
+        : rId;
+
+    final drawingRelsPath =
+        'xl/drawings/_rels/drawing${drawingNumber}.xml.rels';
+    final imageFileName = 'image${rId}.${image.format.toLowerCase()}';
+    final imagePath = 'xl/media/$imageFileName';
+
+    // Convert dimensions to EMUs (1 pixel = 9525 EMUs)
+    final width = image.width != null ? image.width! * 9525 : 2000000;
+    final height = image.height != null ? image.height! * 9525 : 2000000;
+
+    // Add image file to archive
+    _archiveFiles[imagePath] =
+        ArchiveFile(imagePath, image.bytes.length, image.bytes);
+
+    final drawingPath = 'xl/drawings/drawing$drawingNumber.xml';
+
+    // Create or update drawing XML
+    String drawing;
+    if (_archiveFiles.containsKey(drawingPath)) {
+      // Append to existing drawing
+      var existingDrawing = utf8.decode(_archiveFiles[drawingPath]!.content);
+      var xmlDoc = XmlDocument.parse(existingDrawing);
+      var wsDrElement = xmlDoc.findAllElements('xdr:wsDr').first;
+
+      // Add new oneCellAnchor element
+      var anchorElement = '''
+  <xdr:oneCellAnchor>
+    <xdr:from>
+      <xdr:col>$columnIndex</xdr:col>
+      <xdr:colOff>0</xdr:colOff>
+      <xdr:row>$rowIndex</xdr:row>
+      <xdr:rowOff>0</xdr:rowOff>
+    </xdr:from>
+    <xdr:ext cx="$width" cy="$height"/>
+    <xdr:pic>
+      <xdr:nvPicPr>
+        <xdr:cNvPr id="$rId" name="image$rId.png"/>
+        <xdr:cNvPicPr preferRelativeResize="0"/>
+      </xdr:nvPicPr>
+      <xdr:blipFill>
+        <a:blip cstate="print" r:embed="rId$rId"/>
+        <a:stretch>
+          <a:fillRect/>
+        </a:stretch>
+      </xdr:blipFill>
+      <xdr:spPr>
+        <a:prstGeom prst="rect">
+          <a:avLst/>
+        </a:prstGeom>
+        <a:noFill/>
+      </xdr:spPr>
+    </xdr:pic>
+    <xdr:clientData fLocksWithSheet="0"/>
+  </xdr:oneCellAnchor>''';
+
+      wsDrElement.children
+          .add(XmlDocument.parse(anchorElement).rootElement.copy());
+      drawing = xmlDoc.toXmlString();
+    } else {
+      // Create new drawing XML
+      drawing = '''<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<xdr:wsDr xmlns:xdr="http://schemas.openxmlformats.org/drawingml/2006/spreadsheetDrawing" 
+          xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" 
+          xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" 
+          xmlns:c="http://schemas.openxmlformats.org/drawingml/2006/chart" 
+          xmlns:cx="http://schemas.microsoft.com/office/drawing/2014/chartex" 
+          xmlns:cx1="http://schemas.microsoft.com/office/drawing/2015/9/8/chartex" 
+          xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+          xmlns:dgm="http://schemas.openxmlformats.org/drawingml/2006/diagram" 
+          xmlns:x3Unk="http://schemas.microsoft.com/office/drawing/2010/slicer" 
+          xmlns:sle15="http://schemas.microsoft.com/office/drawing/2012/slicer">
+  <xdr:oneCellAnchor>
+    <xdr:from>
+      <xdr:col>$columnIndex</xdr:col>
+      <xdr:colOff>0</xdr:colOff>
+      <xdr:row>$rowIndex</xdr:row>
+      <xdr:rowOff>0</xdr:rowOff>
+    </xdr:from>
+    <xdr:ext cx="$width" cy="$height"/>
+    <xdr:pic>
+      <xdr:nvPicPr>
+        <xdr:cNvPr id="$rId" name="image$rId.png"/>
+        <xdr:cNvPicPr preferRelativeResize="0"/>
+      </xdr:nvPicPr>
+      <xdr:blipFill>
+        <a:blip cstate="print" r:embed="rId$rId"/>
+        <a:stretch>
+          <a:fillRect/>
+        </a:stretch>
+      </xdr:blipFill>
+      <xdr:spPr>
+        <a:prstGeom prst="rect">
+          <a:avLst/>
+        </a:prstGeom>
+        <a:noFill/>
+      </xdr:spPr>
+    </xdr:pic>
+    <xdr:clientData fLocksWithSheet="0"/>
+  </xdr:oneCellAnchor>
+</xdr:wsDr>''';
+    }
+
+    _archiveFiles[drawingPath] =
+        ArchiveFile(drawingPath, drawing.length, utf8.encode(drawing));
+
+    // Add drawing element to worksheet if it doesn't exist
+    if (existingDrawingElement == null) {
+      final drawingNode = XmlElement(
+          XmlName('drawing'), [XmlAttribute(XmlName('r:id'), drawingRId)]);
+      sheetData.parent!.children.add(drawingNode);
+    }
+
+    // Add drawing relationship to sheet
+    String sheetRels;
+
+    var content = utf8.decode(_archiveFiles[sheetRelsPath]?.content ?? []);
+    XmlDocument relsDoc;
+
+    if (content.isEmpty) {
+      // Create new XML document with declaration and Relationships root
+      relsDoc = XmlDocument([
+        XmlDeclaration([
+          XmlAttribute(XmlName('version'), '1.0'),
+          XmlAttribute(XmlName('encoding'), 'UTF-8'),
+          XmlAttribute(XmlName('standalone'), 'yes'),
+        ]),
+        XmlElement(XmlName('Relationships'), [
+          XmlAttribute(XmlName('xmlns'),
+              'http://schemas.openxmlformats.org/package/2006/relationships')
+        ], [])
+      ]);
+    } else {
+      relsDoc = XmlDocument.parse(content);
+      // Verify Relationships root exists, create if missing
+      if (!relsDoc.rootElement.name.local.contains('Relationships')) {
+        relsDoc = XmlDocument([
+          XmlElement(
+              XmlName('Relationships'),
+              [
+                XmlAttribute(XmlName('xmlns'),
+                    'http://schemas.openxmlformats.org/package/2006/relationships')
+              ],
+              relsDoc.rootElement.children)
+        ]);
+      }
+    }
+
+    var relsRoot = relsDoc.rootElement;
+
+    //Add drawing relationship if it doesn't exist
+    if (relsRoot.findElements("Relationship").none(
+        (element) => element.getAttribute("Id") == 'rId${drawingNumber}')) {
+      var newRel = XmlElement(XmlName('Relationship'), [
+        XmlAttribute(XmlName('Id'), 'rId${drawingNumber}'),
+        XmlAttribute(XmlName('Type'),
+            'http://schemas.openxmlformats.org/officeDocument/2006/relationships/drawing'),
+        XmlAttribute(XmlName('Target'), '../drawings/drawing$drawingNumber.xml')
+      ]);
+      print('newRel: $newRel');
+      relsRoot.children.add(newRel);
+    }
+
+    sheetRels = relsDoc.toXmlString();
+    _archiveFiles[sheetRelsPath] =
+        ArchiveFile(sheetRelsPath, sheetRels.length, utf8.encode(sheetRels));
+
+    // Create or update drawing relationships file
+    String drawingRels;
+    if (_archiveFiles.containsKey(drawingRelsPath)) {
+      // Update existing relationships file
+      var existingRels = utf8.decode(_archiveFiles[drawingRelsPath]!.content);
+      var relsDoc = XmlDocument.parse(existingRels);
+      var relationships = relsDoc.findAllElements('Relationships').first;
+
+      // Add new relationship
+      relationships.children.add(
+        XmlElement(XmlName('Relationship'), [
+          XmlAttribute(XmlName('Id'), 'rId$rId'),
+          XmlAttribute(XmlName('Type'), 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/image'),
+          XmlAttribute(XmlName('Target'), '../media/image$rId.${image.format.toLowerCase()}')
+        ])
+      );
+
+      drawingRels = relsDoc.toXmlString();
+    } else {
+      // Create new relationships file
+      drawingRels = '''<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
+  <Relationship Id="rId${rId}" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/image" Target="../media/image${rId}.${image.format.toLowerCase()}"/>
+</Relationships>''';
+    }
+    _archiveFiles[drawingRelsPath] = ArchiveFile(
+        drawingRelsPath, drawingRels.length, utf8.encode(drawingRels));
+
+    // Return cell that references the drawing
+    return XmlElement(XmlName('c'), [
+      XmlAttribute(XmlName('r'), getCellId(columnIndex, rowIndex)),
+    ], []);
+  }
+
   XmlElement _createCell(String sheet, int columnIndex, int rowIndex,
       CellValue? value, NumFormat? numberFormat) {
+    if (value is ImageCellValue) {
+      return _createImageCell(sheet, columnIndex, rowIndex, value);
+    }
     SharedString? sharedString;
     if (value is TextCellValue) {
       sharedString = _excel._sharedStrings.tryFind(value.toString());
@@ -91,6 +324,11 @@ class Save {
     // TODO track & write the numFmts/numFmt to styles.xml if used
     final List<XmlElement> children;
     switch (value) {
+      case ImageCellValue():
+        _createImageCell(sheet, columnIndex, rowIndex, value);
+        children = [
+          XmlElement(XmlName('v'), [], [XmlText('')]),
+        ];
       case null:
         children = [];
       case FormulaCellValue():
@@ -487,7 +725,7 @@ class Save {
           }
           return MapEntry<int, CustomNumFormat>(e.key, format);
         })
-        .whereNotNull()
+        .nonNulls
         .sorted((a, b) => a.key.compareTo(b.key));
 
     if (customNumberFormats.isNotEmpty) {
@@ -561,7 +799,9 @@ class Save {
       var content = utf8.encode(xml);
       _archiveFiles[xmlFile] = ArchiveFile(xmlFile, content.length, content);
     }
-    return ZipEncoder().encode(_cloneArchive(_excel._archive, _archiveFiles));
+
+    var newArchive = _cloneArchive(_excel._archive, _archiveFiles);
+    return ZipEncoder().encode(newArchive);
   }
 
   void _setColumns(Sheet sheetObject, XmlDocument xmlFile) {
@@ -1003,4 +1243,33 @@ class Save {
         diagonalBorderUp: cellStyle.diagonalBorderUp,
         diagonalBorderDown: cellStyle.diagonalBorderDown,
       );
+
+  int _getAvailableRid(String sheetRelsPath) {
+    final allRids = <int>[];
+
+    // Check existing relationships in all rels files
+    <String, ArchiveFile>{
+      ..._archiveFiles,
+      ...Map.fromEntries(
+        _excel._archive.map((it) => MapEntry(it.name, it)),
+      ),
+    }.forEach((path, archiveFile) {
+      if (path.endsWith('.rels')) {
+        final content = utf8.decode(archiveFile.content);
+        if (content.isNotEmpty) {
+          final doc = XmlDocument.parse(content);
+          final rIds = doc
+              .findAllElements('Relationship')
+              .map((e) => e.getAttribute('Id'))
+              .whereType<String>()
+              .where((id) => id.startsWith('rId'))
+              .map((id) => int.parse(id.substring(3)));
+          allRids.addAll(rIds);
+        }
+      }
+    });
+
+    // Get the next available rId
+    return allRids.isEmpty ? 1 : (allRids.reduce(max) + 1);
+  }
 }
