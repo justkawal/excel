@@ -1,10 +1,10 @@
 part of excel;
 
-class _ImageCellHandler {
+class _ImageCellCreator {
   final Map<String, ArchiveFile> _archiveFiles;
   final Excel _excel;
 
-  _ImageCellHandler(this._excel, this._archiveFiles);
+  _ImageCellCreator(this._excel, this._archiveFiles);
 
   /// The number of EMUs (English Metric Units) per pixel
   /// Used for converting image dimensions to Excel's internal units

@@ -43,7 +43,7 @@ class Save {
 
   XmlElement _createImageCell(
       String sheet, int columnIndex, int rowIndex, ImageCellValue image) {
-    return _ImageCellHandler(_excel, _archiveFiles)
+    return _ImageCellCreator(_excel, _archiveFiles)
         .createImageCell(sheet, columnIndex, rowIndex, image);
   }
 
