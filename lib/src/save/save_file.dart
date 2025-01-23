@@ -47,6 +47,7 @@ class Save {
         .createImageCell(sheet, columnIndex, rowIndex, image);
   }
 
+  // Manage value's type
   XmlElement _createCell(String sheet, int columnIndex, int rowIndex,
       CellValue? value, NumFormat? numberFormat) {
     if (value is ImageCellValue) {
@@ -99,12 +100,10 @@ class Save {
     // TODO track & write the numFmts/numFmt to styles.xml if used
     final List<XmlElement> children;
     switch (value) {
-      case ImageCellValue():
-        _createImageCell(sheet, columnIndex, rowIndex, value);
-        children = [
-          XmlElement(XmlName('v'), [], [XmlText('')]),
-        ];
       case null:
+        children = [];
+      case ImageCellValue():
+        //this will never be called as we are handling it in the above if condition
         children = [];
       case FormulaCellValue():
         children = [
@@ -500,7 +499,7 @@ class Save {
           }
           return MapEntry<int, CustomNumFormat>(e.key, format);
         })
-        .nonNulls
+        .whereNotNull()
         .sorted((a, b) => a.key.compareTo(b.key));
 
     if (customNumberFormats.isNotEmpty) {
@@ -574,9 +573,7 @@ class Save {
       var content = utf8.encode(xml);
       _archiveFiles[xmlFile] = ArchiveFile(xmlFile, content.length, content);
     }
-
-    var newArchive = _cloneArchive(_excel._archive, _archiveFiles);
-    return ZipEncoder().encode(newArchive);
+    return ZipEncoder().encode(_cloneArchive(_excel._archive, _archiveFiles));
   }
 
   void _setColumns(Sheet sheetObject, XmlDocument xmlFile) {
