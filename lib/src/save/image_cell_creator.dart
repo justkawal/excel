@@ -149,7 +149,7 @@ class _ImageCellCreator {
     int height,
     int rId,
   ) {
-    return '''<xdr:oneCellAnchor>                                                                                                                                                                                                                   
+    return '''<xdr:oneCellAnchor editAs="TwoCell">                                                                                                                                                                                                                   
      <xdr:from>                                                                                                                                                                                                                                      
        <xdr:col>$columnIndex</xdr:col>                                                                                                                                                                                                               
        <xdr:colOff>0</xdr:colOff>                                                                                                                                                                                                                    
