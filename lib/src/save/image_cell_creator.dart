@@ -10,17 +10,17 @@ class _ImageCellCreator {
   /// Used for converting image dimensions to Excel's internal units
   static const int _emusPerPixel = 9525;
 
-  XmlElement createImageCell(
-    String sheet,
-    int columnIndex,
-    int rowIndex,
-    ImageCellValue image,
-  ) {
+  XmlElement createImageCell(String sheet,
+      int columnIndex,
+      int rowIndex,
+      ImageCellValue image,) {
     _validateInputs(columnIndex, rowIndex, image);
 
     final worksheetPath = _excel._xmlSheetId[sheet]!;
     final worksheet = _excel._xmlFiles[worksheetPath]!;
-    final sheetName = worksheetPath.split('/').last;
+    final sheetName = worksheetPath
+        .split('/')
+        .last;
     final sheetRelsPath = 'xl/worksheets/_rels/$sheetName.rels';
     final rId = _getAvailableRid(sheetRelsPath);
 
@@ -34,6 +34,8 @@ class _ImageCellCreator {
     _updateRelationships(
         sheetRelsPath, drawingRelsPath, drawingInfo.drawingNumber, rId, image);
 
+    _updateContentTypes(drawingInfo.drawingNumber, image);
+
     return _createCellElement(columnIndex, rowIndex);
   }
 
@@ -44,7 +46,8 @@ class _ImageCellCreator {
 
     if (!['png', 'jpg', 'jpeg', 'gif'].contains(image.format.toLowerCase())) {
       throw ArgumentError(
-          'Unsupported image format: ${image.format}. Supported formats are: png, jpg, jpeg, gif');
+          'Unsupported image format: ${image
+              .format}. Supported formats are: png, jpg, jpeg, gif');
     }
 
     if (image.bytes.isEmpty) {
@@ -52,21 +55,24 @@ class _ImageCellCreator {
     }
   }
 
-  ({XmlElement? existingDrawing, String drawingRId, int drawingNumber})
-      _setupDrawing(
-    XmlDocument worksheet,
-    int rId,
-  ) {
-    final existingDrawing = worksheet.findAllElements('drawing').firstOrNull;
+  ({
+  XmlElement? existingDrawing,
+  String drawingRId,
+  int drawingNumber,
+  }) _setupDrawing(XmlDocument worksheet,
+      int rId,) {
+    final existingDrawing = worksheet
+        .findAllElements('drawing')
+        .firstOrNull;
     final drawingRId = existingDrawing?.getAttribute('r:id') ?? 'rId$rId';
     final drawingNumber = existingDrawing != null
         ? int.parse(drawingRId.replaceAll(RegExp(r'\D'), ''))
         : rId;
 
     return (
-      existingDrawing: existingDrawing,
-      drawingRId: drawingRId,
-      drawingNumber: drawingNumber
+    existingDrawing: existingDrawing,
+    drawingRId: drawingRId,
+    drawingNumber: drawingNumber,
     );
   }
 
@@ -77,16 +83,14 @@ class _ImageCellCreator {
         ArchiveFile(imagePath, image.bytes.length, image.bytes);
   }
 
-  void _updateDrawingXml(
-    String drawingPath,
-    int columnIndex,
-    int rowIndex,
-    ImageCellValue image,
-    int rId,
-  ) {
+  void _updateDrawingXml(String drawingPath,
+      int columnIndex,
+      int rowIndex,
+      ImageCellValue image,
+      int rId,) {
     final width = image.width != null ? image.width! * _emusPerPixel : 2000000;
     final height =
-        image.height != null ? image.height! * _emusPerPixel : 2000000;
+    image.height != null ? image.height! * _emusPerPixel : 2000000;
 
     String drawing;
     if (_archiveFiles.containsKey(drawingPath)) {
@@ -100,44 +104,38 @@ class _ImageCellCreator {
         ArchiveFile(drawingPath, drawing.length, utf8.encode(drawing));
   }
 
-  String _updateExistingDrawing(
-    String drawingPath,
-    int columnIndex,
-    int rowIndex,
-    int width,
-    int height,
-    int rId,
-  ) {
+  String _updateExistingDrawing(String drawingPath,
+      int columnIndex,
+      int rowIndex,
+      int width,
+      int height,
+      int rId,) {
     var existingDrawing = utf8.decode(_archiveFiles[drawingPath]!.content);
     var xmlDoc = XmlDocument.parse(existingDrawing);
-    var wsDrElement = xmlDoc.findAllElements('xdr:wsDr').first;
+    var wsDrElement = xmlDoc
+        .findAllElements('xdr:wsDr')
+        .first;
 
     var anchorElement =
-        _createAnchorElement(columnIndex, rowIndex, width, height, rId);
+    _createAnchorElement(columnIndex, rowIndex, width, height, rId);
     wsDrElement.children
-        .add(XmlDocument.parse(anchorElement).rootElement.copy());
+        .add(XmlDocument
+        .parse(anchorElement)
+        .rootElement
+        .copy());
 
     return xmlDoc.toXmlString();
   }
 
-  String _createNewDrawing(
-    int columnIndex,
-    int rowIndex,
-    int width,
-    int height,
-    int rId,
-  ) {
+  String _createNewDrawing(int columnIndex,
+      int rowIndex,
+      int width,
+      int height,
+      int rId,) {
     return '''<?xml version="1.0" encoding="UTF-8" standalone="yes"?>                                                                                                                                                                               
  <xdr:wsDr xmlns:xdr="http://schemas.openxmlformats.org/drawingml/2006/spreadsheetDrawing"                                                                                                                                                           
            xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main"                                                                                                                                                                           
-           xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"                                                                                                                                                             
-           xmlns:c="http://schemas.openxmlformats.org/drawingml/2006/chart"                                                                                                                                                                          
-           xmlns:cx="http://schemas.microsoft.com/office/drawing/2014/chartex"                                                                                                                                                                       
-           xmlns:cx1="http://schemas.microsoft.com/office/drawing/2015/9/8/chartex"                                                                                                                                                                  
-           xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"                                                                                                                                                                    
-           xmlns:dgm="http://schemas.openxmlformats.org/drawingml/2006/diagram"                                                                                                                                                                      
-           xmlns:x3Unk="http://schemas.microsoft.com/office/drawing/2010/slicer"                                                                                                                                                                     
-           xmlns:sle15="http://schemas.microsoft.com/office/drawing/2012/slicer">                                                                                                                                                                    
+           xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">                                                                                                                                                                    
    ${_createAnchorElement(columnIndex, rowIndex, width, height, rId)}                                                                                                                                                                                
  </xdr:wsDr>''';
   }
@@ -179,13 +177,11 @@ class _ImageCellCreator {
    </xdr:oneCellAnchor>''';
   }
 
-  void _updateRelationships(
-    String sheetRelsPath,
-    String drawingRelsPath,
-    int drawingNumber,
-    int rId,
-    ImageCellValue image,
-  ) {
+  void _updateRelationships(String sheetRelsPath,
+      String drawingRelsPath,
+      int drawingNumber,
+      int rId,
+      ImageCellValue image,) {
     _updateSheetRelationships(sheetRelsPath, drawingNumber);
     _updateDrawingRelationships(drawingRelsPath, rId, image);
   }
@@ -253,8 +249,46 @@ class _ImageCellCreator {
     }
   }
 
-  void _updateDrawingRelationships(
-      String drawingRelsPath, int rId, ImageCellValue image) {
+  void _updateContentTypes(int drawingNumber, ImageCellValue image) {
+    final contentTypesFile = _excel._xmlFiles['[Content_Types].xml'];
+    if (contentTypesFile != null) {
+      final types = contentTypesFile
+          .findAllElements('Types')
+          .first;
+
+      // Add default content type for image extension if not exists
+      final imageExtension = image.format.toLowerCase();
+      final hasImageType = types
+          .findElements('Default')
+          .any((element) =>
+      element.getAttribute('Extension') == imageExtension);
+
+      if (!hasImageType) {
+        types.children.add(XmlElement(XmlName('Default'), [
+          XmlAttribute(XmlName('Extension'), imageExtension),
+          XmlAttribute(XmlName('ContentType'), 'application/octet-stream'),
+        ]));
+      }
+
+      // Check if drawing content type override already exists
+      final drawingPath = '/xl/drawings/drawing$drawingNumber.xml';
+      final hasDrawingType = types
+          .findElements('Override')
+          .any((element) => element.getAttribute('PartName') == drawingPath);
+
+      if (!hasDrawingType) {
+        // Add drawing content type if not exists
+        types.children.add(XmlElement(XmlName('Override'), [
+          XmlAttribute(XmlName('PartName'), drawingPath),
+          XmlAttribute(XmlName('ContentType'),
+              'application/vnd.openxmlformats-officedocument.drawing+xml'),
+        ]));
+      }
+    }
+  }
+
+  void _updateDrawingRelationships(String drawingRelsPath, int rId,
+      ImageCellValue image) {
     String drawingRels;
     if (_archiveFiles.containsKey(drawingRelsPath)) {
       drawingRels = _updateExistingDrawingRels(drawingRelsPath, rId, image);
@@ -265,11 +299,13 @@ class _ImageCellCreator {
         drawingRelsPath, drawingRels.length, utf8.encode(drawingRels));
   }
 
-  String _updateExistingDrawingRels(
-      String drawingRelsPath, int rId, ImageCellValue image) {
+  String _updateExistingDrawingRels(String drawingRelsPath, int rId,
+      ImageCellValue image) {
     var existingRels = utf8.decode(_archiveFiles[drawingRelsPath]!.content);
     var relsDoc = XmlDocument.parse(existingRels);
-    var relationships = relsDoc.findAllElements('Relationships').first;
+    var relationships = relsDoc
+        .findAllElements('Relationships')
+        .first;
 
     relationships.children.add(XmlElement(XmlName('Relationship'), [
       XmlAttribute(XmlName('Id'), 'rId$rId'),
@@ -285,7 +321,8 @@ class _ImageCellCreator {
   String _createNewDrawingRels(int rId, ImageCellValue image) {
     return '''<?xml version="1.0" encoding="UTF-8" standalone="yes"?>                                                                                                                                                                               
  <Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">                                                                                                                                                                
-   <Relationship Id="rId$rId" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/image" Target="../media/image$rId.${image.format.toLowerCase()}"/>                                                                           
+   <Relationship Id="rId$rId" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/image" Target="../media/image$rId.${image
+        .format.toLowerCase()}"/>                                                                           
  </Relationships>''';
   }
 
