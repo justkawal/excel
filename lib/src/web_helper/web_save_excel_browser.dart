@@ -1,21 +1,26 @@
-import 'dart:html' as html;
+import 'dart:js_interop';
+import 'dart:typed_data';
+
+import 'package:web/web.dart';
 
 // A wrapper to save the excel file in browser
 class SavingHelper {
   static List<int>? saveFile(List<int>? val, String fileName) {
-    final blob = html.Blob([val]);
-    final url = html.Url.createObjectUrlFromBlob(blob);
-    final anchor = html.document.createElement('a') as html.AnchorElement
-      ..href = url
-      ..style.display = 'none'
-      ..download = '$fileName';
-    html.document.body?.children.add(anchor);
+    if (val == null) {
+      return null;
+    }
 
-    // download the file
+    final blob = Blob(JSArray.from(Uint8List.fromList(val).toJS));
+    final url = URL.createObjectURL(blob);
+    final anchor = HTMLAnchorElement()
+      ..href = url
+      ..download = '$fileName';
+
+    document.body?.append(anchor);
     anchor.click();
-    // cleanup
-    html.document.body?.children.remove(anchor);
-    html.Url.revokeObjectUrl(url);
+    anchor.remove();
+
+    URL.revokeObjectURL(url);
     return val;
   }
 }

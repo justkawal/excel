@@ -487,7 +487,7 @@ class Save {
           }
           return MapEntry<int, CustomNumFormat>(e.key, format);
         })
-        .whereNotNull()
+        .nonNulls
         .sorted((a, b) => a.key.compareTo(b.key));
 
     if (customNumberFormats.isNotEmpty) {
