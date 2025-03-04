@@ -17,9 +17,12 @@ class SavingHelper {
       ..download = '$fileName';
 
     document.body?.append(anchor);
-    anchor.click();
-    anchor.remove();
 
+    // download the file
+    anchor.click();
+
+    // cleanup
+    anchor.remove();
     URL.revokeObjectURL(url);
     return val;
   }
