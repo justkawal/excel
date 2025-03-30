@@ -1,8 +1,9 @@
 import 'dart:io';
-import 'package:path/path.dart';
-import 'package:excel/excel.dart';
 
-void main(List<String> args) {
+import 'package:excel/excel.dart';
+import 'package:path/path.dart';
+
+Future<void> main(List<String> args) async {
   //var file = "/Users/kawal/Desktop/excel/test/test_resources/example.xlsx";
   //var bytes = File(file).readAsBytesSync();
   var excel = Excel.createExcel();
@@ -71,6 +72,7 @@ void main(List<String> args) {
         DateTimeCellValue() => 'date+time',
         TimeCellValue() => 'time',
         BoolCellValue() => 'bool',
+        ImageCellValue() => 'image',
       });
 
   ///
@@ -155,9 +157,31 @@ void main(List<String> args) {
       ..value = TextCellValue(columnValue);
   });
 
+  // Demonstrate image cell value usage
+  var imageSheet = excel['Images'];
+
+  // Add an image from file
+  var imagePath = 'test/test_resources/sample_image.png';
+  var imageCell = imageSheet.cell(CellIndex.indexByString('A1'));
+  imageCell.value = await ImageCellValue.fromFile(
+    imagePath,
+    width: 100,
+    height: 100,
+  );
+
+  // // Add an image from raw bytes
+  var logoBytes = File(imagePath).readAsBytesSync();
+  var logoCell = imageSheet.cell(CellIndex.indexByString('H2'));
+  logoCell.value = ImageCellValue(
+    bytes: logoBytes,
+    format: 'png',
+    width: 150,
+    height: 150,
+  );
+
   // Saving the file
 
-  String outputFile = "/Users/kawal/Desktop/git_projects/r.xlsx";
+  String outputFile = "./tmp/r.xlsx";
 
   //stopwatch.reset();
   List<int>? fileBytes = excel.save();

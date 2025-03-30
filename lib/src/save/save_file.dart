@@ -41,9 +41,18 @@ class Save {
     return cell;
   } */
 
+  XmlElement _createImageCell(
+      String sheet, int columnIndex, int rowIndex, ImageCellValue image) {
+    return _ImageCellCreator(_excel, _archiveFiles)
+        .createImageCell(sheet, columnIndex, rowIndex, image);
+  }
+
   // Manage value's type
   XmlElement _createCell(String sheet, int columnIndex, int rowIndex,
       CellValue? value, NumFormat? numberFormat) {
+    if (value is ImageCellValue) {
+      return _createImageCell(sheet, columnIndex, rowIndex, value);
+    }
     SharedString? sharedString;
     if (value is TextCellValue) {
       sharedString = _excel._sharedStrings.tryFind(value.toString());
@@ -92,6 +101,9 @@ class Save {
     final List<XmlElement> children;
     switch (value) {
       case null:
+        children = [];
+      case ImageCellValue():
+        //this will never be called as we are handling it in the above if condition
         children = [];
       case FormulaCellValue():
         children = [
