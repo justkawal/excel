@@ -6,6 +6,12 @@ const _relationshipsStyles =
 const _relationshipsWorksheet =
     "http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet";
 
+const _relationshipsImage =
+    "http://schemas.openxmlformats.org/officeDocument/2006/relationships/image";
+
+const _relationshipsDrawing =
+    "http://schemas.openxmlformats.org/officeDocument/2006/relationships/drawing";
+
 const _relationshipsSharedStrings =
     "http://schemas.openxmlformats.org/officeDocument/2006/relationships/sharedStrings";
 
