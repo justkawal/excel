@@ -293,7 +293,8 @@ class Parser {
 
           String? borderColorHex;
           try {
-            final color = element?.findElements('color').single;
+            var el = element?.findElements('color');
+            var color = el != null && el.isNotEmpty ? el.single : null;
             borderColorHex = color?.getAttribute('rgb')?.trim();
           } on StateError catch (_) {}
 
