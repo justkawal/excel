@@ -172,6 +172,11 @@ class Sheet {
     return _sheetData[cellIndex.rowIndex]![cellIndex.columnIndex]!;
   }
 
+  Data? _getCell(String cellRef) {
+    final cellIndex = CellIndex.indexByString(cellRef);
+    return _sheetData[cellIndex.rowIndex]?[cellIndex.columnIndex];
+  }
+
   ///
   /// returns `2-D dynamic List` of the sheet elements
   ///
