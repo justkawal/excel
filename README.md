@@ -415,7 +415,7 @@ Sheet unlinked_sheetObject = excel['sheetName'];
 */
 
 Excel excel
-excel.getSheetVisibility();
+excel.getSheetsVisibility();
 ```
 
 ### Merge Cells

@@ -1224,7 +1224,7 @@ void main() {
     var bytes = File(file).readAsBytesSync();
     var excel = Excel.decodeBytes(bytes);
     // Get the visibility status of sheets
-    Map<String, String> sheetVisibility = excel.getSheetVisibility();
+    Map<String, String> sheetVisibility = excel.getSheetsVisibility();
 
     // Expected visibility status
     Map<String, String> expectedVisibility = {

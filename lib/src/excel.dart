@@ -518,7 +518,7 @@ class Excel {
   }
 
   /// Returns a map of sheet names and their visibility status.
-  Map<String, String> getSheetVisibility() {
+  Map<String, String> getSheetsVisibility() {
     Map<String, String> sheetVisibility = {};
 
     Iterable<XmlElement>? elements =
