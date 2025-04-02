@@ -1089,6 +1089,19 @@ void main() {
     expect(sheetObject.getRowHeight(1), lessThan(42));
   });
 
+  test('Decode customNumFmtIdBelow164.xlsx without throwing exception', () {
+    var file = './test/test_resources/customNumFmtIdBelow164.xlsx';
+
+    expect(
+      () {
+        final bytes = File(file).readAsBytesSync();
+        final _ = Excel.decodeBytes(bytes);
+      },
+      returnsNormally,
+      reason: 'Decoding the file should not throw any exception',
+    );
+  });
+
   test('Read cell comments and values', () {
     var file = './test/test_resources/comments.xlsx';
     var bytes = File(file).readAsBytesSync();
