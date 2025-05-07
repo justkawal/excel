@@ -1101,4 +1101,56 @@ void main() {
       reason: 'Decoding the file should not throw any exception',
     );
   });
+
+  group('Merged cells style', () {
+    final cellIndex1 = CellIndex.indexByString('A1');
+    final cellIndex2 = CellIndex.indexByString('B2');
+
+    late Excel excel;
+    late Sheet sheet;
+    late Border border;
+
+    setUp(() {
+      excel = Excel.createExcel();
+      sheet = excel['Sheet1'];
+      border = Border(
+        borderStyle: BorderStyle.Medium,
+        borderColorHex: ExcelColor.fromHexString('FFFF0000'),
+      );
+    });
+
+    actAndAssert(CellStyle style) {
+      sheet.merge(cellIndex1, cellIndex2);
+      sheet.setMergedCellStyle(cellIndex1, style);
+
+      for (var i = cellIndex1.rowIndex; i <= cellIndex2.rowIndex; i++)
+        for (var j = cellIndex1.columnIndex; j <= cellIndex2.columnIndex; j++) {
+          final cell = sheet.cell(
+            CellIndex.indexByColumnRow(columnIndex: j, rowIndex: i),
+          );
+          expect(cell.cellStyle, isNotNull,
+              reason: 'Cell style should be assigned to merged cells');
+        }
+    }
+
+    test('Assign a style with borders to merged cells', () {
+      final style = CellStyle(
+        backgroundColorHex: ExcelColor.fromHexString('FF00FF00'),
+        leftBorder: border,
+        rightBorder: border,
+        topBorder: border,
+        bottomBorder: border,
+      );
+
+      actAndAssert(style);
+    });
+
+    test('Assign a style without borders to merged cells', () {
+      final style = CellStyle(
+        backgroundColorHex: ExcelColor.fromHexString('FF00FF00'),
+      );
+
+      actAndAssert(style);
+    });
+  });
 }
