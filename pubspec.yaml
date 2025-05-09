@@ -13,6 +13,7 @@ environment:
   sdk: ">=3.6.0 <4.0.0"
 
 dependencies:
+  web: ^1.1.1
   archive: ^4.0.4
   xml: ">=5.0.0 <7.0.0"
   collection: ^1.15.0
