@@ -40,7 +40,7 @@
  - 🔐 Encrypt and Decrypt excel on the go.
  - Many more **features**
 
-## Breaking changes from 5.x.x to 4.x.x
+## Breaking changes from 4.x.x to 5.x.x
 
 - Updated minimum Dart SDK to 3.6.0
 
