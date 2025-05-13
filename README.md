@@ -108,7 +108,7 @@ for (var table in excel.tables.keys) {
 
 ### Read XLSX in Flutter Web
 
-Use `FilePicker` to pick files in Flutter Web. [FilePicker](https://pub.dev/packages/file_picker.git)
+Use `FilePicker` to pick files in Flutter Web. [FilePicker](https://pub.dev/packages/file_picker)
 
 ```dart
 /// Use FilePicker to pick files in Flutter Web
