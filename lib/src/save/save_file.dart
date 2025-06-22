@@ -94,8 +94,13 @@ class Save {
       case null:
         children = [];
       case FormulaCellValue():
+        final formulaAttributes = <XmlAttribute>[];
+        if (value.isArrayFormula) {
+          formulaAttributes.add(XmlAttribute(XmlName('t'), 'array'));
+          formulaAttributes.add(XmlAttribute(XmlName('ref'), '$rC:$rC'));
+        }
         children = [
-          XmlElement(XmlName('f'), [], [XmlText(value.formula)]),
+          XmlElement(XmlName('f'), formulaAttributes, [XmlText(value.formula)]),
           XmlElement(XmlName('v'), [], [XmlText('')]),
         ];
       case IntCellValue():

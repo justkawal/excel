@@ -113,8 +113,12 @@ sealed class CellValue {
 
 class FormulaCellValue extends CellValue {
   final String formula;
+  final bool isArrayFormula;
 
-  const FormulaCellValue(this.formula);
+  const FormulaCellValue(
+    this.formula, {
+    this.isArrayFormula = false,
+  });
 
   @override
   String toString() {
