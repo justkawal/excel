@@ -79,7 +79,7 @@ class Excel {
   }
 
   factory Excel.decodeBuffer(InputStream input) {
-    return _newExcel(ZipDecoder().decodeBuffer(input));
+    return _newExcel(ZipDecoder().decodeStream(input));
   }
 
   ///
