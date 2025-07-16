@@ -6,6 +6,8 @@ Archive _cloneArchive(
   String? excludedFile,
 }) {
   var clone = Archive();
+  
+  // First copy existing files
   archive.files.forEach((file) {
     if (file.isFile) {
       if (excludedFile != null &&
@@ -26,5 +28,15 @@ Archive _cloneArchive(
       clone.addFile(copy);
     }
   });
+  
+  // Then add any new files from _archiveFiles that weren't in the original archive
+  _archiveFiles.forEach((name, file) {
+    if (!archive.files.any((f) => f.name == name)) {
+      var compress = !_noCompression.contains(name);
+      file.compress = compress;
+      clone.addFile(file);
+    }
+  });
+  
   return clone;
 }

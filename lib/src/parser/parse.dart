@@ -281,9 +281,9 @@ class Parser {
           XmlElement? element;
           try {
             element = node.findElements(elementName).single;
-          } on StateError catch (_) {
-            // Either there is no element, or there are too many ones.
-            // Silently ignore this element.
+          } on StateError {
+            // Either there is no element or there are too many ones.
+            // Continue with empty border silently
           }
 
           final borderStyleAttribute = element?.getAttribute('style')?.trim();
@@ -554,6 +554,10 @@ class Parser {
       _parseRow(child, sheetObject, name);
     });
 
+    _findDrawings(worksheet).forEach((child) {
+      _parseDrawing(child, sheetObject, name);
+    });
+
     _parseHeaderFooter(worksheet, sheetObject);
     _parseColWidthsRowHeights(worksheet, sheetObject);
 
@@ -565,7 +569,7 @@ class Parser {
     _normalizeTable(sheetObject);
   }
 
-  _parseRow(XmlElement node, Sheet sheetObject, String name) {
+  void _parseRow(XmlElement node, Sheet sheetObject, String name) {
     var rowIndex = (_getRowNumber(node) ?? -1) - 1;
     if (rowIndex < 0) {
       return;
@@ -574,6 +578,15 @@ class Parser {
     _findCells(node).forEach((child) {
       _parseCell(child, sheetObject, rowIndex, name);
     });
+  }
+
+  void _parseDrawing(XmlElement node, Sheet sheetObject, String name) {
+    if (node.name.local == 'drawing') {
+      final rId = node.getAttribute('r:id');
+      if (rId != null) {
+        _parseImageCell(node, sheetObject, rId, name);
+      }
+    }
   }
 
   void _parseCell(
@@ -691,7 +704,7 @@ class Parser {
   ///
   ///
   void _createSheet(String newSheet) {
-    /*
+/*
     List<XmlNode> list = _excel._xmlFiles['xl/workbook.xml']
         .findAllElements('sheets')
         .first
@@ -808,7 +821,7 @@ class Parser {
   }
 
   void _parseColWidthsRowHeights(XmlElement worksheet, Sheet sheetObject) {
-    /* parse default column width and default row height
+/* parse default column width and default row height
       example XML content
       <sheetFormatPr baseColWidth="10" defaultColWidth="26.33203125" defaultRowHeight="13" x14ac:dyDescent="0.15" />
     */
@@ -818,18 +831,18 @@ class Parser {
       results.forEach((element) {
         double? defaultColWidth;
         double? defaultRowHeight;
-        // default column width
+// default column width
         String? widthAttribute = element.getAttribute("defaultColWidth");
         if (widthAttribute != null) {
           defaultColWidth = double.tryParse(widthAttribute);
         }
-        // default row height
+// default row height
         String? rowHeightAttribute = element.getAttribute("defaultRowHeight");
         if (rowHeightAttribute != null) {
           defaultRowHeight = double.tryParse(rowHeightAttribute);
         }
 
-        // both values valid ?
+// both values valid ?
         if (defaultColWidth != null && defaultRowHeight != null) {
           sheetObject._defaultColumnWidth = defaultColWidth;
           sheetObject._defaultRowHeight = defaultRowHeight;
@@ -837,10 +850,10 @@ class Parser {
       });
     }
 
-    /* parse custom column height
+/* parse custom column height
       example XML content
-      <col min="2" max="2" width="71.83203125" customWidth="1"/>, 
-      <col min="4" max="4" width="26.5" customWidth="1"/>, 
+      <col min="2" max="2" width="71.83203125" customWidth="1"/>,
+      <col min="4" max="4" width="26.5" customWidth="1"/>,
       <col min="6" max="6" width="31.33203125" customWidth="1"/>
     */
     results = worksheet.findAllElements("col");
@@ -862,7 +875,7 @@ class Parser {
       });
     }
 
-    /* parse custom row height
+/* parse custom row height
       example XML content
       <row r="1" spans="1:2" ht="44" customHeight="1" x14ac:dyDescent="0.15">
     */
@@ -884,5 +897,9 @@ class Parser {
         }
       });
     }
+  }
+
+  void _parseImageCell(XmlElement node, Sheet sheet, String rId, String name) {
+    _ImageCellParser(_excel).parseImageCell(node, sheet, rId, name);
   }
 }
