@@ -882,18 +882,19 @@ class Sheet {
         mergedCellStyle.rightBorder != Border() ||
         mergedCellStyle.diagonalBorderUp ||
         mergedCellStyle.diagonalBorderDown;
-    if (hasBorder) {
-      for (var i = start.rowIndex; i <= end.rowIndex; i++) {
-        for (var j = start.columnIndex; j <= end.columnIndex; j++) {
-          CellStyle cellStyle = mergedCellStyle.copyWith(
-            topBorderVal: Border(),
-            bottomBorderVal: Border(),
-            leftBorderVal: Border(),
-            rightBorderVal: Border(),
-            diagonalBorderUpVal: false,
-            diagonalBorderDownVal: false,
-          );
 
+    for (var i = start.rowIndex; i <= end.rowIndex; i++) {
+      for (var j = start.columnIndex; j <= end.columnIndex; j++) {
+        CellStyle cellStyle = mergedCellStyle.copyWith(
+          topBorderVal: Border(),
+          bottomBorderVal: Border(),
+          leftBorderVal: Border(),
+          rightBorderVal: Border(),
+          diagonalBorderUpVal: false,
+          diagonalBorderDownVal: false,
+        );
+
+        if (hasBorder) {
           if (i == start.rowIndex) {
             cellStyle = cellStyle.copyWith(
               topBorderVal: mergedCellStyle.topBorder,
@@ -923,13 +924,13 @@ class Sheet {
               diagonalBorderDownVal: mergedCellStyle.diagonalBorderDown,
             );
           }
+        }
 
-          if (i == start.rowIndex && j == start.columnIndex) {
-            cell(start).cellStyle = cellStyle;
-          } else {
-            _putData(i, j, null);
-            _sheetData[i]![j]!.cellStyle = cellStyle;
-          }
+        if (i == start.rowIndex && j == start.columnIndex) {
+          cell(start).cellStyle = cellStyle;
+        } else {
+          _putData(i, j, null);
+          _sheetData[i]![j]!.cellStyle = cellStyle;
         }
       }
     }
