@@ -4,6 +4,8 @@ class Parser {
   final Excel _excel;
   final List<String> _rId = [];
   final Map<String, String> _worksheetTargets = {};
+  final RelationsByFile _imageTargets = RelationsByFile();
+  final RelationsByFile _drawingTargets = RelationsByFile();
 
   Parser._(this._excel);
 
@@ -36,14 +38,25 @@ class Parser {
 
   void _parseRelations() {
     var relations = _excel._archive.findFile('xl/_rels/workbook.xml.rels');
-    if (relations != null) {
+    if (relations == null) {
+      return _damagedExcel();
+    }
+
+    final relationsFiles =
+        _excel._archive.where((file) => file.name.contains('_rels'));
+
+    for (final relations in relationsFiles) {
+      final fileName = basenameWithoutExtension(relations.name);
+
       relations.decompress();
       var document = XmlDocument.parse(utf8.decode(relations.content));
-      _excel._xmlFiles['xl/_rels/workbook.xml.rels'] = document;
+      _excel._xmlFiles[relations.name] = document;
 
       document.findAllElements('Relationship').forEach((node) {
         String? id = node.getAttribute('Id');
         String? target = node.getAttribute('Target');
+        final normalizedTarget = target?.replaceFirst('..', 'xl');
+
         if (target != null) {
           switch (node.getAttribute('Type')) {
             case _relationshipsStyles:
@@ -51,6 +64,17 @@ class Parser {
               break;
             case _relationshipsWorksheet:
               if (id != null) _worksheetTargets[id] = target;
+              break;
+            case _relationshipsImage:
+              if (id != null && normalizedTarget != null) {
+                _imageTargets.addTarget(fileName, id, normalizedTarget);
+              }
+              break;
+            case _relationshipsDrawing:
+              if (id != null && normalizedTarget != null) {
+                _drawingTargets.addTarget(fileName, id, normalizedTarget);
+              }
+
               break;
             case _relationshipsSharedStrings:
               _excel._sharedStringsTarget = target;
@@ -61,8 +85,6 @@ class Parser {
           _rId.add(id);
         }
       });
-    } else {
-      _damagedExcel();
     }
   }
 
@@ -523,6 +545,58 @@ class Parser {
     return 0;
   }
 
+  List<ImageToCell> _parseDrawings(String target, List<XmlElement> drawings) {
+    final targetFilename = basename(target);
+    var targetRelations = _drawingTargets.relations(targetFilename);
+
+    if (targetRelations == null)
+      throw "Something wrong with file. There are drawings, but no relations for them.";
+
+    final images = <ImageToCell>[];
+    drawings.forEach((drawing) {
+      final id = drawing.getAttribute('r:id')!;
+      final drawingTarget = targetRelations.targetById(id);
+
+      var sheetRelationsFile = _excel._archive.findFile(drawingTarget!);
+      sheetRelationsFile!.decompress();
+
+      var sheetRelationsContent =
+          XmlDocument.parse(utf8.decode(sheetRelationsFile.content));
+
+      final parsedImages = sheetRelationsContent
+          .findAllElements('xdr:oneCellAnchor')
+          .map((cell) {
+            final rawCol =
+                cell.findAllElements('xdr:col').firstOrNull?.innerText;
+            final rawRow =
+                cell.findAllElements('xdr:row').firstOrNull?.innerText;
+
+            final blip = cell.findAllElements('a:blip').firstOrNull;
+            final imageId = blip?.getAttribute('r:embed');
+
+            if (rawRow != null && rawCol != null && imageId != null) {
+              final col = int.parse(rawCol);
+              final row = int.parse(rawRow);
+
+              final imageTarget =
+                  _imageTargets.target(basename(drawingTarget), imageId);
+
+              return ImageToCell(
+                row: row,
+                col: col,
+                imageId: imageId,
+                imageTarget: imageTarget!,
+              );
+            }
+          })
+          .nonNulls
+          .toList();
+
+      images.addAll(parsedImages);
+    });
+    return images;
+  }
+
   void _parseTable(XmlElement node) {
     var name = node.getAttribute('name')!;
     var target = _worksheetTargets[node.getAttribute('r:id')];
@@ -538,6 +612,15 @@ class Parser {
 
     var content = XmlDocument.parse(utf8.decode(file.content));
     var worksheet = content.findElements('worksheet').first;
+    var drawings = worksheet.findAllElements('drawing').toList();
+
+    /// Theoretically worksheet could have more than one drawings.
+    /// In that case each image will be parsed from those drawings and displayed accordingly to their configs.
+    /// And theoretically image from one drawing could have same coordinates: we'll display the first we found.
+
+    final images = drawings.isNotEmpty
+        ? _parseDrawings(target!, drawings)
+        : <ImageToCell>[];
 
     ///
     /// check for right to left view
@@ -551,7 +634,7 @@ class Parser {
     var sheet = worksheet.findElements('sheetData').first;
 
     _findRows(sheet).forEach((child) {
-      _parseRow(child, sheetObject, name);
+      _parseRow(child, sheetObject, name, images);
     });
 
     _parseHeaderFooter(worksheet, sheetObject);
@@ -565,19 +648,30 @@ class Parser {
     _normalizeTable(sheetObject);
   }
 
-  _parseRow(XmlElement node, Sheet sheetObject, String name) {
+  void _parseRow(
+    XmlElement node,
+    Sheet sheetObject,
+    String name,
+    List<ImageToCell> images,
+  ) {
     var rowIndex = (_getRowNumber(node) ?? -1) - 1;
     if (rowIndex < 0) {
       return;
     }
+    final rowImages = images.where((image) => image.row == rowIndex).toList();
 
     _findCells(node).forEach((child) {
-      _parseCell(child, sheetObject, rowIndex, name);
+      _parseCell(child, sheetObject, rowIndex, name, rowImages);
     });
   }
 
   void _parseCell(
-      XmlElement node, Sheet sheetObject, int rowIndex, String name) {
+    XmlElement node,
+    Sheet sheetObject,
+    int rowIndex,
+    String name,
+    List<ImageToCell> rowImages,
+  ) {
     int? columnIndex = _getCellNumber(node);
     if (columnIndex == null) {
       return;
@@ -634,7 +728,16 @@ class Parser {
           value = FormulaCellValue(_parseValue(formulaNode.first).toString());
         } else {
           final vNode = node.findElements('v').firstOrNull;
-          if (vNode == null) {
+          final cellImage =
+              rowImages.firstWhereOrNull((image) => image.col == columnIndex);
+
+          if (cellImage != null) {
+            final imageFile = _excel._archive.firstWhereOrNull(
+                (file) => file.name.contains(cellImage.imageTarget));
+            imageFile?.decompress();
+
+            value = ImageCellValue(Uint8List.fromList(imageFile!.content));
+          } else if (vNode == null) {
             value = null;
           } else if (s1 != null) {
             final v = _parseValue(vNode);
@@ -764,6 +867,7 @@ class Parser {
           ],
         ));
 
+    /// TODO smth must be done with [_imageTargets] and [_drawingTargets] in case of sheet creation
     _worksheetTargets['rId$ridNumber'] = 'worksheets/sheet$sheetNumber.xml';
 
     var content = utf8.encode(
@@ -839,8 +943,8 @@ class Parser {
 
     /* parse custom column height
       example XML content
-      <col min="2" max="2" width="71.83203125" customWidth="1"/>, 
-      <col min="4" max="4" width="26.5" customWidth="1"/>, 
+      <col min="2" max="2" width="71.83203125" customWidth="1"/>,
+      <col min="4" max="4" width="26.5" customWidth="1"/>,
       <col min="6" max="6" width="31.33203125" customWidth="1"/>
     */
     results = worksheet.findAllElements("col");

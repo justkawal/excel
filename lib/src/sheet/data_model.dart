@@ -149,6 +149,25 @@ class IntCellValue extends CellValue {
   }
 }
 
+class ImageCellValue extends CellValue {
+  final Uint8List value;
+
+  const ImageCellValue(this.value);
+
+  @override
+  String toString() {
+    return value.toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(runtimeType, value);
+
+  @override
+  operator ==(Object other) {
+    return other is IntCellValue && other.value == value;
+  }
+}
+
 class DoubleCellValue extends CellValue {
   final double value;
 
@@ -214,6 +233,7 @@ class TextCellValue extends CellValue {
   final TextSpan value;
 
   TextCellValue(String text) : value = TextSpan(text: text);
+
   TextCellValue.span(this.value);
 
   @override

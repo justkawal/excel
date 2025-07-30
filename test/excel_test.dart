@@ -120,6 +120,33 @@ void main() {
     );
   });
 
+  test('Cell image Data-Type from Google Spreadsheet', () {
+    var file = './test/test_resources/table_with_image.xlsx';
+    var bytes = File(file).readAsBytesSync();
+    var excel = Excel.decodeBytes(bytes);
+
+    final squareImage = File('./test/test_resources/square.png');
+    final whiteImage = File('./test/test_resources/white.jpg');
+    final starryNightImage = File('./test/test_resources/starry_night.jpg');
+
+    expect(
+      (excel.tables['list_with_images']?.rows[0][0]!.value as ImageCellValue)
+          .value,
+      equals(squareImage.readAsBytesSync()),
+    );
+    expect(
+      (excel.tables['list_with_images']?.rows[1][0]!.value as ImageCellValue)
+          .value,
+      equals(whiteImage.readAsBytesSync()),
+    );
+    expect(
+      (excel.tables['second_list_with_image']!.rows[0][0]!.value
+              as ImageCellValue)
+          .value,
+      equals(starryNightImage.readAsBytesSync()),
+    );
+  });
+
   test('Cell Data-Types from LibreOffice', () {
     var file = './test/test_resources/dataTypesUsingLibreoffice.xlsx';
     var bytes = File(file).readAsBytesSync();
