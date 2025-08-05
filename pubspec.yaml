@@ -14,7 +14,7 @@ environment:
 
 dependencies:
   web: ^1.1.1
-  archive: ^4.0.4
+  archive: ^4.0.7
   xml: ">=5.0.0 <7.0.0"
   collection: ^1.15.0
   equatable: ^2.0.0
