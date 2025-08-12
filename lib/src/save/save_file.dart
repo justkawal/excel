@@ -6,6 +6,7 @@ class Save {
   final List<CellStyle> _innerCellStyle = [];
   final Parser parser;
 
+
   Save._(this._excel, this.parser);
 
   void _addNewColumn(XmlElement columns, int min, int max, double width) {
@@ -543,6 +544,7 @@ class Save {
       _processStylesFile();
     }
     _setSheetElements();
+
     if (_excel._defaultSheet != null) {
       _setDefaultSheet(_excel._defaultSheet);
     }
@@ -635,6 +637,7 @@ class Save {
       if (sheetObject._sheetData[rowIndex] == null) {
         continue;
       }
+
       var foundRow = _createNewRow(
           _excel._sheets[sheetName]! as XmlElement, rowIndex, height);
       for (var columnIndex = 0;

@@ -73,6 +73,7 @@ class Sheet {
     }
 
     /// copy the data objects into a temp folder and then while putting it into `_sheetData` change the data objects references.
+
     if (sh != null) {
       _sheetData = <int, Map<int, Data>>{};
       Map<int, Map<int, Data>> temp = Map<int, Map<int, Data>>.from(sh);

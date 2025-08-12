@@ -41,6 +41,10 @@ Iterable<XmlElement> _findRows(XmlElement table) {
   return table.findElements('row');
 }
 
+Iterable<XmlElement> _findColumns(XmlElement table) {
+  return table.findElements('col');
+}
+
 Iterable<XmlElement> _findCells(XmlElement row) {
   return row.findElements('c');
 }
@@ -55,6 +59,18 @@ int? _getCellNumber(XmlElement cell) {
 
 int? _getRowNumber(XmlElement row) {
   return int.tryParse(row.getAttribute('r').toString());
+}
+
+double? _getRowHeight(XmlElement row) {
+  return double.tryParse(row.getAttribute('ht').toString());
+}
+
+double? _getColumnWidth(XmlElement column) {
+  return double.tryParse(column.getAttribute('width').toString());
+}
+
+bool _getColumnAutofit(XmlElement column) {
+  return int.tryParse(column.getAttribute('bestFit').toString()) == 1 ? true : false;
 }
 
 int _checkPosition(List<CellStyle> list, CellStyle cellStyle) {
