@@ -7,7 +7,6 @@ import 'package:collection/collection.dart';
 import 'package:cross_file/cross_file.dart';
 import 'package:equatable/equatable.dart';
 import 'package:xml/xml.dart';
-import 'package:cross_file/cross_file.dart';
 import 'src/web_helper/client_save_excel.dart'
     if (dart.library.html) 'src/web_helper/web_save_excel_browser.dart'
     as helper;
