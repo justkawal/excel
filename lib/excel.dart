@@ -4,6 +4,7 @@ import 'dart:convert';
 import 'dart:math';
 import 'package:archive/archive.dart';
 import 'package:collection/collection.dart';
+import 'package:cross_file/cross_file.dart';
 import 'package:equatable/equatable.dart';
 import 'package:xml/xml.dart';
 import 'src/web_helper/client_save_excel.dart'

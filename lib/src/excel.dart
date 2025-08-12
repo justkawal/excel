@@ -79,7 +79,176 @@ class Excel {
   }
 
   factory Excel.decodeBuffer(InputStream input) {
-    return _newExcel(ZipDecoder().decodeStream(input));
+    return _newExcel(ZipDecoder().decodeStream(input, verify: true));
+  }
+
+  factory Excel.fromJson(Map<String, dynamic> json) {
+    final excel = Excel.createExcel();
+
+    final defaultName = excel.sheets.keys.first;
+    final firstTarget = json.keys.first;
+    if (defaultName != firstTarget) {
+      excel.rename(defaultName, firstTarget);
+    }
+
+    if (json.isEmpty) return excel;
+
+    json.forEach((sheetName, rawRows) {
+      if (rawRows is! List) {
+        excel._availSheet(sheetName);
+        return;
+      }
+
+      final rows =
+          rawRows.whereType<Map<String, dynamic>>().toList(growable: false);
+
+      excel._availSheet(sheetName);
+
+      if (rows.isEmpty) return;
+
+      final headers = rows.first.keys.toList(growable: false);
+
+      excel.appendRow(
+        sheetName,
+        [for (final h in headers) TextCellValue(h)],
+      );
+
+      for (final record in rows) {
+        excel.appendRow(
+          sheetName,
+          [for (final h in headers) _toCellValue(record[h])],
+        );
+      }
+    });
+
+    if (excel.sheets.isNotEmpty) {
+      excel.setDefaultSheet(excel.sheets.keys.first);
+    }
+
+    return excel;
+  }
+
+  static CellValue? _toCellValue(dynamic v) {
+    if (v == null) return null;
+
+    if (v is CellValue) return v;
+
+    if (v is bool) return BoolCellValue(v);
+
+    if (v is num) {
+      final isInt = v == v.truncate();
+      return isInt ? IntCellValue(v.toInt()) : DoubleCellValue(v.toDouble());
+    }
+
+    if (v is String) {
+      final s = v.trim();
+
+      if (s.startsWith('=')) return FormulaCellValue(s);
+
+      final b = bool.tryParse(s);
+      if (b != null) return BoolCellValue(b);
+
+      final i = int.tryParse(s);
+      if (i != null) return IntCellValue(i);
+      final d = double.tryParse(s);
+      if (d != null) return DoubleCellValue(d);
+
+      final timeRe = RegExp(r'^\d{2}:\d{2}:\d{2}(?:\.\d+)?$');
+      if (timeRe.hasMatch(s)) {
+        final parts = s.split(':');
+        final secParts = parts[2].split('.');
+        final h = int.parse(parts[0]);
+        final m = int.parse(parts[1]);
+        final sec = int.parse(secParts[0]);
+        final ms = secParts.length > 1
+            ? int.parse(secParts[1].padRight(3, '0').substring(0, 3))
+            : 0;
+        return TimeCellValue(hour: h, minute: m, second: sec, millisecond: ms);
+      }
+
+      final dt = DateTime.tryParse(s);
+      if (dt != null) {
+        final u = dt.toUtc();
+        final isMidnight = u.hour == 0 &&
+            u.minute == 0 &&
+            u.second == 0 &&
+            u.millisecond == 0 &&
+            u.microsecond == 0;
+        if (isMidnight) {
+          return DateCellValue(year: u.year, month: u.month, day: u.day);
+        } else {
+          return DateTimeCellValue(
+            year: u.year,
+            month: u.month,
+            day: u.day,
+            hour: u.hour,
+            minute: u.minute,
+            second: u.second,
+            millisecond: u.millisecond,
+            microsecond: u.microsecond,
+          );
+        }
+      }
+
+      return TextCellValue(s);
+    }
+
+    return TextCellValue(v.toString());
+  }
+
+  Map<String, dynamic> toJson() {
+    int index = 0;
+    Map<String, dynamic> json = {};
+
+    for (final sheet in this.sheets.keys) {
+      List<Data?> keys = [];
+      json.addAll({sheet: []});
+      final rows = sheets[sheet]?.rows ?? [];
+
+      for (final row in rows) {
+        try {
+          if (index == 0) {
+            keys = row;
+            index++;
+          } else {
+            Map<String, dynamic> temp = {};
+            int index = 0;
+            String tk = '';
+
+            for (final key in keys) {
+              if (key != null && key.value != null) {
+                tk = key.value.toString();
+
+                temp[tk] = switch (row[index]?.value) {
+                  (final v) when v is IntCellValue => v.value,
+                  (final v) when v is DoubleCellValue => v.value,
+                  (final v) when v is BoolCellValue => v.value,
+                  (final v) when v is FormulaCellValue => v.formula,
+                  (final v) when v is TextCellValue => v.value.toString(),
+                  (final v) when v is TimeCellValue => v.toString(),
+                  (final v) when v is DateCellValue => v.toString(),
+                  (final v) when v is DateTimeCellValue => v.toString(),
+                  _ => null,
+                };
+
+                index++;
+              }
+            }
+
+            json[sheet].add(temp);
+          }
+        } catch (e) {
+          rethrow;
+        }
+      }
+      index = 0;
+    }
+    return json;
+  }
+
+  @override
+  String toString() {
+    return jsonEncode(toJson());
   }
 
   ///
@@ -331,9 +500,14 @@ class Excel {
   ///
   ///```
   List<int>? save({String fileName = 'FlutterExcel.xlsx'}) {
-    Save s = Save._(this, parser);
-    var onValue = s._save();
+    var onValue = encode();
     return helper.SavingHelper.saveFile(onValue, fileName);
+  }
+
+  /// Generate XFile with mimeType and path = fileName.
+  XFile? generateXFile({String fileName = 'FlutterExcel.xlsx'}) {
+    var onValue = encode();
+    return helper.SavingHelper.generateXFile(onValue, fileName);
   }
 
   ///

@@ -539,6 +539,13 @@ class Parser {
     var content = XmlDocument.parse(utf8.decode(file.content));
     var worksheet = content.findElements('worksheet').first;
 
+    var cols = worksheet.findAllElements('cols').toList();
+    if (cols.isNotEmpty) {
+      var colsNode = cols.first;
+      var columns = _findColumns(colsNode);
+      _parseColumns(columns, sheetObject, name);
+    }
+
     ///
     /// check for right to left view
     ///
@@ -548,11 +555,11 @@ class Parser {
       var rtl = sheetViewNode.getAttribute('rightToLeft');
       sheetObject.isRTL = rtl != null && rtl == '1';
     }
+
     var sheet = worksheet.findElements('sheetData').first;
 
-    _findRows(sheet).forEach((child) {
-      _parseRow(child, sheetObject, name);
-    });
+    var rows = _findRows(sheet);
+    _parseRows(rows, sheetObject, name);
 
     _parseHeaderFooter(worksheet, sheetObject);
     _parseColWidthsRowHeights(worksheet, sheetObject);
@@ -565,99 +572,117 @@ class Parser {
     _normalizeTable(sheetObject);
   }
 
-  _parseRow(XmlElement node, Sheet sheetObject, String name) {
-    var rowIndex = (_getRowNumber(node) ?? -1) - 1;
-    if (rowIndex < 0) {
-      return;
-    }
+  _parseColumns(Iterable<XmlElement> columns, Sheet sheetObject, String name) {
+    for (int i = 0; i < columns.length; i++) {
+      var autofit = _getColumnAutofit(columns.elementAt(i));
+      _excel.sheets[name]!._columnAutoFit
+          .update(i, (value) => autofit, ifAbsent: () => autofit);
 
-    _findCells(node).forEach((child) {
-      _parseCell(child, sheetObject, rowIndex, name);
+      var width = _getColumnWidth(columns.elementAt(i));
+      if (width != null) {
+        _excel.sheets[name]!._columnWidths
+            .update(i, (value) => width, ifAbsent: () => width);
+      }
+    }
+  }
+
+  _parseRows(Iterable<XmlElement> rows, Sheet sheetObject, String name) {
+    rows.forEach((row) {
+      var rowIndex = (_getRowNumber(row) ?? -1) - 1;
+      if (rowIndex < 0) {
+        return;
+      }
+
+      var height = _getRowHeight(row);
+
+      if (height != null) {
+        _excel.sheets[name]!._rowHeights
+            .update(rowIndex, (value) => height, ifAbsent: () => height);
+      }
+
+      var cells = _findCells(row);
+      cells.forEach((cell) => _parseCell(cell, sheetObject, rowIndex, name));
     });
   }
 
   void _parseCell(
       XmlElement node, Sheet sheetObject, int rowIndex, String name) {
-    int? columnIndex = _getCellNumber(node);
-    if (columnIndex == null) {
-      return;
+    final columnIndex = _getCellNumber(node);
+    if (columnIndex == null) return;
+
+    // style index
+    final styleAttr = node.getAttribute('s');
+    final styleIndex = int.tryParse(styleAttr ?? '') ?? 0;
+
+    // style by rc if possible
+    final rc = node.getAttribute('r');
+    if (rc != null) {
+      (_excel._cellStyleReferenced[name] ??= {})[rc] = styleIndex;
     }
 
-    var s1 = node.getAttribute('s');
-    int s = 0;
-    if (s1 != null) {
-      try {
-        s = int.parse(s1.toString());
-      } catch (_) {}
-
-      String rC = node.getAttribute('r').toString();
-
-      if (_excel._cellStyleReferenced[name] == null) {
-        _excel._cellStyleReferenced[name] = {rC: s};
-      } else {
-        _excel._cellStyleReferenced[name]![rC] = s;
-      }
-    }
+    // formula except t
+    final fNode = node.findElements('f').firstOrNull;
 
     CellValue? value;
-    String? type = node.getAttribute('t');
-
-    switch (type) {
-      // sharedString
-      case 's':
-        final sharedString = _excel._sharedStrings
-            .value(int.parse(_parseValue(node.findElements('v').first)));
-        value = TextCellValue.span(sharedString!.textSpan);
-        break;
-      // boolean
-      case 'b':
-        value = BoolCellValue(_parseValue(node.findElements('v').first) == '1');
-        break;
-      // error
-      case 'e':
-      // formula
-      case 'str':
-        value = FormulaCellValue(_parseValue(node.findElements('v').first));
-        break;
-      // inline string
-      case 'inlineStr':
-        // <c r='B2' t='inlineStr'>
-        // <is><t>Dartonico</t></is>
-        // </c>
-        value = TextCellValue(_parseValue(node.findAllElements('t').first));
-        break;
-      // number
-      case 'n':
-      default:
-        var formulaNode = node.findElements('f');
-        if (formulaNode.isNotEmpty) {
-          value = FormulaCellValue(_parseValue(formulaNode.first).toString());
-        } else {
+    if (fNode != null) {
+      value = FormulaCellValue(_parseValue(fNode));
+    } else {
+      final t = node.getAttribute('t');
+      switch (t) {
+        // sharedString
+        case 's':
           final vNode = node.findElements('v').firstOrNull;
-          if (vNode == null) {
-            value = null;
-          } else if (s1 != null) {
-            final v = _parseValue(vNode);
-            var numFmtId = _excel._numFmtIds[s];
-            final numFormat = _excel._numFormats.getByNumFmtId(numFmtId);
-            if (numFormat == null) {
-              assert(
-                  false, 'found no number format spec for numFmtId $numFmtId');
-              value = NumFormat.defaultNumeric.read(v);
-            } else {
-              value = numFormat.read(v);
-            }
-          } else {
-            final v = _parseValue(vNode);
-            value = NumFormat.defaultNumeric.read(v);
+          if (vNode != null) {
+            final idx = int.tryParse(_parseValue(vNode));
+            final sh = idx != null ? _excel._sharedStrings.value(idx) : null;
+            if (sh != null) value = TextCellValue.span(sh.textSpan);
           }
-        }
+          break;
+        // boolean
+        case 'b':
+          final v = node.findElements('v').firstOrNull;
+          value = BoolCellValue(v != null && _parseValue(v) == '1');
+          break;
+        // error
+        case 'e':
+          final v = node.findElements('v').firstOrNull;
+          value = v != null ? TextCellValue(_parseValue(v)) : null;
+          break;
+        // formula
+        case 'str':
+          final v = node.findElements('v').firstOrNull;
+          value = v != null ? FormulaCellValue(_parseValue(v)) : null;
+          break;
+        // inline string
+        case 'inlineStr':
+          final text = node.findAllElements('t').map(_parseValue).join();
+          value = TextCellValue(text);
+          break;
+        // numeric
+        default:
+          final vNode = node.findElements('v').firstOrNull;
+          if (vNode != null) {
+            final raw = _parseValue(vNode);
+            final fmtId =
+                (styleIndex >= 0 && styleIndex < _excel._numFmtIds.length)
+                    ? _excel._numFmtIds[styleIndex]
+                    : null;
+            final fmt =
+                fmtId != null ? _excel._numFormats.getByNumFmtId(fmtId) : null;
+            value = (fmt ?? NumFormat.defaultNumeric).read(raw);
+          } else {
+            value = null;
+          }
+          break;
+      }
     }
 
     sheetObject.updateCell(
       CellIndex.indexByColumnRow(columnIndex: columnIndex, rowIndex: rowIndex),
       value,
-      cellStyle: _excel._cellStyleList[s],
+      cellStyle: (styleIndex >= 0 && styleIndex < _excel._cellStyleList.length)
+          ? _excel._cellStyleList[styleIndex]
+          : null,
     );
   }
 

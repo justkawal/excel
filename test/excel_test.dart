@@ -1101,4 +1101,200 @@ void main() {
       reason: 'Decoding the file should not throw any exception',
     );
   });
+
+  /// mki
+  test('JSON view stable across encode/decode', () {
+    final src = {
+      'S': [
+        {
+          'X': 1,
+          'Y': 2.5,
+          'Z': '=X1+Y1',
+          'T': '08:00:00',
+          'D': '2024-01-01T00:00:00.000Z'
+        },
+        {
+          'X': 3,
+          'Y': 4.5,
+          'Z': '=X2+Y2',
+          'T': '12:34:56',
+          'D': '2024-01-02T10:11:12.000Z'
+        },
+      ],
+    };
+
+    final excel = Excel.fromJson(src);
+    final bytes = excel.encode()!;
+    final excel2 = Excel.decodeBytes(bytes);
+    final out = excel2.toJson();
+
+    expect(out, equals(src));
+  });
+
+  test('toJson/fromJson round-trip', () {
+    final file = './test/test_resources/example.xlsx';
+    final bytes = File(file).readAsBytesSync();
+    final excel = Excel.decodeBytes(bytes);
+
+    final out = excel.toJson();
+    final excel2 = Excel.fromJson(out);
+
+    final out2 = excel2.toJson();
+
+    expect(out, equals(out2));
+  });
+
+  test('fromJson string coercion & formula', () {
+    final ex = Excel.fromJson({
+      'S': [
+        {'B': 'true', 'I': '42', 'F': '3.14', 'Z': '=A1+B1'}
+      ]
+    });
+    final r = ex['S'].rows[1];
+    expect(r[0]?.value, BoolCellValue(true));
+    expect(r[1]?.value, IntCellValue(42));
+    expect(r[2]?.value, DoubleCellValue(3.14));
+    expect(r[3]?.value, const FormulaCellValue('=A1+B1'));
+  });
+
+  test('generateXFile returns non-empty XFile with correct name', () async {
+    final file = './test/test_resources/example.xlsx';
+    final bytes = File(file).readAsBytesSync();
+    final excel = Excel.decodeBytes(bytes);
+
+    final xf = excel.generateXFile(fileName: 'test.xlsx')!;
+    expect(xf.name, 'test.xlsx');
+    expect(xf.mimeType,
+        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+  });
+
+  test('generateXFile uses provided bytes', () async {
+    final ex = Excel.createExcel();
+    final bytes = ex.encode()!;
+    final xf = ex.generateXFile(fileName: 'a.xlsx')!;
+    expect(await xf.length(), bytes.length);
+  });
+
+  test('formula-first parsing', () {
+    final excel = Excel.createExcel();
+    final sheet = excel['Sheet1'];
+    final cell = sheet.cell(CellIndex.indexByString('B2'));
+    cell.setFormula('=SUM(1,2)');
+
+    final bytes = excel.encode()!;
+    final excel2 = Excel.decodeBytes(bytes);
+    final v = excel2['Sheet1'].cell(CellIndex.indexByString('B2')).value;
+
+    expect(v, equals(const FormulaCellValue('=SUM(1,2)')));
+  });
+
+  group('t="inlineStr"', () {
+    List<int> _rewriteZipEntry(
+        List<int> zipBytes, String path, String Function(String) transform) {
+      final arc = ZipDecoder().decodeBytes(zipBytes);
+      final out = Archive();
+      for (final f in arc.files) {
+        if (f.name == path) {
+          final xml = utf8.decode(f.content);
+          final updated = transform(xml);
+          final bytes = utf8.encode(updated);
+          out.addFile(ArchiveFile(path, bytes.length, bytes));
+        } else {
+          out.addFile(ArchiveFile.noCompress(f.name, f.size, f.content));
+        }
+      }
+      return ZipEncoder().encode(out)!;
+    }
+
+    List<int> _patchInlineStr(List<int> bytes, String cellRef,
+        {String? plain, String? xmlSpacePreserve, List<String>? runs}) {
+      return _rewriteZipEntry(
+        bytes,
+        'xl/worksheets/sheet1.xml',
+        (xml) {
+          final doc = XmlDocument.parse(xml);
+          final c = doc.findAllElements('c').firstWhere(
+                (e) => e.getAttribute('r') == cellRef,
+                orElse: () => throw StateError('$cellRef not found'),
+              );
+
+          c.children.clear();
+          c.attributes
+              .removeWhere((a) => a.name.local == 't' || a.name.local == 's');
+          c.setAttribute('t', 'inlineStr');
+
+          final isNode = XmlElement(XmlName('is'));
+
+          if (plain != null) {
+            isNode.children.add(
+              XmlElement(XmlName('t'), [], [XmlText(plain)]),
+            );
+          } else if (xmlSpacePreserve != null) {
+            isNode.children.add(
+              XmlElement(
+                XmlName('t'),
+                [XmlAttribute(XmlName('xml:space'), 'preserve')],
+                [XmlText(xmlSpacePreserve)],
+              ),
+            );
+          } else if (runs != null && runs.isNotEmpty) {
+            for (final text in runs) {
+              isNode.children.add(
+                XmlElement(XmlName('r'), [], [
+                  XmlElement(XmlName('t'), [], [XmlText(text)]),
+                ]),
+              );
+            }
+          } else {
+            throw ArgumentError('Provide plain or xmlSpacePreserve or runs');
+          }
+
+          c.children.add(isNode);
+          return doc.toXmlString();
+        },
+      );
+    }
+
+    test('plain inlineStr', () {
+      final excel = Excel.createExcel();
+      excel['Sheet1']
+          .appendRow([TextCellValue('X'), TextCellValue('Y')]); // A1,B1
+      final bytes = excel.encode()!;
+
+      final patched = _patchInlineStr(bytes, 'B1', plain: 'HelloInline');
+      final excel2 = Excel.decodeBytes(patched);
+
+      expect(
+        excel2['Sheet1'].cell(CellIndex.indexByString('B1')).value,
+        TextCellValue('HelloInline'),
+      );
+    });
+
+    test('inlineStr xml:space="preserve"', () {
+      final excel = Excel.createExcel();
+      excel['Sheet1']
+          .appendRow([TextCellValue('X'), TextCellValue('Y')]); // A1,B1
+      final bytes = excel.encode()!;
+
+      final s = '  Hello  inline \n with spaces  ';
+      final patched = _patchInlineStr(bytes, 'B1', xmlSpacePreserve: s);
+      final excel2 = Excel.decodeBytes(patched);
+      final v = excel2['Sheet1'].cell(CellIndex.indexByString('B1')).value;
+
+      expect(v, TextCellValue(s));
+    });
+
+    test('inlineStr rich text (multiple <r>)', () {
+      final excel = Excel.createExcel();
+      excel['Sheet1']
+          .appendRow([TextCellValue('X'), TextCellValue('Y')]); // A1,B1
+      final bytes = excel.encode()!;
+
+      final pieces = ['Hello', ' ', 'Inline', ' ', '🚀'];
+      final patched = _patchInlineStr(bytes, 'B1', runs: pieces);
+      final excel2 = Excel.decodeBytes(patched);
+      final v = excel2['Sheet1'].cell(CellIndex.indexByString('B1')).value;
+      expect(v, TextCellValue('Hello Inline 🚀'));
+    });
+  });
 }

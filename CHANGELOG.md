@@ -5,6 +5,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [5.0.1-mki.1]
+### Fixed
+- Column widths & row heights parsing (cols/rows width/ht + defaults).
+- More robust cell parsing: formula-first (<f>), safe sharedStrings lookup, full inlineStr handling, and bounds checks for numFmtId and style indices.
+
+### Added
+- Added toJson / fromJson + toString = jsonEncode(toJson()) methods
+- Added generateXFile wich generate a XFile with mimeType
+
 ## [5.0.0]
 - Update packages to latest versions
 - Migrate from `dart:html` to `package:web`
