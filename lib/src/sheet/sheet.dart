@@ -664,6 +664,8 @@ class Sheet {
             });
           }
         });
+      } else {
+        _data = _sheetData;
       }
     }
     _data[rowIndex] = {0: Data.newData(this, rowIndex, 0)};
