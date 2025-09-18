@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
+
 import 'package:archive/archive.dart';
 import 'package:excel/excel.dart';
 import 'package:test/test.dart';
@@ -1063,6 +1064,49 @@ void main() {
       testSpannedItemsList(newSheet);
 
       testSpannedItemsSheetValues(newSheet);
+    });
+  });
+
+  group('Images', () {
+    test('Add and read image from cell', () {
+      final excel = Excel.createExcel();
+      final sheet = excel['Sheet1'];
+      final imageBytes = File('test/test_resources/sample_image.png').readAsBytesSync();
+      
+      final imageCell = ImageCellValue(
+        bytes: imageBytes,
+        format: 'png',
+        width: 216,
+        height: 200,
+      );
+
+      sheet.updateCell(
+        CellIndex.indexByColumnRow(columnIndex: 0, rowIndex: 0),
+        imageCell,
+      );
+
+      sheet.setRowHeight(0, imageCell.height! / 1.33333333);
+      sheet.setColumnWidth(0, imageCell.width! / 8);
+
+      final bytes = excel.encode()!;
+      final testFile = File('./tmp/test_image.xlsx')..createSync(recursive: true);
+      testFile.writeAsBytesSync(bytes);
+
+      final archive = ZipDecoder().decodeBytes(bytes);
+      expect(archive.findFile('xl/media/image5.png'), isNotNull);
+      expect(archive.findFile('xl/drawings/drawing1.xml'), isNotNull);
+
+      final newExcel = Excel.decodeBytes(testFile.readAsBytesSync());
+      final cell = newExcel['Sheet1'].cell(CellIndex.indexByColumnRow(columnIndex: 0, rowIndex: 0));
+      
+      expect(cell.value, isA<ImageCellValue>());
+      final image = cell.value as ImageCellValue;
+      expect(image.format, equals('png'));
+      expect(image.width, equals(216));
+      expect(image.height, equals(200));
+      expect(image.bytes, equals(imageBytes));
+
+      testFile.deleteSync();
     });
   });
 
