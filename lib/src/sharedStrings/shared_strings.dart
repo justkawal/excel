@@ -26,9 +26,9 @@ class _SharedStringsMaintainer {
 
   void add(SharedString val, String key) {
     _map[val]?.increaseCount();
+    _list.add(val);
     _map.putIfAbsent(val, () {
       _mapString[key] = val;
-      _list.add(val);
       return _IndexingHolder(_index++);
     });
   }
