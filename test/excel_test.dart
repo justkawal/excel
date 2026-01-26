@@ -1101,4 +1101,139 @@ void main() {
       reason: 'Decoding the file should not throw any exception',
     );
   });
+
+  test('Read cell comments and values', () {
+    var file = './test/test_resources/comments.xlsx';
+    var bytes = File(file).readAsBytesSync();
+    var excel = Excel.decodeBytes(bytes);
+
+    // Sheet1
+    var sheet1 = excel['Sheet1'];
+
+    // Read the comment and value from cell A1 Sheet 1
+    var cellA1Sheet1 = sheet1.cell(CellIndex.indexByString('A1'));
+    var commentA1Sheet1 = cellA1Sheet1.comment;
+    var valueA1Sheet1 = cellA1Sheet1.value;
+    expect(commentA1Sheet1, null);
+    expect(valueA1Sheet1.toString(), 'Value 1');
+
+    // Read the comment and value from cell A2 Sheet 1
+    var cellA2Sheet1 = sheet1.cell(CellIndex.indexByString('A2'));
+    var commentA2Sheet1 = cellA2Sheet1.comment;
+    var valueA2Sheet1 = cellA2Sheet1.value;
+    expect(commentA2Sheet1, 'A2Sheet1: This is a random sample comment');
+    expect(valueA2Sheet1.toString(), 'Value 2');
+
+    // Read the comment and value from cell A3 Sheet 1
+    var cellA3Sheet1 = sheet1.cell(CellIndex.indexByString('A3'));
+    var commentA3Sheet1 = cellA3Sheet1.comment;
+    var valueA3Sheet1 = cellA3Sheet1.value;
+    expect(commentA3Sheet1, 'A3Sheet1: Another comment');
+    expect(valueA3Sheet1.toString(), 'Value 3');
+
+    // Read the comment and value from cell A4 Sheet 1
+    var cellA4Sheet1 = sheet1.cell(CellIndex.indexByString('A4'));
+    var commentA4Sheet1 = cellA4Sheet1.comment;
+    var valueA4Sheet1 = cellA4Sheet1.value;
+    expect(commentA4Sheet1, null);
+    expect(valueA4Sheet1.toString(), 'Value 4');
+
+    // Read the comment and value from cell A5 Sheet 1
+    var cellA5Sheet1 = sheet1.cell(CellIndex.indexByString('A5'));
+    var commentA5Sheet1 = cellA5Sheet1.comment;
+    var valueA5Sheet1 = cellA5Sheet1.value;
+    expect(commentA5Sheet1, 'A5Sheet1: Comment with different font and size');
+    expect(valueA5Sheet1.toString(), 'Value 5');
+
+    // Read the comment and value from cell B2 Sheet 1
+    var cellB2Sheet1 = sheet1.cell(CellIndex.indexByString('B2'));
+    var commentB2Sheet1 = cellB2Sheet1.comment;
+    var valueB2Sheet1 = cellB2Sheet1.value;
+    expect(commentB2Sheet1, 'B2Sheet1: Empty Value');
+    expect(valueB2Sheet1, null);
+
+    // Another Sheet
+    var anotherSheet = excel['Different Name'];
+
+    // Read the comment and value from cell A1 Another Sheet
+    var cellA1AnotherSheet = anotherSheet.cell(CellIndex.indexByString('A1'));
+    var commentA1AnotherSheet = cellA1AnotherSheet.comment;
+    var valueA1AnotherSheet = cellA1AnotherSheet.value;
+    expect(commentA1AnotherSheet, null);
+    expect(valueA1AnotherSheet.toString(), '1 Value');
+
+    // Read the comment and value from cell A2 Another Sheet
+    var cellA2AnotherSheet = anotherSheet.cell(CellIndex.indexByString('A2'));
+    var commentA2AnotherSheet = cellA2AnotherSheet.comment;
+    var valueA2AnotherSheet = cellA2AnotherSheet.value;
+    expect(commentA2AnotherSheet, 'A2DN: Empty Value');
+    expect(valueA2AnotherSheet, null);
+
+    // Read the comment and value from cell A3 Another Sheet
+    var cellA3AnotherSheet = anotherSheet.cell(CellIndex.indexByString('A3'));
+    var commentA3AnotherSheet = cellA3AnotherSheet.comment;
+    var valueA3AnotherSheet = cellA3AnotherSheet.value;
+    expect(commentA3AnotherSheet, 'A3DN: Another comment');
+    expect(valueA3AnotherSheet.toString(), 'Value 3');
+
+    // Read the comment and value from cell A4 Another Sheet
+    var cellA4AnotherSheet = anotherSheet.cell(CellIndex.indexByString('A4'));
+    var commentA4AnotherSheet = cellA4AnotherSheet.comment;
+    var valueA4AnotherSheet = cellA4AnotherSheet.value;
+    expect(commentA4AnotherSheet, null);
+    expect(valueA4AnotherSheet.toString(), 'Value 4');
+
+    // Read the comment and value from cell A5 Another Sheet
+    var cellA5AnotherSheet = anotherSheet.cell(CellIndex.indexByString('A5'));
+    var commentA5AnotherSheet = cellA5AnotherSheet.comment;
+    var valueA5AnotherSheet = cellA5AnotherSheet.value;
+    expect(commentA5AnotherSheet, 'A5DN: Comment with different font and size');
+    expect(valueA5AnotherSheet.toString(), 'Value 5');
+
+    // Read the comment and value from cell B2 Another Sheet
+    var cellB2AnotherSheet = anotherSheet.cell(CellIndex.indexByString('B2'));
+    var commentB2AnotherSheet = cellB2AnotherSheet.comment;
+    var valueB2AnotherSheet = cellB2AnotherSheet.value;
+    expect(commentB2AnotherSheet, 'B2DN: Random Comment');
+    expect(valueB2AnotherSheet.toString(), '2 Value');
+
+    // Read the comment and value from cell C3 Another Sheet
+    var cellC3AnotherSheet = anotherSheet.cell(CellIndex.indexByString('C3'));
+    var commentC3AnotherSheet = cellC3AnotherSheet.comment;
+    var valueC3AnotherSheet = cellC3AnotherSheet.value;
+    expect(commentC3AnotherSheet, 'C3DN: C3');
+    expect(valueC3AnotherSheet.toString(), '3 Value');
+
+    // Read the comment and value from cell D4 Another Sheet
+    var cellD4AnotherSheet = anotherSheet.cell(CellIndex.indexByString('D4'));
+    var commentD4AnotherSheet = cellD4AnotherSheet.comment;
+    var valueD4AnotherSheet = cellD4AnotherSheet.value;
+    expect(commentD4AnotherSheet, null);
+    expect(valueD4AnotherSheet.toString(), '4 Value');
+
+    // Read the comment and value from cell E5 Another Sheet
+    var cellE5AnotherSheet = anotherSheet.cell(CellIndex.indexByString('E5'));
+    var commentE5AnotherSheet = cellE5AnotherSheet.comment;
+    var valueE5AnotherSheet = cellE5AnotherSheet.value;
+    expect(commentE5AnotherSheet, null);
+    expect(valueE5AnotherSheet.toString(), '5 Value');
+  });
+
+  test('Check sheet visibility', () {
+    var file = './test/test_resources/hidden_sheets.xlsx';
+    var bytes = File(file).readAsBytesSync();
+    var excel = Excel.decodeBytes(bytes);
+    // Get the visibility status of sheets
+    Map<String, String> sheetVisibility = excel.getSheetsVisibility();
+
+    // Expected visibility status
+    Map<String, String> expectedVisibility = {
+      'Sheet1': 'visible',
+      'Sheet2': 'hidden',
+      'Sheet3': 'visible',
+    };
+
+    // Check if the visibility status matches the expected values
+    expect(sheetVisibility, equals(expectedVisibility));
+  });
 }

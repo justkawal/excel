@@ -161,6 +161,33 @@ class Parser {
         }
       }
     });
+
+    // Parse comments
+    final comments = _parseComments(_excel._archive);
+
+    // Store comments in the appropriate data structure
+    for (final sheetEntry in comments.entries) {
+      final sheetName = sheetEntry.key;
+      final sheetComments = sheetEntry.value;
+
+      // Iterate through all comments for the sheet
+      for (final entry in sheetComments.entries) {
+        final cellRef = entry.key;
+        final comment = entry.value;
+
+        final sheet = _excel._sheetMap[sheetName];
+        var cell = sheet?._getCell(cellRef);
+        if (cell == null) {
+          // Create a new Data object if there is no value, but there is a comment
+          final cellIndex = CellIndex.indexByString(cellRef);
+          cell =
+              Data.newData(sheet!, cellIndex.rowIndex, cellIndex.columnIndex);
+          sheet._sheetData[cellIndex.rowIndex] ??= {};
+          sheet._sheetData[cellIndex.rowIndex]![cellIndex.columnIndex] = cell;
+        }
+        cell._comment = comment;
+      }
+    }
   }
 
   /// Parses and processes merged cells within the spreadsheet.
@@ -671,6 +698,49 @@ class Parser {
     });
 
     return buffer.toString();
+  }
+
+  /// Returns the comments for each sheet in the workbook.
+  ///
+  /// Extracted from the comments sheet from the workbook.
+  Map<String, Map<String, String>> _parseComments(Archive archive) {
+    final comments = <String, Map<String, String>>{};
+    final sheetNames = _excel._sheetMap.keys.toList();
+
+    for (final sheetName in sheetNames) {
+      final sheetComments = <String, String>{};
+      final commentsFile = _getCommentsFileForSheet(archive, sheetName);
+
+      if (commentsFile != null && commentsFile.name.isNotEmpty) {
+        final document = XmlDocument.parse(utf8.decode(commentsFile.content));
+        for (final comment in document.findAllElements('comment')) {
+          final ref = comment.getAttribute('ref');
+          final text = comment.findElements('text').first.innerText;
+          if (ref != null) {
+            sheetComments[ref] = text;
+          }
+        }
+      }
+
+      if (sheetComments.isNotEmpty) {
+        comments[sheetName] = sheetComments;
+      }
+    }
+
+    return comments;
+  }
+
+  /// Returns the comments file for the given [sheetName].
+  ///
+  /// The [sheetName] is used to determine the index of the sheet in the workbook
+  ArchiveFile? _getCommentsFileForSheet(Archive archive, String sheetName) {
+    final sheetIndex = _excel._sheetMap.keys.toList().indexOf(sheetName) + 1;
+    final commentsFileName = 'xl/comments$sheetIndex.xml';
+
+    return archive.files.firstWhere(
+      (file) => file.name == commentsFileName,
+      orElse: () => ArchiveFile('', 0, []), // Return an empty ArchiveFile
+    );
   }
 
   int _getAvailableRid() {

@@ -245,6 +245,20 @@ sheetObject.insertRow(82);
 sheetObject.removeRow(80);
 ```
 
+### Cell comments
+
+```dart
+/*
+ * To access comments, simply assign a Data? object to a variable and access the comment
+ * 
+ * @Return: String?
+ * @Desc: cell's comment
+*/
+
+Data? cell
+String? cellComment = cell.comment; // Returns null if no comments are available
+```
+
 ### Cell-Style Options
 
 | key                | description                                                                                                                             |
@@ -388,6 +402,19 @@ excel.unLink('sheetName');
 // After calling the above function be sure to re-make a new reference of this.
 
 Sheet unlinked_sheetObject = excel['sheetName'];
+```
+
+### Get sheet(s) visibility
+
+```dart
+/*
+ * To access sheet(s) visibility
+ * @Return: Map<String, String>
+ * @Desc: map of sheet names and their visibility status
+*/
+
+Excel excel
+excel.getSheetsVisibility();
 ```
 
 ### Merge Cells
