@@ -78,8 +78,17 @@ class SharedString {
   }
 
   TextSpan get textSpan {
+    // Parse an OOXML boolean attribute per ECMA-376 §18.8.2 — the `val` on
+    // <b/>, <i/>, etc. is a W3C XSD boolean (lexical space: true|false|1|0).
+    // When `val` is omitted the element's presence means on (spec default).
+    // The previous implementation used `bool.tryParse`, which only accepts
+    // the literal strings "true"/"false", so <b val="0"/> was misread as on.
     bool getBool(XmlElement element) {
-      return bool.tryParse(element.getAttribute('val') ?? '') ?? true;
+      final val = element.getAttribute('val');
+      if (val == null) return true;
+      final v = val.toLowerCase();
+      if (v == 'false' || v == 'f' || v == '0' || v == 'off') return false;
+      return true;
     }
 
     int getDouble(XmlElement element) {
@@ -120,11 +129,16 @@ class SharedString {
                       style = style.copyWith(italicVal: getBool(runProperty));
                       break;
                     case 'u': //18.4.13 u (Underline)
+                      // Per ECMA-376 §18.4.13, <u val="none"/> explicitly
+                      // disables underline (ST_UnderlineValues includes
+                      // `none`). The previous implementation treated any
+                      // non-"double" value as single underline.
+                      final uVal = runProperty.getAttribute('val');
+                      if (uVal == 'none') break;
                       style = style.copyWith(
-                          underlineVal:
-                              runProperty.getAttribute('val') == 'double'
-                                  ? Underline.Double
-                                  : Underline.Single);
+                          underlineVal: uVal == 'double'
+                              ? Underline.Double
+                              : Underline.Single);
                       break;
                     case 'sz': //18.4.11 sz (Font Size)
                       style =
