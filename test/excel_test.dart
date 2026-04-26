@@ -1101,4 +1101,81 @@ void main() {
       reason: 'Decoding the file should not throw any exception',
     );
   });
+
+  group('Style preservation on round-trip', () {
+    // Regression coverage for the bug where writing into one cell silently
+    // wiped every other cell's style on encode. The previous _putData
+    // unconditionally overwrote `cellStyle` with a fresh
+    // `CellStyle(numberFormat: defaultFor(value))`, and the subsequent
+    // styles-table rebuild remapped every untouched cell's `<c s="N">`
+    // index, dropping fonts/fills/borders/alignment.
+
+    test('writing into one cell keeps an untouched cell\'s style intact',
+        () {
+      final bytes =
+          File('./test/test_resources/borders.xlsx').readAsBytesSync();
+      final excel = Excel.decodeBytes(bytes);
+      final sheet = excel.tables['Sheet1']!;
+
+      final preserved = sheet.cell(CellIndex.indexByString('A1'));
+      final beforeStyle = preserved.cellStyle;
+      expect(beforeStyle, isNotNull,
+          reason: 'fixture should have a styled A1 (header cell)');
+      expect(beforeStyle!.isBold, isTrue);
+      expect(beforeStyle.leftBorder.borderStyle, equals(BorderStyle.Medium));
+
+      // Write into a completely unrelated cell — historically enough to
+      // trigger a styles rebuild that clobbered A1.
+      sheet.updateCell(
+        CellIndex.indexByString('Z50'),
+        TextCellValue('marker'),
+      );
+
+      final out = excel.encode()!;
+      final reloaded = Excel.decodeBytes(out);
+      final after = reloaded.tables['Sheet1']!
+          .cell(CellIndex.indexByString('A1'));
+
+      expect(after.value, equals(preserved.value));
+      expect(after.cellStyle?.isBold, equals(beforeStyle.isBold));
+      expect(after.cellStyle?.leftBorder.borderStyle,
+          equals(beforeStyle.leftBorder.borderStyle));
+      expect(after.cellStyle?.rightBorder.borderStyle,
+          equals(beforeStyle.rightBorder.borderStyle));
+      expect(after.cellStyle?.bottomBorder.borderStyle,
+          equals(beforeStyle.bottomBorder.borderStyle));
+      expect(after.cellStyle?.backgroundColor,
+          equals(beforeStyle.backgroundColor));
+      expect(after.cellStyle?.fontFamily, equals(beforeStyle.fontFamily));
+    });
+
+    test('overwriting a styled cell\'s value preserves font/fill/border', () {
+      final bytes =
+          File('./test/test_resources/borders.xlsx').readAsBytesSync();
+      final excel = Excel.decodeBytes(bytes);
+      final sheet = excel.tables['Sheet1']!;
+      final target = sheet.cell(CellIndex.indexByString('A1'));
+      final beforeStyle = target.cellStyle!;
+
+      sheet.updateCell(
+        CellIndex.indexByString('A1'),
+        TextCellValue('Renamed'),
+      );
+
+      final out = excel.encode()!;
+      final reloaded = Excel.decodeBytes(out);
+      final after =
+          reloaded.tables['Sheet1']!.cell(CellIndex.indexByString('A1'));
+
+      expect(after.value, equals(TextCellValue('Renamed')));
+      // Font weight and borders survive the value overwrite.
+      expect(after.cellStyle?.isBold, equals(beforeStyle.isBold));
+      expect(after.cellStyle?.leftBorder.borderStyle,
+          equals(beforeStyle.leftBorder.borderStyle));
+      expect(after.cellStyle?.bottomBorder.borderStyle,
+          equals(beforeStyle.bottomBorder.borderStyle));
+      expect(after.cellStyle?.backgroundColor,
+          equals(beforeStyle.backgroundColor));
+    });
+  });
 }
