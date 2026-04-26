@@ -1092,6 +1092,22 @@ class Sheet {
   ///
   /// Internal function for putting the data in `_sheetData`.
   ///
+  /// Preserves the existing visual style (font, fill, border, alignment)
+  /// when overwriting an existing cell so templates round-trip without
+  /// losing their formatting. The cell's `numberFormat` is upgraded to a
+  /// value-appropriate default only when the existing format is the
+  /// catch-all `General` (`standard_0`); a deliberate format such as a
+  /// currency or percentage is left intact. `Sheet.updateCell` separately
+  /// handles numberFormat compatibility for explicit styles.
+  ///
+  /// Fixes two related issues with the prior implementation: it
+  /// unconditionally overwrote every cell's `cellStyle` with a fresh
+  /// `CellStyle(numberFormat: defaultFor(value))`, and the guard
+  /// `cell._cellStyle != NumFormat.standard_0` compared a `CellStyle?` to
+  /// a `NumFormat` (different types — always true), so `_styleChanges`
+  /// flipped on every value write and triggered a styles-table rebuild
+  /// that clobbered every untouched cell's style on encode.
+  ///
   void _putData(int rowIndex, int columnIndex, CellValue? value) {
     var row = _sheetData[rowIndex];
     if (row == null) {
@@ -1103,8 +1119,48 @@ class Sheet {
     }
 
     cell._value = value;
-    cell._cellStyle = CellStyle(numberFormat: NumFormat.defaultFor(value));
-    if (cell._cellStyle != NumFormat.standard_0) {
+
+    // Decide whether (and how) the cell's numberFormat needs to change.
+    // The visual style — font, fill, border, alignment — is always
+    // preserved via `copyWith`; only the numberFormat is touched.
+    final existingStyle = cell._cellStyle;
+    NumFormat? targetFmt;
+
+    if (existingStyle == null) {
+      // New cell: adopt a value-appropriate default if it's non-General.
+      // Skipping the assignment for plain text/int/bool keeps
+      // `_styleChanges` from flipping, so the styles table is not rebuilt
+      // and other cells keep their original `<c s="N">` indices.
+      final defaultFmt = NumFormat.defaultFor(value);
+      if (defaultFmt != NumFormat.standard_0) targetFmt = defaultFmt;
+    } else {
+      final existingFmt = existingStyle.numberFormat;
+      final isGeneral = existingFmt is StandardNumericNumFormat &&
+          existingFmt.numFmtId == 0;
+      if (value == null) {
+        // Clearing the cell — reset numberFormat to General, keeping
+        // every other style attribute.
+        if (existingFmt != NumFormat.standard_0) {
+          targetFmt = NumFormat.standard_0;
+        }
+      } else if (isGeneral) {
+        // Promote General to a value-specific default (numbers, dates,
+        // booleans, etc.) — matches Excel's own behaviour and the
+        // package's documented contract.
+        final defaultFmt = NumFormat.defaultFor(value);
+        if (defaultFmt != NumFormat.standard_0) targetFmt = defaultFmt;
+      } else if (!existingFmt.accepts(value)) {
+        // Existing format can't represent the value (e.g. writing a date
+        // into a currency cell). Patch the numberFormat to a compatible
+        // default but keep the rest of the style.
+        targetFmt = NumFormat.defaultFor(value);
+      }
+      // else: existing format already handles this value type — keep it.
+    }
+
+    if (targetFmt != null) {
+      cell._cellStyle =
+          (existingStyle ?? CellStyle()).copyWith(numberFormat: targetFmt);
       _excel._styleChanges = true;
     }
 

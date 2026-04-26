@@ -307,7 +307,11 @@ class StandardNumericNumFormat extends NumericNumFormat
         null => true,
         FormulaCellValue() => true,
         IntCellValue() => true,
-        TextCellValue() => numFmtId == 0,
+        // numFmtId 0 is "General" and 49 is "@" (text). Both accept text
+        // values — the previous implementation only allowed General, which
+        // caused round-trips through text-formatted columns to silently
+        // rewrite the format and trigger a styles-table rebuild.
+        TextCellValue() => numFmtId == 0 || numFmtId == 49,
         BoolCellValue() => true,
         DoubleCellValue() => true,
         DateCellValue() => false,

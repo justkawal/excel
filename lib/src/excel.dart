@@ -61,6 +61,16 @@ class Excel {
   Excel._(this._archive) {
     parser = Parser._(this);
     parser._startParsing();
+
+    // The parser drives every cell through `Sheet.updateCell` while loading
+    // the file, which flips `_styleChanges` (and `_mergeChanges` /
+    // `_rtlChanges`) on every assignment. Those flags are meant to record
+    // *user* mutations after decode — not the act of decoding itself. Reset
+    // them here so a no-op decode→encode cycle skips the styles/merge/rtl
+    // rebuild paths and emits an unchanged file.
+    _styleChanges = false;
+    _mergeChanges = false;
+    _rtlChanges = false;
   }
 
   factory Excel.createExcel() {
