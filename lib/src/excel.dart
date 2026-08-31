@@ -48,11 +48,11 @@ class Excel {
 
   String _stylesTarget = '';
   String _sharedStringsTarget = '';
-  String get _absSharedStringsTarget {
-    if (_sharedStringsTarget.isNotEmpty && _sharedStringsTarget[0] == "/") {
-      return _sharedStringsTarget.substring(1);
+  String _relationshipTargetPath(String target) {
+    if (target.startsWith('/')) {
+      return target.substring(1);
     }
-    return "xl/${_sharedStringsTarget}";
+    return 'xl/$target';
   }
 
   String? _defaultSheet;

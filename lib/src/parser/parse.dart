@@ -67,8 +67,8 @@ class Parser {
   }
 
   void _parseSharedStrings() {
-    var sharedStrings =
-        _excel._archive.findFile(_excel._absSharedStringsTarget);
+    var sharedStrings = _excel._archive
+        .findFile(_excel._relationshipTargetPath(_excel._sharedStringsTarget));
     if (sharedStrings == null) {
       _excel._sharedStringsTarget = 'sharedStrings.xml';
 
@@ -238,11 +238,12 @@ class Parser {
 
   // Reading the styles from the excel file.
   void _parseStyles(String _stylesTarget) {
-    var styles = _excel._archive.findFile('xl/$_stylesTarget');
+    var stylesPath = _excel._relationshipTargetPath(_stylesTarget);
+    var styles = _excel._archive.findFile(stylesPath);
     if (styles != null) {
       styles.decompress();
       var document = XmlDocument.parse(utf8.decode(styles.content));
-      _excel._xmlFiles['xl/$_stylesTarget'] = document;
+      _excel._xmlFiles[stylesPath] = document;
 
       _excel._fontStyleList = <_FontStyle>[];
       _excel._patternFill = <String>[];
@@ -525,7 +526,7 @@ class Parser {
 
   void _parseTable(XmlElement node) {
     var name = node.getAttribute('name')!;
-    var target = _worksheetTargets[node.getAttribute('r:id')];
+    var target = _worksheetTargets[node.getAttribute('r:id')]!;
 
     if (_excel._sheetMap['$name'] == null) {
       _excel._sheetMap['$name'] = Sheet._(_excel, '$name');
@@ -533,7 +534,7 @@ class Parser {
 
     Sheet sheetObject = _excel._sheetMap['$name']!;
 
-    var file = _excel._archive.findFile('xl/$target');
+    var file = _excel._archive.findFile(_excel._relationshipTargetPath(target));
     file!.decompress();
 
     var content = XmlDocument.parse(utf8.decode(file.content));
