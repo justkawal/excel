@@ -22,6 +22,20 @@ void main() {
         equals('Washington'));
   });
 
+  test('Read XLSX with package-root worksheet target', () {
+    var file = './test/test_resources/openpyxl.xlsx';
+    var bytes = File(file).readAsBytesSync();
+    var excel = Excel.decodeBytes(bytes);
+
+    expect(excel.tables.keys, equals(['Material']));
+    expect(excel.tables['Material']!.maxColumns, equals(2));
+    expect(excel.tables['Material']!.maxRows, equals(2));
+    expect(excel.tables['Material']!.rows[1][0]!.value,
+        equals(TextCellValue('4009.007')));
+    expect(
+        excel.tables['Material']!.rows[1][1]!.value, equals(IntCellValue(1)));
+  });
+
   test('Cell Data-Types from Microsoft Excel 365 Destkop', () {
     var file = './test/test_resources/dataTypesUsingMsExcel365Desktop.xlsx';
     var bytes = File(file).readAsBytesSync();
