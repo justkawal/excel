@@ -70,19 +70,19 @@ class _ExcelViewerPageState extends State<ExcelViewerPage>
   // ── actions ────────────────────────────────────────────────────────────────
 
   Future<void> _pickFile() async {
-    final result = await FilePicker.platform.pickFiles(
+    final files = await FilePicker.pickFiles(
       type: FileType.custom,
       allowedExtensions: ['xlsx', 'xls'],
-      withData: true,
     );
-    if (result == null || result.files.single.bytes == null) return;
+    if (files.isEmpty) return;
+    final picked = files.single;
 
     setState(() => _loading = true);
     try {
-      final bytes = result.files.single.bytes!;
+      final bytes = await picked.readAsBytes();
       final sheets = _parseExcel(bytes);
       setState(() {
-        _fileName = result.files.single.name;
+        _fileName = picked.name;
         _sheets = sheets;
         _rebuildTabs(sheets);
       });
@@ -136,8 +136,9 @@ class _ExcelViewerPageState extends State<ExcelViewerPage>
 
       final suggestedName = _fileName ?? 'output.xlsx';
 
-      // Try FilePicker save dialog (desktop / Android SAF)
-      final savePath = await FilePicker.platform.saveFile(
+      // Try FilePicker save dialog (desktop / Android SAF). The plugin
+      // writes `bytes` to the chosen location itself and returns its Uri.
+      final savedUri = await FilePicker.saveFile(
         dialogTitle: 'Save Excel file',
         fileName: suggestedName,
         allowedExtensions: ['xlsx'],
@@ -145,15 +146,11 @@ class _ExcelViewerPageState extends State<ExcelViewerPage>
         bytes: bytes,
       );
 
-      if (savePath != null) {
-        // Desktop: savePath is the chosen path; bytes may already be written
-        // on some platforms, but write explicitly to be safe.
-        try {
-          await File(savePath).writeAsBytes(bytes, flush: true);
-        } catch (_) {
-          // Platform already wrote the file (e.g. iOS/Android via SAF) — ignore
-        }
-        _showSnack('Saved to $savePath');
+      if (savedUri != null) {
+        final display = savedUri.scheme == 'file'
+            ? savedUri.toFilePath()
+            : savedUri.toString();
+        _showSnack('Saved to $display');
       } else {
         // Fallback: save to documents directory (mobile when dialog is cancelled
         // or not supported)
