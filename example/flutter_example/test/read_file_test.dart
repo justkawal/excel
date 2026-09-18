@@ -1,5 +1,5 @@
 import 'dart:io';
-import 'package:excel/excel.dart';
+import 'package:excel_ce/excel_ce.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {

@@ -1,4 +1,4 @@
-part of excel;
+part of excel_ce;
 
 class Sheet {
   final Excel _excel;

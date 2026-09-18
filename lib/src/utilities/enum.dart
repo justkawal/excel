@@ -1,4 +1,4 @@
-part of excel;
+part of excel_ce;
 
 ///enum for `wrapping` up the text
 ///

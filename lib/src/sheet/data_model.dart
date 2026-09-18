@@ -1,4 +1,4 @@
-part of excel;
+part of excel_ce;
 
 // ignore: must_be_immutable
 class Data extends Equatable {
@@ -92,9 +92,9 @@ class Data extends Equatable {
   }
 
   /// sets the user defined CellStyle in this current cell
-  set cellStyle(CellStyle? _) {
+  set cellStyle(CellStyle? cellStyle) {
     _sheet._excel._styleChanges = true;
-    _cellStyle = _;
+    _cellStyle = cellStyle;
   }
 
   @override

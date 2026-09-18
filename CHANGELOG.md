@@ -5,6 +5,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [5.0.1]
+- Renamed package from `excel` to `excel_ce` (community edition fork, published independently on pub.dev)
+- Bumped minimum Dart SDK to 3.12.0
+- Updated `xml` to ^7.0.1, `equatable` to ^3.0.0, `lints` to ^6.1.0
+
 ## [5.0.0]
 - Update packages to latest versions
 - Migrate from `dart:html` to `package:web`

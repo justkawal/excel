@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
 import 'package:archive/archive.dart';
-import 'package:excel/excel.dart';
+import 'package:excel_ce/excel_ce.dart';
 import 'package:test/test.dart';
 import 'package:xml/xml.dart';
 

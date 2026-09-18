@@ -1,4 +1,4 @@
-part of excel;
+part of excel_ce;
 
 class _SharedStringsMaintainer {
   final Map<SharedString, _IndexingHolder> _map =
