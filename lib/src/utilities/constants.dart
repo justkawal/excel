@@ -1,4 +1,4 @@
-part of excel;
+part of excel_ce;
 
 const _relationshipsStyles =
     "http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles";

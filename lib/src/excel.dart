@@ -1,4 +1,4 @@
-part of excel;
+part of excel_ce;
 
 Excel _newExcel(Archive archive) {
   // Lookup at file format

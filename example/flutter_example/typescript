@@ -1,0 +1,153 @@
+Script started on Sat Feb 21 15:45:59 2026
+[1m[7m%[27m[1m[0m                                                                                [0m[27m[24m[Jwhitehat@STEVENs-MacBook-Pro flutter_example % [K[?2004h[?2004l
+[1m[7m%[27m[1m[0m                                                                                [0m[27m[24m[Jwhitehat@STEVENs-MacBook-Pro flutter_example % [K[?2004h  echo "terminal ok"[?2004l
+terminal ok
+[1m[7m%[27m[1m[0m                                                                                [0m[27m[24m[Jwhitehat@STEVENs-MacBook-Pro flutter_example % [K[?2004h[?2004l
+[1m[7m%[27m[1m[0m                                                                                [0m[27m[24m[Jwhitehat@STEVENs-MacBook-Pro flutter_example % [K[?2004h  python3 -c "[?2004l
+[0m[27m[24m[Jdquote> [K[?2004hiimport textwrap, os[?2004l
+[0m[27m[24m[Jdquote> [K[?2004hllines = [[?2004l
+[0m[27m[24m[Jdquote> [K[?2004h     \"import 'package:flutter/material.dart';\",[?2004l
+[0m[27m[24m[Jdquote> [K[?2004h     \"import 'package:flutter_test/flutter_test.dart';\",[?2004l
+[0m[27m[24m[Jdquote> [K[?2004h     \"import 'package:flutter_example/src/widgets/editable_data_table.da [Krrt';\",[?2004l
+[0m[27m[24m[Jdquote> [K[?2004h     \"\",[?2004l
+[0m[27m[24m[Jdquote> [K[?2004h     \"List<String> _makeHeaders(int cols) => List.generate(cols, (i) =>  [K''Col_\$i');\",[?2004l
+[0m[27m[24m[Jdquote> [K[?2004h     \"List<List<String>> _makeRows(int rows, int cols) => List.generate( [Krrows, (r) => List.generate(cols, (c) => 'R\${r}C\$c'));\",[?2004l
+[0m[27m[24m[Jdquote> [K[?2004h     \"Widget _wrap(Widget child) => MaterialApp(home: Scaffold(body: chi [Klld));\",[?2004l
+[0m[27m[24m[Jdquote> [K[?2004h     \"\",[?2004l
+[0m[27m[24m[Jdquote> [K[?2004h     \"void main() {\",[?2004l
+[0m[27m[24m[Jdquote> [K[?2004h     \"  group('EditableDataTable - empty state', () {\",[?2004l
+[0m[27m[24m[Jdquote> [K[?2004h     \"    testWidgets('shows empty message', (tester) async {\",[?2004l
+[0m[27m[24m[Jdquote> [K[?2004h     \"      await tester.pumpWidget(_wrap(EditableDataTable(headers: con [Ksst [], rows: const [], onCellChanged: (_, __, ___) {})));\",[?2004l
+[0m[27m[24m[Jdquote> [K[?2004h     \"      expect(find.text('Sheet is empty'), findsOneWidget);\",[?2004l
+[0m[27m[24m[Jdquote> [K[?2004h     \"    });\",[?2004l
+[0m[27m[24m[Jdquote> [K[?2004h     \"  });\",[?2004l
+[0m[27m[24m[Jdquote> [K[?2004h     \"\",[?2004l
+[0m[27m[24m[Jdquote> [K[?2004h     \"  group('EditableDataTable - rendering', () {\",[?2004l
+[0m[27m[24m[Jdquote> [K[?2004h     \"    testWidgets('renders import textwablines = [[?2004l
+[0m[27m[24m[Jdquote> [K[?2004h     \"imnc    \"im      \"import 'package:flutter_test/flutter_testat    [K  \"import 'package:flutter_example/src/widgets/editab'E    \"\",[?2004l
+[0m[27m[24m[Jdquote> [K[?2004h     \"List<String> _makeHeaders(int cols) => List.generate(cols, (i),[?2004l
+[0m[27m[24m[Jdquote> [K[?2004h     \"Li      \"List<List<String>> _makeRows(int rows, int cols) => List [K..generate(rows, (r) => xt    \"Widget _wrap(Widget child) => MaterialApp(home: S [Kccaffold(body: child));\",[?2004l
+[0m[27m[24m[Jdquote> [K[?2004h     \"\",[?2004l
+[0m[27m[24m[Jdquote> [K[?2004h     \"void main() {\",[?2004l
+[0m[27m[24m[Jdquote> [K[?2004h     \"  group('ds    \"\",[?2004l
+[0m[27m[24m[Jdquote> [K[?2004h     \"void main() {\",[?2004l
+[0m[27m[24m[Jdquote> [K[?2004h     \"  group('EditableDataTable - empty statee     \"voue    \"  group( [K''Editab",    \"    testWidgets('shows empty message', (tester) aTa    \"      aw [Kaait tester.pumpWidget(_wrap(EditableDataTable(hea      \"      expect(find.text( [K''Sheet is empty'), findsOneWidget);\",[?2004l
+zsh: bad pattern: testWidgets(shows empty message, (tester) aTa    "      await tester.pumpWidget(_wrap(EditableDataTable(hea      "      expect(find.text(Sheet is empty), findsOneWidget)
+    \"    });\",
+    \"  });\",
+    \"\",
+    \"  group('Editab      \"    });\",
+    \"  });\",
+    \"\",
+    \"  group('EditableDt(    \"  });\",
+d'    \"\",
+   dg    \"        \"    testWidgets('renders import textwablines = es    \"imnc    \"im      \"import 'package:flutter_tes)     \"List<String> _makeHeaders(int cols) => List.generate(cols, (i),
+    \"Li      \"List<List<String>> _makeRows(int rows, int cols)       \"Li      \"List<List<String>> _makeRows(int rows, int cols) => __    \"\",
+    \"void main() {\",
+    \"  group('ds    \"\",
+    \"void main() {\",
+    \"  group('EditableDataTable - empty statee     \"voue    \"  group('Editab",    \"    te      \"vo      \"  group('ds    Da    \"void main() {\",
+  )     \"  group('Editabdg  )     \"  group('Editabdg  )     \"  group('Editabdg  )     \"  grzsh: command not found: ",
+[1m[7m%[27m[1m[0m                                                                                [0m[27m[24m[Jwhitehat@STEVENs-MacBook-Pro flutter_example % [K[?2004h     \"    });\",[?2004l
+zsh: parse error near `}'
+[1m[7m%[27m[1m[0m                                                                                    \"  });\",
+    \"\",
+    \"  group('Editab      \"    });\",
+    \"  });\",
+    \"\",
+    \"  group('EditableDt(    \"  });\",
+d'    \"\",
+   dg    \"        \"    testWidgets('renders import textwablines = es    \"imnc    \"im      \"import 'package:flutter_tes)     \"List<String> _makeHeaders(int cols) => List.generate(cols, (i),
+    \"Li      \"List<List<String>> _makeRows(int rows, int cols)       \"Li      \"List<List<String>> _makeRows(int rows, int cols) => __    \"\",
+    \"void main() {\",
+    \"  group('ds    \"\",
+    \"void main() {\",
+    \"  group('EditableDataTable - empty statee     \"voue    \"  group('Editab",    \"    te      \"vo      \"  group('ds    Da    \"void main() {\",
+  )     \"  group('Editabdg  )     \"  group('Editabdg  )     \"  group('Editabdg  )     \"  group('Editabdg  )     \"  group('Editabdg  )     \"  group('Editabdg  )     \"  group('Editabdg  )     \[0m[27m[24m[Jwhitehat@STEVENs-MacBook-Pro flutter_example % [K[?2004h     \"  });\",[?2004l
+zsh: parse error near `}'
+[1m[7m%[27m[1m[0m                                                                                    \"\",
+    \"  group('Editab      \"    });\",
+    \"  });\",
+    \"\",
+    \"  group('EditableDt(    \"  });\",
+d'    \"\",
+   dg    \"        \"    testWidgets('renders import textwablines = es    \"imnc    \"im      \"import 'package:flutter_tes)     \"List<String> _makeHeaders(int cols) => List.generate(cols, (i),
+    \"Li      \"List<List<String>> _makeRows(int rows, int cols)       \"Li      \"List<List<String>> _makeRows(int rows, int cols) => __    \"\",
+    \"void main() {\",
+    \"  group('ds    \"\",
+    \"void main() {\",
+    \"  group('EditableDataTable - empty statee     \"voue    \"  group('Editab",    \"    te      \"vo      \"  group('ds    Da    \"void main() {\",
+  )     \"  group('Editabdg  )     \"  group('Editabdg  )     \"  group('Editabdg  )     \"  group('Editabdg  )     \"  group('Editabdg  )     \"  group('Editabdg  )     \"  group('Editabdg  )     \"  group('Editab[0m[27m[24m[Jwhitehat@STEVENs-MacBook-Pro flutter_example % [K[?2004h     \"\",[?2004l
+zsh: command not found: "",
+    \"  group('Editab      \"    });\",
+    \"  });\",
+    \"\",
+    \"  group('EditableDt(    \"  });\",
+d'    \"\",
+   dg    \"        \"    testWidgets('renders import textwablines = es    \"imnc    \"im      \"import 'package:flutter_tes)     \"List<String> _makeHeaders(int cols) => List.generate(cols, (i),
+    \"Li      \"List<List<String>> _makeRows(int rows, int cols)       \"Li      \"List<List<String>> _makeRows(int rows, int cols) => __    \"\",
+    \"void main() {\",
+    \"  group('ds    \"\",
+    \"void main() {\",
+    \"  group('EditableDataTable - empty statee     \"voue    \"  group('Editab",    \"    te      \"vo      \"  group('ds    Da    \"void main() {\",
+  )     \"  group('Editabdg  )     \"  group('Editabdg  )     \"  group('Editabdg  )     \"  group('Editabdg  )     \"  group('Editabdg  )     \"  group('Editabdg  )     \"  group('Editabdg  )     \"  group('Editabdg  )     \"  group('Editabdg  )     \"  group('Editabdg  )     \"  group('Editabd    [1m[7m%[27m[1m[0m                                                                                [0m[27m[24m[Jwhitehat@STEVENs-MacBook-Pro flutter_example % [K[?2004h     \"  group('Editab      \"     [K}});\",[?2004l
+[0m[27m[24m[Jquote> [K[?2004h     \"  });\",[?2004l
+[0m[27m[24m[Jquote> [K[?2004h     \"\",[?2004l
+[0m[27m[24m[Jquote> [K[?2004h     \"  group('EditableDt(    \"  });\",[?2004l
+zsh: unknown file attribute:  
+d'    \"\",
+   dg    \"        \"    testWidgets('renders import textwablines = es    \"imnc    \"im      \"import 'package:flutter_tes)     \"List<String> _makeHeaders(int cols) => List.generate(cols, (i),
+    \"Li      \"List<List<String>> _makeRows(int rows, int cols)       \"Li      \"List<List<String>> _makeRows(int rows, int cols) => __    \"\",
+    \"void main() {\",
+    \"  group('ds    \"\",
+    \"void main() {\",
+    \"  group('EditableDataTable - empty statee     \"voue    \"  group('Editab",    \"    te      \"vo      \"  group('ds    Da    \"void main() {\",
+  )     \"  group('Editabdg  )     \"  group('Editabdg  )     \"  group('Editabdg  )     \"  group('Editabdg  )     \"  group('Editabdg  )     \"  group('Editabdg  )     \"  group('Editabdg  )     \"  group('Editabdg  )     \"  group('Editabdg  )     \"  group('Editabdg  )     \"  group('Editabd    )     \"  gro"   )     \"  gst  )     in  )     \"  group('Editabdg  )     \"  group('Editabdg  )     \"  gzsh: command not found: ",
+[1m[7m%[27m[1m[0m                                                                                [0m[27m[24m[Jwhitehat@STEVENs-MacBook-Pro flutter_example % [K[?2004hdd'    \"\",[?2004l
+[0m[27m[24m[Jquote> [K[?2004h    dg    \"        \"    testWidgets('renders import textwablines = es    [K  \"imnc    \"im      \"import 'package:flutter_tes)     \"List<String> _makeHead [Keers(int cols) => List.generate(cols, (i),[?2004l
+[0m[27m[24m[Jquote> [K[?2004h     \"Li      \"List<List<String>> _makeRows(int rows, int cols)       \" [KLLi      \"List<List<String>> _makeRows(int rows, int cols) => __    \"\",[?2004l
+[0m[27m[24m[Jquote> [K[?2004h     \"void main() {\",[?2004l
+[0m[27m[24m[Jquote> [K[?2004h     \"  group('ds    \"\",[?2004l
+zsh: command not found: d    \"\",\n   dg    \"        \"    testWidgets(renders
+    \"void main() {\",
+    \"  group('EditableDataTable - empty statee     \"voue    \"  group('Editab",    \"    te      \"vo      \"  group('ds    Da    \"void main() {\",
+  )     \"  group('Editabdg  )     \"  group('Editabdg  )     \"  group('Editabdg  )     \"  group('Editabdg  )     \"  group('Editabdg  )     \"  group('Editabdg  )     \"  group('Editabdg  )     \"  group('Editabdg  )     \"  group('Editabdg  )     \"  group('Editabdg  )     \"  group('Editabd    )     \"  gro"   )     \"  gst  )     in  )     \"  group('Editabdg  )     \"  group('Editabdg  )     \"  group('Editabdg  )     \"  group('Edital  )     \"  group('Editabdg  )     \"  group('Editabdg  )     \"  group('Editabdg  )     \"  group('Editabdg  )     \"  group('Editabdg  )     \"  group('Editabdg  )     \"  group('Editabdg  )     \"  group('Editabdg  )     \"  group('Editabdg  )     \"  group('Editabdg  )     \"  group('Editabd    )     \"  gro"   )  [1m[7m%[27m[1m[0m                                                                                [0m[27m[24m[Jwhitehat@STEVENs-MacBook-Pro flutter_example % [K[?2004h     \"void main() {\",[?2004l
+[0m[27m[24m[Jfunction> [K[?2004h     \"  group('EditableDataTable - empty statee     \"voue    \"  grou [Kpp('Editab",    \"    te      \"vo      \"  group('ds    Da    \"void main() {\", [K[K[?2004l
+[0m[27m[24m[Jfunction dquote> [K[?2004h   )     \"  group('Editabdg  )     \"  group('Editabdg  )     \ [K""  group('Editabdg  )     \"  group('Editabdg  )     \"  group('Editabdg  )      [K\\"  group('Editabdg  )     \"  group('Editabdg  )     \"  group('Editabdg  )     [K  \"  group('Editabdg  )     \"  group('Editabdg  )     \"  group('Editabd    )   [K    \"  gro"   )     \"  gst  )     in  )     \"  group('Editabdg  )     \"  grou [Kpp('Editabdg  )     \"  group('Editabdg  )     \"  group('Edital  )     \"  group [K(('Editabdg  )     \"  group('Editabdg  )     \"  group('Editabdg  )     \"  grou [Kpp('Editabdg  )     \"  group('Editabdg  )     \"  group('Editabdg  )     \"  gro [Kuup('Editabdg  )     \"  group('Editabdg  )     \"  group('Editabdg  )     \"  gr [Kooup('Editabdg  )     \"  group('Editabd    )     \"  gro"   )     \"  gst  )     [K  in  )     \"  group('Editabdg  )     \"  group('Editabdg  )     [?2004l
+zsh: parse error near `)'
+[1m[7m%[27m[1m[0m                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        [0m[27m[24m[Jwhitehat@STEVENs-MacBook-Pro flutter_example % [K[?2004h                                   [K                                                                                  [K                                                                                  [K                                                                                  [K                                                                                  [K                                                                                  [K                                                                                  [K                                                                                  [K                                                                                  [K                                                                                  [K                                                                                  [K                                                                                  [K                                                                                  [K                              ],[?2004l
+[1m[7m%[27m[1m[0m                                                                                [0m[27m[24m[Jwhitehat@STEVENs-MacBook-Pro flutter_example % [K[?2004h  head -3 /Users/whitehat/Desktop/ [Kmmylekha/frontend/mylekha_helper/excel/example/flutter_example/test/editable_data [K__table_test.dart 2>&1 && echo "---widget---" && head -3 /Users/whitehat/Desktop/ [Kmmylekha/frontend/mylekha_helper/excel/example/flutter_example/lib/src/widgets/ed [Kiitable_data_table.dart[?2004l
+head: /Users/whitehat/Desktop/mylekha/frontend/mylekha_helper/excel/example/flutter_example/test/editable_data_table_test.dart: No such file or directory
+[1m[7m%[27m[1m[0m                                                                                [0m[27m[24m[Jwhitehat@STEVENs-MacBook-Pro flutter_example % [K[?2004h[?2004l
+[1m[7m%[27m[1m[0m                                                                                [0m[27m[24m[Jwhitehat@STEVENs-MacBook-Pro flutter_example % [K[?2004h  wc -l /Users/whitehat/Desktop/my [Kllekha/frontend/mylekha_helper/excel/example/flutter_example/lib/src/widgets/edit [Kaable_data_table.dart; head -5 /Users/whitehat/Desktop/mylekha/frontend/mylekha_h [Keelper/excel/example/flutter_example/lib/src/widgets/editable_data_table.dart[?2004l
+     322 /Users/whitehat/Desktop/mylekha/frontend/mylekha_helper/excel/example/flutter_example/lib/src/widgets/editable_data_table.dart
+import 'package:flutter/material.dart';
+
+typedef OnCellChanged = void Function(int rowIndex, int colIndex, String value);
+
+/// Visual configuration for [EditableDataTable].
+[1m[7m%[27m[1m[0m                                                                                [0m[27m[24m[Jwhitehat@STEVENs-MacBook-Pro flutter_example % [K[?2004h[?2004l
+[1m[7m%[27m[1m[0m                                                                                [0m[27m[24m[Jwhitehat@STEVENs-MacBook-Pro flutter_example % [K[?2004h  ls test/ && flutter analyze lib/ [K  2>&1[?2004l
+read_file_test.dart	widget_test.dart
+Analyzing lib...                                                       ⣷⣯⣟⡿⢿⣻⣽⣾⣷⣯⣟⡿⢿⣻⣽⣾ 
+No issues found! (ran in 1.5s)
+[1m[7m%[27m[1m[0m                                                                                [0m[27m[24m[Jwhitehat@STEVENs-MacBook-Pro flutter_example % [K[?2004h[?2004l
+[1m[7m%[27m[1m[0m                                                                                [0m[27m[24m[Jwhitehat@STEVENs-MacBook-Pro flutter_example % [K[?2004h  fvm flutter test test/widget_tes [Ktt.dart --reporter=expanded 2>&1[?2004l
+00:00 [32m+0[0m: [1m[90mloading /Users/whitehat/Desktop/mylekha/frontend/mylekha_helper/excel/example/flutter_example/test/widget_test.dart[0m[0m
+00:00 [32m+0[0m: EditableDataTable – empty state shows "Sheet is empty" when headers and rows are both empty[0m
+00:00 [32m+1[0m: EditableDataTable – rendering renders all header labels[0m
+00:00 [32m+2[0m: EditableDataTable – rendering renders visible cell values[0m
+00:00 [32m+3[0m: EditableDataTable – rendering rows shorter than headers render without throwing[0m
+00:00 [32m+4[0m: EditableDataTable – edit dialog tapping a cell opens the AlertDialog[0m
+00:01 [32m+5[0m: EditableDataTable – edit dialog dialog pre-fills the current cell value[0m
+00:01 [32m+6[0m: EditableDataTable – edit dialog dialog title contains the column label and row number[0m
+00:01 [32m+7[0m: EditableDataTable – edit dialog confirming edit calls onCellChanged with correct args[0m
+00:01 [32m+8[0m: EditableDataTable – edit dialog cancelling does NOT call onCellChanged[0m
+00:01 [32m+9[0m: EditableDataTable – edit dialog correct row / col indices for a non-first cell[0m
+00:01 [32m+10[0m: EditableDataTable – large data performance 5 000 rows × 100 cols pumps without throwing[0m
+00:02 [32m+11[0m: EditableDataTable – large data performance row 500 is NOT in the widget tree (virtualisation check)[0m
+00:02 [32m+12[0m: EditableDataTable – large data performance editing in a large dataset fires the correct callback[0m
+00:02 [32m+13[0m: EditableDataTable – styling accepts a custom EditableDataTableStyle without throwing[0m
+00:02 [32m+14[0m: EditableDataTable – styling custom columnWidth and rowHeight are used in header SizedBox[0m
+00:02 [32m+15[0m: All tests passed![0m
+[1m[7m%[27m[1m[0m                                                                                [0m[27m[24m[Jwhitehat@STEVENs-MacBook-Pro flutter_example % [K[?2004h

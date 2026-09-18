@@ -1,4 +1,4 @@
-part of excel;
+part of excel_ce;
 
 String _decimalToHexadecimal(int decimalVal) {
   if (decimalVal == 0) {

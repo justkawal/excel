@@ -1,6 +1,6 @@
 import 'dart:io';
 
-import 'package:excel/excel.dart';
+import 'package:excel_ce/excel_ce.dart';
 
 void main() {
   final excel = Excel.createExcel();
