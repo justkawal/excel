@@ -15,9 +15,11 @@ class _SharedStringsMaintainer {
 
   SharedString addFromString(String val) {
     final newSharedString = SharedString(
-        node: XmlElement(XmlName('si'), [], [
-      XmlElement(XmlName('t'),
-          [XmlAttribute(XmlName("space", "xml"), "preserve")], [XmlText(val)]),
+        node: XmlElement(XmlName.parts('si'), [], [
+      XmlElement(
+          XmlName.parts('t'),
+          [XmlAttribute(XmlName.parts("space", prefix: "xml"), "preserve")],
+          [XmlText(val)]),
     ]));
 
     add(newSharedString, val);
