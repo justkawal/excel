@@ -1131,6 +1131,61 @@ void main() {
       ],
     );
   });
+
+  group('Workbooks whose parts use a namespace prefix', () {
+    // Some writers (the Open XML SDK, for one) bind the SpreadsheetML
+    // namespace to a prefix and write every element with it: `<x:sheet>`.
+    List<int> workbook({String? prefix}) => _xlsx(
+          prefix: prefix,
+          sharedStrings: ['Item', 'Amount', 'Coffee'],
+          sheetData: (x) => '<${x}row r="1">'
+              '<${x}c r="A1" t="s"><${x}v>0</${x}v></${x}c>'
+              '<${x}c r="B1" t="s"><${x}v>1</${x}v></${x}c>'
+              '</${x}row>'
+              '<${x}row r="2">'
+              '<${x}c r="A2" t="s"><${x}v>2</${x}v></${x}c>'
+              '<${x}c r="B2" s="1"><${x}v>-2.5</${x}v></${x}c>'
+              '</${x}row>',
+        );
+
+    List<List<CellValue?>> values(Excel excel) => [
+          for (var row in excel.tables['Sheet1']!.rows)
+            [for (var cell in row) cell?.value]
+        ];
+
+    test('read as the same workbook written without the prefix', () {
+      var prefixed = Excel.decodeBytes(workbook(prefix: 'x'));
+      var plain = Excel.decodeBytes(workbook());
+
+      expect(prefixed.tables.keys, ['Sheet1']);
+      expect(values(prefixed), values(plain));
+      expect(values(prefixed)[1],
+          [TextCellValue('Coffee'), DoubleCellValue(-2.5)]);
+    });
+
+    test('encode as a regular workbook, edits included', () {
+      var excel = Excel.decodeBytes(workbook(prefix: 'x'));
+      excel['Sheet1']
+          .updateCell(CellIndex.indexByString('A3'), TextCellValue('Tea'));
+
+      var bytes = excel.encode()!;
+      var reread = Excel.decodeBytes(bytes);
+      expect(values(reread), values(excel));
+      expect(values(reread)[2].first, TextCellValue('Tea'));
+
+      var sheet = XmlDocument.parse(utf8.decode(ZipDecoder()
+          .decodeBytes(bytes)
+          .findFile('xl/worksheets/sheet1.xml')!
+          .content));
+      expect(
+        sheet
+            .findAllElements('c')
+            .map((cell) => cell.name.namespaceUri)
+            .toSet(),
+        {_spreadsheetMl},
+      );
+    });
+  });
 }
 
 const _spreadsheetMl =
