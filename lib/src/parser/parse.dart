@@ -30,15 +30,67 @@ class Parser {
       _damagedExcel();
     }
     file!.decompress();
-    _excel._xmlFiles["[Content_Types].xml"] =
-        XmlDocument.parse(utf8.decode(file.content));
+    _excel._xmlFiles["[Content_Types].xml"] = _parseXml(file.content);
+  }
+
+  /// The namespaces whose elements the parser looks up by their unprefixed
+  /// name: SpreadsheetML, and the package's content types and relationships.
+  static const _unprefixedNamespaces = {
+    'http://schemas.openxmlformats.org/spreadsheetml/2006/main',
+    'http://schemas.openxmlformats.org/package/2006/content-types',
+    'http://schemas.openxmlformats.org/package/2006/relationships',
+  };
+
+  /// Parses the XML part [content].
+  ///
+  /// Some writers (the Open XML SDK, for one) bind the namespace of a part to
+  /// a prefix and write every element with it:
+  /// `<x:worksheet xmlns:x="...">...<x:sheetData>`. Looked up by their
+  /// unprefixed name, none of those elements would be found, so such a part
+  /// is rebuilt with them unprefixed and the namespace declared as the
+  /// default one: the same document, which also encodes as a regular one.
+  /// Any other part is returned as parsed.
+  static XmlDocument _parseXml(List<int> content) {
+    final document = XmlDocument.parse(utf8.decode(content));
+    final root = document.rootElement;
+    final namespace = root.name.namespaceUri;
+    if (namespace == null ||
+        root.name.prefix == null ||
+        !_unprefixedNamespaces.contains(namespace) ||
+        (root.getAttribute('xmlns') ?? namespace) != namespace) {
+      return document;
+    }
+    final unprefixed = XmlDocument(
+        document.children.map((node) => _unprefixed(node, namespace)));
+    unprefixed.rootElement.setAttribute('xmlns', namespace);
+    return unprefixed;
+  }
+
+  /// A copy of [node] whose elements in [namespace] lose their prefix. Below
+  /// an element that declares another default namespace an unprefixed name
+  /// means something else, so that element is copied as it is.
+  static XmlNode _unprefixed(XmlNode node, String namespace) {
+    if (node is! XmlElement) return node.copy();
+    final defaultNamespace = node.getAttribute('xmlns');
+    if (defaultNamespace != null && defaultNamespace != namespace) {
+      return node.copy();
+    }
+    final name = node.name;
+    return XmlElement(
+      name.prefix != null && name.namespaceUri == namespace
+          ? XmlName(name.local)
+          : XmlName.fromString(name.qualified),
+      node.attributes.map((attribute) => attribute.copy()),
+      node.children.map((child) => _unprefixed(child, namespace)),
+      node.isSelfClosing,
+    );
   }
 
   void _parseRelations() {
     var relations = _excel._archive.findFile('xl/_rels/workbook.xml.rels');
     if (relations != null) {
       relations.decompress();
-      var document = XmlDocument.parse(utf8.decode(relations.content));
+      var document = _parseXml(relations.content);
       _excel._xmlFiles['xl/_rels/workbook.xml.rels'] = document;
 
       document.findAllElements('Relationship').forEach((node) {
@@ -129,7 +181,7 @@ class Parser {
       sharedStrings = _excel._archive.findFile("xl/sharedStrings.xml");
     }
     sharedStrings!.decompress();
-    var document = XmlDocument.parse(utf8.decode(sharedStrings.content));
+    var document = _parseXml(sharedStrings.content);
     _excel._xmlFiles["xl/${_excel._sharedStringsTarget}"] = document;
 
     document.findAllElements('si').forEach((node) {
@@ -148,7 +200,7 @@ class Parser {
       _damagedExcel();
     }
     workbook!.decompress();
-    var document = XmlDocument.parse(utf8.decode(workbook.content));
+    var document = _parseXml(workbook.content);
     _excel._xmlFiles["xl/workbook.xml"] = document;
 
     document.findAllElements('sheet').forEach((node) {
@@ -241,7 +293,7 @@ class Parser {
     var styles = _excel._archive.findFile('xl/$_stylesTarget');
     if (styles != null) {
       styles.decompress();
-      var document = XmlDocument.parse(utf8.decode(styles.content));
+      var document = _parseXml(styles.content);
       _excel._xmlFiles['xl/$_stylesTarget'] = document;
 
       _excel._fontStyleList = <_FontStyle>[];
@@ -536,7 +588,7 @@ class Parser {
     var file = _excel._archive.findFile('xl/$target');
     file!.decompress();
 
-    var content = XmlDocument.parse(utf8.decode(file.content));
+    var content = _parseXml(file.content);
     var worksheet = content.findElements('worksheet').first;
 
     ///
@@ -601,30 +653,41 @@ class Parser {
 
     CellValue? value;
     String? type = node.getAttribute('t');
+    // `<v>` is optional: a cell that keeps its type without a value is empty.
+    final vNode = node.findElements('v').firstOrNull;
 
     switch (type) {
       // sharedString
       case 's':
-        final sharedString = _excel._sharedStrings
-            .value(int.parse(_parseValue(node.findElements('v').first)));
-        value = TextCellValue.span(sharedString!.textSpan);
+        if (vNode != null) {
+          final sharedString =
+              _excel._sharedStrings.value(int.parse(_parseValue(vNode)));
+          value = TextCellValue.span(sharedString!.textSpan);
+        }
         break;
       // boolean
       case 'b':
-        value = BoolCellValue(_parseValue(node.findElements('v').first) == '1');
+        if (vNode != null) {
+          value = BoolCellValue(_parseValue(vNode) == '1');
+        }
         break;
       // error
       case 'e':
       // formula
       case 'str':
-        value = FormulaCellValue(_parseValue(node.findElements('v').first));
+        if (vNode != null) {
+          value = FormulaCellValue(_parseValue(vNode));
+        }
         break;
       // inline string
       case 'inlineStr':
         // <c r='B2' t='inlineStr'>
         // <is><t>Dartonico</t></is>
         // </c>
-        value = TextCellValue(_parseValue(node.findAllElements('t').first));
+        final tNode = node.findAllElements('t').firstOrNull;
+        if (tNode != null) {
+          value = TextCellValue(_parseValue(tNode));
+        }
         break;
       // number
       case 'n':
@@ -633,7 +696,6 @@ class Parser {
         if (formulaNode.isNotEmpty) {
           value = FormulaCellValue(_parseValue(formulaNode.first).toString());
         } else {
-          final vNode = node.findElements('v').firstOrNull;
           if (vNode == null) {
             value = null;
           } else if (s1 != null) {
