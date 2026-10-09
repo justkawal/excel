@@ -601,30 +601,41 @@ class Parser {
 
     CellValue? value;
     String? type = node.getAttribute('t');
+    // `<v>` is optional: a cell that keeps its type without a value is empty.
+    final vNode = node.findElements('v').firstOrNull;
 
     switch (type) {
       // sharedString
       case 's':
-        final sharedString = _excel._sharedStrings
-            .value(int.parse(_parseValue(node.findElements('v').first)));
-        value = TextCellValue.span(sharedString!.textSpan);
+        if (vNode != null) {
+          final sharedString =
+              _excel._sharedStrings.value(int.parse(_parseValue(vNode)));
+          value = TextCellValue.span(sharedString!.textSpan);
+        }
         break;
       // boolean
       case 'b':
-        value = BoolCellValue(_parseValue(node.findElements('v').first) == '1');
+        if (vNode != null) {
+          value = BoolCellValue(_parseValue(vNode) == '1');
+        }
         break;
       // error
       case 'e':
       // formula
       case 'str':
-        value = FormulaCellValue(_parseValue(node.findElements('v').first));
+        if (vNode != null) {
+          value = FormulaCellValue(_parseValue(vNode));
+        }
         break;
       // inline string
       case 'inlineStr':
         // <c r='B2' t='inlineStr'>
         // <is><t>Dartonico</t></is>
         // </c>
-        value = TextCellValue(_parseValue(node.findAllElements('t').first));
+        final tNode = node.findAllElements('t').firstOrNull;
+        if (tNode != null) {
+          value = TextCellValue(_parseValue(tNode));
+        }
         break;
       // number
       case 'n':
@@ -633,7 +644,6 @@ class Parser {
         if (formulaNode.isNotEmpty) {
           value = FormulaCellValue(_parseValue(formulaNode.first).toString());
         } else {
-          final vNode = node.findElements('v').firstOrNull;
           if (vNode == null) {
             value = null;
           } else if (s1 != null) {
